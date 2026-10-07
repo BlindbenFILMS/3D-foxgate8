@@ -1,0 +1,9 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+# media stays byte-for-byte
+*.mp3 binary
+*.mp4 binary
+*.webp binary
+*.png binary
+*.jpg binary
+*.glb binary
