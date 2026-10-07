@@ -17,7 +17,7 @@ export function createCombat({ THREE, scene, audio, move }) {
   const add = (n, o = {}) => { const f = { n, hp: o.hp ?? 60, max: o.hp ?? 60, dmg: o.dmg ?? 12, speed: o.speed ?? 3, ranged: !!o.ranged, cd: o.cd ?? 1.3, wind: o.wind ?? (o.ranged ? 0.6 : 0.42), hostile: false, down: false, state: 'idle', t: 0, home: [n.x, n.z, n.face], aggro: o.aggro || 0, fly: o.fly || 0, critter: !!o.critter, reach: o.reach }; n.ctl = f; foes.push(f); return f; };
   const alive = () => foes.filter(f => !f.down);
   function hurtFoe(f, dmg, from) {
-    if (f.down) return; f.hp -= dmg; f.n.c.userData.hop = 1; f.n.c.userData.lineMood = 'angry'; f.flash = 0.18; if (!f.hostile) engage();
+    if (f.down) return; f.hp -= dmg; f.n.c.userData.hop = 1; f.n.c.userData.lineMood = 'angry'; f.flash = 0.18; if (!f.hostile) { if (f.solo) { f.hostile = true; f.state = 'chase'; f.t = 0; } else engage(); }   // solo = wild creatures: only the one you hit wakes
     const dx = f.n.x - from.x, dz = f.n.z - from.z, d = Math.hypot(dx, dz) || 1; move(f.n, f.n.x + dx / d * 0.55, f.n.z + dz / d * 0.55, 0.4);
     audio && audio.burst && audio.burst(0.08, 900, 0.16);
     if (f.hp <= 0) { f.down = true; f.state = 'down'; f.t = 0; audio && audio.tone && audio.tone(180, 0.35, 0.05, 'sawtooth', 0.6); }

@@ -183,6 +183,7 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
   function glowTexFor() { if (_glowT) return _glowT; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); _glowT = new THREE.CanvasTexture(c); _glowT.colorSpace = THREE.SRGBColorSpace; return _glowT; }
   function makeFox({ key, torso, crest, bow, glasses, legColor, cane, chair, crown, eyes = ['#38bdf8', '#38bdf8'], mood = 'neutral', look, gear = 'none', outfit = 'armor' }) {
     const L = { ...LOOK, ...(look || {}) };
+    if (typeof torso === 'string') { const c = new THREE.Color(torso); torso = [torso, '#' + c.clone().multiplyScalar(0.72).getHexString(), '#' + c.clone().multiplyScalar(0.42).getHexString()]; }   // one colour → light / mid / dark
     const g = new THREE.Group(), body = new THREE.Group(); g.add(body); const P = { body };
     const fur = toon(L.fur), furDark = toon(L.furDark), white = toon(L.fluff), ink = toon(L.ear), leg = toon(L.leg), boot = toon(L.boot);
     const legX = chair ? 0 : 0.5 * (L.legLength - 1), lift = (chair ? 0.28 : 0) + legX;

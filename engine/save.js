@@ -32,4 +32,8 @@ export const save = {
   on(fn) { subs.add(fn); return () => subs.delete(fn); },
   reset() { data = fresh(); changed(); },
 };
-if (typeof window !== 'undefined') window.__8G_SAVE = save; // console access, like the 2D build
+if (typeof window !== 'undefined') window.__8G_SAVE = save;
+// Keep every open page in sync: a minigame in a panel (iframe) or another tab writes the save, the world picks it up
+// instead of overwriting it later with its own older copy (gold earned at the Ball Works, Sizzle's, etc.).
+if (typeof window !== 'undefined') addEventListener('storage', e => { if (e.key !== KEY || !e.newValue) return; try { data = Object.assign(fresh(), JSON.parse(e.newValue)); subs.forEach(f => { try { f(data); } catch (er) {} }); } catch (er) {} });
+save.reload = () => { try { const raw = localStorage.getItem(KEY); if (raw) { data = Object.assign(fresh(), JSON.parse(raw)); subs.forEach(f => { try { f(data); } catch (er) {} }); } } catch (e) {} return data; }; // console access, like the 2D build
