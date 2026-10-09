@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Meru Poker</title>
+<script src="./support.js"></script>
+<link rel="stylesheet" href="blob/6358c9ecf3b76cad7663c0b3c92b5a91.css">
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&amp;display=swap">
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#000}:root{--font-heading:"Archivo",system-ui,sans-serif;--font-body:"Archivo",system-ui,sans-serif}a{color:#ffd23a}a:hover{color:#ec3013}button{-webkit-tap-highlight-color:transparent}button:focus-visible,input:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}</style>
+</helmet>
+<div style="position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;background:#120a08;color:#fff;font-family:var(--font-body);user-select:none;-webkit-user-select:none;touch-action:manipulation" data-screen-label="Meru Poker">
+  <div ref="{{ stageRef }}" style="position:absolute;inset:0"></div>
+
+  <sc-if value="{{ loadOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:20;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;padding:24px;box-sizing:border-box;gap:8px;background:#120a08">
+      <span style="font:800 11px var(--font-heading);letter-spacing:0.14em;color:#ffd23a">MERU CASINO · POKER TABLE</span>
+      <span style="font:900 26px var(--font-heading);line-height:1.1">{{ loadTxt }}</span>
+      <span style="font:600 13px var(--font-body);color:#cfcac2;max-width:520px;white-space:pre-wrap;word-break:break-word">{{ loadErr }}</span>
+    </div>
+  </sc-if>
+
+  <div style="position:absolute;left:0;right:0;top:0;z-index:5;display:flex;align-items:stretch;background:#000;border-bottom:2px solid #ffd23a;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right);height:{{ topH }};box-sizing:content-box">
+    <sc-if value="{{ embed }}" hint-placeholder-val="{{ false }}">
+      <button onClick="{{ goBack }}" aria-label="Back to the casino" style="flex:none;width:52px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M20 12H5M11 5l-7 7 7 7" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="square"></path></svg></button>
+    </sc-if>
+    <div style="flex:1;min-width:0;padding:4px 12px;display:flex;flex-direction:column;justify-content:center">
+      <span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#ffd23a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ kicker }}</span>
+      <span style="font:900 16px var(--font-heading);line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ streetTxt }}</span>
+    </div>
+    <div style="flex:none;padding:4px 12px;display:flex;flex-direction:column;justify-content:center;border-left:2px solid #3a3836">
+      <span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">POT</span>
+      <span style="font:900 18px var(--font-heading);font-variant-numeric:tabular-nums;color:#e6b45a">{{ potTxt }}</span>
+    </div>
+    <div style="flex:none;padding:4px 12px;display:flex;flex-direction:column;justify-content:center;border-left:2px solid #3a3836">
+      <span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">{{ goldLbl }}</span>
+      <span style="font:900 18px var(--font-heading);font-variant-numeric:tabular-nums">{{ goldTxt }}</span>
+    </div>
+    <button onClick="{{ peekToggle }}" aria-label="{{ peekAria }}" aria-pressed="{{ peekOn }}" style="flex:none;width:48px;border:0;border-left:2px solid #3a3836;border-radius:0;background:{{ peekBg }};color:#fff;cursor:pointer;display:{{ peekDisp }};align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z" fill="none" stroke="{{ peekFg }}" stroke-width="2.2"></path><circle cx="12" cy="12" r="3" fill="none" stroke="{{ peekFg }}" stroke-width="2.2"></circle></svg></button>
+    <button onClick="{{ muteToggle }}" aria-label="{{ muteAria }}" style="flex:none;width:48px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;cursor:pointer;display:flex;align-items:center;justify-content:center"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="none" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"></path><sc-if value="{{ muteOff }}" hint-placeholder-val="{{ false }}"><path d="M16 9l6 6M22 9l-6 6" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="square"></path></sc-if><sc-if value="{{ muteOnIcon }}" hint-placeholder-val="{{ true }}"><path d="M16 8.5c1.5 1.8 1.5 5.2 0 7M19 6c3 3.3 3 8.7 0 12" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="square"></path></sc-if></svg></button>
+    <button onClick="{{ helpToggle }}" aria-label="How to play five-card stud" style="flex:none;width:48px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;color:#ffd23a;font:900 20px var(--font-heading);cursor:pointer">?</button>
+  </div>
+
+  <sc-for list="{{ labels }}" as="s" hint-placeholder-count="3">
+    <div role="group" aria-label="{{ s.aria }}" style="position:absolute;left:{{ s.x }};top:{{ s.y }};transform:translate(-50%,-100%);z-index:3;pointer-events:none;display:{{ s.disp }};flex-direction:column;align-items:stretch;min-width:84px;max-width:132px;background:rgba(0,0,0,0.86);border:2px solid {{ s.bd }};opacity:{{ s.op }}">
+      <div style="display:flex;justify-content:space-between;gap:6px;padding:2px 6px;background:{{ s.headBg }};color:{{ s.headFg }}"><span style="font:900 11px var(--font-heading);letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.name }}</span><span style="font:800 11px var(--font-heading);font-variant-numeric:tabular-nums">{{ s.chips }}</span></div>
+      <div style="display:flex;gap:2px;padding:3px 4px 2px">
+        <sc-for list="{{ s.cards }}" as="c" hint-placeholder-count="2"><span style="width:19px;height:26px;box-sizing:border-box;background:{{ c.bg }};border:1px solid {{ c.bd }};display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;color:{{ c.col }}"><span style="font:900 10px var(--font-heading)">{{ c.t }}</span><span style="font:700 10px system-ui,sans-serif">{{ c.s }}</span></span></sc-for>
+      </div>
+      <div style="padding:1px 6px 3px;font:800 9px var(--font-heading);letter-spacing:0.05em;color:{{ s.stCol }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.status }}</div>
+      <sc-if value="{{ s.showOn }}" hint-placeholder-val="{{ false }}"><div style="padding:1px 6px 3px;font:800 9px var(--font-heading);letter-spacing:0.04em;color:#7dd3fc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ s.showTxt }}</div></sc-if>
+    </div>
+  </sc-for>
+
+  <sc-if value="{{ resOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:{{ resLeft }};top:{{ resTop }};transform:translateX(-50%);z-index:6;pointer-events:none;width:min(360px, calc(100% - 24px));background:#000;border:3px solid {{ resCol }};display:flex;flex-direction:column">
+      <span style="padding:6px 12px 0;font:800 11px var(--font-heading);letter-spacing:0.12em;color:{{ resCol }}">{{ resKick }}</span>
+      <span style="padding:2px 12px 8px;font:900 clamp(16px,4.6vw,22px) var(--font-heading);line-height:1.1">{{ resLine }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ playOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;z-index:5;left:{{ pL }};right:0;top:{{ pT }};bottom:0;width:{{ pW }};border-left:{{ pBL }};border-top:{{ pBT }};overflow:{{ pOv }};background:#000;display:flex;flex-direction:column;box-sizing:border-box;padding-bottom:env(safe-area-inset-bottom);padding-right:{{ panelPadR }}">
+      <sc-if value="{{ demoOn }}" hint-placeholder-val="{{ false }}">
+        <div role="status" aria-live="polite" style="display:flex;align-items:stretch;border-bottom:2px solid #ec3013;background:#000">
+          <span style="flex:none;padding:0 10px;display:flex;align-items:center;background:#ec3013;color:#fff;font:900 11px var(--font-heading);letter-spacing:0.14em">DEMO</span>
+          <span style="flex:1;min-width:0;padding:6px 10px;display:flex;align-items:center;font:700 12px var(--font-body);line-height:1.3;color:#fff;text-wrap:pretty">{{ demoCap }}</span>
+          <button onClick="{{ demoStop }}" aria-label="Stop the demo and play this hand yourself" style="flex:none;min-width:72px;min-height:48px;padding:0 12px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#ffd23a;color:#000;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer">PLAY</button>
+        </div>
+      </sc-if>
+      <div aria-live="polite" style="padding:6px 12px;border-bottom:2px solid #2a2826;display:flex;align-items:center;gap:8px;min-height:30px;box-sizing:border-box"><span style="flex:none;width:8px;height:8px;background:{{ msgDot }};display:block"></span><span style="font:800 12px var(--font-heading);letter-spacing:0.04em;line-height:1.25;color:#fff;text-wrap:pretty">{{ msgTxt }}</span></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:2px solid #2a2826;flex-wrap:{{ handWrap }}">
+        <div role="group" aria-label="{{ myAria }}" style="display:flex;gap:4px;flex:none">
+          <sc-for list="{{ myCards }}" as="c" hint-placeholder-count="2"><span style="width:{{ cW }};height:{{ cH }};box-sizing:border-box;background:{{ c.bg }};border:2px solid {{ c.bd }};display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1;color:{{ c.col }};position:relative"><span style="font:900 {{ cFs }} var(--font-heading)">{{ c.t }}</span><span style="font:700 {{ cFs }} system-ui,sans-serif">{{ c.s }}</span><sc-if value="{{ c.hole }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:0;right:0;bottom:0;background:#1c1917;color:#ffd23a;font:900 7px var(--font-heading);letter-spacing:0.08em;text-align:center;padding:1px 0">HOLE</span></sc-if></span></sc-for>
+        </div>
+        <div style="display:flex;flex-direction:column;min-width:0;flex:1;gap:2px">
+          <span style="font:900 14px var(--font-heading);line-height:1.15;color:#ffd23a;text-wrap:pretty">{{ myHand }}</span>
+          <span style="font:800 11px var(--font-heading);letter-spacing:0.06em;color:#cfcac4;font-variant-numeric:tabular-nums">{{ myChips }}</span>
+        </div>
+      </div>
+      <sc-if value="{{ waitOn }}" hint-placeholder-val="{{ false }}">
+        <div style="min-height:56px;display:flex;align-items:center;gap:10px;padding:0 14px;font:900 14px var(--font-heading);letter-spacing:0.06em;color:#cfcac4"><span style="width:10px;height:10px;background:#ffd23a;display:block;animation:none"></span>{{ waitTxt }}</div>
+      </sc-if>
+      <div style="display:grid;grid-template-columns:repeat({{ actCols }},minmax(0,1fr));gap:0">
+        <sc-for list="{{ acts }}" as="a" hint-placeholder-count="3">
+          <button onClick="{{ a.go }}" aria-label="{{ a.aria }}" style="min-height:{{ actH }};padding:4px 12px;border:0;border-top:2px solid #2a2826;border-right:2px solid #2a2826;border-radius:0;background:{{ a.bg }};color:{{ a.fg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px;min-width:0" style-hover="filter:brightness(1.15)" style-active="filter:brightness(0.9)">
+            <span style="font:900 15px var(--font-heading);letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.label }}</span>
+            <span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.sub }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ timerOn }}" hint-placeholder-val="{{ false }}"><div style="height:4px;background:#2a2826"><div style="height:100%;width:{{ timerW }};background:{{ timerCol }}"></div></div></sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ menuOn }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:0;right:0;top:{{ menuTop }};bottom:0;z-index:8;overflow:auto;display:flex;align-items:flex-end;justify-content:flex-start;padding:12px max(12px, env(safe-area-inset-left)) calc(12px + env(safe-area-inset-bottom));box-sizing:border-box;pointer-events:none">
+      <div style="pointer-events:auto;width:min(440px,100%);background:#000;border:2px solid #ffd23a;display:flex;flex-direction:column">
+        <div style="padding:12px 16px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:3px">
+          <span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">MERU CASINO · POKER TABLE</span>
+          <span style="font:900 26px var(--font-heading);line-height:1.05">Five-Card Stud</span>
+          <span style="font:600 13px var(--font-body);line-height:1.35;color:#cfcac2;text-wrap:pretty">Lyra deals. One card down, four face up. Fox face cards, shuttle aces. Best hand showing bets first. Win with two pair or better to spin the Treasure Wheel.</span>
+          <span style="font:600 12px var(--font-body);color:#e6b45a">{{ menuMsg }}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:84px minmax(0,1fr);align-items:center;border-bottom:2px solid #2a2826">
+          <span style="padding:0 16px;font:800 11px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">RIVALS</span>
+          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr))">
+            <sc-for list="{{ rivalBtns }}" as="b" hint-placeholder-count="4"><button onClick="{{ b.go }}" aria-pressed="{{ b.on }}" aria-label="{{ b.aria }}" style="min-height:48px;border:0;border-left:2px solid #2a2826;border-radius:0;background:{{ b.bg }};color:{{ b.fg }};font:900 17px var(--font-heading);cursor:pointer">{{ b.t }}</button></sc-for>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-bottom:2px solid #2a2826">
+          <sc-for list="{{ tableBtns }}" as="b" hint-placeholder-count="2"><button onClick="{{ b.go }}" aria-pressed="{{ b.on }}" style="min-height:56px;padding:4px 14px;border:0;border-right:2px solid #2a2826;border-radius:0;background:{{ b.bg }};color:{{ b.fg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px"><span style="font:900 14px var(--font-heading);letter-spacing:0.04em">{{ b.t }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.85">{{ b.sub }}</span></button></sc-for>
+        </div>
+        <button onClick="{{ play }}" style="min-height:58px;padding:0 18px;border:0;border-radius:0;background:#ec3013;color:#fff;font:900 17px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">SIT DOWN</button>
+        <button onClick="{{ demoGo }}" aria-label="Watch a demo hand played for you" style="min-height:50px;padding:0 18px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#000;color:#ffd23a;font:900 14px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left">WATCH A DEMO</button>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button onClick="{{ netOpen }}" style="min-height:50px;padding:4px 14px;border:0;border-top:2px solid #3a3836;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#7dd3fc;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px"><span style="font:900 13px var(--font-heading);letter-spacing:0.06em">PLAY ONLINE</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#cfcac4">UP TO 5 FRIENDS</span></button>
+          <button onClick="{{ helpToggle }}" style="min-height:50px;padding:4px 14px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px"><span style="font:900 13px var(--font-heading);letter-spacing:0.06em">HOW TO PLAY</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#cfcac4">RULES + HAND RANKS</span></button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button onClick="{{ fourToggle }}" aria-pressed="{{ fourOn }}" style="min-height:48px;padding:4px 14px;border:0;border-top:2px solid #3a3836;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px"><span style="font:900 12px var(--font-heading);letter-spacing:0.06em">{{ fourTxt }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#cfcac4">EASIER TO TELL SUITS APART</span></button>
+          <button onClick="{{ spinMenu }}" disabled="{{ spinOff }}" style="min-height:48px;padding:4px 14px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#000;color:{{ spinCol }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px"><span style="font:900 12px var(--font-heading);letter-spacing:0.06em">TREASURE WHEEL</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#cfcac4">{{ spinTxt }}</span></button>
+        </div>
+        <div style="padding:8px 16px;border-top:2px solid #3a3836;font:800 10px var(--font-heading);letter-spacing:0.08em;color:#cfcac4;font-variant-numeric:tabular-nums">{{ recordTxt }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ netOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:12;background:rgba(0,0,0,0.8);overflow:auto;display:flex;align-items:center;justify-content:flex-start;padding:12px;box-sizing:border-box">
+      <div style="width:min(440px,100%);margin:auto 0;background:#000;border:2px solid #7dd3fc;display:flex;flex-direction:column">
+        <div style="padding:10px 14px;border-bottom:2px solid #3a3836;display:flex;justify-content:space-between;align-items:center;gap:8px">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#7dd3fc">ONLINE TABLE · UP TO 5</span><span style="font:900 20px var(--font-heading)">{{ netTitle }}</span></div>
+          <button onClick="{{ netClose }}" aria-label="Close online play" style="flex:none;width:48px;height:48px;border:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 18px var(--font-heading);cursor:pointer">✕</button>
+        </div>
+        <sc-if value="{{ netMenu }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column">
+            <button onClick="{{ netCreate }}" style="min-height:56px;padding:0 16px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:#ec3013;color:#fff;font:900 15px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left">MAKE A TABLE</button>
+            <label for="pkcode" style="padding:10px 16px 4px;font:800 11px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">OR JOIN WITH A 4-LETTER CODE</label>
+            <div style="display:flex;gap:0;padding:0 16px 12px">
+              <input id="pkcode" value="{{ codeIn }}" onChange="{{ codeType }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" style="flex:1;min-width:0;height:52px;padding:0 12px;border:2px solid #3a3836;border-radius:0;background:#111;color:#fff;font:900 24px var(--font-heading);letter-spacing:0.3em;text-transform:uppercase">
+              <button onClick="{{ netJoinBtn }}" style="flex:none;min-width:88px;height:52px;border:2px solid #7dd3fc;border-left:0;border-radius:0;background:#000;color:#7dd3fc;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer">JOIN</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ netRoom }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column">
+            <div style="padding:10px 16px;border-bottom:2px solid #2a2826;display:flex;align-items:baseline;gap:12px;flex-wrap:wrap"><span style="font:800 11px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">ROOM CODE</span><span style="font:900 32px var(--font-heading);letter-spacing:0.25em;color:#ffd23a">{{ netCode }}</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;color:#cfcac4">{{ netStatus }}</span></div>
+            <sc-for list="{{ netList }}" as="m" hint-placeholder-count="2"><div style="display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 16px;border-bottom:2px solid #2a2826"><span style="width:12px;height:12px;background:{{ m.col }};display:block"></span><span style="font:900 14px var(--font-heading);letter-spacing:0.04em">{{ m.name }}</span><span style="font:800 11px var(--font-heading);letter-spacing:0.08em;color:{{ m.rc }}">{{ m.rd }}</span></div></sc-for>
+            <button onClick="{{ netFill }}" aria-pressed="{{ fillOn }}" style="min-height:48px;padding:0 16px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;font:900 12px var(--font-heading);letter-spacing:0.06em">{{ fillTxt }}</button>
+            <button onClick="{{ netReady }}" style="min-height:58px;padding:0 16px;border:0;border-radius:0;background:{{ readyBg }};color:{{ readyFg }};font:900 16px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left">{{ readyTxt }}</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ netMsgOn }}" hint-placeholder-val="{{ false }}"><div style="padding:10px 16px;border-top:2px solid #2a2826;font:700 13px var(--font-body);color:#fca5a5;text-wrap:pretty">{{ netMsg }}</div></sc-if>
+        <div style="padding:8px 16px 12px;font:600 12px var(--font-body);color:#cfcac2;text-wrap:pretty">Everyone taps READY. The first player in deals and runs the table. Empty seats can be filled with Meru foxes. Online chips are for fun, not gold.</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ helpOn }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ helpToggle }}" style="position:absolute;inset:0;z-index:14;background:rgba(0,0,0,0.85);overflow:auto;display:flex;align-items:flex-start;justify-content:flex-start;padding:12px;box-sizing:border-box">
+      <div style="background:#000;border:2px solid #ffd23a;width:min(480px,100%);margin:auto 0;display:flex;flex-direction:column">
+        <div style="padding:10px 14px;border-bottom:2px solid #3a3836;font:900 16px var(--font-heading);letter-spacing:0.06em;color:#ffd23a">FIVE-CARD STUD · HOW IT WORKS</div>
+        <sc-for list="{{ helpRows }}" as="r" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;padding:7px 14px;border-bottom:2px solid #2a2826;font:600 13px var(--font-body);line-height:1.35"><span style="font:900 11px var(--font-heading);letter-spacing:0.08em;color:#e6b45a">{{ r.k }}</span><span style="text-wrap:pretty">{{ r.v }}</span></div></sc-for>
+        <div style="padding:8px 14px 4px;font:900 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">HANDS, BEST FIRST</div>
+        <sc-for list="{{ rankRows }}" as="r" hint-placeholder-count="9"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:4px 14px;font:700 12px var(--font-body);border-top:1px solid #2a2826"><span style="font:900 12px var(--font-heading)">{{ r.k }}</span><span style="color:#cfcac2">{{ r.v }}</span></div></sc-for>
+        <div style="padding:10px 14px;font:700 12px var(--font-body);color:#cfcac2">Tap anywhere to close</div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  // Where the files live. Repo: project-relative paths. Design canvas copy: full uploaded-file URLs (see HANDOFF).
+  URLS = { three: 'blob/a81ee34d9827ada210c0a33530d8e3b7.js', save: 'blob/c910a1cf13ed9ed38b0a7f96890237eb.js', game: 'blob/2f333753705733a1080de908e2261dbe.js', net: 'engine/duel-net.js' };
+  AUTO_DEMO = true; // canvas copy: true, so the preview plays itself
+  state = { demo: false, cap: '', vw: 390, vh: 844, h: null, load: 'LOADING THE TABLE…', err: '', rivals: 3, practice: false, help: false, net: null, fill: true };
+  stageRef = React.createRef(); lastSeen = {};
+  async loadMod(u) {
+    // A canvas artboard can run in a frame with no normal address (about:srcdoc), where new URL(u, location.href) throws.
+    // So try every base that might work, then the link exactly as written.
+    const bases = [document.baseURI, location.href, (location.ancestorOrigins || [])[0], self.origin], urls = [];
+    for (const b of bases) { try { const x = new URL(u, b).href; if (/^(https?|blob):/.test(x) && !urls.includes(x)) urls.push(x); } catch (e) {} }
+    if (!urls.includes(u)) urls.push(u);
+    let err = null;
+    for (const url of urls) { try { return await import(url); } catch (e) { err = err || e; } }
+    for (const url of urls) { try { const r = await fetch(url); if (!r.ok) continue; const b = new Blob([await r.text()], { type: 'text/javascript' }), bu = URL.createObjectURL(b); return await import(bu); } catch (e) {} }
+    throw new Error('Could not load ' + u + '\n' + (err && err.message || err));
+  }
+  async componentDidMount() {
+    addEventListener('resize', this.onRs); addEventListener('keydown', this.onKey); this.onRs();
+    try {
+      const [THREE, sv, gm] = await Promise.all([this.loadMod(this.URLS.three), this.loadMod(this.URLS.save).catch(() => null), this.loadMod(this.URLS.game)]);
+      this.M = gm; this.save = sv && sv.save;
+      this.g = await gm.createMeruPoker({ THREE, container: this.stageRef.current, save: this.save, onState: h => this.setState({ h }) });
+      window.__poker = this.g; this.setState({ load: '' }); this.pushInsets(); if (this.AUTO_DEMO) setTimeout(this.demoStart, 700);
+    } catch (e) { console.warn('meru poker failed', e); this.setState({ load: 'THE TABLE DID NOT LOAD', err: String(e && e.message || e) }); }
+  }
+  componentWillUnmount() { clearInterval(this.dT); this.netLeave(); this.g && this.g.destroy(); removeEventListener('resize', this.onRs); removeEventListener('keydown', this.onKey); }
+  componentDidUpdate() { this.pushInsets(); }
+  onRs = () => this.setState({ vw: innerWidth, vh: innerHeight });
+  land() { return this.state.vw > this.state.vh * 1.05; }
+  pushInsets() { if (!this.g) return; const L = this.land(), menu = !this.state.h || this.state.h.mode === 'menu'; this.g.setInsets(menu ? { top: 60, bottom: L ? 20 : 330, left: L ? Math.min(460, this.state.vw * 0.5) : 0, right: 0 } : L ? { top: 56, bottom: 12, left: 0, right: Math.min(250, this.state.vw * 0.34) + 6 } : { top: 70, bottom: 218, left: 0, right: 0 }); }
+  // ---------- DEMO: the table plays your seat for you, with a caption for each step. PLAY hands the seat back.
+  cap(t) { if (t && t !== this.state.cap) this.setState({ cap: t }); }
+  demoStart = () => { const g = this.g; if (!g) return; this.netLeave(); this.dn = { hands: 0, wait: 0 };
+    this.setState({ demo: true, help: false, net: null, cap: 'LYRA DEALS FIVE-CARD STUD. WATCH, THEN TAP PLAY TO TAKE THE SEAT.' });
+    const h = this.state.h; if (!h || h.mode === 'menu') g.startSolo({ rivals: 3, practice: true });
+    clearInterval(this.dT); this.dT = setInterval(this.demoTick, 700); };
+  demoStop = () => { clearInterval(this.dT); this.setState({ demo: false }); };
+  demoTick = () => {
+    const g = this.g, h = this.state.h, d = this.dn; if (!g || !h || !this.state.demo || !d) return;
+    if (h.wheel) { this.cap('TREASURE WHEEL: WIN A SHOWDOWN WITH TWO PAIR OR BETTER AT THE GOLD TABLE FOR A SPIN. (DEMO SPIN, NOTHING PAID.)'); return; }
+    if (h.mode === 'menu') { g.startSolo({ rivals: 3, practice: true }); return; }
+    const has = k => h.acts.find(a => a.k === k), me = h.me || {}, hand = me.handName || '';
+    if (!h.acts.length) { d.wait = 0;
+      if (h.phase === 'deal' || h.phase === 'settle') this.cap(h.hand <= 1 && h.street !== 'SHOWDOWN' ? 'LYRA DEALS: ONE HOLE CARD FACE DOWN (ONLY YOU SEE IT), THEN CARDS FACE UP. J = NOBLE · Q = HOPE · K = KING MIGHT · A = THE SHUTTLE.' : 'LYRA DEALS THE NEXT CARD FACE UP.');
+      else if (h.waitTxt) this.cap(h.waitTxt + '. THE BEST HAND SHOWING BETS FIRST.');
+      return; }
+    if (has('next') || has('rebuy')) {
+      const r = h.result; if (d.wait === 0 && r) this.cap((r.kicker || '') + (r.line ? ' · ' + r.line : ''));
+      if (++d.wait < 4) return; d.wait = 0; d.hands++;
+      if (d.hands % 4 === 1 && g.demoSpin && g.demoSpin()) return;
+      if (has('rebuy')) g.rebuy(); else g.nextHand(); this.cap('NEW HAND: EVERYONE ANTES 1 CHIP.'); return; }
+    if (d.wait === 0) this.cap('YOUR TURN · YOU HAVE ' + (hand || 'YOUR FIRST CARDS') + '. FOLD, CHECK, CALL, BET OR RAISE.');
+    if (++d.wait < 3) return; d.wait = 0;
+    const strong = !!hand && hand !== 'FOLDED' && !/^[A-Z]+ HIGH$/.test(hand), r = Math.random();
+    let k, why;
+    if (strong && (has('bet') || has('raise')) && r < 0.6) { k = has('bet') ? 'bet' : 'raise'; why = hand + ' IS GOOD: THE DEMO ' + (k === 'bet' ? 'BETS' : 'RAISES') + ' TO GROW THE POT.'; }
+    else if (has('check')) { k = 'check'; why = 'NOTHING TO MATCH, SO THE DEMO CHECKS FOR FREE.'; }
+    else if (has('call') && (strong || r < 0.85)) { k = 'call'; why = 'THE DEMO CALLS: IT MATCHES THE BET TO SEE THE NEXT CARD.'; }
+    else if (has('fold')) { k = 'fold'; why = 'ONLY ' + hand + ': THE DEMO FOLDS AND WAITS FOR A BETTER HAND.'; }
+    else k = h.acts[0].k;
+    if (why) this.cap(why); this.doAct(k); };
+  onKey = e => { const h = this.state.h; if (!this.g || !h || this.state.net || e.target && e.target.tagName === 'INPUT') return; const k = e.code;
+    const has = x => h.acts.find(a => a.k === x);
+    if (k === 'KeyF' && has('fold')) this.doAct('fold'); else if (k === 'KeyC' && (has('check') || has('call'))) this.doAct(has('check') ? 'check' : 'call'); else if ((k === 'KeyB' || k === 'KeyR') && (has('bet') || has('raise'))) this.doAct(has('bet') ? 'bet' : 'raise');
+    else if ((k === 'Space' || k === 'Enter') && has('next')) { e.preventDefault(); this.doAct('next'); } else if (k === 'KeyS' && has('spin')) this.doAct('spin'); else if (k === 'KeyP') this.g.peek(); else if (k === 'Escape' && this.state.help) this.setState({ help: false }); };
+  doAct = k => { const g = this.g; if (!g) return; if (k === 'next') g.nextHand(); else if (k === 'cash') g.cashOut(); else if (k === 'rebuy') g.rebuy(); else if (k === 'spin') g.spin(); else g.act(k); };
+  goBack = () => { if (this.g && this.state.h && this.state.h.mode === 'solo') this.g.cashOut(); if (this.state.net) this.netLeave(); try { parent.postMessage({ type: '8gates-minigame', game: 'meruPoker', action: 'back' }, '*'); } catch (e) {} };
+  // ---------- ONLINE (engine/duel-net.js, game 'meruPoker'; up to 5; host = lowest id; host deals)
+  netSet = p => this.setState(s => ({ net: s.net ? { ...s.net, ...p } : s.net }));
+  peerSet = (id, p) => this.setState(s => s.net ? { net: { ...s.net, peers: { ...s.net.peers, [id]: { ...(s.net.peers[id] || {}), ...p } } } } : null);
+  netOpen = () => this.setState({ net: { st: 'menu', code: '', codeIn: '', peers: {}, ready: false, j: 0, status: '', msg: '' } });
+  netClose = () => { this.netLeave(); this.setState({ net: null }); };
+  members() { const n = this.state.net; if (!n || !this.net) return []; const all = [{ id: this.net.id, j: n.j, ready: n.ready, me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
+  hostOf(ids) { return ids.slice().sort()[0]; }
+  netCreate = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; let c = ''; for (let i = 0; i < 4; i++) c += A[(Math.random() * A.length) | 0]; this.netJoin(c); };
+  codeType = e => this.netSet({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) });
+  netJoinBtn = () => this.netJoin(this.state.net && this.state.net.codeIn);
+  async netJoin(code) {
+    code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); if (code.length < 4) { this.netSet({ msg: 'Type the 4-letter room code from your friend.' }); return; }
+    this.netLeave(); if (!this.state.net) this.netOpen(); this.lastSeen = {};
+    this.netSet({ st: 'room', code, status: 'CONNECTING', peers: {}, ready: false, j: Date.now(), msg: '' });
+    let mod; try { mod = await this.loadMod(this.URLS.net); } catch (e) { this.netSet({ st: 'menu', status: '', msg: 'Online play could not load here. It works in the full game (engine/duel-net.js).' }); return; }
+    const tok = this.netTok = (this.netTok || 0) + 1;
+    try { const N = await mod.connectDuel({ game: 'meruPoker', code, onJoin: id => this.nHello(id), onLeave: id => this.nGone(id), onMsg: (t, d, id) => this.nMsg(t, d, id), onStatus: s => this.netSet({ status: String(s).toUpperCase() }) });
+      if (tok !== this.netTok) { N.leave(); return; } this.net = N; this.nHello(); this.forceUpdate(); clearInterval(this.nTimer); this.nTimer = setInterval(this.nTick, 4000); }
+    catch (e) { this.netSet({ st: 'menu', msg: 'Could not reach the room. Check your connection.' }); }
+  }
+  netLeave() { this.netTok = (this.netTok || 0) + 1; clearInterval(this.nTimer); if (this.net) { try { this.net.send('ev', { k: 'bye' }); this.net.leave(); } catch (e) {} } this.net = null; this.matchIds = null; this.lastSeen = {}; if (this.g && this.state.h && this.state.h.net) this.g.netEnd(); }
+  nHello(to) { const n = this.state.net; if (!this.net || !n) return; this.net.send('hi', { v: 1, j: n.j, ready: n.ready, playing: !!this.matchIds }, to); }
+  nTick = () => { if (!this.net) return; this.nHello(); const now = performance.now(); for (const id of Object.keys(this.lastSeen)) if (now - this.lastSeen[id] > 25000) this.nGone(id); };
+  nGone(id) { if (!this.lastSeen[id]) return; delete this.lastSeen[id]; this.setState(s => { if (!s.net) return null; const peers = { ...s.net.peers }; delete peers[id]; return { net: { ...s.net, peers } }; }); if (this.matchIds && this.matchIds.includes(id) && this.g) this.g.netDrop(id); }
+  nMsg(t, d, id) {
+    const n = this.state.net; if (!n || !this.net || !d) return; const known = !!this.lastSeen[id]; this.lastSeen[id] = performance.now();
+    if (t === 'hi') { this.peerSet(id, { j: +d.j || Date.now(), ready: !!d.ready, playing: !!d.playing }); if (!known) setTimeout(() => this.nHello(id), 0); setTimeout(this.nMaybeStart, 0); return; }
+    if (t === 'sn') { if (this.matchIds && this.g) this.g.netRecv('sn', d, id); return; }
+    if (t !== 'ev') return;
+    if (d.k === 'ready') { this.peerSet(id, { ready: !!d.on }); setTimeout(this.nMaybeStart, 0); }
+    else if (d.k === 'start') this.nStart(d);
+    else if (d.k === 'bye') this.nGone(id);
+    else if (d.k === 'act' && this.g) this.g.netRecv('ev', d, id);
+  }
+  nMaybeStart = () => { const n = this.state.net; if (!n || !this.net || n.st !== 'room' || this.matchIds) return; const m = this.members(); if (m.length < 2 || !m.every(x => x.ready) || this.hostOf(m.map(x => x.id)) !== this.net.id) return;
+    const d = { k: 'start', ids: m.map(x => x.id), fill: this.state.fill }; this.net.send('ev', d); this.nStart(d); };
+  nStart(d) { if (!this.net || !Array.isArray(d.ids) || !d.ids.includes(this.net.id) || !this.g) return; this.matchIds = d.ids.slice(); const host = this.hostOf(d.ids), C = this.M.NET_COLS;
+    this.g.netBegin({ me: this.net.id, players: d.ids.map((id, k) => ({ id, name: C[k][0], col: C[k][1] })), isHost: host === this.net.id, fill: !!d.fill, send: (t, x, to) => this.net && this.net.send(t, x, to), hostId: () => host });
+    this.setState(s => s.net ? { net: { ...s.net, st: 'play', ready: false } } : null); }
+  netReady = () => { const n = this.state.net; if (!n || !this.net) return; const on = !n.ready; this.netSet({ ready: on }); this.net.send('ev', { k: 'ready', on }); setTimeout(this.nMaybeStart, 0); };
+  renderVals() {
+    const S = this.state, h = S.h, L = this.land(), menu = !h || h.mode === 'menu', N = S.net, g = this.g;
+    const panelW = Math.min(250, S.vw * 0.34);
+    const chip = c => ({ ...c, bd: c.hole && !c.t ? '#e6b45a' : c.hole ? '#ffd23a' : '#c9a227' });
+    const lx = x => { const m = 68 / Math.max(1, (L ? S.vw - panelW : S.vw)) * 100 * (L ? (S.vw - panelW) / S.vw : 1), v = parseFloat(x); return Math.max(m, Math.min(100 - m - (L ? panelW / S.vw * 100 : 0), v)) + '%'; };
+    const labels = (h && !menu ? h.rivals : []).map(s => ({ ...s, x: lx(s.x), disp: s.vis ? 'flex' : 'none', cards: s.cards.map(chip), headBg: s.active ? '#ffd23a' : s.won ? '#22c55e' : '#1c1917', headFg: s.active || s.won ? '#000' : '#fff', stCol: s.active ? '#ffd23a' : s.won ? '#22c55e' : s.folded ? '#8a847e' : '#fff', showOn: !!s.showTxt }));
+    const kindCol = { hot: ['#ec3013', '#fff'], plain: ['#1c1917', '#fff'], ghost: ['#000', '#cfcac4'], gold: ['#ffd23a', '#000'] };
+    const acts = (h ? h.acts : []).map(a => ({ ...a, bg: kindCol[a.kind][0], fg: kindCol[a.kind][1], aria: a.label + '. ' + a.sub, go: () => this.doAct(a.k) }));
+    const me = h && h.me, r = h && h.result, wheelBusy = h && h.wheel && h.wheel.busy;
+    const secs = h ? h.secs : 0;
+    const rnk = [['ROYAL FLUSH', 'A K Q J 10, one suit'], ['STRAIGHT FLUSH', 'five in a row, one suit'], ['FOUR OF A KIND', 'four cards of one rank'], ['FULL HOUSE', 'three of a kind + a pair'], ['FLUSH', 'five of one suit'], ['STRAIGHT', 'five in a row (A-2-3-4-5 counts)'], ['THREE OF A KIND', 'three of one rank'], ['TWO PAIR', 'two different pairs'], ['PAIR', 'two of one rank'], ['HIGH CARD', 'nothing else: highest card wins']];
+    return {
+      stageRef: this.stageRef, loadOn: !!S.load, loadTxt: S.load, loadErr: S.err, embed: /[?&]embed=1/.test(location.search), goBack: this.goBack,
+      topH: L ? '44px' : '48px', kicker: h && h.mode === 'net' ? 'ONLINE TABLE' : h && h.mode === 'solo' ? (h.practice ? 'PRACTICE TABLE' : 'GOLD TABLE') + (L ? ' · ' + (h.stakesTxt || '') : '') : 'MERU CASINO · POKER',
+      streetTxt: menu ? 'FIVE-CARD STUD' : wheelBusy ? 'TREASURE WHEEL' : (h.street || 'DEALING') + (h.hand && L ? ' · HAND ' + h.hand : ''), potTxt: h && !menu ? String(h.pot) : '—',
+      goldLbl: me && !menu ? 'CHIPS' : 'GOLD', goldTxt: me && !menu ? String(me.chips) : String(h ? h.gold : 0),
+      peekToggle: () => g && g.peek(), peekOn: !!(h && h.peek), peekBg: h && h.peek ? '#ffd23a' : '#000', peekFg: h && h.peek ? '#000' : '#fff', peekAria: h && h.peek ? 'Back to the table view' : 'Look closely at your cards', peekDisp: !menu ? 'flex' : 'none',
+      muteToggle: () => g && g.mute(), muteAria: h && h.mute ? 'Sound off. Turn sound on' : 'Sound on. Turn sound off', muteOff: !!(h && h.mute), muteOnIcon: !(h && h.mute),
+      helpToggle: () => this.setState({ help: !S.help }), helpOn: S.help,
+      demoOn: !!S.demo && !!h && !menu, demoCap: S.cap, demoStop: this.demoStop, demoGo: this.demoStart,
+      labels, resOn: !!r && !menu, resKick: r ? r.kicker : '', resLine: r ? r.line : '', resCol: r && /WIN|JACKPOT|WHEEL/.test(r.kicker) ? '#22c55e' : '#ffd23a',
+      resLeft: L ? 'calc((100% - ' + panelW + 'px) / 2)' : '50%', resTop: L ? '54px' : '62px',
+      playOn: !!h && !menu, pL: L ? 'auto' : '0px', pT: L ? 'calc(46px + env(safe-area-inset-top))' : 'auto', pW: L ? panelW + 'px' : 'auto', pBL: L ? '2px solid #ffd23a' : '0px', pBT: L ? '0px' : '2px solid #ffd23a', pOv: L ? 'auto' : 'visible',
+      panelPadR: L ? 'env(safe-area-inset-right)' : '0px', handWrap: L ? 'wrap' : 'nowrap',
+      msgTxt: h ? h.msg : '', msgDot: h && h.myTurn ? '#ec3013' : '#ffd23a',
+      myCards: me ? me.cards.map(chip) : [], cW: L ? '36px' : '42px', cH: L ? '50px' : '58px', cFs: L ? '15px' : '17px',
+      myHand: me ? (me.handName || '—') : '', myChips: me ? me.chips + ' CHIPS' + (me.bet ? ' · IN THIS ROUND ' + me.bet : '') : '', myAria: me ? 'Your cards: ' + me.cards.map(c => c.aria + (c.hole ? ' (hole card, only you see it)' : '')).join(', ') + '. ' + (me.handName || '') : '',
+      waitOn: !!(h && !acts.length && h.waitTxt), waitTxt: h ? h.waitTxt : '', acts, actCols: L ? 1 : Math.max(1, Math.min(3, acts.length)), actH: L ? '50px' : '60px',
+      timerOn: !!(h && h.secs > 0 && h.myTurn), timerW: Math.max(0, Math.min(100, secs / 30 * 100)) + '%', timerCol: secs <= 8 ? '#ec3013' : '#ffd23a',
+      menuOn: menu && !S.load, menuTop: L ? '46px' : '50px', menuMsg: h ? h.msg : '',
+      rivalBtns: [1, 2, 3, 4].map(n => ({ t: String(n), on: S.rivals === n, aria: n + ' rival' + (n > 1 ? 's' : ''), bg: S.rivals === n ? '#ffd23a' : '#000', fg: S.rivals === n ? '#000' : '#fff', go: () => this.setState({ rivals: n }) })),
+      tableBtns: [{ t: 'GOLD TABLE', sub: 'BUY IN UP TO 40 GOLD', on: !S.practice, go: () => this.setState({ practice: false }) }, { t: 'PRACTICE', sub: 'FREE CHIPS · NO GOLD', on: S.practice, go: () => this.setState({ practice: true }) }].map(b => ({ ...b, bg: b.on ? '#ffd23a' : '#000', fg: b.on ? '#000' : '#fff' })),
+      play: () => g && g.startSolo({ rivals: S.rivals, practice: S.practice }),
+      fourToggle: () => g && g.fourColor(), fourOn: !!(h && h.four), fourTxt: h && h.four ? '4-COLOUR DECK · ON' : '4-COLOUR DECK · OFF',
+      spinMenu: () => g && g.spin(), spinOff: !(h && h.spins > 0) || !!wheelBusy, spinCol: h && h.spins > 0 ? '#ffd23a' : '#8a847e', spinTxt: h && h.spins > 0 ? h.spins + ' SPIN' + (h.spins > 1 ? 'S' : '') + ' WAITING' : 'WIN WITH TWO PAIR+ TO EARN A SPIN',
+      recordTxt: h ? 'HANDS ' + h.best.hands + ' · WON ' + h.best.wins + ' · BEST POT ' + h.best.pot + ' · BEST HAND ' + h.best.hand : '',
+      netOpen: this.netOpen, netClose: this.netClose, netOn: !!N && N.st !== 'play', netMenu: !!N && N.st === 'menu', netRoom: !!N && N.st === 'room', netTitle: N && N.st === 'room' ? 'Waiting for players' : 'Play with friends',
+      netCreate: this.netCreate, codeIn: N ? N.codeIn : '', codeType: this.codeType, netJoinBtn: this.netJoinBtn, netCode: N ? N.code : '', netStatus: N ? N.status : '',
+      netList: this.members().map((m, k) => ({ name: (this.M ? this.M.NET_COLS[k][0] : 'PLAYER') + (m.me ? ' · YOU' : ''), col: this.M ? this.M.NET_COLS[k][1] : '#fff', rd: m.ready ? 'READY' : 'NOT READY', rc: m.ready ? '#22c55e' : '#8a847e' })),
+      netFill: () => this.setState({ fill: !S.fill }), fillOn: S.fill, fillTxt: S.fill ? 'FILL EMPTY SEATS WITH FOXES · ON' : 'FILL EMPTY SEATS WITH FOXES · OFF',
+      netReady: this.netReady, readyBg: N && N.ready ? '#22c55e' : '#ec3013', readyFg: N && N.ready ? '#000' : '#fff', readyTxt: N && N.ready ? 'READY · WAITING FOR THE OTHERS' : 'TAP WHEN READY', netMsgOn: !!(N && N.msg), netMsg: N ? N.msg : '',
+      helpRows: [
+        { k: 'THE DEAL', v: 'Everyone puts in an ante of 1. Lyra deals each player one card face down (your HOLE card, only you see it) and one face up.' },
+        { k: 'BETTING', v: 'The best hand showing acts first. CHECK (bet nothing), BET, CALL (match), RAISE or FOLD. Bets are 2 on the first two rounds and 4 on the last two. One bet and up to 3 raises a round.' },
+        { k: 'MORE CARDS', v: 'Three more cards come face up, one at a time, with a round of betting after each. Five cards each in the end.' },
+        { k: 'SHOWDOWN', v: 'Hole cards flip over. The best five-card hand takes the pot. Everyone else folded? The last fox in wins without showing.' },
+        { k: 'THE CARDS', v: 'Jacks are NOBLE, Queens are HOPE, Kings are KING MIGHT and every Ace is THE SHUTTLE.' },
+        { k: 'GOLD + WHEEL', v: 'The gold table buys in with your gold and cashes your chips back when you leave. Win a showdown with two pair or better for a Treasure Wheel spin.' },
+        { k: 'KEYS', v: 'F fold · C check or call · B bet or raise · Space next hand · S spin · P look at your cards.' },
+      ],
+      rankRows: rnk.map(x => ({ k: x[0], v: x[1] })),
+    };
+  }
+}
+</script>
+</body>
+</html>

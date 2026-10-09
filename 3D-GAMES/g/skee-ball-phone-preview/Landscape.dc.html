@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&display=swap">
+<style>:root{--font-heading:"Archivo", system-ui, sans-serif;--font-body:"Archivo", system-ui, sans-serif;--color-accent:#ec3013}body{margin:0}html,body{overflow:hidden;background:#000;overscroll-behavior:none}a{color:#ffd23a}a:hover{color:var(--color-accent)}button:focus-visible,input:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}button{-webkit-tap-highlight-color:transparent}</style>
+</helmet>
+<div style="position:relative;width:844px;height:390px;overflow:hidden;background:#000;color:#fff;font-family:var(--font-body);user-select:none;-webkit-user-select:none;touch-action:none" data-screen-label="Arcade Skee-Ball">
+  <div ref="{{ stageRef }}" style="position:absolute;inset:0"></div>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;padding:24px;box-sizing:border-box;background:#0b0820;z-index:20"><div style="border-left:4px solid #ec3013;padding:6px 14px;display:flex;flex-direction:column;gap:4px"><span style="font:800 11px var(--font-heading);letter-spacing:0.14em;color:#ffd23a">8 GATES ARCADE</span><span style="font:900 32px var(--font-heading);line-height:1">Skee-Ball</span><span style="font:700 13px var(--font-body);color:#cfcac4">{{ loadMsg }}</span></div></div>
+  </sc-if>
+
+  <!-- PLAY: top strip -->
+  <sc-if value="{{ playOn }}" hint-placeholder-val="{{ true }}">
+    <div ref="{{ topRef }}" style="position:absolute;left:0;right:0;top:0;z-index:4;display:flex;flex-direction:column;pointer-events:none">
+      <div style="background:#000;border-bottom:2px solid #ffd23a;display:flex;align-items:stretch;padding:env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left)">
+        <button onClick="{{ menuBtn }}" aria-label="{{ menuAria }}" style="pointer-events:auto;flex:none;width:56px;min-height:56px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 11px var(--font-heading);letter-spacing:0.06em;cursor:pointer;text-align:left;padding:0 8px" style-hover="background:#2a2826">{{ menuTxt }}</button>
+        <div style="flex:1;min-width:0;padding:5px 12px;display:flex;flex-direction:column;justify-content:center;border-right:2px solid #3a3836">
+          <span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:{{ h.col }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ topLbl }}</span>
+          <span style="font:900 30px var(--font-heading);line-height:1;font-variant-numeric:tabular-nums">{{ h.score }}</span>
+        </div>
+        <sc-if value="{{ boardInline }}" hint-placeholder-val="{{ false }}">
+          <div style="flex:2;min-width:0;display:grid;grid-template-columns:repeat({{ boardCols }},minmax(0,1fr));border-right:2px solid #3a3836">
+            <sc-for list="{{ boardRows }}" as="r" hint-placeholder-count="3">
+              <div style="min-width:0;display:flex;align-items:center;gap:6px;padding:4px 8px;background:{{ r.bg }};color:{{ r.fg }};border-right:2px solid #3a3836">
+                <span style="flex:none;width:8px;height:26px;background:{{ r.col }};display:block"></span>
+                <span style="display:flex;flex-direction:column;min-width:0"><span style="font:900 10px var(--font-heading);letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font:900 15px var(--font-heading);font-variant-numeric:tabular-nums;line-height:1.05;white-space:nowrap">{{ r.score }}<span style="font:800 9px var(--font-heading);opacity:0.75"> {{ r.sub }}</span></span></span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="flex:none;padding:5px 10px;display:flex;flex-direction:column;justify-content:center;gap:4px;border-right:2px solid #3a3836">
+          <span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4;white-space:nowrap">BALL {{ ballTxt }}</span>
+          <span style="display:grid;grid-template-columns:repeat(9,7px);gap:2px"><sc-for list="{{ pips }}" as="p" hint-placeholder-count="9"><span style="display:block;height:12px;background:{{ p.c }}"></span></sc-for></span>
+        </div>
+        <button onClick="{{ guideBtn }}" aria-label="{{ guideAria }}" aria-pressed="{{ guideOnTxt }}" style="pointer-events:auto;flex:none;width:56px;border:0;border-radius:0;background:{{ guideBg }};color:{{ guideFg }};cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:0" style-hover="filter:brightness(1.2)">
+          <svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="miter"></path><path d="M16 9c1.3 1.6 1.3 4.4 0 6M18.5 6.5c2.7 3 2.7 8 0 11" fill="none" stroke="currentColor" stroke-width="2"></path></svg>
+          <span style="font:900 9px var(--font-heading);letter-spacing:0.06em">GUIDE</span>
+        </button>
+      </div>
+      <sc-if value="{{ boardOn }}" hint-placeholder-val="{{ true }}">
+        <div style="display:grid;grid-template-columns:repeat({{ boardCols }},minmax(0,1fr));background:#000;border-bottom:2px solid #3a3836;padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)">
+          <sc-for list="{{ boardRows }}" as="r" hint-placeholder-count="3">
+            <div style="min-width:0;display:flex;align-items:center;gap:6px;padding:4px 8px;background:{{ r.bg }};color:{{ r.fg }};border-right:2px solid #3a3836">
+              <span style="flex:none;width:8px;height:22px;background:{{ r.col }};display:block"></span>
+              <span style="display:flex;flex-direction:column;min-width:0"><span style="font:900 10px var(--font-heading);letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font:900 15px var(--font-heading);font-variant-numeric:tabular-nums;line-height:1.05">{{ r.score }}<span style="font:800 9px var(--font-heading);opacity:0.75"> {{ r.sub }}</span></span></span>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ turnOn }}" hint-placeholder-val="{{ false }}">
+        <div style="background:#ffd23a;color:#000;display:flex;align-items:stretch;border-bottom:2px solid #000"><span style="flex:none;width:12px;background:{{ h.col }};display:block"></span><span style="padding:8px 12px;font:900 clamp(15px,4vw,18px) var(--font-heading);letter-spacing:0.04em;text-transform:uppercase">{{ h.turn }}</span></div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <!-- score flash -->
+  <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;top:{{ flashTop }};transform:translateX(-50%);z-index:5;pointer-events:none;max-width:calc(100% - 24px);display:flex;flex-direction:column;align-items:stretch">
+      <div style="background:rgba(0,0,0,0.9);border:2px solid {{ flashCol }};display:flex;align-items:stretch"><span style="flex:none;width:14px;background:{{ flashCol }};display:block"></span><span style="padding:4px 18px;font:900 clamp(40px,12vw,64px) var(--font-heading);line-height:1;color:#fff;font-variant-numeric:tabular-nums;white-space:nowrap">{{ flashTxt }}</span></div>
+      <sc-if value="{{ flashSubOn }}" hint-placeholder-val="{{ false }}"><div style="margin-top:-2px;background:{{ flashCol }};color:#000;padding:5px 12px;font:900 12px var(--font-heading);letter-spacing:0.08em;white-space:nowrap;text-align:left">{{ flashSub }}</div></sc-if>
+    </div>
+  </sc-if>
+
+  <!-- swipe hint -->
+  <sc-if value="{{ hintOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;bottom:calc({{ hintBottom }} + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:3;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:6px">
+      <svg width="44" height="64" viewBox="0 0 44 64" aria-hidden="true" style="animation:sbUp 1.2s ease-in-out infinite"><path d="M22 60V8M8 22L22 8l14 14" fill="none" stroke="#ffd23a" stroke-width="5" stroke-linecap="square"></path></svg>
+      <div style="background:#000;border:2px solid #ffd23a;padding:6px 12px;font:900 13px var(--font-heading);letter-spacing:0.08em;white-space:nowrap">SWIPE UP TO ROLL</div>
+      <div style="background:rgba(0,0,0,0.8);padding:3px 8px;font:700 11px var(--font-body);color:#cfcac4;white-space:nowrap">Drag sideways first to move the ball</div>
+      <style>@keyframes sbUp{0%{transform:translateY(10px);opacity:0.3}50%{transform:translateY(-6px);opacity:1}100%{transform:translateY(10px);opacity:0.3}}</style>
+    </div>
+  </sc-if>
+
+  <!-- Hope's radio -->
+  <sc-if value="{{ radioOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc({{ radioBottom }} + env(safe-area-inset-bottom));z-index:6;pointer-events:none;width:{{ radioW }};background:rgba(0,0,0,0.88);border:2px solid #f472b6;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:8px;padding:4px 10px;border-bottom:2px solid #3a3836"><span style="width:8px;height:8px;background:#f472b6;display:block"></span><span style="font:900 10px var(--font-heading);letter-spacing:0.16em;color:#f472b6">HOPE · NEXT LANE</span></div>
+      <span style="padding:6px 10px 8px;font:700 clamp(13px,3.6vw,15px) var(--font-body);line-height:1.35;text-wrap:pretty">{{ h.radio }}</span>
+    </div>
+  </sc-if>
+
+  <!-- easy roll toggle + bar -->
+  <sc-if value="{{ easyBtnOn }}" hint-placeholder-val="{{ false }}">
+    <button onClick="{{ easyToggle }}" aria-pressed="{{ easyPressed }}" style="position:absolute;right:max(12px, env(safe-area-inset-right));bottom:calc({{ easyBtnBottom }} + env(safe-area-inset-bottom));z-index:6;pointer-events:auto;min-width:64px;min-height:48px;padding:0 10px;border:2px solid #ffd23a;border-radius:0;background:{{ easyBtnBg }};color:{{ easyBtnFg }};font:900 11px var(--font-heading);letter-spacing:0.06em;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="filter:brightness(1.15)">EASY ROLL<span style="font:800 9px var(--font-heading);opacity:0.8">{{ easyState }}</span></button>
+  </sc-if>
+  <sc-if value="{{ easyOn }}" hint-placeholder-val="{{ false }}">
+    <div ref="{{ botRef }}" style="position:absolute;left:0;right:0;bottom:0;z-index:5;background:#000;border-top:2px solid #ffd23a;padding:0 env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);display:grid;grid-template-columns:{{ easyCols }};pointer-events:auto">
+      <div style="padding:8px 12px;display:flex;flex-direction:column;gap:6px;justify-content:center;border-right:2px solid #3a3836;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;width:52px;font:900 10px var(--font-heading);letter-spacing:0.1em;color:{{ aimLblC }}">AIM</span><span style="position:relative;flex:1;height:14px;background:#2a2826;display:block"><span style="position:absolute;left:50%;top:0;bottom:0;width:2px;background:#5a5650;display:block"></span><span style="position:absolute;top:-3px;bottom:-3px;width:8px;left:{{ aimPos }};transform:translateX(-50%);background:#ffd23a;display:block"></span></span></div>
+        <div style="display:flex;align-items:center;gap:8px"><span style="flex:none;width:52px;font:900 10px var(--font-heading);letter-spacing:0.1em;color:{{ powLblC }}">POWER</span><span style="position:relative;flex:1;height:14px;background:#2a2826;display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ powW }};background:#ec3013;display:block"></span><span style="position:absolute;left:28%;top:-3px;bottom:-3px;width:2px;background:#ffd23a;display:block"></span></span></div>
+      </div>
+      <button onClick="{{ easyTap }}" disabled="{{ easyDisabled }}" style="min-height:76px;border:0;border-radius:0;background:{{ tapBg }};color:#fff;cursor:pointer;text-align:left;padding:0 16px;display:flex;flex-direction:column;justify-content:center;gap:2px;opacity:{{ tapOp }}" style-hover="filter:brightness(1.1)"><span style="font:900 20px var(--font-heading);letter-spacing:0.06em">{{ tapTxt }}</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;opacity:0.9">{{ tapSub }}</span></button>
+    </div>
+  </sc-if>
+
+  <!-- INTRO card -->
+  <sc-if value="{{ introOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));top:calc(12px + env(safe-area-inset-top));z-index:10;width:min(420px, calc(100% - 24px));display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none">
+      <div style="pointer-events:auto;max-height:100%;overflow-y:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:column;box-sizing:border-box">
+        <div style="padding:{{ cardPad }};display:flex;flex-direction:column;gap:4px;border-bottom:2px solid #3a3836">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font:800 11px var(--font-heading);letter-spacing:0.14em;color:#ffd23a">8 GATES ARCADE · #35</span><sc-if value="{{ embed }}" hint-placeholder-val="{{ false }}"><button onClick="{{ backOut }}" style="min-height:44px;min-width:64px;border:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 11px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;padding:0 10px" style-hover="background:#2a2826">BACK</button></sc-if></div>
+          <span style="font:900 {{ titleSize }} var(--font-heading);line-height:1;letter-spacing:-0.02em">Skee-Ball</span>
+          <sc-if value="{{ introText }}" hint-placeholder-val="{{ true }}"><span style="font:700 14px var(--font-body);line-height:1.4;color:#cfcac4;text-wrap:pretty">Swipe up to roll. The rings score 10 to 50, the two corner pockets score 100. Nine balls a game.</span></sc-if>
+        </div>
+        <button onClick="{{ goSolo }}" style="min-height:56px;padding:4px 14px;border:0;border-bottom:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 18px var(--font-heading);letter-spacing:0.06em">PLAY SOLO</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;opacity:0.9">9 BALLS · HOPE PLAYS THE NEXT LANE</span></button>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 52px 52px;border-bottom:2px solid #3a3836">
+          <button onClick="{{ goPass }}" style="min-height:52px;padding:4px 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#2a2826"><span style="font:900 16px var(--font-heading);letter-spacing:0.06em">PASS &amp; PLAY · {{ passN }}</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;color:#ffd23a">ONE PHONE · TAKE TURNS · 2 TO 5</span></button>
+          <button onClick="{{ passLess }}" aria-label="Fewer players" style="min-height:52px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#ffd23a;font:900 24px var(--font-heading);cursor:pointer" style-hover="background:#2a2826">−</button>
+          <button onClick="{{ passMore }}" aria-label="More players" style="min-height:52px;border:0;border-radius:0;background:#000;color:#ffd23a;font:900 24px var(--font-heading);cursor:pointer" style-hover="background:#2a2826">+</button>
+        </div>
+        <button onClick="{{ goOnline }}" style="min-height:52px;padding:4px 14px;border:0;border-bottom:2px solid #3a3836;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#2a2826"><span style="font:900 16px var(--font-heading);letter-spacing:0.06em">ONLINE</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;color:#7dd3fc">UP TO 5 FRIENDS · EVERYONE ON THEIR OWN LANE</span></button>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-bottom:2px solid #3a3836">
+          <button onClick="{{ guideBtn }}" aria-pressed="{{ guideOnTxt }}" style="min-height:48px;padding:4px 12px;border:0;border-right:2px solid #3a3836;border-radius:0;background:{{ guideBg }};color:{{ guideFg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px"><span style="font:900 12px var(--font-heading);letter-spacing:0.06em">SOUND GUIDE</span><span style="font:800 9px var(--font-heading);letter-spacing:0.06em;opacity:0.85">{{ guideState }}</span></button>
+          <button onClick="{{ easyToggle }}" aria-pressed="{{ easyPressed }}" style="min-height:48px;padding:4px 12px;border:0;border-radius:0;background:{{ easyBtnBg }};color:{{ easyBtnFg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px"><span style="font:900 12px var(--font-heading);letter-spacing:0.06em">EASY ROLL</span><span style="font:800 9px var(--font-heading);letter-spacing:0.06em;opacity:0.85">{{ easyState2 }}</span></button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <div style="padding:6px 12px;display:flex;flex-direction:column;gap:1px;border-right:2px solid #3a3836"><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">BEST</span><span style="font:900 18px var(--font-heading);font-variant-numeric:tabular-nums">{{ h.best }}</span></div>
+          <div style="padding:6px 12px;display:flex;flex-direction:column;gap:1px"><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">TICKETS</span><span style="font:900 18px var(--font-heading);font-variant-numeric:tabular-nums;color:#ffd23a">{{ h.tickets }}</span></div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ONLINE panel -->
+  <sc-if value="{{ netOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));top:calc(12px + env(safe-area-inset-top));z-index:11;width:min(420px, calc(100% - 24px));display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none">
+      <div style="pointer-events:auto;max-height:100%;overflow-y:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:column;box-sizing:border-box">
+        <div style="padding:10px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid #3a3836"><span style="display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">SKEE-BALL</span><span style="font:900 24px var(--font-heading);line-height:1">Online</span></span><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:{{ netStatC }};white-space:nowrap">{{ netStat }}</span></div>
+        <sc-if value="{{ netRoom }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:10px 14px;border-bottom:2px solid #3a3836;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#8a847e">ROOM</span><span style="font:900 44px var(--font-heading);line-height:1;letter-spacing:0.12em;color:#ffd23a">{{ net.code }}</span></div><button onClick="{{ netShare }}" style="min-height:44px;padding:0 14px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 12px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;white-space:nowrap" style-hover="background:#2a2826">{{ shareTxt }}</button></div>
+          <sc-for list="{{ netMembers }}" as="m" hint-placeholder-count="2">
+            <div style="display:grid;grid-template-columns:12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 14px;border-bottom:2px solid #1f1d1c"><span style="width:12px;height:12px;background:{{ m.col }};display:block"></span><span style="font:900 14px var(--font-heading);letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.label }}</span><span style="font:800 11px var(--font-heading);letter-spacing:0.08em;color:{{ m.stC }}">{{ m.st }}</span></div>
+          </sc-for>
+        </sc-if>
+        <sc-if value="{{ netMenu }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-bottom:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9">GET A CODE TO SHARE · UP TO 5</span></button>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;border-bottom:2px solid #3a3836">
+            <input value="{{ codeIn }}" onChange="{{ codeType }}" onKeyDown="{{ codeKey }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code" placeholder="CODE" style="min-width:0;min-height:52px;padding:0 14px;border:0;border-radius:0;background:#1a1918;color:#ffd23a;font:900 24px var(--font-heading);letter-spacing:0.2em;text-transform:uppercase;outline:none;box-sizing:border-box;user-select:text;-webkit-user-select:text" style-focus="background:#2a2826"></input>
+            <button onClick="{{ netJoin }}" style="min-height:52px;padding:0 18px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer" style-hover="background:#2a2826">JOIN</button>
+          </div>
+        </sc-if>
+        <div style="padding:10px 14px;font:700 13px var(--font-body);line-height:1.4;color:#cfcac4;text-wrap:pretty">{{ netMsg }}</div>
+        <div style="display:grid;grid-template-columns:{{ netBtnCols }};border-top:2px solid #3a3836">
+          <sc-if value="{{ readyOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ netReady }}" style="min-height:56px;padding:4px 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:{{ readyBg }};color:{{ readyFg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">{{ readyTxt }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.85">{{ readySub }}</span></button></sc-if>
+          <button onClick="{{ netBack }}" style="min-height:56px;padding:0 14px;border:0;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">{{ netBackTxt }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- RESULT card -->
+  <sc-if value="{{ overOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));top:calc(12px + env(safe-area-inset-top));z-index:10;width:min(420px, calc(100% - 24px));display:flex;flex-direction:column;justify-content:flex-end;pointer-events:none">
+      <div style="pointer-events:auto;max-height:100%;overflow-y:auto;background:#000;border:2px solid #ffd23a;display:flex;flex-direction:column;box-sizing:border-box">
+        <div style="padding:{{ cardPad }};display:flex;justify-content:space-between;align-items:flex-end;gap:12px;border-bottom:2px solid #3a3836">
+          <div style="display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font:800 11px var(--font-heading);letter-spacing:0.14em;color:#ffd23a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ resKicker }}</span><span style="font:900 {{ titleSize }} var(--font-heading);line-height:1;font-variant-numeric:tabular-nums">{{ r.score }}</span></div>
+          <sc-if value="{{ r.newBest }}" hint-placeholder-val="{{ false }}"><span style="flex:none;background:#ec3013;color:#fff;padding:5px 10px;font:900 12px var(--font-heading);letter-spacing:0.1em">NEW BEST</span></sc-if>
+        </div>
+        <sc-for list="{{ resRows }}" as="x" hint-placeholder-count="2">
+          <div style="display:grid;grid-template-columns:22px 12px minmax(0,1fr) auto;gap:10px;align-items:center;padding:7px 14px;border-bottom:2px solid #1f1d1c;background:{{ x.bg }}"><span style="font:900 13px var(--font-heading);color:#8a847e">{{ x.rank }}</span><span style="width:12px;height:12px;background:{{ x.col }};display:block"></span><span style="font:900 14px var(--font-heading);letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ x.name }}</span><span style="font:900 16px var(--font-heading);font-variant-numeric:tabular-nums">{{ x.score }}</span></div>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-bottom:2px solid #3a3836">
+          <div style="padding:6px 12px;display:flex;flex-direction:column;gap:1px;border-right:2px solid #3a3836"><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">TICKETS</span><span style="font:900 18px var(--font-heading);color:#ffd23a">+{{ r.tickets }}</span></div>
+          <div style="padding:6px 12px;display:flex;flex-direction:column;gap:1px;border-right:2px solid #3a3836"><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">GOLD</span><span style="font:900 18px var(--font-heading)">+{{ r.gold }}</span></div>
+          <div style="padding:6px 12px;display:flex;flex-direction:column;gap:1px"><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">XP</span><span style="font:900 18px var(--font-heading)">+{{ r.xp }}</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr)">
+          <button onClick="{{ again }}" style="min-height:56px;padding:0 16px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 16px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#c82a10">{{ againTxt }}</button>
+          <button onClick="{{ toMenu }}" style="min-height:56px;padding:0 14px;border:0;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">MENU</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  state = { vw: 1200, vh: 800, h: null, passN: 2, codeIn: '', err: '' };
+  stageRef = React.createRef(); topRef = React.createRef(); botRef = React.createRef();
+  embed = /[?&]embed=1/.test(location.search);
+  async componentDidMount() {
+    addEventListener('resize', this.onRs); this.onRs();
+    try {
+      let mod = null; for (const u of ['minigames/arcade/skee-ball.js', 'project/minigames/arcade/skee-ball.js', './minigames/arcade/skee-ball.js']) { try { mod = await import(new URL(u, document.baseURI).href); break; } catch (er) {} }
+      if (!mod) throw new Error('module not found');
+      this.game = await mod.createSkeeBall({ container: this.stageRef.current, onState: h => this.setState({ h }), opts: { localNet: true, noKeys: true } });
+      window.__skee = this.game;
+      try { const p = JSON.parse(localStorage.getItem('arcadeSkee.prefs') || '{}'); if (p.guide) this.game.setGuide(true); if (p.easy) this.game.setEasy(true); } catch (e) {}
+      const rm = /[?&]room=([A-Za-z0-9]{4})/.exec(location.search); if (rm) { this.game.netOpen(); this.game.netJoin(rm[1]); }
+    } catch (e) { console.warn('skee-ball failed: ' + (e && e.stack || String(e))); this.setState({ err: 'Could not load the game. Reload the page.' }); }
+  }
+  componentDidUpdate() { if (!this.game) return; const t = this.topRef.current, b = this.botRef.current; this.game.setSafe(t ? t.offsetHeight + 8 : 8, b ? b.offsetHeight + 8 : 64); }
+  componentWillUnmount() { removeEventListener('resize', this.onRs); this.game && this.game.destroy(); }
+  onRs = () => this.setState({ vw: 844, vh: 390 });
+  prefs(p) { try { const o = JSON.parse(localStorage.getItem('arcadeSkee.prefs') || '{}'); localStorage.setItem('arcadeSkee.prefs', JSON.stringify({ ...o, ...p })); } catch (e) {} }
+  backOut = () => { try { window.parent.postMessage({ type: '8gates:minigame', action: 'back', game: 'arcadeSkee' }, '*'); } catch (e) {} };
+  renderVals() {
+    const S = this.state, h = S.h, G = this.game, blur = e => { try { e && e.currentTarget && e.currentTarget.blur(); } catch (er) {} };
+    const portrait = S.vh >= S.vw, small = Math.min(S.vw, S.vh) < 500, short = S.vh < 480;
+    if (!h) return { stageRef: this.stageRef, topRef: this.topRef, botRef: this.botRef, loading: true, loadMsg: S.err || 'Opening the arcade…', playOn: false, flashOn: false, hintOn: false, radioOn: false, easyBtnOn: false, easyOn: false, introOn: false, netOn: false, overOn: false, h: {} };
+    const N = h.net, play = h.phase === 'play', netPanel = !!N && N.st !== 'play' && h.phase !== 'play', over = h.phase === 'over' && !netPanel;
+    const multi = h.board && h.board.length > 1;
+    const pips = Array.from({ length: h.BALLS }, (_, i) => ({ c: i < h.balls ? '#3a3836' : '#ffd23a' }));
+    const fl = h.flash, topH = 60 + (multi && portrait ? 34 : 0);
+    const m = N ? N.members : [], rc = m.filter(x => x.ready).length, allReady = m.length >= 2 && rc === m.length;
+    const netStat = !N ? '' : N.full ? 'ROOM FULL' : N.status === 'local' ? 'TEST · THIS DEVICE' : N.status === 'offline' ? 'OFFLINE' : N.status === 'online' ? (m.length > 1 ? m.length + ' IN THE ARCADE' + (N.ping ? ' · ' + N.ping + ' MS' : '') : 'ONLINE') : N.st === 'menu' ? 'NO SERVER NEEDED' : 'CONNECTING…';
+    const netMsg = !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Up to 5 friends, each on their own lane. Make a room and send the link, or type a friend’s code.' : N.full ? 'Five players are already in room ' + N.code + '. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.';
+    const r = h.result || {}, rows = (r.rows || []).map((x, i) => ({ rank: i + 1, name: x.name + (x.gone ? ' · LEFT' : ''), col: x.col, score: x.score, bg: x.me ? '#1f1d1c' : '#000' }));
+    const easyBar = play && h.easy, guideOn = !!h.guide;
+    return {
+      stageRef: this.stageRef, topRef: this.topRef, botRef: this.botRef, loading: false, h, embed: this.embed,
+      playOn: play, topLbl: (h.mode === 'pass' ? h.name + "'S SCORE" : h.mode === 'online' ? 'ONLINE · ROOM ' + (N ? N.code : '') : 'SKEE-BALL · SOLO'), ballTxt: Math.max(1, h.ball) + '/' + h.BALLS, pips,
+      menuTxt: this.embed ? 'BACK' : 'MENU', menuAria: this.embed ? 'Leave the arcade' : 'Back to the Skee-Ball menu', menuBtn: e => { blur(e); if (h.mode === 'online' && G) { G.toMenu(); return; } if (this.embed && h.phase !== 'play') this.backOut(); else G && G.toMenu(); },
+      guideBtn: e => { blur(e); if (!G) return; G.setGuide(!h.guide); this.prefs({ guide: !h.guide }); }, guideAria: guideOn ? 'Sound guide is on. Turn it off' : 'Turn on the sound guide', guideOnTxt: guideOn ? 'true' : 'false', guideBg: guideOn ? '#ffd23a' : '#000', guideFg: guideOn ? '#000' : '#ffd23a', guideState: guideOn ? 'ON · SCORES SPOKEN' : 'OFF',
+      boardOn: play && multi && portrait, boardInline: play && multi && !portrait, boardCols: Math.max(1, (h.board || []).length), boardRows: (h.board || []).map(b => ({ name: b.name + (b.gone ? ' · LEFT' : ''), col: b.col, score: b.score, sub: b.done ? 'DONE' : b.balls + '/' + h.BALLS, bg: b.cur ? '#ffd23a' : '#000', fg: b.cur ? '#000' : '#fff' })),
+      turnOn: play && !!h.turn,
+      flashOn: !!fl && play, flashTxt: fl ? fl.t : '', flashCol: fl ? fl.col : '#ffd23a', flashSub: fl ? fl.sub : '', flashSubOn: !!(fl && fl.sub), flashTop: portrait ? '46%' : '40%',
+      hintOn: !!h.hint && h.canRoll && !(h.radio && !portrait), hintBottom: portrait ? '120px' : '70px',
+      radioOn: play && !!h.radio, radioBottom: easyBar ? '92px' : '16px', radioW: portrait ? 'calc(100% - 112px)' : 'min(300px, 30%)',
+      easyBtnOn: play && !h.easy, easyBtnBottom: '16px', easyToggle: e => { blur(e); if (!G) return; G.setEasy(!h.easy); this.prefs({ easy: !h.easy }); }, easyPressed: h.easy ? 'true' : 'false', easyBtnBg: h.easy ? '#ffd23a' : '#000', easyBtnFg: h.easy ? '#000' : '#ffd23a', easyState: h.easy ? 'ON' : 'TAP · TAP', easyState2: h.easy ? 'ON · TAP TO AIM, TAP FOR POWER' : 'OFF · SWIPE TO ROLL',
+      easyOn: easyBar, easyCols: portrait ? 'minmax(0,1fr) 136px' : 'minmax(0,1fr) 240px', aimPos: (50 + h.easyAim * 50) + '%', powW: Math.round(h.easyPow * 100) + '%', aimLblC: h.easySt === 'aim' ? '#ffd23a' : '#8a847e', powLblC: h.easySt === 'power' ? '#ffd23a' : '#8a847e',
+      easyTap: e => { blur(e); G && G.easyTap(); }, easyDisabled: !h.canRoll, tapBg: h.easySt === 'aim' ? '#ec3013' : '#c82a10', tapOp: h.canRoll ? 1 : 0.5, tapTxt: !h.canRoll ? 'ROLLING…' : h.easySt === 'aim' ? 'SET AIM' : 'ROLL!', tapSub: h.easySt === 'aim' ? 'TAP WHEN THE AIM IS RIGHT' : 'TAP AT THE LINE FOR THE 50', easyOff: e => { blur(e); G && G.setEasy(false); this.prefs({ easy: false }); },
+      introOn: h.phase === 'intro' && !N, introText: !short, cardPad: short ? '8px 14px' : '12px 14px', titleSize: short ? '30px' : '40px', passN: this.state.passN + ' PLAYERS',
+      goSolo: e => { blur(e); G && G.start('solo'); }, goPass: e => { blur(e); G && G.start('pass', this.state.passN); }, passLess: e => { blur(e); this.setState(s => ({ passN: Math.max(2, s.passN - 1) })); }, passMore: e => { blur(e); this.setState(s => ({ passN: Math.min(5, s.passN + 1) })); },
+      goOnline: e => { blur(e); G && G.netOpen(); }, backOut: e => { blur(e); this.backOut(); },
+      netOn: netPanel, net: N || {}, netStat, netStatC: N && (N.status === 'offline' || N.full) ? '#ec3013' : '#ffd23a', netMsg, netRoom: !!N && N.st === 'room', netMenu: !!N && N.st === 'menu',
+      netMembers: m.map(x => ({ col: x.col, label: x.name + (x.me ? '' : ''), st: x.ready ? 'READY ✓' : x.playing ? 'PLAYING' : 'WAITING', stC: x.ready ? '#22c55e' : '#8a847e' })),
+      shareTxt: N && N.copied ? 'LINK COPIED' : 'SHARE LINK', netShare: e => { blur(e); G && G.netShare(); }, netCreate: e => { blur(e); G && G.netCreate(); },
+      codeIn: S.codeIn, codeType: e => this.setState({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) }), codeKey: e => { if (e.key === 'Enter') { G && G.netJoin(this.state.codeIn); } }, netJoin: e => { blur(e); G && G.netJoin(this.state.codeIn); },
+      readyOn: !!N && N.st === 'room' && !N.full && m.length >= 2, netReady: e => { blur(e); G && G.netReady(); }, readyTxt: N && N.ready ? 'READY ✓' : 'READY', readySub: N && N.ready ? (allReady ? 'STARTING…' : 'WAITING · ' + rc + '/' + m.length + ' READY') : m.length + ' PLAYERS · 9 BALLS EACH', readyBg: N && N.ready ? '#22c55e' : '#ec3013', readyFg: N && N.ready ? '#000' : '#fff',
+      netBtnCols: N && N.st === 'room' && !N.full && m.length >= 2 ? 'minmax(0,2fr) minmax(0,1fr)' : 'minmax(0,1fr)', netBackTxt: !N ? '' : N.st === 'menu' ? 'BACK' : N.full ? 'TRY ANOTHER CODE' : 'LEAVE',
+      netBack: e => { blur(e); if (!G || !N) return; if (N.st === 'menu') { G.netClose(); return; } if (N.full) { G.netLeave(); G.netOpen(); return; } G.netClose(); G.toMenu(); },
+      overOn: over, r, resRows: rows.length > 1 ? rows : [], resKicker: r.win ? 'YOU WIN' : (h.mode !== 'solo' && r.winner ? r.winner + ' WINS' : 'FINAL SCORE') + (r.best ? ' · BEST ' + r.best : ''),
+      againTxt: h.mode === 'online' ? 'BACK TO THE ROOM' : 'PLAY AGAIN', again: e => { blur(e); if (!G) return; if (h.mode === 'online') { G.toMenu(); return; } G.start(h.mode, h.mode === 'pass' ? this.state.passN : 1); },
+      toMenu: e => { blur(e); if (!G) return; if (h.mode === 'online') { G.netClose(); } G.toMenu(); },
+    };
+  }
+}
+</script>
+</body>
+</html>

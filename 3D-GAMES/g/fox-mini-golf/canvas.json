@@ -1,0 +1,44 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Landscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "iPhone landscape · 844 × 390 · playable demo",
+      "w": 844,
+      "x": 470,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "iPhone portrait · 390 × 844 · playable demo",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-08T16:14:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "howto": {
+      "text": "Press Play on a phone. The demo starts by itself: a fox plays all 9 holes. Tap anywhere on the course to take over and pick a mode. To putt: drag back from anywhere, let go. Tweaks: turn Auto demo off to open on the menu.",
+      "w": 420,
+      "x": 470,
+      "y": 470
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Landscape.dc.html"
+  ],
+  "pages": [],
+  "title": "Fox Mini Golf"
+}

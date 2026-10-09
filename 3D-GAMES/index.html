@@ -77,6 +77,7 @@ section.cat .sub{margin:0 0 14px;color:var(--dim);font-size:15px}
 .note h2{font-family:var(--display);font-weight:400;font-size:18px;color:var(--fg);margin:0 0 6px}
 .empty{color:var(--dim);padding:24px 0}
 .links a.here::after{content:"▶";font-size:12px}
+.links a.online{background:transparent;border-style:dashed;color:var(--link)}
 #player{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column}
 #player[hidden]{display:none}
 .pbar{display:flex;align-items:center;gap:12px;padding:calc(6px + env(safe-area-inset-top,0px)) 12px 6px;background:var(--bg);border-bottom:1px solid var(--line)}
@@ -89,7 +90,7 @@ section.cat .sub{margin:0 0 14px;color:var(--dim);font-size:15px}
   <header class="marquee">
     <div class="bulbs" aria-hidden="true"></div>
     <h1>8 GATES<br>Game Room</h1>
-    <p class="lede">Every 3D fox minigame from your Design chats, your project backup and your repo, in one place. Tap <b>Play</b> to open a game. Mark each one <b>Works</b> or <b>Broken</b> as you test, and type any change you want; Claude reads these notes and makes the edits.</p>
+    <p class="lede">Every 3D fox minigame from your Design chats, your project backup and your repo, in one place. Tap <b>Play</b> to open a game, or <b>Play online</b> to invite friends. Mark each one <b>Works</b> or <b>Broken</b> as you test, and type any change you want; Claude reads these notes and makes the edits.</p>
     <div class="tally" id="tally"></div>
   </header>
 
@@ -112,9 +113,9 @@ section.cat .sub{margin:0 0 14px;color:var(--dim);font-size:15px}
   <main id="main"></main>
 
   <div class="note">
-    <h2>What's not here</h2>
-    <p style="margin:0 0 8px">Empty Design canvases (10 of them) are left out. The gallery listing only shows Claude your 97 newest artifacts, so a few older ones (Zion Gold Rush, for example) may be missing; paste a link and Claude will add it.</p>
-    <p style="margin:0">Games marked ▶ live inside this page and open right here; tap <b>← Menu</b> to come back. The others open their own artifact in a new tab.</p>
+    <h2>How this menu works</h2>
+    <p style="margin:0 0 8px">Your Works / Broken marks and change requests save from the Game Room in the Claude app, where Claude can read them. On the GitHub copy of this menu they are hidden.</p>
+    <p style="margin:0">Games marked ▶ open right here; tap <b>← Menu</b> to come back. <b>Play online ↗</b> opens the same game on your GitHub site, where <b>Make a room → Share link</b> invites friends on their own phones, no sign-in needed.</p>
   </div>
 </div>
 
@@ -128,7 +129,9 @@ const A = id => "https://claude.ai/artifact/" + id;
 const C = id => "https://claude.ai/chat/" + id;
 const R = p => "https://blindbenfilms.github.io/FOXgate8/3D/" + p;
 const A2 = id => "https://claude.ai/code/artifact/" + id;
-const H = f => "@" + f;   // a game hosted inside this page: opens in the player
+const H = f => "@" + f;
+const SITE = "https://blindbenfilms.github.io/3D-foxgate8/3D-GAMES/";
+const ON_SITE = /github\.io$/.test(location.hostname);   // a game hosted inside this page: opens in the player
 
 const CATS = [
   {id:"arcade", name:"Arcade & Carnival", sub:"Booths and cabinets that drop into any building."},
@@ -147,80 +150,80 @@ const CATS = [
 // links: [label, url, primary?]
 const GAMES = [
   // ARCADE & CARNIVAL
-  {s:"ring-toss",c:"arcade",n:"Ring Toss",w:"Carnival",a:"Toss rings onto pegs over three rounds, with wind and a spinning gold peg.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",A("Ks2sXjfBTCRuToWxm32LAK"),1]]},
-  {s:"water-race",c:"arcade",n:"Water-Gun Horse Race",w:"Carnival",a:"Squirt the bullseye to race your horse to the flag.",m:["Solo","Online up to 4","Demo"],l:[["Play",A("QqduJFErvTNR1ZwwU16Erc"),1],["Canvas",A("9fZDbktCB22SHv6ooGMwcJ")]]},
-  {s:"balloon-pop",c:"arcade",n:"Balloon Pop",w:"Carnival",a:"Drag to aim and throw darts at a balloon board for tickets and prizes.",m:["Classic","Blitz","Party 2–5","Online 2–5","Demo"],l:[["Play",A("3H3LNShYWVZPv5kvRcnxuL"),1],["Canvas",A("U2X1C3oeGZhxuc8NMpHYcU")]]},
-  {s:"coconut-shy",c:"arcade",n:"Coconut Shy",w:"Carnival",a:"Swipe up to knock cans and coconuts off the shelves over three rounds.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",H("Carnival Coconut Shy.dc.html"),1],["Artifact",A("XAEmjRh991qsfoqtHCQePh")]]},
-  {s:"shooting-gallery",c:"arcade",n:"Shooting Gallery + Marsh Blaster",w:"Carnival",a:"Cork-rifle carnival targets, plus a duck-shooting variant, in one canvas.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",A("JC42TavZBXpVKm7y1iV5Gd"),1]]},
-  {s:"marsh-blaster",c:"arcade",n:"Marsh Blaster",w:"Arcade",a:"Duck-hunt light-gun cabinet: ducks and clays, three shells a wave.",m:["Solo","Pass the phone","Online up to 5","Demo"],l:[["Play",A("R2RQhfKagHGkc3HMCfKnnu"),1]]},
-  {s:"dusty-gulch",c:"arcade",n:"Dusty Gulch",w:"Saloon",a:"Western shooting gallery: pop-up outlaws, cans and bottles.",m:["Solo","Pass the phone","Online up to 5","Demo"],l:[["Play",A("9vicK2RjRxzRMDx3h2xxQe"),1]]},
-  {s:"fox-blaster",c:"arcade",n:"Fox Blaster",w:"Arcade",a:"Light-gun shooter: take cover, clear three stages, beat BIG BRASS.",m:["Solo","Co-op online up to 5","Demo"],l:[["Play",A("JMbmkgvyjF21eLUWzQiHy8"),1]]},
-  {s:"claw-crane",c:"arcade",n:"Claw Crane",w:"Arcade",a:"Steer the claw and drop it for trucks, plush creatures and fox heroes.",m:["Play","Practice","Party","Online race up to 5","Demo"],l:[["Play",H("Arcade Claw Crane.dc.html"),1],["Artifact",A("Q3gpo14cYW9aaSFP3SmKXE")]]},
-  {s:"love-tester",c:"arcade",n:"Love Tester",w:"Arcade",a:"Tap the heartbeat, squeeze the grip and match sparks with a partner.",m:["Solo","Online 2–5","Demo"],l:[["Play",A("9wZVMUh5dmkhMDtfALK9q2"),1]]},
-  {s:"fox-arcade",c:"arcade",n:"Dance Machine + Shuffleboard",w:"Arcade",a:"Hit arrows on a four-lane dance pad, or slide pucks down a shuffleboard table.",m:["Vs CPU","Party 2–5","Online 2–5","Demo"],l:[["Play",A("AyqkKBni7erVi5L8i2S3yo"),1],["Canvas",A("XwP6YBwhkhxf9FehJhPAL3")]]},
-  {s:"skee-ball",c:"arcade",n:"Skee-Ball",w:"Arcade",a:"Swipe up to roll balls into the rings and the 100 pockets.",m:["Solo","Party 2–5","Online 2–5"],l:[["Play",A("4oTXS9iUXz9FM7tRdxVVsX"),1]]},
-  {s:"pinball-slots",c:"arcade",n:"Gate Rush Pinball + Lucky Gates Slots",w:"Arcade",a:"A full 3D pinball table and a three-line slot machine in one arcade room.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",A("UgeLTTpqUsTwVPN3oKXaff"),1],["Pinball design sheet",A("2C8PEDv35grrxhESvJip2o")]]},
+  {s:"ring-toss",c:"arcade",n:"Ring Toss",w:"Carnival",a:"Toss rings onto pegs over three rounds, with wind and a spinning gold peg.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/fox-ring-toss/Main.dc.html"),1]]},
+  {s:"water-race",c:"arcade",n:"Water-Gun Horse Race",w:"Carnival",a:"Squirt the bullseye to race your horse to the flag.",m:["Solo","Online up to 4","Demo"],l:[["Play",H("g/water-gun-horse-race-462b3a/Main.dc.html"),1]]},
+  {s:"balloon-pop",c:"arcade",n:"Balloon Pop",w:"Carnival",a:"Drag to aim and throw darts at a balloon board for tickets and prizes.",m:["Classic","Blitz","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/carnival-balloon-pop-126f9d/game.html"),1]]},
+  {s:"coconut-shy",c:"arcade",n:"Coconut Shy",w:"Carnival",a:"Swipe up to knock cans and coconuts off the shelves over three rounds.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",H("Carnival Coconut Shy.dc.html"),1]]},
+  {s:"shooting-gallery",c:"arcade",n:"Shooting Gallery + Marsh Blaster",w:"Carnival",a:"Cork-rifle carnival targets, plus a duck-shooting variant, in one canvas.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/8-gates-minigames/Main.dc.html"),1]]},
+  {s:"marsh-blaster",c:"arcade",n:"Marsh Blaster",w:"Arcade",a:"Duck-hunt light-gun cabinet: ducks and clays, three shells a wave.",m:["Solo","Pass the phone","Online up to 5","Demo"],l:[["Play",H("g/marsh-blaster/index.html"),1]]},
+  {s:"dusty-gulch",c:"arcade",n:"Dusty Gulch",w:"Saloon",a:"Western shooting gallery: pop-up outlaws, cans and bottles.",m:["Solo","Pass the phone","Online up to 5","Demo"],l:[["Play",H("g/dusty-gulch/index.html"),1]]},
+  {s:"fox-blaster",c:"arcade",n:"Fox Blaster",w:"Arcade",a:"Light-gun shooter: take cover, clear three stages, beat BIG BRASS.",m:["Solo","Co-op online up to 5","Demo"],l:[["Play",H("g/fox-blaster/Main.dc.html"),1]]},
+  {s:"claw-crane",c:"arcade",n:"Claw Crane",w:"Arcade",a:"Steer the claw and drop it for trucks, plush creatures and fox heroes.",m:["Play","Practice","Party","Online race up to 5","Demo"],l:[["Play",H("Arcade Claw Crane.dc.html"),1]]},
+  {s:"love-tester",c:"arcade",n:"Love Tester",w:"Arcade",a:"Tap the heartbeat, squeeze the grip and match sparks with a partner.",m:["Solo","Online 2–5","Demo"],l:[["Play",H("g/8-gates-love-tester/love-tester.html"),1]]},
+  {s:"fox-arcade",c:"arcade",n:"Dance Machine + Shuffleboard",w:"Arcade",a:"Hit arrows on a four-lane dance pad, or slide pucks down a shuffleboard table.",m:["Vs CPU","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/fox-arcade/index.html"),1]]},
+  {s:"skee-ball",c:"arcade",n:"Skee-Ball",w:"Arcade",a:"Swipe up to roll balls into the rings and the 100 pockets.",m:["Solo","Party 2–5","Online 2–5"],l:[["Play",H("g/skee-ball-phone-preview/Main.dc.html"),1]]},
+  {s:"pinball-slots",c:"arcade",n:"Gate Rush Pinball + Lucky Gates Slots",w:"Arcade",a:"A full 3D pinball table and a three-line slot machine in one arcade room.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Pinball",H("g/8-gates-arcade/pinball.dc.html"),1],["Slots",H("g/8-gates-arcade/slots.dc.html")]]},
   {s:"vending",c:"arcade",n:"Snack Stop Vending Machine",w:"Any world",a:"Pick a snack, pay in gold, watch it drop; shake it loose if it gets stuck.",m:["Solo"],l:[["Play",H("Arcade Vending Machine.dc.html"),1]]},
-  {s:"pachinko",c:"arcade",n:"Fox Gate Pachinko",w:"Arcade",a:"Launch balls through the pins to bank balls and cash out gold.",m:["Free play","For gold","Online ball race 2–5"],l:[["Play",A("L8yxDoqj3A8vYR9D6qbVtf"),1]]},
+  {s:"pachinko",c:"arcade",n:"Fox Gate Pachinko",w:"Arcade",a:"Launch balls through the pins to bank balls and cash out gold.",m:["Free play","For gold","Online ball race 2–5"],l:[["Play",H("g/fox-gate-pachinko/Main.dc.html"),1]]},
 
   // TAVERN
-  {s:"tavern-games",c:"tavern",n:"Pool, Air Hockey, Ping-Pong, Foosball",w:"Tavern",a:"Walk in, talk to a regular, stake gold and play any of four table games.",m:["Vs NPC","Demo"],l:[["Play",A("FALaAQfoVRLxzJkEJpBwHZ"),1]]},
-  {s:"axe-cornhole-washers",c:"tavern",n:"Axe House, Cornhole, Washers",w:"Tavern",a:"Three throwing games against Hope, Noble or friends.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",A("AJqupk9LQ21jXAmgw41gDV"),1]]},
-  {s:"whack-a-mole",c:"tavern",n:"Whack-a-Mole",w:"Tavern",a:"60-second rounds on a 3×3 cabinet; dodge hedgehogs, build combos.",m:["Solo","Party 2–5","Online 2–5"],l:[["Play",A("NNDFStXQEt2C3FRRrCHDiM"),1]]},
-  {s:"fox-hoops",c:"tavern",n:"Fox Hoops",w:"Zion",a:"Shoot at the tavern hoop machine, moving hoop included, to beat the record.",m:["Vs regulars","Pass & play 2–5","Online 2–5","Demo"],l:[["Play",A("M4veykxsv2Q8hqxmyeVErH"),1],["Canvas",A("YMMH1QiB5ps5qy4CQeLt8x")]]},
-  {s:"liars-dice",c:"tavern",n:"Liar's Dice",w:"Tavern",a:"Bid and bluff with leather dice cups at a lamp-lit table.",m:["Vs CPU","Pass & play 2–6","Online 2–6","Demo"],l:[["Play",A("8su3CRsZXXh8SG5CZWdS71"),1]]},
-  {s:"cribbage",c:"tavern",n:"Cribbage",w:"Tavern",a:"Pegboard and cards to 121 or 61; four players play as two teams.",m:["Vs CPU","Party 2–4","Online 2–4","Demo"],l:[["Play",A("PRQHcY3iCP3HBom8wrEe4C"),1]]},
-  {s:"shut-the-box",c:"tavern",n:"Shut the Box",w:"Tavern",a:"Roll dice and shut tiles that add up to the roll; lowest leftover wins.",m:["Solo","Vs CPU","Party 2–5","Online 2–5","Demo"],l:[["Play",A("9pCDyb9NkykWuBqBvgk3PS"),1]]},
+  {s:"tavern-games",c:"tavern",n:"Pool, Air Hockey, Ping-Pong, Foosball",w:"Tavern",a:"Walk in, talk to a regular, stake gold and play any of four table games.",m:["Vs NPC","Demo"],l:[["Pool",H("g/tavern-games/Main.dc.html"),1],["Air Hockey",H("g/tavern-games/HockeyMain.dc.html")],["Ping-Pong",H("g/tavern-games/PongMain.dc.html")],["Foosball",H("g/tavern-games/FoosMain.dc.html")]]},
+  {s:"axe-cornhole-washers",c:"tavern",n:"Axe House, Cornhole, Washers",w:"Tavern",a:"Three throwing games against Hope, Noble or friends.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Axe",H("g/8-gates-minigames-phone-preview/Main.dc.html"),1],["Cornhole",H("g/8-gates-minigames-phone-preview/Cornhole.dc.html")],["Washers",H("g/8-gates-minigames-phone-preview/Washers.dc.html")]]},
+  {s:"whack-a-mole",c:"tavern",n:"Whack-a-Mole",w:"Tavern",a:"60-second rounds on a 3×3 cabinet; dodge hedgehogs, build combos.",m:["Solo","Party 2–5","Online 2–5"],l:[["Play",H("g/tavern-whack-a-mole/Main.dc.html"),1]]},
+  {s:"fox-hoops",c:"tavern",n:"Fox Hoops",w:"Zion",a:"Shoot at the tavern hoop machine, moving hoop included, to beat the record.",m:["Vs regulars","Pass & play 2–5","Online 2–5","Demo"],l:[["Play",H("g/fox-hoops-a28312/index.html"),1]]},
+  {s:"liars-dice",c:"tavern",n:"Liar's Dice",w:"Tavern",a:"Bid and bluff with leather dice cups at a lamp-lit table.",m:["Vs CPU","Pass & play 2–6","Online 2–6","Demo"],l:[["Play",H("g/liars-dice/liars-dice.dc.html"),1]]},
+  {s:"cribbage",c:"tavern",n:"Cribbage",w:"Tavern",a:"Pegboard and cards to 121 or 61; four players play as two teams.",m:["Vs CPU","Party 2–4","Online 2–4","Demo"],l:[["Play",H("g/cribbage/cribbage.dc.html"),1]]},
+  {s:"shut-the-box",c:"tavern",n:"Shut the Box",w:"Tavern",a:"Roll dice and shut tiles that add up to the roll; lowest leftover wins.",m:["Solo","Vs CPU","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/shut-the-box/shut-the-box.dc.html"),1]]},
 
   // SPORTS
-  {s:"arm-wrestling",c:"sports",n:"Arm Wrestling",w:"Meru",a:"Climb a ladder of five rivals at the Iron Table to win the belt.",m:["Ladder","2 on one phone","Online up to 5","Demo"],l:[["Play",A("DASJanrkSXkCSmVDiLwrMQ"),1]]},
-  {s:"tug-of-war",c:"sports",n:"Tug of War",w:"Hall",a:"Time your PULL taps and DIG IN against heaves to drag the rivals into the mud.",m:["Solo ladder","2 on one phone","Online 2–5","Demo"],l:[["Play",H("Tug of War.dc.html"),1],["Artifact",A("Bkn3vSrZZTFMoDj8RhaoVo")]]},
-  {s:"tetherball",c:"sports",n:"Tetherball",w:"Gym hall",a:"Wrap the ball around the pole before your rival does.",m:["Ladder","2 on one phone","Online","Demo"],l:[["Play",A("GkMFFBJjJ83asNrZeuDdwB"),1]]},
-  {s:"curling",c:"sports",n:"Curling",w:"Home",a:"Set the broom, pick weight and curl, then sweep to score ends.",m:["Vs CPU","Pass & play","Online 2–5","Demo"],l:[["Play",A("3QfVoDMDyVhTZ3oGHPdAm7"),1]]},
-  {s:"mini-golf",c:"sports",n:"Mini Golf",w:"Home",a:"Drag back and release to putt around a nine-hole course.",m:["Solo","Party 2–5","Online up to 5","Demo"],l:[["Play",A("98ypPGjd4M6ejCgn1a3TXB"),1]]},
-  {s:"mechanical-bull",c:"sports",n:"Mechanical Bull",w:"Zion",a:"Hold on for 8 seconds: tap on the beat and lean against the push.",m:["Solo","Pass & play","Online up to 5","Demo"],l:[["Play",A("8pYT6XSDvZsDPkWxLxGUSd"),1]]},
+  {s:"arm-wrestling",c:"sports",n:"Arm Wrestling",w:"Meru",a:"Climb a ladder of five rivals at the Iron Table to win the belt.",m:["Ladder","2 on one phone","Online up to 5","Demo"],l:[["Play",H("g/arm-wrestling-iron-table/Main.dc.html"),1]]},
+  {s:"tug-of-war",c:"sports",n:"Tug of War",w:"Hall",a:"Time your PULL taps and DIG IN against heaves to drag the rivals into the mud.",m:["Solo ladder","2 on one phone","Online 2–5","Demo"],l:[["Play",H("Tug of War.dc.html"),1]]},
+  {s:"tetherball",c:"sports",n:"Tetherball",w:"Gym hall",a:"Wrap the ball around the pole before your rival does.",m:["Ladder","2 on one phone","Online","Demo"],l:[["Play",H("g/tetherball-hall/Main.dc.html"),1]]},
+  {s:"curling",c:"sports",n:"Curling",w:"Home",a:"Set the broom, pick weight and curl, then sweep to score ends.",m:["Vs CPU","Pass & play","Online 2–5","Demo"],l:[["Play",H("g/curling-club/Main.dc.html"),1]]},
+  {s:"mini-golf",c:"sports",n:"Mini Golf",w:"Home",a:"Drag back and release to putt around a nine-hole course.",m:["Solo","Party 2–5","Online up to 5","Demo"],l:[["Play",H("g/fox-mini-golf/Main.dc.html"),1]]},
+  {s:"mechanical-bull",c:"sports",n:"Mechanical Bull",w:"Zion",a:"Hold on for 8 seconds: tap on the beat and lean against the push.",m:["Solo","Pass & play","Online up to 5","Demo"],l:[["Play",H("g/zion-mechanical-bull/Main.dc.html"),1]]},
 
   // CASINO
-  {s:"meru-poker",c:"casino",n:"Meru Poker + Treasure Wheel",w:"Meru",a:"Spin the Treasure Wheel, or play stud and hold'em at Kane's table.",m:["Solo","Party","Online up to 5","Demo"],l:[["Play",A("ThGCPks555FBMdxdB8GuVy"),1]]},
-  {s:"five-card-stud",c:"casino",n:"Five Card Stud",w:"Meru",a:"Heads-up or full-table stud with fox face cards, plus a Card Workshop to restyle the deck.",m:["Solo","Online 2–5"],l:[["Play",H("Meru Five Card Stud.dc.html"),1],["Card Workshop",H("Meru Stud Card Workshop.dc.html")],["Artifact",A("VSQbD6g8wdma6SYqrMrSeP")]]},
-  {s:"texas-holdem",c:"casino",n:"Texas Hold'em",w:"Meru",a:"Hold'em at the Meru Casino table against the fox regulars, with blinds and side pots.",m:["Solo","Online 2–5"],l:[["Play",H("Meru Texas Holdem.dc.html"),1],["Artifact",A("86AJufwgVSHhS9U8xx75mZ")]]},
+  {s:"meru-poker",c:"casino",n:"Meru Poker + Treasure Wheel",w:"Meru",a:"Spin the Treasure Wheel, or play stud and hold'em at Kane's table.",m:["Solo","Party","Online up to 5","Demo"],l:[["Treasure Wheel",H("g/meru-poker/Wheel.dc.html"),1],["Poker",H("g/meru-poker/Main.dc.html")]]},
+  {s:"five-card-stud",c:"casino",n:"Five Card Stud",w:"Meru",a:"Heads-up or full-table stud with fox face cards, plus a Card Workshop to restyle the deck.",m:["Solo","Online 2–5"],l:[["Play",H("Meru Five Card Stud.dc.html"),1],["Card Workshop",H("Meru Stud Card Workshop.dc.html")]]},
+  {s:"texas-holdem",c:"casino",n:"Texas Hold'em",w:"Meru",a:"Hold'em at the Meru Casino table against the fox regulars, with blinds and side pots.",m:["Solo","Online 2–5"],l:[["Play",H("Meru Texas Holdem.dc.html"),1]]},
 
   // BOARD GAMES
-  {s:"chess",c:"board",n:"Chess Club",w:"Home",a:"Chess on a 3D board in a small club room.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",A("We3JpQMiEzZowzyanWr4K4"),1]]},
-  {s:"checkers",c:"board",n:"Checkers Club",w:"Home",a:"Checkers on a 3D board against fox CPUs or friends.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",A("2HYmAUGunptw6Hr2J8P6PM"),1]]},
-  {s:"backgammon",c:"board",n:"Backgammon Club",w:"Home",a:"Roll and race your checkers home in a café corner.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",A("7tzoXsf3eeMULUUBdWjmkB"),1]]},
-  {s:"go",c:"board",n:"Go Club",w:"Home",a:"9×9, 13×13 or 19×19 on a goban in a tatami room.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",A("BrEsDsf6tdmizFJgdrSMDG"),1]]},
-  {s:"dominoes",c:"board",n:"Dominoes Club",w:"Any world",a:"Draw or All Fives at a felt porch table, first to 50, 100 or 150.",m:["Vs CPU","Pass & play 2–4","Online 2–5","Demo"],l:[["Play",A("BnT65HSBmE32dP84R3pypG"),1]]},
+  {s:"chess",c:"board",n:"Chess Club",w:"Home",a:"Chess on a 3D board in a small club room.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/chess-club/chess-club.dc.html"),1]]},
+  {s:"checkers",c:"board",n:"Checkers Club",w:"Home",a:"Checkers on a 3D board against fox CPUs or friends.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/checkers-club/checkers-club.dc.html"),1]]},
+  {s:"backgammon",c:"board",n:"Backgammon Club",w:"Home",a:"Roll and race your checkers home in a café corner.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/backgammon-club/backgammon-club.dc.html"),1]]},
+  {s:"go",c:"board",n:"Go Club",w:"Home",a:"9×9, 13×13 or 19×19 on a goban in a tatami room.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/go-club/go-club.dc.html"),1]]},
+  {s:"dominoes",c:"board",n:"Dominoes Club",w:"Any world",a:"Draw or All Fives at a felt porch table, first to 50, 100 or 150.",m:["Vs CPU","Pass & play 2–4","Online 2–5","Demo"],l:[["Play",H("g/dominoes-club/dominoes-club.dc.html"),1]]},
 
   // SHOPS & JOBS
-  {s:"bex-truck-shop",c:"jobs",n:"Bex's Truck Shop",w:"Zion",a:"Wash, change wheels, weld, pump tyres and tune engines to the job card.",m:["Shift","Walk","Demo"],l:[["Play",A("3tFtdGj3FFrCjf94CPwacX"),1]]},
-  {s:"bram-ski-works",c:"jobs",n:"Bram's Ski Works",w:"Home",a:"Measure, press, trace the sidecut, paint and wax custom skis.",m:["Shift","Walk","Demo"],l:[["Play",A("L7bREVTpoZ9Kzj8yqEqhwH"),1]]},
-  {s:"bramble-comics",c:"jobs",n:"Bramble's Comics",w:"Home",a:"Cut panels, pencil, ink and colour commissioned comic pages.",m:["Shift","Demo"],l:[["Play",H("Comic Shop.dc.html"),1],["Canvas",A("NrU2vKri4ZH3cWwAcLCN8w")]]},
-  {s:"breakfast-diner",c:"jobs",n:"Breakfast All Day Diner",w:"Earth",a:"Pancakes, eggs, bacon and hash on Sunny's flat-top, then make change.",m:["Shift","Walk","Demo"],l:[["Play",A("CkvsQNVSfURf8wPzBoYLRE"),1]]},
-  {s:"clubhouse-8",c:"jobs",n:"Clubhouse 8 · The Counter",w:"Home",a:"Run the arcade counter; walk mode has eight mini cabinets.",m:["Shift","Walk","Demo"],l:[["Play",A("7qFoiuA8SUzd9rzXKmxaft"),1]]},
-  {s:"skewer-house",c:"jobs",n:"Ember's Skewer House",w:"Meru",a:"Thread kabobs to the ticket, roll them over the coals and serve.",m:["Shift","Demo"],l:[["Play",A("MdfDcHmmHHMZLxDsBm84m5"),1]]},
-  {s:"ball-works",c:"jobs",n:"Felt's Ball Works",w:"Gaya",a:"Three minutes on the line: squeeze, dunk, stitch and test the balls.",m:["Shift","Demo"],l:[["Play",H("Gaya Ball Factory.dc.html"),1],["Canvas",A("CbBEBD7GBwAEyakCRXW6y3")]]},
-  {s:"fox-cinema",c:"jobs",n:"Fox Cinema",w:"Any world",a:"Walk the cinema, then work Reel's snack counter before showtime.",m:["Walk","Shift","Demo"],l:[["Play",H("Fox Cinema.dc.html"),1],["Snack counter",A("4611KZRdzwUuMUCH52KBq4")]]},
-  {s:"fox-gelato",c:"jobs",n:"FOX Gelato",w:"Any world",a:"Scoop to size, stack without toppling, add toppings, make change.",m:["Shift","Walk","Demo"],l:[["Play",A("QitXDxz3eTY1ZdP81n5tNK"),1]]},
-  {s:"foxy-cakes",c:"jobs",n:"Foxy Cakes",w:"Any world",a:"Mix, bake and decorate custom cakes, or bake your own.",m:["Shift","Free bake","Walk","Demo"],l:[["Play",A("39a9YzHMwNiy163V4ppyL3"),1]]},
-  {s:"foxy-gyoza",c:"jobs",n:"Foxy Gyoza",w:"Any world",a:"Pleat dumplings, pan-fry to the right crust, steam and serve.",m:["Shift","Walk","Demo"],l:[["Play",A("XeLDVk3cPe7S5RhvwpKJ9k"),1]]},
-  {s:"foxy-maki",c:"jobs",n:"Foxy Maki",w:"Kyoto",a:"Slice fish, spread rice, roll and cut maki at the sushi bar.",m:["Shift","Demo"],l:[["Play",A("4iS6yzRo3HNWBuWvDXipXg"),1]]},
-  {s:"foxy-pies",c:"jobs",n:"Foxy Pies",w:"Any world",a:"Toss dough, sauce, top, bake and slice pizzas.",m:["Shift","Demo"],l:[["Play",A("EuebqJqT4RPQuaHPCaMiTt"),1]]},
-  {s:"foxy-ramen",c:"jobs",n:"Foxy Ramen",w:"Any world",a:"Cut noodles, pour broth and build bowls to the ticket.",m:["Shift","Walk","Demo"],l:[["Play",A("B9osZgMG5g3L1Az6QbtjRG"),1]]},
-  {s:"candle-works",c:"jobs",n:"Opa's Candle Works",w:"Gaya",a:"Dip, carve and sell temple candles to order.",m:["Shift","Demo"],l:[["Play",A("BX4yDJFqK9XWVTX1hjZnxN"),1]]},
-  {s:"goldsmith",c:"jobs",n:"Goldsmith of Zion",w:"Zion",a:"Melt, pour, hammer and set stones for Aurel's jewellery orders.",m:["Shift","Demo"],l:[["Play",A("TV35iSprXZ9scZU7io2fqk"),1]]},
-  {s:"surf-shop",c:"jobs",n:"Jib's Surf Shop",w:"Jidda",a:"Shape, finish and hand over custom surfboards.",m:["Shift","Demo"],l:[["Play",A("YcNcAwTm4KnzhQhJppGjEB"),1]]},
-  {s:"creamery",c:"jobs",n:"Kufa Creamery",w:"Kufa",a:"Soft-serve shift: cone, swirl, sauce, topping, serve before it melts.",m:["Shift","Demo"],l:[["Play",A("WFWbDiyWQQvwaBCwV35AeS"),1]]},
-  {s:"bike-shop",c:"jobs",n:"Luxor Bike Shop",w:"Luxor",a:"Repair riders' bikes on the lift from job cards.",m:["Shift","Demo"],l:[["Play",A("RT63gydrTywT6qBbk4sbkR"),1]]},
-  {s:"luxor-zoo",c:"jobs",n:"Hessa's Menagerie",w:"Luxor",a:"Feed, water, clean and entertain animals across ten cages.",m:["Shift","Demo"],l:[["Play",A("UvUroNdaMqKhpdkKpQsMUq"),1]]},
-  {s:"hopes-class",c:"jobs",n:"Hope's Class",w:"Meru",a:"Braille writing, tactile art and cane walking at the School for the Blind.",m:["Lessons","Demo"],l:[["Play",A("K7sj4CeWgM1JrKEpo7Hr9J"),1]]},
-  {s:"candy-shop",c:"jobs",n:"Nebo Candy Shop",w:"Nebo",a:"Taffy, gummies, rock candy and truffles to order.",m:["Shift","Demo"],l:[["Play",A("5vkLqXv9raHaHEMhXxvX3o"),1]]},
-  {s:"lumber-mill",c:"jobs",n:"Cedar's Lumber Mill",w:"Nebo",a:"Debark, saw, plane and stain logs for the neighbours' orders.",m:["Shift","Demo"],l:[["Play",A("4xmSXRAxK6g423dphTf5qS"),1]]},
-  {s:"pet-store",c:"jobs",n:"Marlow's Pet Store",w:"Nebo",a:"Calm, brush, scrub, rinse and dry a dog, a cat and a truffle pig.",m:["Shift","Demo"],l:[["Play",A("G7V2kk46ziXW5mtDtKNGhe"),1]]},
-  {s:"dolphin-trainer",c:"jobs",n:"Ocean World Dolphin Trainer",w:"Jidda",a:"Signal tricks, whistle on cue and reward with fish.",m:["Shift","Demo"],l:[["Play",A("CUxj71QfKA8iZj34TCtGgK"),1]]},
-  {s:"spy-shop",c:"jobs",n:"Rafiq's Spy Shop",w:"Kufa",a:"Pick locks and crack safes for Rafiq's clients.",m:["Shift","Demo"],l:[["Play",A("SoGWojsQ4NLGwtgh9Guwdv"),1]]},
-  {s:"tank-works",c:"jobs",n:"Tread's Tank Works",w:"Tank Range",a:"Cast, forge, weld, bolt, paint and stamp tank parts.",m:["Shift","Demo"],l:[["Play",A("DTf2BXH7oHbhkgpAJEi8gA"),1]]},
-  {s:"camel-pen",c:"jobs",n:"Ummi's Camel Pen",w:"Kufa",a:"Water, feed, brush, pull thorns and train the camels owners lead in.",m:["Shift","Demo"],l:[["Play",H("Kufa Camel Pen.dc.html"),1],["Screens",A("2J5DvrnpKg9FhyPf7aXg4s")]]},
+  {s:"bex-truck-shop",c:"jobs",n:"Bex's Truck Shop",w:"Zion",a:"Wash, change wheels, weld, pump tyres and tune engines to the job card.",m:["Shift","Walk","Demo"],l:[["Play",H("g/bex-truck-shop/Main.dc.html"),1]]},
+  {s:"bram-ski-works",c:"jobs",n:"Bram's Ski Works",w:"Home",a:"Measure, press, trace the sidecut, paint and wax custom skis.",m:["Shift","Walk","Demo"],l:[["Play",H("g/bram-ski-works/Main.dc.html"),1]]},
+  {s:"bramble-comics",c:"jobs",n:"Bramble's Comics",w:"Home",a:"Cut panels, pencil, ink and colour commissioned comic pages.",m:["Shift","Demo"],l:[["Play",H("Comic Shop.dc.html"),1]]},
+  {s:"breakfast-diner",c:"jobs",n:"Breakfast All Day Diner",w:"Earth",a:"Pancakes, eggs, bacon and hash on Sunny's flat-top, then make change.",m:["Shift","Walk","Demo"],l:[["Play",H("g/breakfast-all-day-diner/Phone-Portrait.dc.html"),1]]},
+  {s:"clubhouse-8",c:"jobs",n:"Clubhouse 8 · The Counter",w:"Home",a:"Run the arcade counter; walk mode has eight mini cabinets.",m:["Shift","Walk","Demo"],l:[["Play",H("g/clubhouse-8/Main.dc.html"),1]]},
+  {s:"skewer-house",c:"jobs",n:"Ember's Skewer House",w:"Meru",a:"Thread kabobs to the ticket, roll them over the coals and serve.",m:["Shift","Demo"],l:[["Play",H("g/ember-skewer-house/Main.dc.html"),1]]},
+  {s:"ball-works",c:"jobs",n:"Felt's Ball Works",w:"Gaya",a:"Three minutes on the line: squeeze, dunk, stitch and test the balls.",m:["Shift","Demo"],l:[["Play",H("Gaya Ball Factory.dc.html"),1]]},
+  {s:"fox-cinema",c:"jobs",n:"Fox Cinema",w:"Any world",a:"Walk the cinema, then work Reel's snack counter before showtime.",m:["Walk","Shift","Demo"],l:[["Play",H("Fox Cinema.dc.html"),1]]},
+  {s:"fox-gelato",c:"jobs",n:"FOX Gelato",w:"Any world",a:"Scoop to size, stack without toppling, add toppings, make change.",m:["Shift","Walk","Demo"],l:[["Play",H("g/fox-gelato/Main.dc.html"),1]]},
+  {s:"foxy-cakes",c:"jobs",n:"Foxy Cakes",w:"Any world",a:"Mix, bake and decorate custom cakes, or bake your own.",m:["Shift","Free bake","Walk","Demo"],l:[["Play",H("g/foxy-cakes/Main.dc.html"),1]]},
+  {s:"foxy-gyoza",c:"jobs",n:"Foxy Gyoza",w:"Any world",a:"Pleat dumplings, pan-fry to the right crust, steam and serve.",m:["Shift","Walk","Demo"],l:[["Play",H("g/foxy-gyoza/Foxy Gyoza.dc.html"),1]]},
+  {s:"foxy-maki",c:"jobs",n:"Foxy Maki",w:"Kyoto",a:"Slice fish, spread rice, roll and cut maki at the sushi bar.",m:["Shift","Demo"],l:[["Play",H("g/foxy-maki/Main.dc.html"),1]]},
+  {s:"foxy-pies",c:"jobs",n:"Foxy Pies",w:"Any world",a:"Toss dough, sauce, top, bake and slice pizzas.",m:["Shift","Demo"],l:[["Play",H("g/foxy-pies/Main.dc.html"),1]]},
+  {s:"foxy-ramen",c:"jobs",n:"Foxy Ramen",w:"Any world",a:"Cut noodles, pour broth and build bowls to the ticket.",m:["Shift","Walk","Demo"],l:[["Play",H("g/foxy-ramen/Main.dc.html"),1]]},
+  {s:"candle-works",c:"jobs",n:"Opa's Candle Works",w:"Gaya",a:"Dip, carve and sell temple candles to order.",m:["Shift","Demo"],l:[["Play",H("g/gaya-candle-works/Main.dc.html"),1]]},
+  {s:"goldsmith",c:"jobs",n:"Goldsmith of Zion",w:"Zion",a:"Melt, pour, hammer and set stones for Aurel's jewellery orders.",m:["Shift","Demo"],l:[["Play",H("g/goldsmith-of-zion/Main.dc.html"),1]]},
+  {s:"surf-shop",c:"jobs",n:"Jib's Surf Shop",w:"Jidda",a:"Shape, finish and hand over custom surfboards.",m:["Shift","Demo"],l:[["Play",H("g/jibs-surf-shop/Main.dc.html"),1]]},
+  {s:"creamery",c:"jobs",n:"Kufa Creamery",w:"Kufa",a:"Soft-serve shift: cone, swirl, sauce, topping, serve before it melts.",m:["Shift","Demo"],l:[["Play",H("g/kufa-creamery/Main.dc.html"),1]]},
+  {s:"bike-shop",c:"jobs",n:"Luxor Bike Shop",w:"Luxor",a:"Repair riders' bikes on the lift from job cards.",m:["Shift","Demo"],l:[["Play",H("g/luxor-bike-shop/Main.dc.html"),1]]},
+  {s:"luxor-zoo",c:"jobs",n:"Hessa's Menagerie",w:"Luxor",a:"Feed, water, clean and entertain animals across ten cages.",m:["Shift","Demo"],l:[["Play",H("g/luxor-zoo/Main.dc.html"),1]]},
+  {s:"hopes-class",c:"jobs",n:"Hope's Class",w:"Meru",a:"Braille writing, tactile art and cane walking at the School for the Blind.",m:["Lessons","Demo"],l:[["Play",H("g/meru-school-for-the-blind/Main.dc.html"),1]]},
+  {s:"candy-shop",c:"jobs",n:"Nebo Candy Shop",w:"Nebo",a:"Taffy, gummies, rock candy and truffles to order.",m:["Shift","Demo"],l:[["Play",H("g/nebo-candy-shop/Main.dc.html"),1]]},
+  {s:"lumber-mill",c:"jobs",n:"Cedar's Lumber Mill",w:"Nebo",a:"Debark, saw, plane and stain logs for the neighbours' orders.",m:["Shift","Demo"],l:[["Play",H("g/nebo-lumber-mill/Main.dc.html"),1]]},
+  {s:"pet-store",c:"jobs",n:"Marlow's Pet Store",w:"Nebo",a:"Calm, brush, scrub, rinse and dry a dog, a cat and a truffle pig.",m:["Shift","Demo"],l:[["Play",H("g/nebo-pet-store/Main.dc.html"),1]]},
+  {s:"dolphin-trainer",c:"jobs",n:"Ocean World Dolphin Trainer",w:"Jidda",a:"Signal tricks, whistle on cue and reward with fish.",m:["Shift","Demo"],l:[["Play",H("g/ocean-world-aquarium/Main.dc.html"),1]]},
+  {s:"spy-shop",c:"jobs",n:"Rafiq's Spy Shop",w:"Kufa",a:"Pick locks and crack safes for Rafiq's clients.",m:["Shift","Demo"],l:[["Play",H("g/spyshop-of-kufa/Main.dc.html"),1]]},
+  {s:"tank-works",c:"jobs",n:"Tread's Tank Works",w:"Tank Range",a:"Cast, forge, weld, bolt, paint and stamp tank parts.",m:["Shift","Demo"],l:[["Play",H("g/treads-tank-works/Main.dc.html"),1]]},
+  {s:"camel-pen",c:"jobs",n:"Ummi's Camel Pen",w:"Kufa",a:"Water, feed, brush, pull thorns and train the camels owners lead in.",m:["Shift","Demo"],l:[["Play",H("Kufa Camel Pen.dc.html"),1]]},
 
   // ZIP ONLY
   {s:"cricket",c:"sports",n:"Cricket Nets",w:"Any world",a:"Indoor cricket nets: bat against Coach Bails or bowl to Skipper Rusty.",m:["Solo","Pass & play 2–5","Online 2–5"],l:[["Play",H("Cricket Nets.dc.html"),1]]},
@@ -235,11 +238,11 @@ const GAMES = [
   {s:"jon-boatworks",c:"jobs",n:"Jon's Boatworks",w:"Meru",a:"Boats come in by water and Jon's lift raises them; fix them up.",m:["Shift","Demo"],l:[["Play",H("Jon Boatworks.dc.html"),1]]},
   {s:"smoothie",c:"jobs",n:"Foxy Blends Smoothies",w:"Jidda",a:"Three minutes at Julep's blender: cut the fruit, blend and serve.",m:["Shift","Demo"],l:[["Play",H("Jidda Smoothie.dc.html"),1]]},
   {s:"luxor-deli",c:"jobs",n:"Foxy Deli",w:"Luxor",a:"Bake the morning bread, then three minutes behind the deli counter.",m:["Shift","Demo"],l:[["Play",H("Luxor Deli.dc.html"),1]]},
-  {s:"gold-rush",c:"jobs",n:"Zion Gold Rush",w:"Zion",a:"Pan the Gold River for flakes and nuggets on a gold-rush shift.",m:["Shift","Demo"],l:[["Play",A2("c821dece-30a3-4def-ad81-ce9ae88e2597"),1]]},
-  {s:"ur-espresso",c:"jobs",n:"Ur Espresso",w:"Ur",a:"Pull shots, steam milk and serve the coffee orders.",m:["Shift","Demo"],l:[["Play",A2("e822e732-2778-43b6-b881-8fdf864f61bd"),1]]},
-  {s:"ur-lab",c:"jobs",n:"Ur Laboratory",w:"Ur",a:"Lab technician shift: run the tests and fill the orders.",m:["Shift","Demo"],l:[["Play",A2("89fa2865-0f67-4f8d-a6be-8bce424d39e1"),1]]},
-  {s:"ur-dig",c:"jobs",n:"Ur Pyramid Dig",w:"Ur",a:"Dig, brush and catalogue finds at the pyramid site.",m:["Shift","Demo"],l:[["Play",A2("6bd300b8-7b48-4b1a-8076-fd4ef5b2b1c8"),1]]},
-  {s:"ur-grounds",c:"jobs",n:"Ur Grounds",w:"Ur",a:"Keep the Ur grounds: tend, tidy and finish the day's jobs.",m:["Shift","Demo"],l:[["Play",A2("cbe0901e-cf9d-4237-ad4e-f6f884d49233"),1]]},
+  {s:"gold-rush",c:"jobs",n:"Zion Gold Rush",w:"Zion",a:"Pan the Gold River for flakes and nuggets on a gold-rush shift.",m:["Shift","Demo"],l:[["Play",H("g/gold-rush/Main.dc.html"),1]]},
+  {s:"ur-espresso",c:"jobs",n:"Ur Espresso",w:"Ur",a:"Pull shots, steam milk and serve the coffee orders.",m:["Shift","Demo"],l:[["Play",H("g/ur-espresso/Main.dc.html"),1]]},
+  {s:"ur-lab",c:"jobs",n:"Ur Laboratory",w:"Ur",a:"Lab technician shift: run the tests and fill the orders.",m:["Shift","Demo"],l:[["Play",H("g/ur-lab/Main.dc.html"),1]]},
+  {s:"ur-dig",c:"jobs",n:"Ur Pyramid Dig",w:"Ur",a:"Dig, brush and catalogue finds at the pyramid site.",m:["Shift","Demo"],l:[["Play",H("g/ur-dig/Main.dc.html"),1]]},
+  {s:"ur-grounds",c:"jobs",n:"Ur Grounds",w:"Ur",a:"Keep the Ur grounds: tend, tidy and finish the day's jobs.",m:["Shift","Demo"],l:[["Play",H("g/ur-grounds/Main.dc.html"),1]]},
 
   {s:"gaya-tennis",c:"sports",n:"The Gaya Open",w:"Gaya",a:"Learn the shots with Coach Fault, then win three rounds of tennis.",m:["Tutorial","Tournament"],l:[["Play",H("Gaya Tennis.dc.html"),1]]},
   {s:"kufa-soccer",c:"sports",n:"The Cistern Cup",w:"Kufa",a:"Train with Master Faruq, then lead Ben's Eight through the soccer cup.",m:["Training","Cup"],l:[["Play",H("Kufa Soccer.dc.html"),1]]},
@@ -345,8 +348,12 @@ function card(g){
   const st = statusOf(g), note = NOTES[g.s] || {};
   const links = g.l.map(([label,url,primary]) =>
     url.startsWith("@")
-      ? `<a class="${primary?"play":""} here" href="#" data-file="${esc(url.slice(1))}" data-name="${esc(g.n)}" aria-label="${esc(label+" "+g.n)}">${esc(label)}</a>`
-      : `<a class="${primary?"play":""}" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${esc(label+" "+g.n)}">${esc(label)}</a>`).join("");
+      ? (ON_SITE || url.startsWith("@g/")
+          ? `<a class="${primary?"play":""}" href="${esc((ON_SITE ? "" : SITE) + encodeURI(url.slice(1)))}"${ON_SITE ? "" : ' target="_blank" rel="noopener"'} aria-label="${esc(label+" "+g.n)}">${esc(label)}</a>`
+          : `<a class="${primary?"play":""} here" href="#" data-file="${esc(url.slice(1))}" data-name="${esc(g.n)}" aria-label="${esc(label+" "+g.n)}">${esc(label)}</a>`)
+      : `<a class="${primary?"play":""}" href="${esc(url)}" target="_blank" rel="noopener" aria-label="${esc(label+" "+g.n)}">${esc(label)}</a>`).join("")
+    + (ON_SITE || g.c === "vehicles" ? "" : g.l.filter(([,u]) => u.startsWith("@") && !u.startsWith("@g/")).map(([label,u],i,arr) =>
+        `<a class="online" href="${esc(SITE + encodeURI(u.slice(1)))}" target="_blank" rel="noopener" aria-label="${esc((arr.length>1?label+" ":"")+g.n+" on your GitHub site")}">${esc(arr.length>1?label+" online":"Play online")}</a>`).join(""));
   const pills = g.m.map(x => `<span>${esc(x)}</span>`).join("") + (g.busy ? `<span class="busy">Being edited in another chat</span>` : "");
   const tools = notesCol ? `
     <div class="tools">

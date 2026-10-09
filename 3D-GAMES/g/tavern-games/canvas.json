@@ -1,0 +1,145 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "GameHUD.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Game HUD (shared, mounted by both)",
+      "w": 844,
+      "x": 470,
+      "y": 510
+    },
+    "Landscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Tavern Pool \u00b7 iPhone landscape",
+      "w": 844,
+      "x": 470,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Tavern Pool \u00b7 iPhone portrait",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "PoolOverlay.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Pool Overlay (the pool controls, reusable in any world)",
+      "w": 390,
+      "x": 0,
+      "y": 964
+    },
+    "HockeyMain.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Air Hockey \u00b7 iPhone portrait",
+      "w": 390,
+      "x": 1440,
+      "y": 0
+    },
+    "HockeyLandscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Air Hockey \u00b7 iPhone landscape",
+      "w": 844,
+      "x": 1910,
+      "y": 0
+    },
+    "HockeyOverlay.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Hockey Overlay (the air hockey controls, reusable in any world)",
+      "w": 390,
+      "x": 1440,
+      "y": 964
+    },
+    "PongMain.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Ping-Pong \u00b7 iPhone portrait",
+      "w": 390,
+      "x": 2834,
+      "y": 0
+    },
+    "PongLandscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Ping-Pong \u00b7 iPhone landscape",
+      "w": 844,
+      "x": 3304,
+      "y": 0
+    },
+    "PongOverlay.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Pong Overlay (the ping-pong controls, reusable in any world)",
+      "w": 390,
+      "x": 2834,
+      "y": 964
+    },
+    "FoosMain.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Foosball \u00b7 iPhone portrait",
+      "w": 390,
+      "x": 4228,
+      "y": 0
+    },
+    "FoosLandscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Foosball \u00b7 iPhone landscape",
+      "w": 844,
+      "x": 4698,
+      "y": 0
+    },
+    "FoosOverlay.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Foos Overlay (the foosball controls, reusable in any world)",
+      "w": 390,
+      "x": 4228,
+      "y": 964
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-07T15:20:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "view": "canvas"
+  },
+  "notes": {
+    "title": {
+      "kind": "title1",
+      "maxW": 5542,
+      "text": "Tavern Games \u00b7 Pool \u00b7 Air Hockey \u00b7 Ping-Pong \u00b7 Foosball",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Landscape.dc.html",
+    "GameHUD.dc.html",
+    "PoolOverlay.dc.html",
+    "HockeyMain.dc.html",
+    "HockeyLandscape.dc.html",
+    "HockeyOverlay.dc.html",
+    "PongMain.dc.html",
+    "PongLandscape.dc.html",
+    "PongOverlay.dc.html",
+    "FoosMain.dc.html",
+    "FoosLandscape.dc.html",
+    "FoosOverlay.dc.html"
+  ],
+  "pages": [],
+  "title": "Tavern Games \u00b7 Pool + Air Hockey + Ping-Pong + Foosball"
+}

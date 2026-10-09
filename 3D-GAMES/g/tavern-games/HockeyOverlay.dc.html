@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hockey Overlay</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="blob/71cb95ab71761e06f2215918ef73b0e8.css">
+<style>@keyframes hkPulse{0%,100%{transform:translate(-50%,-50%) scale(1)}50%{transform:translate(-50%,-50%) scale(0.8)}}@keyframes hkPop{0%{transform:translate(-50%,-50%) scale(0.6)}60%{transform:translate(-50%,-50%) scale(1.08)}100%{transform:translate(-50%,-50%) scale(1)}}</style>
+</helmet>
+<!-- HOCKEY OVERLAY: every air-hockey control and card, over the 3D stage the engine draws into.
+     Props: game = the createAirHockey() api, h = its latest onState() snapshot, bar = the Game HUD's top-bar height (px), err = an optional load error.
+     Mount it inside a pointer-events:none host (see MERGE_GUIDE.md) so the table still gets touches. It hides itself in walk mode. -->
+<div ref="{{ rootRef }}" style="position:absolute;inset:0;pointer-events:none;color:#fff;font-family:var(--font-body);user-select:none;-webkit-user-select:none" data-screen-label="Hockey Overlay">
+  <!-- Shown only when this component is opened on its own (no game attached): it is the controls layer, not the game -->
+  <sc-if value="{{ previewOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;background:#1a0c08;display:flex;flex-direction:column;align-items:flex-start;padding:16px;box-sizing:border-box;gap:6px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">HOCKEY OVERLAY · CONTROLS ONLY</span><span style="font:700 13px var(--font-body);color:#cfcac2;max-width:340px;text-wrap:pretty">This board is the controls layer on its own, so its buttons do nothing here. Press PLAY on an Air Hockey board to play.</span></div>
+  </sc-if>
+  <sc-if value="{{ playOn }}" hint-placeholder-val="{{ false }}">
+    <!-- TOP: the score + the caller -->
+    <div data-safe="top" style="position:absolute;left:0;right:0;top:{{ topY }};z-index:3;pointer-events:none;background:#000;border-bottom:2px solid #ffd23a;display:flex;flex-direction:{{ topDir }};padding:0 env(safe-area-inset-right) 0 env(safe-area-inset-left)">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:stretch;border-bottom:{{ scoreBd }};border-right:{{ scoreBr }};flex:{{ scoreFlex }}">
+        <div style="padding:4px 10px;display:flex;align-items:center;gap:8px;min-width:0;background:#2a1410"><span style="width:12px;height:12px;border-radius:50%;background:#e0442a;border:2px solid #000;flex:none;display:block"></span><span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#ffd23a;white-space:nowrap">BEN</span><span style="margin-left:auto;font:900 26px var(--font-heading);font-variant-numeric:tabular-nums;color:#fff">{{ youScore }}</span></div>
+        <div style="padding:0 10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:{{ midBg }};color:{{ midFg }};min-width:92px"><span style="font:900 12px var(--font-heading);letter-spacing:0.06em;white-space:nowrap">{{ midTxt }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.1em;white-space:nowrap;opacity:0.8">FIRST TO {{ toN }}</span></div>
+        <div style="padding:4px 10px;display:flex;align-items:center;gap:8px;min-width:0;background:#101a2e"><span style="font:900 26px var(--font-heading);font-variant-numeric:tabular-nums;color:#fff">{{ himScore }}</span><span style="margin-left:auto;font:800 10px var(--font-heading);letter-spacing:0.12em;color:#ffd23a;white-space:nowrap">{{ oppName }}</span><span style="width:12px;height:12px;border-radius:50%;background:#2f6fd8;border:2px solid #000;flex:none;display:block"></span></div>
+      </div>
+      <div style="display:flex;align-items:stretch;min-height:44px;flex:1;min-width:0">
+        <span style="flex:none;padding:0 8px;background:#5a1a12;font:800 10px var(--font-heading);letter-spacing:0.12em;color:#fff;display:flex;align-items:center">{{ callerName }}</span>
+        <span style="flex:1;min-width:0;padding:4px 10px;font:900 clamp(12px,3.4vw,15px) var(--font-heading);letter-spacing:0.03em;line-height:1.15;color:#fff;display:flex;align-items:center;text-wrap:pretty">{{ callTxt }}</span>
+        <button onClick="{{ viewTap }}" aria-label="Change the camera view" style="pointer-events:auto;flex:none;min-width:60px;padding:0 10px;border:0;border-left:2px solid #2a2826;border-radius:0;background:#000;color:#ffd23a;font:900 11px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center" style-hover="background:#2a2826"><span style="font-size:9px;color:#cfcac4">VIEW</span>{{ viewTxt }}</button>
+        <button onClick="{{ musicTap }}" aria-label="Music on or off" aria-pressed="{{ musicOn }}" style="pointer-events:auto;flex:none;width:46px;border:0;border-left:2px solid #2a2826;border-radius:0;background:#000;color:{{ musicCol }};font:900 17px var(--font-heading);cursor:pointer;position:relative" style-hover="background:#2a2826">♪<span style="position:absolute;left:8px;right:8px;top:50%;height:2px;background:#ec3013;display:{{ musicSlash }}"></span></button>
+        <button onClick="{{ helpToggle }}" aria-label="How to play air hockey" style="pointer-events:auto;flex:none;width:46px;border:0;border-left:2px solid #2a2826;border-radius:0;background:#000;color:#ffd23a;font:900 18px var(--font-heading);cursor:pointer" style-hover="background:#2a2826">?</button>
+        <button onClick="{{ quitTap }}" aria-label="Call it off and keep your money" style="pointer-events:auto;flex:none;width:46px;border:0;border-left:2px solid #2a2826;border-radius:0;background:#000;color:#fff;font:900 16px var(--font-heading);cursor:pointer;display:{{ quitDisp }}" style-hover="background:#ec3013">✕</button>
+      </div>
+    </div>
+
+    <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:{{ flashLeft }};top:{{ flashTop }};transform:translate(-50%,-50%);z-index:5;pointer-events:none;max-width:calc(100% - 24px);background:rgba(0,0,0,0.9);border:2px solid {{ flashCol }};display:flex;align-items:stretch;animation:hkPop 0.25s ease-out">
+        <span style="flex:none;width:10px;background:{{ flashCol }};display:block"></span><span style="padding:6px 14px;font:900 clamp(16px,4.8vw,24px) var(--font-heading);letter-spacing:0.04em;color:#fff;white-space:nowrap">{{ flashTxt }}</span>
+      </div>
+    </sc-if>
+
+    <!-- THE THUMB PAD: slide anywhere on it (or on the table). The mallet moves as far as your thumb does, so your thumb never hides it.
+         The little map is your half of the table: your mallet (red) and the puck (yellow) when it is on your side. -->
+    <div data-safe="{{ padSafe }}" onPointerDown="{{ padDown }}" onPointerMove="{{ padMove }}" onPointerUp="{{ padUp }}" onPointerCancel="{{ padUp }}" role="application" aria-label="Thumb pad: slide to move your mallet" style="position:absolute;left:{{ padL }};right:{{ padR }};top:{{ padT }};bottom:{{ padB }};z-index:4;pointer-events:auto;touch-action:none;background:#000;border:2px solid {{ padBd }};display:flex;flex-direction:{{ padDir }};cursor:grab">
+      <div style="flex:none;display:flex;flex-direction:{{ padHeadDir }};justify-content:space-between;align-items:center;padding:5px 10px;border-{{ padHeadSide }}:2px solid #2a2826;gap:6px"><span style="font:900 11px var(--font-heading);letter-spacing:0.1em;color:#ffd23a;white-space:nowrap">THUMB PAD</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#cfcac2;white-space:nowrap">{{ padTip }}</span></div>
+      <div style="position:relative;flex:1;min-height:0;overflow:hidden;background:repeating-linear-gradient({{ padRidge }},#151413 0 10px,#1d1b19 10px 12px)">
+        <div style="position:absolute;left:50%;top:50%;width:{{ mapW }};height:{{ mapH }};transform:translate(-50%,-50%);border:2px solid #3a3836;background:rgba(238,243,246,0.08)">
+          <span style="position:absolute;{{ lineCss }};background:#e0442a;display:block"></span>
+          <span style="position:absolute;{{ goalCss }};background:#000;border:2px solid #3a3836;display:block"></span>
+          <sc-if value="{{ puckOn }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:{{ puckX }};top:{{ puckY }};width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#ffd23a;border:2px solid #000;display:block"></span></sc-if>
+          <span style="position:absolute;left:{{ malX }};top:{{ malY }};width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;background:#e0442a;border:2px solid #fff;display:block"></span>
+        </div>
+        <sc-if value="{{ touchOn }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:{{ touchX }};top:{{ touchY }};width:44px;height:44px;margin:-22px 0 0 -22px;border-radius:50%;border:3px solid #ffd23a;background:rgba(255,210,58,0.15);display:block;pointer-events:none"></span></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ handOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:{{ handX }};top:{{ handY }};width:38px;height:38px;border-radius:50%;border:4px solid #ffd23a;background:rgba(255,210,58,0.25);z-index:9;pointer-events:none;transition:left 0.1s linear,top 0.1s linear;animation:hkPulse 0.9s ease-in-out infinite;transform:translate(-50%,-50%)"></div>
+  </sc-if>
+  <sc-if value="{{ demoOn }}" hint-placeholder-val="{{ false }}">
+    <div data-safe="top" style="position:absolute;left:{{ demoL }};right:{{ demoR }};top:{{ demoT }};z-index:7;pointer-events:none;background:#000;border:2px solid #ffd23a;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:stretch;border-bottom:2px solid #3a3836"><span style="flex:1;padding:5px 12px;font:800 10px var(--font-heading);letter-spacing:0.14em;color:#ffd23a;display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;background:#ec3013;display:block"></span>DEMO · NOTHING IS SAVED</span><button onClick="{{ demoExit }}" aria-label="Exit the demo" style="pointer-events:auto;flex:none;min-height:44px;padding:0 14px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 12px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">EXIT DEMO</button></div>
+      <div style="display:flex;align-items:stretch"><sc-if value="{{ demoKeyOn }}" hint-placeholder-val="{{ false }}"><div style="flex:none;min-width:56px;display:flex;align-items:center;justify-content:center;padding:0 8px;background:#ec3013;color:#fff;font:900 12px var(--font-heading);border-right:2px solid #3a3836">{{ demoKey }}</div></sc-if><div style="padding:8px 12px;font:900 clamp(13px,3.6vw,16px) var(--font-heading);letter-spacing:0.03em;line-height:1.25;color:#fff;text-wrap:pretty">{{ demoCap }}</div></div>
+    </div>
+  </sc-if>
+
+  <!-- WELCOME CARD (Sizzle's style) -->
+  <sc-if value="{{ introOn }}" hint-placeholder-val="{{ true }}">
+    <div style="pointer-events:auto;position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:6;width:min(420px, calc(100% - 24px));max-height:calc(100% - 24px);overflow:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">{{ introKicker }}</span><span style="font:900 26px var(--font-heading);line-height:1.05">{{ tv.title }}</span><span style="font:700 13px var(--font-body);color:#cfcac2;text-wrap:pretty">{{ introBody }}</span></div>
+      <sc-for list="{{ introRows }}" as="r" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:6px 16px;border-bottom:2px solid #2a2826;font:700 13px var(--font-body)"><span>{{ r.k }}</span><span style="font-family:var(--font-heading);font-weight:800;color:{{ r.c }}">{{ r.v }}</span></div></sc-for>
+      <button onClick="{{ musicTap }}" aria-pressed="{{ musicOn }}" style="display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:0 16px;min-height:40px;align-items:center;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:#000;color:#fff;font:700 13px var(--font-body);cursor:pointer;text-align:left" style-hover="background:#2a2826"><span>Music</span><span style="font-family:var(--font-heading);font-weight:800;color:{{ musicCol }}">{{ musicTxt }}</span></button>
+      <div style="display:grid;grid-template-columns:{{ introBtnCols }}">
+      <button onClick="{{ demoGo }}" style="min-height:48px;padding:0 18px;border:0;border-top:2px solid #3a3836;border-right:{{ introBtnBr }};border-radius:0;background:#000;color:#ffd23a;font:900 14px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#2a2826">WATCH THE DEMO</button>
+      <button onClick="{{ walkGo }}" style="min-height:48px;padding:0 18px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#2a2826">{{ walkTxt }}</button>
+      </div>
+      <button onClick="{{ stakeGo }}" style="min-height:56px;padding:0 18px;border:0;border-radius:0;background:#ec3013;color:#fff;font:900 16px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">FACE OFF</button>
+    </div>
+  </sc-if>
+
+  <!-- THE STAKE -->
+  <sc-if value="{{ stakeOn }}" hint-placeholder-val="{{ false }}">
+    <div style="pointer-events:auto;position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:6;width:min(420px, calc(100% - 24px));max-height:calc(100% - 24px - {{ topY }});overflow:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:column">
+      <div style="padding:12px 16px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">{{ stakeKicker }}</span><span style="font:900 24px var(--font-heading);line-height:1.05">How much on it?</span><sc-if value="{{ stakeBodyOn }}" hint-placeholder-val="{{ true }}"><span style="font:700 13px var(--font-body);color:#cfcac2;text-wrap:pretty">{{ stakeBody }}</span></sc-if></div>
+      <div style="display:grid;grid-template-columns:repeat({{ chipCols }},minmax(0,1fr));border-bottom:2px solid #2a2826">
+        <sc-for list="{{ chips }}" as="c" hint-placeholder-count="6"><button onClick="{{ c.go }}" disabled="{{ c.off }}" style="min-height:56px;padding:4px 10px;border:0;border-right:2px solid #2a2826;border-bottom:2px solid #2a2826;border-radius:0;background:{{ c.bg }};color:{{ c.fg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px;opacity:{{ c.op }}" style-hover="filter:brightness(1.15)"><span style="font:900 18px var(--font-heading);font-variant-numeric:tabular-nums">{{ c.label }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:{{ c.tc }}">{{ c.tag }}</span></button></sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:76px minmax(0,1fr);gap:12px;padding:6px 16px;border-bottom:2px solid #2a2826;font:700 13px var(--font-body)"><span>Gold</span><span style="font-family:var(--font-heading);font-weight:800;color:#e6b45a">{{ goldTxt }}</span></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 2fr">
+        <button onClick="{{ stakeBack }}" style="min-height:56px;padding:0 16px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">BACK</button>
+        <button onClick="{{ beginGo }}" style="min-height:56px;padding:0 16px;border:0;border-radius:0;background:#ec3013;color:#fff;font:900 16px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#c82a10">{{ beginTxt }}</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- END OF THE MATCH -->
+  <sc-if value="{{ doneOn }}" hint-placeholder-val="{{ false }}">
+    <div style="pointer-events:auto;position:absolute;inset:0;z-index:8;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:flex-start;padding:12px;box-sizing:border-box;overflow:auto">
+      <div style="background:#000;border:2px solid #3a3836;width:min(440px,100%);margin:auto 0;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:stretch;border-bottom:2px solid #3a3836">
+          <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:3px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">{{ doneKicker }}</span><span style="font:900 26px var(--font-heading);line-height:1.05">{{ doneTitle }}</span><span style="font:700 14px var(--font-body);color:#e8e4de;text-wrap:pretty">“{{ doneLine }}”</span></div>
+          <div style="min-width:88px;padding:0 10px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;background:{{ doneCol }};color:#000"><span style="font:900 26px var(--font-heading);line-height:1;font-variant-numeric:tabular-nums">{{ doneBig }}</span><span style="font:800 11px var(--font-heading);letter-spacing:0.1em">GOLD</span></div>
+        </div>
+        <sc-for list="{{ doneRows }}" as="r" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:8px 16px;border-bottom:2px solid #2a2826;font:700 14px var(--font-body)"><span>{{ r.k }}</span><span style="font-family:var(--font-heading);font-weight:800;color:{{ r.c }}">{{ r.v }}</span></div></sc-for>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button onClick="{{ stakeGo }}" style="min-height:54px;padding:0 16px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#c82a10">REMATCH</button>
+          <button onClick="{{ walkGo }}" style="min-height:54px;padding:0 16px;border:0;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">WALK AROUND</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ helpOn }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ helpToggle }}" style="pointer-events:auto;position:absolute;inset:0;z-index:9;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:flex-start;padding:12px;box-sizing:border-box;overflow:auto">
+      <div style="background:#000;border:2px solid #ffd23a;width:min(460px,100%);margin:auto 0;display:flex;flex-direction:column">
+        <div style="padding:10px 14px;border-bottom:2px solid #3a3836;font:900 16px var(--font-heading);letter-spacing:0.06em;color:#ffd23a">HOW TO PLAY IT</div>
+        <sc-for list="{{ helpRows }}" as="r" hint-placeholder-count="8"><div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;padding:7px 14px;border-bottom:2px solid #2a2826;font:700 13px var(--font-body);line-height:1.35"><span style="font:900 11px var(--font-heading);letter-spacing:0.08em;color:#e6b45a">{{ r.k }}</span><span style="text-wrap:pretty">{{ r.v }}</span></div></sc-for>
+        <div style="padding:10px 14px;font:700 12px var(--font-body);color:#cfcac2">Tap anywhere to close</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ errOn }}" hint-placeholder-val="{{ false }}">
+    <div style="pointer-events:auto;position:absolute;left:12px;right:12px;top:12px;z-index:20;background:#000;border:2px solid #ec3013;padding:10px 14px;font:700 12px var(--font-body);color:#fff;white-space:pre-wrap;word-break:break-word">{{ errTxt }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"embedded":{"editor":null,"default":false},"bar":{"editor":"number","default":0},"err":{"editor":"text","default":""},"game":{"editor":"none"},"h":{"editor":"none"},"$preview":{"bar":0,"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { vw: 1200, vh: 800, help: false, pick: null, tp: null };
+  rootRef = React.createRef();
+  componentDidMount() { addEventListener('resize', this.onRs); this.onRs(); }
+  componentWillUnmount() { removeEventListener('resize', this.onRs); }
+  onRs = () => this.setState({ vw: innerWidth, vh: innerHeight });
+  // tell the engine which strips of the screen the controls cover, so the table frames itself in the clear part
+  componentDidUpdate() { const g = this.props.game, root = this.rootRef.current; if (!root || !g || !g.setSafe) return; const h = this.props.h; if (!h || h.mode !== 'play') { if (this._safe !== '0') { this._safe = '0'; g.setSafe(0, 0, 0, 0); } return; }
+    const rr = root.getBoundingClientRect(), top = rr.top + (+this.props.bar || 0); let t = 0, b = 0, l = 0, r = 0;
+    root.querySelectorAll('[data-safe]').forEach(el => { const q = el.getBoundingClientRect(); if (!q.height) return; const k = el.dataset.safe; if (k === 'top') t = Math.max(t, q.bottom - top); else if (k === 'bottom') b = Math.max(b, rr.bottom - q.top); else if (k === 'left') l = Math.max(l, q.right - rr.left); else if (k === 'right') r = Math.max(r, rr.right - q.left); });
+    const key = [t, b, l, r].map(Math.round).join(','); if (key !== this._safe) { this._safe = key; g.setSafe(Math.round(t), Math.round(b), Math.round(l), Math.round(r)); } }
+  renderVals() {
+    const S = this.state, P = this.props, g = P.game || null, blur = e => e && e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(), tap = e => { blur(e); try { g && g.uiTap && g.uiTap(); } catch (er) {} };
+    const h = P.h || { mode: 'intro', ph: 'idle', score: { you: 0, him: 0 }, to: 7, view: 'top', flash: null, call: '', stake: 0, gold: 0, done: null, demo: null, hand: null, touching: false, serve: null, matchPoint: false, best: 0, mal: { x: 0.5, y: 1.84 }, puck: { x: 0.5, y: 1.5 }, prog: { wins: 0, losses: 0, best: 0, suggest: 20, maxBet: 50, level: false, won: false }, musicOn: true, tv: { key: 'luxor', world: 'Luxor', room: 'luxorTownSquare', place: 'Luxor · Tavern', title: "Skip's Table", hall: 'THE TAVERN', opp: 'SKIP', keeper: 'VESTA', ph: true, neon: '#5cc6c0' } };
+    const { vw, vh } = S, phone = Math.min(vw, vh) < 520, land = vw > vh, short = land && vh < 520, bar = +P.bar || 0, tv = h.tv, On = tv.opp, Onc = On.charAt(0) + On.slice(1).toLowerCase(), play = h.mode === 'play';
+    const started = !!g && (h.mode === 'walk' || play || h.mode === 'stake' || h.mode === 'done'), topH = land ? 46 : 92;
+    const musicOn = h.musicOn !== false, musicTap = e => { blur(e); g && g.toggleMusic && g.toggleMusic(); try { g && g.uiTap && g.uiTap(); } catch (er) {} this.forceUpdate(); };
+    // the pad: bottom strip in portrait, right column in landscape
+    const padH = Math.round(Math.max(118, Math.min(170, vh * 0.19))), padW = phone ? 176 : 210;
+    const pad = land ? { L: 'auto', R: 'max(8px, env(safe-area-inset-right))', T: (bar + topH + 8) + 'px', B: 'calc(8px + env(safe-area-inset-bottom))', W: padW } : { L: 'max(8px, env(safe-area-inset-left))', R: 'max(8px, env(safe-area-inset-right))', T: 'auto', B: 'calc(8px + env(safe-area-inset-bottom))', H: padH };
+    const padStyle = land ? { padL: 'auto', padR: pad.R, padT: pad.T, padB: pad.B } : { padL: pad.L, padR: pad.R, padT: 'calc(100% - ' + (padH + 8) + 'px - env(safe-area-inset-bottom))', padB: pad.B };
+    if (land) padStyle.padL = 'calc(100% - ' + padW + 'px - 8px - env(safe-area-inset-right))';
+    // your half as a little map: portrait = centre line at the top, your slot at the bottom; landscape = your slot on the left
+    const m = h.mal || { x: 0.5, y: 1.84 }, pk = h.puck || { x: 0.5, y: 1.5 }, toMap = (u, v) => land ? [(2 - v) * 100, u * 100] : [u * 100, (v - 1) * 100];
+    const [mx, my] = toMap(m.x, m.y), [px, py] = toMap(pk.x, pk.y), puckOn = play && pk.y >= 1;
+    const tp = S.tp;
+    const padDown = e => { if (!g) return; e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} if (g.padDown(e.clientX, e.clientY, 'pad')) { const r = e.currentTarget.getBoundingClientRect(); this.setState({ tp: { x: e.clientX - r.left, y: e.clientY - r.top } }); } };
+    const padMove = e => { if (!g || !this.state.tp) return; g.padMove(e.clientX, e.clientY, 'pad'); const r = e.currentTarget.getBoundingClientRect(); this.setState({ tp: { x: e.clientX - r.left, y: e.clientY - r.top } }); };
+    const padUp = () => { g && g.padUp('pad'); this.setState({ tp: null }); };
+    // demo ghost finger over the pad's map
+    let handOn = false, handX = '0px', handY = '0px'; if (h.hand && play) { const root = this.rootRef.current, padEl = root && root.querySelector('[data-safe="' + (land ? 'right' : 'bottom') + '"]'); if (padEl) { const r = padEl.getBoundingClientRect(), rr = root.getBoundingClientRect(); handOn = true; handX = (r.left - rr.left + r.width * (land ? 0.5 + (0.5 - h.hand.y) * 0.5 : h.hand.x)) + 'px'; handY = (r.top - rr.top + r.height * (land ? 0.25 + h.hand.x * 0.6 : 0.3 + h.hand.y * 0.6)) + 'px'; } }
+    const chipVals = [0, 5, 10, 20, 50, 100], mxb = h.prog.maxBet, sug = Math.min(h.prog.suggest || 20, mxb), pick = S.pick != null ? Math.min(S.pick, mxb) : sug, d = h.done || {}, demo = h.demo, sc = h.score, lead = sc.you - sc.him;
+    const flashTop = land ? 'calc(' + (bar + topH) + 'px + (100% - ' + (bar + topH) + 'px) * 0.45)' : 'calc(' + (bar + topH) + 'px + (100% - ' + (bar + topH + padH) + 'px) * 0.42)';
+    return {
+      previewOn: !P.embedded,
+      errOn: !!P.err, errTxt: P.err || '', rootRef: this.rootRef, tv, h, musicOn, musicTap, musicCol: musicOn ? '#ffd23a' : '#8a847e', musicSlash: musicOn ? 'none' : 'block', musicTxt: musicOn ? 'ON · tap to mute' : 'OFF · tap for the band',
+      topY: (started ? bar : 0) + 'px', topDir: land ? 'row' : 'column', scoreBd: land ? '0' : '2px solid #2a2826', scoreBr: land ? '2px solid #2a2826' : '0', scoreFlex: land ? '0 0 min(380px, 44%)' : 'none',
+      playOn: play, youScore: String(sc.you), himScore: String(sc.him), oppName: On, toN: String(h.to || 7),
+      midTxt: h.ph === 'over' ? 'FULL TIME' : h.serve ? (h.serve === 'you' ? 'YOUR PUCK' : On + "'S PUCK") : h.matchPoint ? 'MATCH POINT' : lead > 0 ? 'BEN LEADS' : lead < 0 ? On + ' LEADS' : sc.you ? 'LEVEL' : 'FACE OFF', midBg: h.matchPoint ? '#ec3013' : lead >= 0 ? '#ffd23a' : '#2f6fd8', midFg: h.matchPoint || lead < 0 ? '#fff' : '#000',
+      callerName: On, callTxt: h.call || (h.ph === 'serve' && h.serve === 'you' ? 'Your puck. Slide your thumb and hit it.' : 'Keep your mallet in front of your slot.'),
+      viewTxt: h.view === 'low' ? 'LOW' : 'TOP', viewTap: e => { tap(e); g && g.toggleView(); }, quitTap: e => { tap(e); g && g.quit(); }, quitDisp: h.demo ? 'none' : 'block', helpToggle: e => { tap(e); this.setState({ help: !S.help }); },
+      flashOn: play && !!h.flash, flashTxt: h.flash ? h.flash.txt : '', flashCol: h.flash ? h.flash.col : '#ffd23a', flashLeft: land ? 'calc(50% - ' + (padW / 2) + 'px)' : '50%', flashTop,
+      padSafe: land ? 'right' : 'bottom', ...padStyle, padDir: land ? 'column' : 'column', padHeadDir: 'row', padHeadSide: 'bottom', padBd: h.touching || tp ? '#ffd23a' : '#3a3836', padRidge: land ? '0deg' : '90deg', padTip: h.touching || tp ? 'MOVING' : land ? 'SLIDE' : 'SLIDE · OR DRAG THE TABLE',
+      mapW: land ? 'min(150px, 82%)' : 'min(150px, 40%)', mapH: land ? 'min(80px, 70%)' : 'min(80px, 76%)', lineCss: land ? 'right:0;top:0;bottom:0;width:3px' : 'left:0;right:0;top:0;height:3px', goalCss: land ? 'left:-2px;top:31%;bottom:31%;width:5px' : 'bottom:-2px;left:31%;right:31%;height:5px',
+      puckOn, puckX: px.toFixed(1) + '%', puckY: py.toFixed(1) + '%', malX: mx.toFixed(1) + '%', malY: my.toFixed(1) + '%', padDown, padMove, padUp, touchOn: !!tp, touchX: tp ? tp.x + 'px' : '0px', touchY: tp ? tp.y + 'px' : '0px',
+      handOn, handX, handY,
+      demoOn: !!demo, demoKeyOn: !!(demo && demo[0]), demoKey: demo ? demo[0] : '', demoCap: demo ? demo[1] : '', demoT: (bar + topH + 8) + 'px', demoL: 'max(8px, env(safe-area-inset-left))', demoR: land ? 'calc(' + padW + 'px + 16px + env(safe-area-inset-right))' : 'max(8px, env(safe-area-inset-right))', demoExit: e => { tap(e); g && g.demoStop(); },
+      introOn: h.mode === 'intro', introKicker: tv.world.toUpperCase() + ' · ' + tv.hall + ' · ' + tv.room,
+      introBody: 'Air hockey on the tavern table. First to seven. You are red, ' + Onc + ' is blue. Name the stake and take it off him.' + (short ? '' : ' Slide your thumb on the pad: the mallet moves as far as your thumb does, so it never hides under your finger.'),
+      introRows: [['Gold', h.gold + 'g', '#e6b45a'], ['His purse', sug + 'g · doubles when he loses', '#e6b45a'], ['Record', h.prog.wins + ' won · ' + h.prog.losses + ' lost', h.prog.wins ? '#22c55e' : '#cfcac2'], ...(short ? [] : [['Fastest', h.prog.best ? h.prog.best + ' km/h smash' : 'no smash yet', '#ffd23a']])].map(([k, v, c]) => ({ k, v, c })),
+      introBtnCols: short ? 'repeat(2,minmax(0,1fr))' : 'minmax(0,1fr)', introBtnBr: short ? '2px solid #3a3836' : '0', walkTxt: short ? 'WALK AROUND' : 'WALK AROUND THE TAVERN', chipCols: land ? 6 : 3, stakeBodyOn: !short,
+      demoGo: e => { tap(e); g && g.demoStart(); }, walkGo: e => { tap(e); g && g.walk(); }, stakeGo: e => { tap(e); this.setState({ pick: null }); g && g.openStake(); },
+      stakeOn: h.mode === 'stake', stakeKicker: tv.title.toUpperCase() + ' · NAME THE STAKE', stakeBody: Onc + ' opens at twenty and doubles it every match he loses. Win and it is yours. Lose and it is his. A friendly costs nothing.', goldTxt: h.gold + 'g',
+      chips: chipVals.map(v => { const off = v > mxb, on = v === pick; return { label: v ? v + 'g' : 'FREE', tag: v === 0 ? 'A FRIENDLY' : v === sug ? 'HIS PURSE' : off ? 'NOT ENOUGH' : 'STAKE', off, op: off ? 0.4 : 1, bg: on ? '#ffd23a' : '#000', fg: on ? '#000' : '#fff', tc: on ? '#000' : v === sug ? '#ffd23a' : '#8a847e', go: e => { tap(e); this.setState({ pick: v }); } }; }),
+      beginTxt: pick ? 'FACE OFF · ' + pick + 'g ON IT' : 'FACE OFF · A FRIENDLY', beginGo: e => { tap(e); g && g.begin(pick); }, stakeBack: e => { tap(e); g && g.walk(); },
+      doneOn: h.mode === 'done' && !!h.done, doneKicker: tv.title.toUpperCase() + ' · ' + (d.stake ? d.stake + 'g ON IT' : 'A FRIENDLY') + ' · ' + (d.score ? d.score.you + '–' + d.score.him : ''), doneTitle: d.res === 'win' ? 'Seven! You win' : 'Seven to ' + Onc, doneLine: d.line || '',
+      doneCol: d.res === 'win' ? '#22c55e' : '#ec3013', doneBig: d.gold > 0 ? '+' + d.gold : d.gold < 0 ? String(d.gold) : '0',
+      doneRows: [['Record at this table', (d.wins || 0) + ' won · ' + (d.losses || 0) + ' lost', '#ffffff'], ['Fastest smash', d.best ? d.best + ' km/h' + (d.newRec ? ' · NEW RECORD' : '') : '—', d.newRec ? '#22c55e' : '#ffd23a'], ['Longest rally', (d.rally || 0) + ' hits', '#cfcac2'], ...(d.unlocked ? [['New', Onc + ' has something to tell you', '#ffd23a']] : [])].map(([k, v, c]) => ({ k, v, c })),
+      helpOn: S.help && play,
+      helpRows: [['MOVE', 'Slide your thumb on the THUMB PAD (or anywhere on the table). The mallet moves as far as your thumb does, so it never hides under your finger. With a mouse it sits under the pointer.'], ['HIT', 'Move through the puck. The faster your mallet is going, the harder it goes.'], ['SMASH', 'A really fast hit flashes SMASH and its speed. The chalk board keeps your fastest.'], ['BANK', 'Off the side rail and in = BANK GOAL. He watches the straight line.'], ['DEFEND', 'When it is at his end, get back in front of your slot.'], ['SERVE', 'Whoever lets one in gets the puck on their side. A puck that dies in your half comes back to you.'], ['VIEW', 'TOP looks straight down. LOW stands behind your mallet. Pinch to zoom.'], ['RULES', 'First to seven. You can not cross the red line.'], ['KEYS', 'WASD / arrows move the mallet (Shift = faster) · V view']].map(([k, v]) => ({ k, v })),
+    };
+  }
+}
+</script>
+</body>
+</html>

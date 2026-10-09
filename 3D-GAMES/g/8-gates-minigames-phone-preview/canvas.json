@@ -1,0 +1,99 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "Cornhole-Landscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Cornhole · landscape 844 × 390",
+      "w": 844,
+      "x": 470,
+      "y": 1264
+    },
+    "Cornhole.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Cornhole · portrait 390 × 844",
+      "w": 390,
+      "x": 0,
+      "y": 1264
+    },
+    "Landscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Axe House · landscape 844 × 390",
+      "w": 844,
+      "x": 470,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Axe House · portrait 390 × 844",
+      "w": 390,
+      "x": 0,
+      "y": 0
+    },
+    "Washers-Landscape.dc.html": {
+      "h": 390,
+      "is_interactive": true,
+      "title": "Washers · landscape 844 × 390",
+      "w": 844,
+      "x": 470,
+      "y": 2528
+    },
+    "Washers.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "title": "Washers · portrait 390 × 844",
+      "w": 390,
+      "x": 0,
+      "y": 2528
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-07T18:20:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "file": "Washers.dc.html",
+    "view": "focused"
+  },
+  "notes": {
+    "axeTitle": {
+      "kind": "title1",
+      "maxW": 1314,
+      "text": "#21 Axe House",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "cornTitle": {
+      "kind": "title1",
+      "maxW": 1314,
+      "text": "#22 Cornhole Club",
+      "w": 240,
+      "x": 0,
+      "y": 964
+    },
+    "washTitle": {
+      "kind": "title1",
+      "maxW": 1314,
+      "text": "#23 Washer Pit",
+      "w": 240,
+      "x": 0,
+      "y": 2228
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "Landscape.dc.html",
+    "Cornhole.dc.html",
+    "Cornhole-Landscape.dc.html",
+    "Washers.dc.html",
+    "Washers-Landscape.dc.html"
+  ],
+  "pages": [],
+  "title": "8 GATES Minigames · Phone Preview"
+}

@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fox Mini Golf · Phone</title>
+<script src="./support.js"></script>
+<script src="blob/49bcd482bcf7015fdc41a123c019abbd.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&amp;display=swap">
+<style>:root{--font-heading:"Archivo", system-ui, sans-serif;--font-body:"Archivo", system-ui, sans-serif;--color-accent:#ec3013}body{margin:0;background:#000;overflow:hidden}a{color:#ffd23a}a:hover{color:#ffffff}button:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}.mg-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}</style>
+</helmet>
+<div style="position:relative;width:{{ rootW }};height:{{ rootH }};overflow:hidden;background:#0b1430;color:#fff;font-family:var(--font-body);user-select:none;-webkit-user-select:none;touch-action:none" data-screen-label="Fox Mini Golf">
+  <div ref="{{ stageRef }}" style="position:absolute;inset:0"></div>
+  <div class="mg-sr" aria-live="polite">{{ liveTxt }}</div>
+  <sc-if value="{{ errOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:12px;right:12px;top:12px;z-index:20;background:#000;border:2px solid #ec3013;padding:10px 12px;font:800 13px var(--font-heading);letter-spacing:0.04em;line-height:1.3;color:#fff">{{ errTxt }}</div>
+  </sc-if>
+
+  <sc-if value="{{ barOn }}" hint-placeholder-val="{{ true }}">
+    <div data-safe="top" style="position:absolute;left:0;right:0;top:0;z-index:3;pointer-events:none;display:flex;flex-direction:column">
+      <div style="background:#000;border-bottom:2px solid #ffd23a;display:flex;align-items:stretch;padding-top:env(safe-area-inset-top);padding-left:env(safe-area-inset-left);padding-right:env(safe-area-inset-right)">
+        <div style="flex:1;min-width:0;padding:6px 12px;display:flex;flex-direction:column;justify-content:center;gap:1px;border-right:2px solid #3a3836">
+          <span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#ffd23a;white-space:nowrap">{{ holeKick }}</span>
+          <span style="font:900 clamp(15px,4.4vw,20px) var(--font-heading);line-height:1.05;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ holeName }}</span>
+        </div>
+        <div style="flex:none;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:1px;border-right:2px solid #3a3836;min-width:64px">
+          <span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4;white-space:nowrap">STROKE</span>
+          <span style="font:900 20px var(--font-heading);font-variant-numeric:tabular-nums;color:{{ strokeCol }};white-space:nowrap">{{ strokeTxt }}</span>
+        </div>
+        <div style="flex:none;display:flex;pointer-events:auto">
+          <button onClick="{{ viewGo }}" aria-label="Change the view" style="width:52px;min-height:52px;padding:0;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 10px var(--font-heading);letter-spacing:0.06em;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer" style-hover="background:#2a2826">VIEW<span style="font:800 9px var(--font-heading);color:#ffd23a">{{ viewName }}</span></button>
+          <button onClick="{{ cardGo }}" aria-label="Scorecard" style="width:52px;min-height:52px;padding:0;border:0;border-right:2px solid #3a3836;border-radius:0;background:{{ cardBg }};color:{{ cardFg }};font:900 10px var(--font-heading);letter-spacing:0.06em;cursor:pointer" style-hover="filter:brightness(1.2)">CARD</button>
+          <button onClick="{{ menuGo }}" aria-label="Pause menu" style="width:52px;min-height:52px;padding:0;border:0;border-radius:0;background:#ec3013;color:#fff;font:900 10px var(--font-heading);letter-spacing:0.06em;cursor:pointer" style-hover="background:#c82a10">MENU</button>
+        </div>
+      </div>
+      <sc-if value="{{ chipsOn }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-wrap:wrap;background:rgba(0,0,0,0.82);border-bottom:2px solid #3a3836;padding-left:env(safe-area-inset-left)">
+          <sc-for list="{{ chips }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex;align-items:center;gap:6px;padding:4px 10px;background:{{ p.bg }};border-right:2px solid #2a2826;min-height:26px;opacity:{{ p.op }}"><span style="width:10px;height:10px;background:{{ p.col }};display:block;flex:none"></span><span style="font:900 11px var(--font-heading);letter-spacing:0.05em;white-space:nowrap;color:{{ p.fg }}">{{ p.name }}</span><span style="font:800 11px var(--font-heading);font-variant-numeric:tabular-nums;color:{{ p.vc }}">{{ p.v }}</span></div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hintOn }}" hint-placeholder-val="{{ true }}">
+    <div data-safe="bottom" style="position:absolute;left:max(12px, env(safe-area-inset-left));right:max(12px, env(safe-area-inset-right));bottom:calc(12px + env(safe-area-inset-bottom));z-index:3;pointer-events:none;display:flex;justify-content:flex-start">
+      <div style="background:rgba(0,0,0,0.88);border:2px solid {{ hintBd }};display:flex;flex-direction:column;min-width:min(340px,100%);max-width:100%">
+        <sc-if value="{{ powOn }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;padding:6px 12px 4px"><span style="font:900 11px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">POWER</span><span style="margin-left:auto;font:900 16px var(--font-heading);font-variant-numeric:tabular-nums;color:{{ powCol }}">{{ powTxt }}</span></div>
+          <div style="height:10px;margin:0 12px 8px;background:#3a3836"><div style="height:100%;width:{{ powW }};background:{{ powCol }}"></div></div>
+        </sc-if>
+        <span style="padding:8px 12px;font:800 clamp(13px,3.6vw,15px) var(--font-heading);letter-spacing:0.04em;line-height:1.25;color:#fff;text-wrap:pretty">{{ hintTxt }}</span>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ flashOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:50%;top:{{ flashTop }};transform:translateX(-50%);z-index:5;pointer-events:none;max-width:calc(100% - 24px);background:rgba(0,0,0,0.9);border:2px solid {{ flashCol }};display:flex;align-items:stretch">
+      <span style="flex:none;width:12px;background:{{ flashCol }};display:block"></span>
+      <span style="padding:8px 16px;font:900 clamp(18px,5vw,28px) var(--font-heading);letter-spacing:0.05em;line-height:1.1;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ flashTxt }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ introOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));top:{{ introTop }};z-index:4;pointer-events:none;background:#000;border:2px solid #ffd23a;display:flex;flex-direction:column;max-width:calc(100% - 24px)">
+      <span style="padding:6px 12px 0;font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">{{ holeKick }}</span>
+      <span style="padding:2px 12px;font:900 clamp(24px,7vw,34px) var(--font-heading);line-height:1.05">{{ holeName }}</span>
+      <span style="padding:2px 12px 10px;font:700 14px var(--font-body);color:#cfcac2">{{ holeLine }}</span>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ passOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:9;background:rgba(0,0,0,0.55);display:flex;align-items:flex-end;justify-content:flex-start;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));box-sizing:border-box">
+      <div style="background:#000;border:2px solid {{ passCol }};width:min(420px,100%);display:flex;flex-direction:column">
+        <div style="display:flex;align-items:stretch;border-bottom:2px solid #3a3836"><span style="flex:none;width:14px;background:{{ passCol }};display:block"></span><div style="padding:12px 16px;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">PASS THE PHONE · {{ holeKick }}</span><span style="font:900 30px var(--font-heading);line-height:1.05">{{ passName }}</span><span style="font:700 14px var(--font-body);color:#cfcac2">{{ holeName }} · {{ holeLine }}</span></div></div>
+        <button onClick="{{ passGo }}" style="min-height:60px;padding:0 18px;border:0;border-radius:0;background:#ec3013;color:#fff;font:900 18px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">TAP TO PUTT</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ wcOn }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:10;width:{{ cardW }};max-height:calc(100% - 24px - env(safe-area-inset-top));overflow-y:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:{{ paneDir }};align-items:stretch;box-sizing:border-box">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="padding:12px 14px 10px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:3px">
+        <span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">MINI GOLF · {{ wcKick }}</span>
+        <span style="font:900 clamp(26px,7.5vw,34px) var(--font-heading);line-height:1">Fox Mini Golf</span>
+        <span style="font:700 14px var(--font-body);line-height:1.35;color:#cfcac2;text-wrap:pretty">Drag back from anywhere, let go to putt. Nine holes: the gate, the windmill, the hill, the pond, the warp.</span>
+      </div>        <sc-if value="{{ embedOn }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ backGo }}" style="min-height:48px;padding:0 14px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">← BACK TO THE WORLD</button>
+        </sc-if></div><div style="flex:1;min-width:0;display:flex;flex-direction:column;border-left:{{ paneBd }}">
+      <sc-if value="{{ pracOn }}" hint-placeholder-val="{{ false }}">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr))">
+          <sc-for list="{{ pracRows }}" as="r" hint-placeholder-count="9">
+            <button onClick="{{ r.go }}" style="min-height:56px;padding:6px 10px;border:0;border-bottom:2px solid #2a2826;border-right:2px solid #2a2826;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:2px" style-hover="background:#2a2826"><span style="font:900 13px var(--font-heading);letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%">{{ r.n }} · {{ r.name }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#8a847e;white-space:nowrap">{{ r.sub }}</span></button>
+          </sc-for>
+        </div>
+        <button onClick="{{ pracClose }}" style="min-height:48px;padding:0 14px;border:0;border-radius:0;background:#000;color:#ffd23a;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">← BACK</button>
+      </sc-if>
+      <sc-if value="{{ wcMain }}" hint-placeholder-val="{{ true }}">
+        <sc-for list="{{ wcRows }}" as="r" hint-placeholder-count="5">
+          <button onClick="{{ r.go }}" style="min-height:52px;padding:6px 14px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px" style-hover="filter:brightness(1.15)"><span style="font:900 15px var(--font-heading);letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.k }}</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;color:{{ r.c }};white-space:nowrap">{{ r.v }}</span></button>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button onClick="{{ aimGo }}" aria-pressed="{{ aimPressed }}" style="min-height:52px;padding:4px 14px;border:0;border-right:2px solid #2a2826;border-radius:0;background:{{ aimBg }};color:{{ aimFg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="filter:brightness(1.15)"><span style="font:900 13px var(--font-heading);letter-spacing:0.06em">AUDIO AIM · {{ aimTxt }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.06em;opacity:0.8">PLAY BY EAR · TONE + VOICE</span></button>
+          <button onClick="{{ musicGo }}" aria-pressed="{{ musicPressed }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:{{ musicBg }};color:{{ musicFg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="filter:brightness(1.15)"><span style="font:900 13px var(--font-heading);letter-spacing:0.06em">MUSIC · {{ musicTxt }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.06em;opacity:0.8">HALL LOUNGE LOOP</span></button>
+        </div>
+
+      </sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ setupOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:10;width:{{ cardW }};max-height:calc(100% - 24px);overflow-y:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:{{ paneDir }};align-items:stretch;box-sizing:border-box">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="padding:10px 14px 8px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">MINI GOLF · ONE PHONE</span><span style="font:900 24px var(--font-heading);line-height:1">Pass &amp; Play</span><span style="font:700 13px var(--font-body);color:#cfcac2">2 to 5 players. Tap a player to change their fox.</span></div>
+      <sc-for list="{{ slots }}" as="s" hint-placeholder-count="2">
+        <button onClick="{{ s.go }}" style="min-height:48px;padding:4px 14px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;display:grid;grid-template-columns:14px minmax(0,1fr) auto;align-items:center;gap:10px" style-hover="background:#2a2826"><span style="width:14px;height:14px;background:{{ s.col }};display:block"></span><span style="font:900 15px var(--font-heading);letter-spacing:0.05em;white-space:nowrap">{{ s.name }}</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;color:#8a847e">{{ s.sub }}</span></button>
+      </sc-for>
+      </div><div style="flex:1;min-width:0;display:flex;flex-direction:column;border-left:{{ paneBd }}">
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+        <button onClick="{{ addGo }}" disabled="{{ addOff }}" style="min-height:48px;padding:0 14px;border:0;border-right:2px solid #2a2826;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;opacity:{{ addOp }}" style-hover="background:#2a2826">+ ADD PLAYER</button>
+        <button onClick="{{ remGo }}" disabled="{{ remOff }}" style="min-height:48px;padding:0 14px;border:0;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;opacity:{{ remOp }}" style-hover="background:#2a2826">− REMOVE</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:2px solid #3a3836">
+        <sc-for list="{{ hotCourses }}" as="r" hint-placeholder-count="2">
+          <button onClick="{{ r.go }}" aria-pressed="{{ r.pressed }}" style="min-height:48px;padding:4px 12px 4px 14px;border:0;border-radius:0;background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px;box-shadow:inset 6px 0 0 {{ r.bar }}" style-hover="filter:brightness(1.15)"><span style="font:900 13px var(--font-heading);letter-spacing:0.05em">{{ r.name }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.75">{{ r.sub }}</span></button>
+        </sc-for>
+      </div>
+      <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);border-top:2px solid #3a3836">
+        <button onClick="{{ hotGo }}" style="min-height:56px;padding:0 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 16px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">TEE OFF</button>
+        <button onClick="{{ quitGo }}" style="min-height:56px;padding:0 14px;border:0;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">BACK</button>
+      </div></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ netOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:10;width:{{ cardW }};max-height:calc(100% - 24px);overflow-y:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:{{ paneDir }};align-items:stretch;box-sizing:border-box">
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column"><div style="padding:10px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid #3a3836"><span style="display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">MINI GOLF</span><span style="font:900 24px var(--font-heading);line-height:1;white-space:nowrap">Online</span></span><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:{{ netStatC }};white-space:nowrap">{{ netStat }}</span></div>
+      <sc-if value="{{ netCodeOn }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:10px 14px;border-bottom:2px solid #3a3836;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#8a847e">ROOM</span><span style="font:900 44px var(--font-heading);line-height:1;letter-spacing:0.12em;color:#ffd23a">{{ netCode }}</span></div><button onClick="{{ netShare }}" style="min-height:44px;padding:0 14px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 12px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;white-space:nowrap" style-hover="background:#2a2826">{{ netShareTxt }}</button></div>
+      </sc-if>
+      <span style="padding:8px 14px;border-bottom:2px solid #3a3836;font:700 14px var(--font-body);line-height:1.4;color:#e8e4de;text-wrap:pretty">{{ netMsg }}</span>
+      <sc-for list="{{ netRows }}" as="r" hint-placeholder-count="2">
+        <div style="min-height:44px;padding:4px 14px;border-bottom:2px solid #2a2826;display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:10px"><span style="width:12px;height:12px;background:{{ r.col }};display:block"></span><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font:900 14px var(--font-heading);letter-spacing:0.05em;white-space:nowrap">{{ r.name }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#8a847e;white-space:nowrap">{{ r.sub }}</span></span><span style="font:900 10px var(--font-heading);letter-spacing:0.1em;color:{{ r.tagC }}">{{ r.tag }}</span></div>
+      </sc-for>
+      </div><div style="flex:1;min-width:0;display:flex;flex-direction:column;border-left:{{ paneBd }}">
+      <sc-if value="{{ netRoomOn }}" hint-placeholder-val="{{ false }}">
+        <button onClick="{{ netFoxGo }}" style="min-height:48px;padding:4px 14px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:#000;color:#fff;cursor:pointer;text-align:left;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:10px" style-hover="background:#2a2826"><span style="font:900 14px var(--font-heading);letter-spacing:0.05em">YOUR FOX · {{ netFoxName }}</span><span style="font:800 10px var(--font-heading);letter-spacing:0.08em;color:#ffd23a">CHANGE</span></button>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <sc-for list="{{ netCourses }}" as="r" hint-placeholder-count="2">
+            <button onClick="{{ r.go }}" aria-pressed="{{ r.pressed }}" style="min-height:48px;padding:4px 12px 4px 14px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:{{ r.bg }};color:{{ r.fg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px;box-shadow:inset 6px 0 0 {{ r.bar }}" style-hover="filter:brightness(1.15)"><span style="font:900 13px var(--font-heading);letter-spacing:0.05em">{{ r.name }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.75">{{ r.sub }}</span></button>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ netJoinOn }}" hint-placeholder-val="{{ true }}">
+        <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 5</span></button>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:2px solid #3a3836">
+          <input value="{{ codeIn }}" onChange="{{ codeType }}" onKeyDown="{{ codeKey }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code" placeholder="CODE" style="min-width:0;min-height:52px;padding:0 14px;border:0;border-radius:0;background:#1a1918;color:#ffd23a;font:900 24px var(--font-heading);letter-spacing:0.2em;text-transform:uppercase;outline:none;box-sizing:border-box;user-select:text;-webkit-user-select:text" style-focus="background:#2a2826"></input>
+          <button onClick="{{ joinGo }}" style="min-height:52px;padding:0 18px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">JOIN</button>
+        </div>
+      </sc-if>
+      <div style="flex:none;display:grid;grid-template-columns:{{ netBtnCols }};border-top:2px solid #3a3836">
+        <sc-if value="{{ netReadyOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ netReadyGo }}" style="min-height:52px;padding:4px 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:{{ netReadyBg }};color:{{ netReadyFg }};cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="filter:brightness(1.1)"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">{{ netReadyTxt }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">{{ netReadySub }}</span></button></sc-if>
+        <button onClick="{{ netBackGo }}" style="min-height:52px;padding:0 14px;border:0;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">{{ netBackTxt }}</button>
+      </div></div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ cardOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:11;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:flex-start;padding:12px;box-sizing:border-box;overflow:auto">
+      <div style="background:#000;border:2px solid #3a3836;width:min(520px,100%);display:flex;flex-direction:column;margin:auto 0;max-height:100%">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;padding:10px 14px;border-bottom:2px solid #3a3836"><span style="font:900 20px var(--font-heading)">Scorecard</span><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:#ffd23a">{{ cardSub }}</span></div>
+        <div style="overflow:auto;min-height:0">
+          <div style="display:grid;grid-template-columns:{{ gridCols }};font:800 12px var(--font-heading);font-variant-numeric:tabular-nums">
+            <sc-for list="{{ cells }}" as="c" hint-placeholder-count="12">
+              <span style="padding:7px 6px;border-bottom:2px solid #2a2826;background:{{ c.bg }};color:{{ c.fg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:{{ c.al }}">{{ c.t }}</span>
+            </sc-for>
+          </div>
+        </div>
+        <button onClick="{{ cardGo }}" style="min-height:52px;padding:0 18px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">CLOSE</button>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ menuOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:12;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:flex-start;padding:12px;box-sizing:border-box;overflow:auto">
+      <div style="background:#000;border:2px solid #3a3836;width:min(420px,100%);display:flex;flex-direction:column;margin:auto 0">
+        <div style="padding:10px 14px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">{{ holeKick }}</span><span style="font:900 24px var(--font-heading)">Paused</span></div>
+        <div style="padding:8px 14px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:6px;font:700 13px var(--font-body);line-height:1.4;color:#e8e4de">
+          <span><b style="color:#ffd23a">PUTT</b> · put a finger anywhere, drag BACK (away from where you want to go), let go. Longer drag = harder. Drag back to the start to cancel.</span>
+          <span><b style="color:#ffd23a">KEYS</b> · arrows aim + power (Shift = fine), Space putts, V view, C card.</span>
+          <span><b style="color:#ffd23a">RULES</b> · {{ maxS }} strokes max a hole. Water = +1 and you play again from where you hit.</span>
+        </div>
+        <button onClick="{{ menuGo }}" style="min-height:52px;padding:0 18px;border:0;border-bottom:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">RESUME</button>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button onClick="{{ aimGo }}" style="min-height:48px;padding:0 14px;border:0;border-right:2px solid #2a2826;border-bottom:2px solid #2a2826;border-radius:0;background:{{ aimBg }};color:{{ aimFg }};font:900 12px var(--font-heading);letter-spacing:0.06em;cursor:pointer;text-align:left">AUDIO AIM · {{ aimTxt }}</button>
+          <button onClick="{{ musicGo }}" style="min-height:48px;padding:0 14px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:{{ musicBg }};color:{{ musicFg }};font:900 12px var(--font-heading);letter-spacing:0.06em;cursor:pointer;text-align:left">MUSIC · {{ musicTxt }}</button>
+        </div>
+        <sc-if value="{{ restartOn }}" hint-placeholder-val="{{ true }}"><button onClick="{{ restartGo }}" style="min-height:48px;padding:0 18px;border:0;border-bottom:2px solid #2a2826;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">RESTART THE ROUND</button></sc-if>
+        <button onClick="{{ quitGo }}" style="min-height:48px;padding:0 18px;border:0;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">{{ quitTxt }}</button>
+        <sc-if value="{{ embedOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ backGo }}" style="min-height:48px;padding:0 18px;border:0;border-top:2px solid #2a2826;border-radius:0;background:#000;color:#ffd23a;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">← BACK TO THE WORLD</button></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ doneOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:11;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:flex-start;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));box-sizing:border-box;overflow:auto">
+      <div style="background:#000;border:2px solid #3a3836;width:{{ doneW }};display:flex;flex-direction:{{ paneDir }};margin-top:auto"><div style="flex:1;min-width:0;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:stretch;border-bottom:2px solid #3a3836">
+          <div style="padding:12px 16px;flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">{{ doneKick }}</span><span style="font:900 24px var(--font-heading);line-height:1.05">{{ doneTitle }}</span><span style="font:700 12px var(--font-body);color:#cfcac2">{{ doneSub }}</span></div>
+          <div style="width:88px;flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;background:{{ doneBg }}"><span style="font:900 38px var(--font-heading);line-height:1;font-variant-numeric:tabular-nums">{{ doneBig }}</span><span style="font:800 10px var(--font-heading);letter-spacing:0.1em">{{ doneBigSub }}</span></div>
+        </div>
+        <sc-if value="{{ trophyOn }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;background:#ffd23a;color:#000;border-bottom:2px solid #000"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.4" stroke-linecap="square"><path d="M7 4h10v5a5 5 0 0 1-10 0zM7 6H4v2a3 3 0 0 0 3 3M17 6h3v2a3 3 0 0 1-3 3M12 14v4M8 21h8M9 18h6"></path></svg><span style="font:900 14px var(--font-heading);letter-spacing:0.06em">MINI GOLF TROPHY · SAVED FOR YOUR HOME</span></div>
+        </sc-if>
+        <sc-for list="{{ doneInfo }}" as="r" hint-placeholder-count="2">
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:7px 16px;border-bottom:2px solid #2a2826;font:700 13px var(--font-body);color:#cfcac2"><span>{{ r.k }}</span><span style="font-family:var(--font-heading);font-weight:800;color:#fff">{{ r.v }}</span></div>
+        </sc-for>
+</div><div style="flex:1;min-width:0;display:flex;flex-direction:column;border-left:{{ paneBd }}">        <sc-for list="{{ doneRows }}" as="r" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:22px 12px minmax(0,1fr) auto auto;gap:10px;align-items:center;padding:8px 16px;border-bottom:2px solid #2a2826;background:{{ r.bg }};font:700 14px var(--font-body)"><span style="font:900 14px var(--font-heading);color:#8a847e">{{ r.place }}</span><span style="width:12px;height:12px;background:{{ r.col }};display:block"></span><span style="font:900 14px var(--font-heading);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font:800 14px var(--font-heading);font-variant-numeric:tabular-nums">{{ r.total }}</span><span style="font:800 12px var(--font-heading);font-variant-numeric:tabular-nums;color:{{ r.pc }};min-width:28px;text-align:right">{{ r.toPar }}</span></div>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:{{ doneCols }}">
+          <button onClick="{{ againGo }}" style="min-height:52px;padding:0 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#c82a10">{{ againTxt }}</button>
+          <sc-if value="{{ nextOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ nextGo }}" style="min-height:52px;padding:0 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">{{ nextTxt }}</button></sc-if>
+          <button onClick="{{ cardGo }}" style="min-height:52px;padding:0 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">CARD</button>
+          <button onClick="{{ quitGo }}" style="min-height:52px;padding:0 14px;border:0;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">MENU</button>
+        </div></div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"orientation":{"editor":"enum","options":["portrait","landscape"],"default":"portrait"},"autoDemo":{"editor":"boolean","default":true},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  state = { h: null, vw: 1200, vh: 800, prac: false, codeIn: '', copied: false };
+  stageRef = React.createRef();
+  embed = /[?&]embed=1/.test(location.search);
+  async componentDidMount() {
+    addEventListener('resize', this.onRs); this.onRs(); try { this.ro = new ResizeObserver(this.onRs); this.stageRef.current && this.ro.observe(this.stageRef.current.parentElement); } catch (e) {}
+    // the game ships as one classic script (head) that defines FoxMiniGolf; wait for it, then start
+    try { let m = window.FoxMiniGolf; for (let i = 0; !m && i < 150; i++) { await new Promise(r => setTimeout(r, 100)); m = window.FoxMiniGolf; }
+      if (!m || !m.createMiniGolf) throw new Error('The 3D game file did not load.');
+      this.g = await m.createMiniGolf({ container: this.stageRef.current, onState: h => this.setState({ h }) }); if (this.props.autoDemo ?? true) this.g.demo(); this.setState({ h: this.g.hud(), loadErr: '' }); }
+    catch (e) { console.warn('mini golf failed: ' + (e && e.stack || String(e))); this.setState({ loadErr: '3D DID NOT LOAD · ' + String(e && e.message || e).slice(0, 120) }); }
+  }
+  componentDidUpdate() { const root = this.stageRef.current && this.stageRef.current.parentElement; if (!root || !this.g) return; const rb = root.getBoundingClientRect(); let top = 0, bot = 0; root.querySelectorAll('[data-safe]').forEach(el => { const r = el.getBoundingClientRect(); if (!r.height) return; if (el.dataset.safe === 'top') top = Math.max(top, r.bottom - rb.top); else bot = Math.max(bot, rb.bottom - r.top); }); const H = rb.height; this.g.setSafe(Math.round(Math.min(top, H * 0.3)) + 6, Math.round(Math.min(bot, H * 0.3)) + 6, 0); }
+  componentWillUnmount() { removeEventListener('resize', this.onRs); this.ro && this.ro.disconnect(); this.g && this.g.destroy(); }
+  onRs = () => { const el = this.stageRef.current, r = el && el.parentElement ? el.parentElement.getBoundingClientRect() : null; this.setState({ vw: r && r.width ? r.width : innerWidth, vh: r && r.height ? r.height : innerHeight }); };
+  back = () => { try { window.parent.postMessage({ type: 'minigame:back', game: 'miniGolf' }, '*'); } catch (e) {} };
+  renderVals() {
+    const S = this.state, g = this.g, blur = e => e && e.currentTarget && e.currentTarget.blur && e.currentTarget.blur(), call = (fn, ...a) => e => { blur(e); g && g[fn] && g[fn](...a); };
+    const h = S.h || { phase: 'menu', hole: null, strokes: 0, maxStrokes: 6, power: 0, players: [], card2: [], practice: [], bests: { full: 0, quick: 0, aces: 0 }, net: null, hot: null, done: null, view: 'hole', aimSound: false, music: false, parTotalFull: 24 };
+    const port = S.vh > S.vw, wide = S.vw > S.vh && S.vh < 560, ph = h.phase, inRound = ['intro', 'aim', 'swing', 'roll', 'splash', 'holed', 'wait', 'netNext', 'pass'].includes(ph), hole = h.hole || { n: 1, of: 9, num: 1, name: '', par: 2, line: '' };
+    const N = h.net, me = (h.players || []).find(p => p.me), multi = (h.players || []).length > 1;
+    const hint = h.mode === 'demo' ? (ph === 'done' ? '' : 'DEMO · ' + (h.cur ? h.cur.name : 'BEN') + ' IS PUTTING · TAP ANYWHERE TO PLAY') : ph === 'aim' ? (h.aiming ? (h.power < 0.04 ? 'TOO SOFT · DRAG FURTHER, OR BACK TO CANCEL' : 'LET GO TO PUTT') : (h.mode === 'hot' && h.cur ? h.cur.name + ' · ' : '') + 'DRAG BACK FROM ANYWHERE · LET GO TO PUTT') : ph === 'roll' || ph === 'swing' ? 'ROLLING…' : ph === 'splash' ? 'SPLASH · BACK WHERE YOU HIT FROM' : ph === 'wait' ? 'IN THE CUP · WAITING FOR ' + (h.waiting || []).join(', ') : ph === 'netNext' ? 'EVERYONE IS IN · NEXT HOLE' : ph === 'holed' ? (h.flash ? h.flash.txt : 'IN THE CUP') : '';
+    const pw = h.power || 0, powCol = pw < 0.45 ? '#ffffff' : pw < 0.8 ? '#ffd23a' : '#ec3013';
+    const cardRows = (() => { const P = h.players || [], C = h.card2 || [], cols = 2 + P.length, out = [], head = (t, al = 'left') => out.push({ t, bg: '#1a1918', fg: '#ffd23a', al }); head('HOLE'); head('PAR', 'right'); P.forEach(p => out.push({ t: p.name.split(' ')[0], bg: '#1a1918', fg: p.col, al: 'right' }));
+      C.forEach((c, i) => { const cur = i === (hole.n - 1) && inRound; out.push({ t: c.n + ' ' + c.name, bg: cur ? '#2a2826' : '#000', fg: '#fff', al: 'left' }); out.push({ t: String(c.par), bg: cur ? '#2a2826' : '#000', fg: '#cfcac4', al: 'right' }); P.forEach(p => { const s = p.scores[i]; out.push({ t: s == null ? '·' : String(s), bg: cur ? '#2a2826' : '#000', fg: s == null ? '#5a544e' : s === 1 ? '#22c55e' : s < c.par ? '#7dd3fc' : s === c.par ? '#fff' : '#ff9a8a', al: 'right' }); }); });
+      out.push({ t: 'TOTAL', bg: '#1a1918', fg: '#fff', al: 'left' }); out.push({ t: String(h.parTotal || 0), bg: '#1a1918', fg: '#cfcac4', al: 'right' }); P.forEach(p => out.push({ t: p.total + ' (' + p.toPar + ')', bg: '#1a1918', fg: '#ffd23a', al: 'right' })); return { out, cols }; })();
+    const nm = N ? N.members || [] : [], nAll = nm.length >= 2 && nm.every(x => x.ready), nRc = nm.filter(x => x.ready).length, nRacing = N && nm.some(x => !x.me && x.playing);
+    const D = h.done || {}, dm = h.mode;
+    const toggle = on => ({ bg: on ? '#ffd23a' : '#000000', fg: on ? '#000000' : '#ffffff' });
+    const at = toggle(h.aimSound), mu = toggle(h.music);
+    const B = h.bests || {};
+    const land = (this.props.orientation ?? 'portrait') === 'landscape';
+    return {
+      rootW: land ? '844px' : '390px', rootH: land ? '390px' : '844px', errOn: !!S.loadErr, errTxt: S.loadErr || '',
+      paneDir: wide ? 'row' : 'column', paneBd: wide ? '2px solid #3a3836' : '0', cardW: wide ? 'min(760px, calc(100% - 24px))' : 'min(420px, calc(100% - 24px))', doneW: wide ? 'min(760px, 100%)' : 'min(460px, 100%)',
+      stageRef: this.stageRef, embedOn: this.embed, backGo: e => { blur(e); this.back(); },
+      liveTxt: h.flash ? h.flash.txt : ph === 'pass' && h.cur ? h.cur.name + ' to putt' : '',
+      barOn: inRound && ph !== 'pass', holeKick: 'HOLE ' + hole.n + ' / ' + hole.of + ' · PAR ' + hole.par, holeName: hole.name, holeLine: hole.line,
+      strokeTxt: h.strokes + ' / ' + h.maxStrokes, strokeCol: h.strokes >= h.maxStrokes - 1 ? '#ff9a8a' : '#ffffff',
+      viewGo: call('toggleView'), viewName: h.view === 'close' ? 'CLOSE' : 'HOLE', cardGo: call('toggleCard'), cardBg: h.card ? '#ffd23a' : '#000000', cardFg: h.card ? '#000000' : '#ffffff', menuGo: e => { blur(e); g && (h.menu ? g.closeMenu() : g.openMenu()); },
+      chipsOn: multi && inRound && ph !== 'pass', chips: (h.players || []).map(p => ({ name: p.name + (p.me && dm === 'net' ? ' · YOU' : ''), col: p.col, v: p.toPar, bg: p.turn ? '#ffd23a' : 'transparent', fg: p.turn ? '#000' : '#fff', vc: p.turn ? '#000' : '#ffd23a', op: p.gone ? 0.4 : 1 })),
+      hintOn: inRound && ph !== 'pass' && !!hint && !h.card && !h.menu, hintTxt: hint, hintBd: h.mode === 'demo' ? '#ffd23a' : ph === 'aim' ? (h.cur ? h.cur.col : '#ffd23a') : '#3a3836', powOn: ph === 'aim' && !!h.aiming, powTxt: Math.round(pw * 100) + '%', powW: Math.round(pw * 100) + '%', powCol,
+      flashOn: !!h.flash && inRound, flashTxt: h.flash ? h.flash.txt : '', flashCol: h.flash ? h.flash.col : '#ffd23a', flashTop: port ? '42%' : '38%',
+      introOn: ph === 'intro' && !h.flash, introTop: 'calc(' + (multi ? 96 : 66) + 'px + env(safe-area-inset-top))',
+      passOn: ph === 'pass', passName: h.cur ? h.cur.name + "'s turn" : '', passCol: h.cur ? h.cur.col : '#ffd23a', passGo: call('passGo'),
+      // welcome
+      wcOn: ph === 'menu', wcKick: '9 HOLES · PAR ' + (h.parTotalFull || 24), pracOn: S.prac, wcMain: !S.prac, pracClose: e => { blur(e); this.setState({ prac: false }); },
+      pracRows: (h.practice || []).map(r => ({ n: r.n, name: r.name, sub: 'PAR ' + r.par + (r.best ? ' · BEST ' + r.best : ''), go: e => { blur(e); this.setState({ prac: false }); g && g.practice(r.i); } })),
+      wcRows: [
+        { k: 'PLAY 9 HOLES', v: B.full ? 'BEST ' + B.full : 'PAR ' + (h.parTotalFull || 24), c: '#fff', bg: '#ec3013', fg: '#fff', go: call('playSolo', 'full') },
+        { k: 'QUICK 3', v: B.quick ? 'BEST ' + B.quick : 'GATE · MILL · WARP', c: '#ffd23a', bg: '#000', fg: '#fff', go: call('playSolo', 'quick') },
+        { k: 'PASS & PLAY', v: '2–5 ON ONE PHONE', c: '#ffd23a', bg: '#000', fg: '#fff', go: call('hotSetup') },
+        { k: 'ONLINE', v: 'UP TO 5 FRIENDS', c: '#7dd3fc', bg: '#000', fg: '#fff', go: call('netOpen') },
+        { k: 'WATCH A DEMO', v: 'A FOX PLAYS ALL 9', c: '#22c55e', bg: '#000', fg: '#fff', go: call('demo') },
+        { k: 'PRACTICE A HOLE', v: B.aces ? B.aces + ' HOLE' + (B.aces > 1 ? 'S' : '') + ' IN ONE' : 'PICK ANY OF 9', c: '#8a847e', bg: '#000', fg: '#fff', go: e => { blur(e); this.setState({ prac: true }); } }],
+      aimGo: call('toggleAimSound'), aimTxt: h.aimSound ? 'ON' : 'OFF', aimPressed: h.aimSound ? 'true' : 'false', aimBg: at.bg, aimFg: at.fg,
+      musicGo: call('toggleMusic'), musicTxt: h.music ? 'ON' : 'OFF', musicPressed: h.music ? 'true' : 'false', musicBg: mu.bg, musicFg: mu.fg,
+      // pass & play setup
+      setupOn: ph === 'setup', slots: h.hot ? h.hot.slots.map((s, i) => ({ name: 'P' + (i + 1) + ' · ' + s.name, col: s.col, sub: 'TAP TO CHANGE', go: call('hotFox', i) })) : [],
+      addGo: call('hotAdd'), addOff: !h.hot || h.hot.slots.length >= 5, addOp: !h.hot || h.hot.slots.length >= 5 ? 0.4 : 1, remGo: call('hotRemove'), remOff: !h.hot || h.hot.slots.length <= 2, remOp: !h.hot || h.hot.slots.length <= 2 ? 0.4 : 1,
+      hotCourses: [['full', '9 HOLES', 'PAR ' + (h.parTotalFull || 24)], ['quick', 'QUICK 3', 'GATE · MILL · WARP']].map(([id, name, sub]) => { const sel = (h.hot ? h.hot.course : 'full') === id; return { name, sub, pressed: sel ? 'true' : 'false', bg: sel ? '#f3f2f2' : '#000', fg: sel ? '#201e1d' : '#fff', bar: sel ? '#ec3013' : 'transparent', go: call('hotCourse', id) }; }),
+      hotGo: call('hotStart'), quitGo: call('quit'),
+      // online
+      netOn: ph === 'lobby' && !!N, netStat: !N ? '' : N.full ? 'ROOM FULL' : N.status === 'local' ? 'TEST LINK · THIS DEVICE' : N.status === 'offline' ? 'OFFLINE' : N.status === 'online' ? (nm.length > 1 ? nm.length + ' ON THE COURSE' + (N.ping ? ' · ' + N.ping + ' MS' : '') : 'ONLINE') : N.st === 'menu' ? 'NO SERVER NEEDED' : 'CONNECTING…', netStatC: N && (N.status === 'offline' || N.full) ? '#ec3013' : '#ffd23a',
+      netCodeOn: !!N && !!N.code && N.st !== 'menu', netCode: N ? N.code : '',
+      netShare: async e => { blur(e); if (!N) return; let u; try { u = new URL(location.href); u.searchParams.set('room', N.code); u.searchParams.delete('embed'); } catch (er) { return; } try { if (navigator.share && Math.min(S.vw, S.vh) < 520) await navigator.share({ title: '8 GATES · Mini Golf', text: 'Putt with me in 8 GATES. Room ' + N.code, url: u.href }); else { await navigator.clipboard.writeText(u.href); this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 2000); } } catch (er) {} }, netShareTxt: S.copied ? 'LINK COPIED' : 'SHARE LINK',
+      netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Up to 5 players on the same course, each on their own phone. Make a room and send the link, or type a friend’s code.' : N.full ? 'Five golfers are already in room ' + N.code + '. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : nRacing ? 'A round is on. You join the next one.' : nm.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : nAll ? 'Everyone is ready. Teeing off…' : 'Everyone taps READY. The round starts when all are ready.',
+      netRows: N && N.st !== 'menu' && !N.full ? nm.map(x => ({ col: x.col, name: x.name + (x.me ? ' · YOU' : ''), sub: x.host ? 'HOST' : 'GOLFER', tag: x.playing && !x.me ? 'PLAYING' : x.ready ? 'READY' : '', tagC: x.ready ? '#22c55e' : '#8a847e' })) : [],
+      netRoomOn: !!N && N.st !== 'menu' && !N.full, netFoxGo: call('netFox'), netFoxName: N ? N.foxName : '',
+      netCourses: [['full', '9 HOLES', 'PAR ' + (h.parTotalFull || 24)], ['quick', 'QUICK 3', 'GATE · MILL · WARP']].map(([id, name, sub]) => { const sel = (N ? N.course : 'full') === id; return { name, sub, pressed: sel ? 'true' : 'false', bg: sel ? '#f3f2f2' : '#000', fg: sel ? '#201e1d' : '#fff', bar: sel ? '#ec3013' : 'transparent', go: call('netCourse', id) }; }),
+      netJoinOn: !!N && N.st === 'menu', codeIn: S.codeIn, codeType: e => this.setState({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) }), codeKey: e => { if (e.key === 'Enter') { e.preventDefault(); g && g.netJoin(this.state.codeIn); } e.stopPropagation(); },
+      joinGo: e => { blur(e); if (this.state.codeIn.length < 4) { g && g.netMsg('Type the 4-letter room code from your friend.'); return; } g && g.netJoin(this.state.codeIn); }, netCreate: call('netCreate'),
+      netReadyOn: !!N && N.st === 'room' && !N.full && nm.length >= 2, netReadyGo: call('netReady'), netReadyTxt: N && N.ready ? 'READY ✓' : 'READY', netReadySub: N && N.ready ? (nAll ? 'TEEING OFF…' : 'WAITING · ' + nRc + '/' + nm.length + ' READY') : (N && N.course === 'quick' ? 'QUICK 3' : '9 HOLES') + ' · ' + nm.length + ' GOLFERS', netReadyBg: N && N.ready ? '#22c55e' : '#ec3013', netReadyFg: N && N.ready ? '#000000' : '#ffffff',
+      netBtnCols: N && N.st === 'room' && !N.full && nm.length >= 2 ? 'minmax(0,2fr) minmax(0,1fr)' : 'minmax(0,1fr)', netBackTxt: !N ? '' : N.st === 'menu' ? 'BACK' : 'LEAVE', netBackGo: call('netBack'),
+      // scorecard + menu
+      cardOn: !!h.card, cardSub: (h.mode === 'net' ? 'ONLINE · ' : h.mode === 'hot' ? 'PASS & PLAY · ' : '') + (h.card2 || []).length + ' HOLES', gridCols: 'minmax(96px,1.6fr) 36px repeat(' + (h.players || []).length + ', minmax(44px,1fr))', cells: cardRows.out,
+      menuOn: !!h.menu, maxS: h.maxStrokes || 6, restartOn: dm !== 'net', restartGo: call('restart'), quitTxt: dm === 'net' ? 'LEAVE THE ROOM' : 'QUIT TO THE CLUBHOUSE',
+      // done
+      doneOn: ph === 'done' && !h.card, doneKick: (dm === 'demo' ? 'DEMO' : dm === 'practice' ? 'PRACTICE · ' + ((h.card2 || [])[0] || {}).name : dm === 'net' ? 'ONLINE ROUND' : dm === 'hot' ? 'PASS & PLAY' : h.course === 'quick' ? 'QUICK 3' : '9 HOLES') + ' · PAR ' + (D.par || 0),
+      doneTitle: D.title || '', doneSub: (D.newBest ? 'NEW BEST · ' : D.best ? 'BEST ' + D.best + ' · ' : '') + (D.gold ? '+' + D.gold + ' GOLD · +' + D.xp + ' XP' : dm === 'practice' ? 'Practice pays no gold' : ''),
+      doneBig: String(D.total || 0), doneBigSub: (D.toPar || '') + (dm === 'demo' ? ' · DEMO' : ' · YOU'), doneBg: D.total && D.total <= D.par ? '#22c55e' : '#ec3013', trophyOn: !!D.trophy,
+      doneRows: D.multi ? (D.rank || []).map(r => ({ place: r.place, col: r.col, name: r.name + (r.me && dm === 'net' ? ' · YOU' : ''), total: r.total, toPar: r.toPar, pc: r.toPar.startsWith('-') ? '#22c55e' : r.toPar === 'E' ? '#fff' : '#ff9a8a', bg: r.place === 1 ? '#1f2a1f' : '#000' })) : [],
+      doneInfo: [...(D.aces ? [{ k: 'Holes in one', v: String(D.aces) }] : []), ...(D.birdies ? [{ k: 'Under par holes', v: String(D.birdies) }] : [])],
+      againTxt: dm === 'demo' ? 'PLAY IT YOURSELF' : dm === 'net' ? 'REMATCH' : dm === 'practice' ? 'AGAIN' : 'PLAY AGAIN', againGo: dm === 'demo' ? call('quit') : call('again'), nextOn: dm === 'practice' || dm === 'net', nextTxt: dm === 'net' ? 'LOBBY' : 'NEXT HOLE', nextGo: dm === 'net' ? call('toLobby') : call('nextPractice'),
+      doneCols: dm === 'practice' || dm === 'net' ? 'minmax(0,1.3fr) minmax(0,1.2fr) minmax(0,1fr) minmax(0,1fr)' : 'minmax(0,1.6fr) minmax(0,1fr) minmax(0,1fr)',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Curling Club</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap">
+<style>
+html,body{margin:0;height:100%;overflow:hidden;background:#000}
+a{color:#ffd23a}a:hover{color:#ec3013}
+button{font-family:Archivo,system-ui,sans-serif;-webkit-tap-highlight-color:transparent;-webkit-touch-callout:none;touch-action:manipulation}
+button:focus-visible,input:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
+button:active{transform:translateY(1px)}
+</style>
+</helmet>
+<div style="position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;background:#000;color:#ffffff;font-family:Archivo, system-ui, sans-serif;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;touch-action:none" data-screen-label="Curling Club">
+  <div ref="{{ stageRef }}" style="position:absolute;inset:0;overflow:hidden"></div>
+
+  <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;display:flex;align-items:flex-end;padding:24px;box-sizing:border-box;background:#000;z-index:30">
+    <div style="display:flex;flex-direction:column;gap:6px;border-top:2px solid #ffd23a;padding-top:10px;width:100%">
+      <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">CURLING CLUB</span>
+      <span style="font:900 28px Archivo, sans-serif;letter-spacing:-0.02em">Flooding the ice…</span>
+    </div>
+  </div>
+  </sc-if>
+  <sc-if value="{{ errOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;display:flex;align-items:flex-end;padding:24px;box-sizing:border-box;background:#000;z-index:31">
+    <div style="display:flex;flex-direction:column;gap:8px;border-top:2px solid #ec3013;padding-top:10px;width:100%">
+      <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ec3013">THE GAME DID NOT LOAD</span>
+      <span style="font:600 15px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">{{ err }}</span>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ hudOn }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;left:max(10px, env(safe-area-inset-left));right:max(10px, env(safe-area-inset-right));top:max(10px, env(safe-area-inset-top));display:flex;flex-direction:column;gap:8px;pointer-events:none;z-index:5">
+    <div style="display:flex;gap:6px;align-items:stretch;max-width:{{ barMax }}">
+      <button onClick="{{ openMenu }}" aria-label="Menu" style="pointer-events:auto;flex:none;width:44px;min-height:48px;padding:0;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;display:flex;align-items:center;justify-content:center;cursor:pointer" style-hover="background:#2a2826"><svg width="22" height="22" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="#ffd23a" stroke-width="3" stroke-linecap="square"></path></svg></button>
+      <div style="flex:1;min-width:0;display:grid;grid-template-columns:repeat({{ chipCols }}, minmax(0, 1fr));gap:4px">
+        <sc-for list="{{ chips }}" as="chip" hint-placeholder-count="2">
+        <div style="min-width:0;background:{{ chip.bg }};color:{{ chip.fg }};border:2px solid {{ chip.col }};display:flex;flex-direction:column;gap:2px;padding:3px 6px 4px;box-sizing:border-box">
+          <div style="display:flex;align-items:center;gap:4px;min-width:0"><span style="flex:none;width:8px;height:8px;background:{{ chip.col }};display:block"></span><span style="font:800 10px Archivo, sans-serif;letter-spacing:0.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ chip.name }}</span></div>
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:4px"><span style="font:900 20px Archivo, sans-serif;line-height:1;font-variant-numeric:tabular-nums">{{ chip.score }}</span><span style="display:flex;gap:2px;padding-bottom:2px"><sc-for list="{{ chip.pips }}" as="pip" hint-placeholder-count="4"><span style="width:5px;height:9px;background:{{ pip.c }};display:block"></span></sc-for></span></div>
+        </div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:flex-start;justify-content:space-between">
+      <div style="min-width:0;max-width:{{ infoMax }};display:flex;flex-direction:column;gap:0;background:rgba(0,0,0,0.78);border-left:4px solid {{ bannerCol }}">
+        <div style="padding:5px 9px 0;font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">{{ endTxt }}</div>
+        <div style="padding:1px 9px 5px;font:900 {{ bannerSize }} Archivo, sans-serif;letter-spacing:-0.01em;line-height:1.05;color:#ffffff">{{ banner }}</div>
+        <sc-if value="{{ hintOn }}" hint-placeholder-val="{{ true }}"><div style="padding:5px 9px 7px;border-top:2px solid #3a3836;font:600 13px Archivo, sans-serif;line-height:1.3;color:#f3f2f2">{{ hint }}</div></sc-if>
+        <sc-if value="{{ msgOn }}" hint-placeholder-val="{{ false }}"><div style="padding:5px 9px 7px;border-top:2px solid #3a3836;font:800 11px Archivo, sans-serif;letter-spacing:0.08em;color:#ffd23a">{{ msg }}</div></sc-if>
+      </div>
+      <div style="flex:none;display:flex;flex-direction:column;align-items:stretch;gap:0;border:2px solid #ffd23a;background:#000">
+        <div style="position:relative;width:{{ miniW }};height:{{ miniH }};overflow:hidden;background:#e9f2f8">
+          <div style="position:absolute;left:0;right:0;top:5.6%;height:2px;background:#201e1d;opacity:0.6"></div>
+          <div style="position:absolute;left:50%;top:33.33%;width:83.2%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#2563eb"></div>
+          <div style="position:absolute;left:50%;top:33.33%;width:55.45%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#f7fbff"></div>
+          <div style="position:absolute;left:50%;top:33.33%;width:27.7%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#ec3013"></div>
+          <div style="position:absolute;left:50%;top:33.33%;width:6.8%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:#f7fbff"></div>
+          <div style="position:absolute;left:0;right:0;top:33.33%;height:1px;background:#201e1d;opacity:0.7"></div>
+          <div style="position:absolute;top:0;bottom:0;left:50%;width:1px;background:#201e1d;opacity:0.5"></div>
+          <sc-if value="{{ broomOn }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:{{ broomL }};top:{{ broomT }};width:14px;height:14px;transform:translate(-50%,-50%);border:2px solid {{ broomCol }};box-sizing:border-box;background:transparent"></div></sc-if>
+          <sc-for list="{{ mini }}" as="s" hint-placeholder-count="0">
+          <div style="position:absolute;left:{{ s.l }};top:{{ s.t }};width:9.5%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;background:{{ s.c }};box-shadow:0 0 0 1.5px #201e1d, 0 0 0 {{ s.ring }} #ffffff"></div>
+          </sc-for>
+        </div>
+        <div style="padding:3px 5px;font:800 10px Archivo, sans-serif;letter-spacing:0.06em;color:{{ sitCol }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:{{ miniW }};box-sizing:border-box">{{ sitTxt }}</div>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ aimOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:{{ ctlL }};right:max(10px, env(safe-area-inset-right));bottom:{{ ctlB }};pointer-events:{{ ctlPE }};display:flex;flex-direction:column;gap:6px;z-index:6">
+    <div style="display:flex;flex-direction:column;gap:3px;background:#000;border:2px solid #ffd23a;padding:6px 8px 8px">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px"><span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">WEIGHT</span><span style="font:900 13px Archivo, sans-serif;letter-spacing:0.06em;color:{{ zoneCol }}">{{ zoneTxt }}</span></div>
+      <div style="position:relative;height:26px;background:#1a1918">
+        <sc-for list="{{ zones }}" as="z" hint-placeholder-count="4">
+        <div style="position:absolute;top:0;bottom:0;left:{{ z.l }};width:{{ z.w }};background:{{ z.bg }};border-right:2px solid #000;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font:800 9px Archivo, sans-serif;letter-spacing:0.1em;color:{{ z.fg }}">{{ z.name }}</div>
+        </sc-for>
+        <div style="position:absolute;top:0;bottom:0;left:0;width:{{ fillW }};background:rgba(255,255,255,0.28)"></div>
+        <sc-if value="{{ markOn }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;top:-4px;bottom:-4px;left:{{ fillW }};width:6px;transform:translateX(-50%);background:#ffffff;border:2px solid #000"></div></sc-if>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;align-items:stretch">
+      <button onClick="{{ nudgeL }}" aria-label="Move the broom left" style="flex:none;width:44px;min-height:60px;padding:0;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 22px Archivo, sans-serif;cursor:pointer" style-hover="background:#2a2826">‹</button>
+      <button onClick="{{ nudgeR }}" aria-label="Move the broom right" style="flex:none;width:44px;min-height:60px;padding:0;border:2px solid #ffd23a;border-left:0;border-radius:0;background:#000;color:#ffd23a;font:900 22px Archivo, sans-serif;cursor:pointer;margin-left:-6px" style-hover="background:#2a2826">›</button>
+      <button onClick="{{ turnL }}" aria-label="Curl to the left" aria-pressed="{{ turnLOn }}" style="flex:none;width:{{ turnW }};min-height:60px;padding:0 4px;border:2px solid #ffd23a;border-radius:0;background:{{ turnLBg }};color:{{ turnLFg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer"><svg width="24" height="22" viewBox="0 0 24 22"><path d="M17 20C17 11 13 6 5 6M5 6l5-4M5 6l5 4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"></path></svg><span style="font:900 10px Archivo, sans-serif;letter-spacing:0.08em">CURL</span></button>
+      <button onClick="{{ turnR }}" aria-label="Curl to the right" aria-pressed="{{ turnROn }}" style="flex:none;width:{{ turnW }};min-height:60px;padding:0 4px;border:2px solid #ffd23a;border-left:0;border-radius:0;background:{{ turnRBg }};color:{{ turnRFg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;margin-left:-6px"><svg width="24" height="22" viewBox="0 0 24 22"><path d="M7 20C7 11 11 6 19 6M19 6l-5-4M19 6l-5 4" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="square"></path></svg><span style="font:900 10px Archivo, sans-serif;letter-spacing:0.08em">CURL</span></button>
+      <button onPointerDown="{{ thrDown }}" onPointerUp="{{ thrUp }}" onPointerCancel="{{ thrCancel }}" onContextMenu="{{ noMenu }}" aria-label="Hold to throw, let go to release" style="flex:1;min-width:0;min-height:60px;padding:0 8px;border:2px solid {{ thrBorder }};border-radius:0;background:{{ thrBg }};color:#ffffff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;touch-action:none">
+        <span style="font:900 19px Archivo, sans-serif;letter-spacing:0.04em;white-space:nowrap">{{ thrTxt }}</span><span style="font:800 9px Archivo, sans-serif;letter-spacing:0.12em;color:#ffe0d9;white-space:nowrap">{{ thrSub }}</span>
+      </button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ runOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:{{ ctlL }};right:max(10px, env(safe-area-inset-right));bottom:{{ ctlB }};pointer-events:{{ ctlPE }};display:flex;gap:6px;align-items:stretch;z-index:6">
+    <button onPointerDown="{{ swDown }}" onPointerUp="{{ swUp }}" onPointerCancel="{{ swUp }}" onPointerLeave="{{ swUp }}" onContextMenu="{{ noMenu }}" aria-label="Hold to sweep" style="flex:1;min-width:0;min-height:{{ sweepH }};padding:0 10px;border:2px solid #ffd23a;border-radius:0;background:{{ swBg }};color:{{ swFg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;touch-action:none">
+      <span style="font:900 26px Archivo, sans-serif;letter-spacing:0.06em">{{ swTxt }}</span><span style="font:800 10px Archivo, sans-serif;letter-spacing:0.12em">{{ swSub }}</span>
+    </button>
+    <button onClick="{{ fastT }}" aria-label="Fast forward" aria-pressed="{{ fastOn }}" style="flex:none;width:64px;min-height:{{ sweepH }};padding:0;border:2px solid #ffd23a;border-radius:0;background:{{ fastBg }};color:{{ fastFg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer"><svg width="26" height="18" viewBox="0 0 26 18"><path d="M2 2l9 7-9 7zM13 2l9 7-9 7z" fill="currentColor"></path></svg><span style="font:900 10px Archivo, sans-serif;letter-spacing:0.08em">FAST</span></button>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ watchOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:{{ ctlL }};right:max(10px, env(safe-area-inset-right));bottom:{{ ctlB }};pointer-events:{{ ctlPE }};display:flex;gap:6px;align-items:stretch;z-index:6">
+    <div style="flex:1;min-width:0;min-height:56px;padding:6px 10px;box-sizing:border-box;border:2px solid #ffd23a;background:#000;display:flex;align-items:center;gap:8px"><span style="flex:none;width:12px;height:12px;background:{{ curCol }};display:block"></span><span style="font:900 15px Archivo, sans-serif;letter-spacing:0.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ watchTxt }}</span></div>
+    <button onClick="{{ fastT }}" aria-label="Fast forward" aria-pressed="{{ fastOn }}" style="flex:none;width:64px;min-height:56px;padding:0;border:2px solid #ffd23a;border-radius:0;background:{{ fastBg }};color:{{ fastFg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer"><svg width="26" height="18" viewBox="0 0 26 18"><path d="M2 2l9 7-9 7zM13 2l9 7-9 7z" fill="currentColor"></path></svg><span style="font:900 10px Archivo, sans-serif;letter-spacing:0.08em">FAST</span></button>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ demoOn }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;left:max(10px, env(safe-area-inset-left));right:{{ demoR }};bottom:max(10px, env(safe-area-inset-bottom));z-index:7;display:flex;flex-direction:column;background:#000;border:2px solid #ffd23a">
+    <div style="padding:6px 10px 7px;display:flex;flex-direction:column;gap:2px;border-bottom:2px solid #3a3836;min-height:{{ capH }};box-sizing:border-box">
+      <span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">DEMO · {{ demoWho }}</span>
+      <span style="font:700 14px Archivo, sans-serif;line-height:1.3;color:#ffffff">{{ demoCap }}</span>
+    </div>
+    <div style="display:grid;grid-template-columns:minmax(0, 2fr) minmax(0, 1fr)">
+      <button onClick="{{ playNow }}" style="min-height:52px;border:0;border-radius:0;background:#ec3013;color:#ffffff;font:900 18px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer" style-hover="background:#dd2b0f">PLAY NOW</button>
+      <button onClick="{{ openHelp }}" style="min-height:52px;border:0;border-left:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer" style-hover="background:#2a2826">HOW TO PLAY</button>
+    </div>
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ cardOn }}" hint-placeholder-val="{{ true }}">
+  <div style="position:absolute;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:{{ cardJustify }};padding:max(10px, env(safe-area-inset-top)) max(10px, env(safe-area-inset-right)) max(10px, env(safe-area-inset-bottom)) max(10px, env(safe-area-inset-left));box-sizing:border-box;background:{{ scrim }};pointer-events:auto">
+  <div style="width:min(460px, 100%);max-height:100%;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y;background:#000;border:2px solid #ffd23a;display:flex;flex-direction:column">
+
+    <sc-if value="{{ welcomeOn }}" hint-placeholder-val="{{ true }}">
+    <div style="display:flex;flex-direction:column">
+      <div style="padding:{{ headPad }};display:flex;flex-direction:column;gap:4px;border-bottom:2px solid #3a3836">
+        <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">MINIGAME 67 · CURLING CLUB</span>
+        <span style="font:900 {{ titleSize }} Archivo, sans-serif;letter-spacing:-0.02em;line-height:1">Curling Club</span>
+        <span style="font:600 14px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">Slide stones down the ice. Closest to the button scores.</span>
+        <sc-if value="{{ statsOn }}" hint-placeholder-val="{{ false }}"><span style="font:800 10px Archivo, sans-serif;letter-spacing:0.12em;color:#cfcac4">{{ statsTxt }}</span></sc-if>
+      </div>
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #3a3836">
+        <span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">GAME</span>
+        <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr));gap:0">
+          <sc-for list="{{ modes }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.pick }}" aria-pressed="{{ m.sel }}" style="min-height:48px;padding:4px 2px;border:2px solid #ffd23a;margin-left:{{ m.ml }};border-radius:0;background:{{ m.bg }};color:{{ m.fg }};font:900 12px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer;white-space:nowrap">{{ m.label }}</button></sc-for>
+        </div>
+        <span style="font:600 12px Archivo, sans-serif;line-height:1.35;color:#cfcac4">{{ modeTxt }}</span>
+      </div>
+      <sc-if value="{{ cpuOn }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #3a3836">
+        <span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">ROCCO PLAYS AT</span>
+        <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr))">
+          <sc-for list="{{ levels }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.pick }}" aria-pressed="{{ m.sel }}" style="min-height:44px;padding:2px;border:2px solid #ffd23a;margin-left:{{ m.ml }};border-radius:0;background:{{ m.bg }};color:{{ m.fg }};display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;cursor:pointer"><span style="font:900 12px Archivo, sans-serif;letter-spacing:0.06em">{{ m.label }}</span><span style="font:700 9px Archivo, sans-serif;letter-spacing:0.08em">{{ m.sub }}</span></button></sc-for>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ seatsOn }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #3a3836">
+        <span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">PLAYERS · ONE PHONE, TAKE TURNS</span>
+        <sc-for list="{{ seats }}" as="s" hint-placeholder-count="2">
+        <div style="display:flex;align-items:stretch;gap:0;min-height:44px;border:2px solid #3a3836">
+          <span style="flex:none;width:12px;background:{{ s.col }};display:block"></span>
+          <span style="flex:1;min-width:0;display:flex;align-items:center;padding:0 10px;font:900 14px Archivo, sans-serif;letter-spacing:0.06em">{{ s.name }}</span>
+          <button onClick="{{ s.toggle }}" aria-label="{{ s.aria }}" style="flex:none;width:96px;padding:0;border:0;border-left:2px solid #3a3836;border-radius:0;background:{{ s.bg }};color:{{ s.fg }};font:900 11px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">{{ s.type }}</button>
+        </div>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:6px">
+          <button onClick="{{ seatAdd }}" disabled="{{ addOff }}" style="min-height:44px;border:2px solid #ffd23a;border-radius:0;background:#000;color:{{ addFg }};font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">+ ADD PLAYER</button>
+          <button onClick="{{ seatRem }}" disabled="{{ remOff }}" style="min-height:44px;border:2px solid #ffd23a;border-radius:0;background:#000;color:{{ remFg }};font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">− REMOVE</button>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ endsOn }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #3a3836">
+        <span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">{{ endsLbl }}</span>
+        <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr))">
+          <sc-for list="{{ endOpts }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.pick }}" aria-pressed="{{ m.sel }}" style="min-height:44px;padding:2px;border:2px solid #ffd23a;margin-left:{{ m.ml }};border-radius:0;background:{{ m.bg }};color:{{ m.fg }};font:900 12px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer">{{ m.label }}</button></sc-for>
+        </div>
+      </div>
+      </sc-if>
+      <div style="position:sticky;bottom:0;background:#000000;border-top:2px solid #3a3836;padding:10px 14px 12px;display:flex;flex-direction:column;gap:6px">
+        <button onClick="{{ play }}" style="min-height:56px;border:2px solid #ec3013;border-radius:0;background:#ec3013;color:#ffffff;font:900 20px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer" style-hover="background:#dd2b0f">{{ playLbl }}</button>
+        <div style="display:grid;grid-template-columns:repeat({{ welcomeCols }}, minmax(0, 1fr));gap:6px">
+          <button onClick="{{ openHelp }}" style="min-height:44px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer" style-hover="background:#2a2826">HOW TO PLAY</button>
+          <button onClick="{{ watchDemo }}" style="min-height:44px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffffff;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer" style-hover="background:#2a2826">WATCH DEMO</button>
+          <sc-if value="{{ backOn }}" hint-placeholder-val="{{ false }}"><button onClick="{{ back }}" style="min-height:44px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffffff;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer" style-hover="background:#2a2826">LEAVE THE CLUB</button></sc-if>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ helpOn }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column">
+      <div style="padding:12px 14px 10px;display:flex;flex-direction:column;gap:4px;border-bottom:2px solid #3a3836">
+        <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">HOW TO PLAY</span>
+        <span style="font:900 24px Archivo, sans-serif;letter-spacing:-0.02em;line-height:1">Four moves per stone</span>
+      </div>
+      <div style="display:flex;flex-direction:column">
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:2px solid #3a3836"><span style="flex:none;width:28px;font:900 22px Archivo, sans-serif;color:#ec3013">1</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font:900 14px Archivo, sans-serif;letter-spacing:0.04em">SET THE BROOM</span><span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">Tap or drag on the ice. The stone starts toward the broom. ‹ › fine-tune it.</span></div></div>
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:2px solid #3a3836"><span style="flex:none;width:28px;font:900 22px Archivo, sans-serif;color:#ec3013">2</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font:900 14px Archivo, sans-serif;letter-spacing:0.04em">PICK THE CURL</span><span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">The stone bends that way, most of all as it slows down. Aim the broom to the other side.</span></div></div>
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:2px solid #3a3836"><span style="flex:none;width:28px;font:900 22px Archivo, sans-serif;color:#ec3013">3</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font:900 14px Archivo, sans-serif;letter-spacing:0.04em">HOLD THROW</span><span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">The weight bar fills. Let go in GUARD (stops short), HOUSE (stops in the rings) or HIT (knocks stones out). Or tap once to start the bar and tap again to throw.</span></div></div>
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:2px solid #3a3836"><span style="flex:none;width:28px;font:900 22px Archivo, sans-serif;color:#ec3013">4</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font:900 14px Archivo, sans-serif;letter-spacing:0.04em">SWEEP</span><span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">Hold SWEEP, or hold anywhere on the ice, while your stone runs. It goes further and curls less.</span></div></div>
+        <div style="display:flex;gap:10px;padding:10px 14px;border-bottom:2px solid #3a3836"><span style="flex:none;width:28px;font:900 22px Archivo, sans-serif;color:#ffd23a">★</span><div style="display:flex;flex-direction:column;gap:2px"><span style="font:900 14px Archivo, sans-serif;letter-spacing:0.04em">SCORING</span><span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">When every stone is thrown, whoever is closest to the button scores one point for each of their stones closer than anyone else’s best. A stone must pass the far red line, and stones past the back line or touching the side are out.</span></div></div>
+        <div style="display:flex;gap:10px;padding:10px 14px"><span style="flex:none;width:28px;font:900 13px Archivo, sans-serif;color:#cfcac4;padding-top:2px">KEYS</span><span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#cfcac4">Arrows move the broom · A / D curl · hold Space to throw, hold Space to sweep · F fast · Esc menu</span></div>
+      </div>
+      <div style="position:sticky;bottom:0;background:#000000;border-top:2px solid #3a3836;padding:10px 14px 12px"><button onClick="{{ closeHelp }}" style="width:100%;min-height:52px;border:2px solid #ec3013;border-radius:0;background:#ec3013;color:#ffffff;font:900 16px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">GOT IT</button></div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ menuOn }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column">
+      <div style="padding:12px 14px 10px;display:flex;flex-direction:column;gap:4px;border-bottom:2px solid #3a3836">
+        <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">PAUSED · {{ endTxt }}</span>
+        <span style="font:900 24px Archivo, sans-serif;letter-spacing:-0.02em;line-height:1">Curling Club</span>
+      </div>
+      <div style="padding:10px 14px 12px;display:flex;flex-direction:column;gap:6px">
+        <button onClick="{{ closeMenu }}" style="min-height:52px;border:2px solid #ec3013;border-radius:0;background:#ec3013;color:#ffffff;font:900 16px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">RESUME</button>
+        <div style="display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:6px">
+          <button onClick="{{ toggleGuide }}" aria-pressed="{{ guideOn }}" style="min-height:48px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffffff;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">{{ guideTxt }}</button>
+          <button onClick="{{ toggleSound }}" aria-pressed="{{ soundOn }}" style="min-height:48px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffffff;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">{{ soundTxt }}</button>
+          <button onClick="{{ openHelp }}" style="min-height:48px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">HOW TO PLAY</button>
+          <button onClick="{{ quitGame }}" style="min-height:48px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffffff;font:900 12px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">{{ quitTxt }}</button>
+        </div>
+        <span style="font:600 12px Archivo, sans-serif;line-height:1.35;color:#cfcac4">The guide shows where a stone thrown at that weight would stop on empty ice.</span>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ onlineOn }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column">
+      <div style="padding:12px 14px 10px;display:flex;flex-direction:column;gap:4px;border-bottom:2px solid #3a3836">
+        <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">ONLINE · 2 TO 5 PLAYERS</span>
+        <span style="font:900 {{ titleSize }} Archivo, sans-serif;letter-spacing:-0.02em;line-height:1">{{ netTitle }}</span>
+        <span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">{{ netMsg }}</span>
+      </div>
+      <sc-if value="{{ netMenuOn }}" hint-placeholder-val="{{ true }}">
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:8px;border-bottom:2px solid #3a3836">
+        <button onClick="{{ netCreate }}" style="min-height:52px;border:2px solid #ec3013;border-radius:0;background:#ec3013;color:#ffffff;font:900 16px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">MAKE A ROOM</button>
+        <span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">OR JOIN A FRIEND</span>
+        <div style="display:grid;grid-template-columns:minmax(0, 1fr) 96px;border:2px solid #ffd23a">
+          <input value="{{ codeIn }}" onChange="{{ codeType }}" onKeyDown="{{ codeKey }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code" placeholder="CODE" style="min-width:0;min-height:52px;padding:0 14px;border:0;border-radius:0;background:#1a1918;color:#ffd23a;font:900 24px Archivo, sans-serif;letter-spacing:0.2em;text-transform:uppercase;outline:none;box-sizing:border-box">
+          <button onClick="{{ netJoinBtn }}" style="min-height:52px;border:0;border-left:2px solid #ffd23a;border-radius:0;background:#ffd23a;color:#000000;font:900 14px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">JOIN</button>
+        </div>
+      </div>
+      </sc-if>
+      <sc-if value="{{ netRoomOn }}" hint-placeholder-val="{{ false }}">
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #3a3836">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:8px"><span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">ROOM CODE</span><span style="font:800 10px Archivo, sans-serif;letter-spacing:0.12em;color:#cfcac4">{{ netStatus }}</span></div>
+        <span style="font:900 40px Archivo, sans-serif;letter-spacing:0.22em;color:#ffd23a;line-height:1">{{ netCode }}</span>
+        <sc-for list="{{ netRows }}" as="r" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:8px;min-height:36px;border-top:2px solid #3a3836"><span style="flex:none;width:12px;height:24px;background:{{ r.col }};display:block"></span><span style="flex:1;font:900 14px Archivo, sans-serif;letter-spacing:0.06em">{{ r.name }}</span><span style="font:900 11px Archivo, sans-serif;letter-spacing:0.08em;color:{{ r.stCol }}">{{ r.st }}</span></div>
+        </sc-for>
+      </div>
+      <div style="padding:10px 14px;display:flex;flex-direction:column;gap:6px;border-bottom:2px solid #3a3836">
+        <span style="font:800 10px Archivo, sans-serif;letter-spacing:0.14em;color:#cfcac4">ENDS · THE ROOM USES THE HOST’S PICK</span>
+        <div style="display:grid;grid-template-columns:repeat(3, minmax(0, 1fr))">
+          <sc-for list="{{ endOpts }}" as="m" hint-placeholder-count="3"><button onClick="{{ m.pick }}" aria-pressed="{{ m.sel }}" style="min-height:44px;padding:2px;border:2px solid #ffd23a;margin-left:{{ m.ml }};border-radius:0;background:{{ m.bg }};color:{{ m.fg }};font:900 12px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer">{{ m.label }}</button></sc-for>
+        </div>
+      </div>
+      <div style="padding:10px 14px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:6px;border-bottom:2px solid #3a3836">
+        <button onClick="{{ netReady }}" disabled="{{ readyOff }}" style="min-height:52px;border:2px solid {{ readyBg }};border-radius:0;background:{{ readyBg }};color:{{ readyFg }};font:900 15px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">{{ readyTxt }}</button>
+        <button onClick="{{ netShare }}" style="min-height:52px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 13px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">{{ shareTxt }}</button>
+      </div>
+      </sc-if>
+      <div style="padding:10px 14px 12px"><button onClick="{{ netBack }}" style="width:100%;min-height:48px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffffff;font:900 13px Archivo, sans-serif;letter-spacing:0.08em;cursor:pointer">{{ netBackTxt }}</button></div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ endOn }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column">
+      <div style="padding:12px 14px 10px;display:flex;flex-direction:column;gap:4px;border-bottom:2px solid #3a3836;border-left:6px solid {{ endCol }}">
+        <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">{{ endKicker }}</span>
+        <span style="font:900 {{ titleSize }} Archivo, sans-serif;letter-spacing:-0.02em;line-height:1">{{ endTitle }}</span>
+        <span style="font:600 13px Archivo, sans-serif;line-height:1.4;color:#f3f2f2">{{ endSub }}</span>
+      </div>
+      <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="2">
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:2px solid #3a3836"><span style="flex:none;width:12px;height:22px;background:{{ r.col }};display:block"></span><span style="flex:1;min-width:0;font:900 14px Archivo, sans-serif;letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font:700 12px Archivo, sans-serif;letter-spacing:0.1em;color:#cfcac4;font-variant-numeric:tabular-nums">{{ r.ends }}</span><span style="width:34px;text-align:right;font:900 20px Archivo, sans-serif;font-variant-numeric:tabular-nums;color:#ffd23a">{{ r.score }}</span></div>
+      </sc-for>
+      <div style="position:sticky;bottom:0;background:#000000;border-top:2px solid #3a3836;padding:10px 14px 12px;display:flex;flex-direction:column;gap:6px">
+        <button onClick="{{ nextEnd }}" disabled="{{ nextOff }}" style="min-height:56px;border:2px solid #ec3013;border-radius:0;background:#ec3013;color:#ffffff;font:900 18px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer">{{ nextLbl }}</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ overOn }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column">
+      <div style="padding:12px 14px 10px;display:flex;flex-direction:column;gap:4px;border-bottom:2px solid #3a3836;border-left:6px solid {{ overCol }}">
+        <span style="font:800 11px Archivo, sans-serif;letter-spacing:0.14em;color:#ffd23a">FINAL · CURLING CLUB</span>
+        <span style="font:900 {{ titleSize }} Archivo, sans-serif;letter-spacing:-0.02em;line-height:1">{{ overTitle }}</span>
+        <sc-if value="{{ rewardOn }}" hint-placeholder-val="{{ false }}"><span style="font:900 13px Archivo, sans-serif;letter-spacing:0.08em;color:#22c55e">{{ reward }}</span></sc-if>
+      </div>
+      <sc-for list="{{ tableRows }}" as="r" hint-placeholder-count="2">
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 14px;border-bottom:2px solid #3a3836"><span style="flex:none;width:12px;height:22px;background:{{ r.col }};display:block"></span><span style="flex:1;min-width:0;font:900 14px Archivo, sans-serif;letter-spacing:0.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</span><span style="font:700 12px Archivo, sans-serif;letter-spacing:0.1em;color:#cfcac4;font-variant-numeric:tabular-nums">{{ r.ends }}</span><span style="width:34px;text-align:right;font:900 20px Archivo, sans-serif;font-variant-numeric:tabular-nums;color:#ffd23a">{{ r.score }}</span></div>
+      </sc-for>
+      <div style="position:sticky;bottom:0;background:#000000;border-top:2px solid #3a3836;padding:10px 14px 12px;display:grid;grid-template-columns:repeat(2, minmax(0, 1fr));gap:6px">
+        <button onClick="{{ again }}" style="min-height:56px;border:2px solid #ec3013;border-radius:0;background:#ec3013;color:#ffffff;font:900 15px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer">{{ againLbl }}</button>
+        <button onClick="{{ toMenu }}" style="min-height:56px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffffff;font:900 13px Archivo, sans-serif;letter-spacing:0.06em;cursor:pointer">{{ toMenuLbl }}</button>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+  </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['VIOLET', '#a78bfa']];
+  LEVELS = [['rookie', 'ROOKIE', '+10 GOLD'], ['club', 'CLUB', '+20 GOLD'], ['pro', 'PRO', '+35 · TROPHY']];
+  stageRef = React.createRef();
+  state = { vw: 390, vh: 844, hud: null, ui: 'welcome', mode: 'cpu', level: 'club', ends: 4, seats: [{ cpu: false }, { cpu: false }], net: null, loading: true, err: '', menuFrom: null };
+
+  componentDidMount() {
+    this.onRs = () => this.setState({ vw: window.innerWidth, vh: window.innerHeight }); this.onRs();
+    window.addEventListener('resize', this.onRs); window.addEventListener('keydown', this.onKey); window.addEventListener('keyup', this.onKeyUp);
+    const rm = /[?&]room=([A-Za-z0-9]{4})/.exec(location.search); this.pendingRoom = rm ? rm[1].toUpperCase() : null;
+    this.embed = /[?&]embed=1/.test(location.search);
+    this.boot();
+  }
+  componentWillUnmount() { this.netLeave(); this.game && this.game.destroy(); window.removeEventListener('resize', this.onRs); window.removeEventListener('keydown', this.onKey); window.removeEventListener('keyup', this.onKeyUp); }
+
+  // Every file is loaded from the page by a path from the project root, never module-to-module, so it works in the repo AND in the Design canvas.
+  async boot() {
+    const base = document.baseURI, imp = p => import(new URL(p, base).href);
+    try {
+      const [THREE, mod] = await Promise.all([imp('vendor/three/three.module.js'), imp('minigames/curling/curling-club.js')]);
+      let fk = null; try { fk = await imp('fox-kit.js'); } catch (e) { console.warn('[curling] fox-kit.js not found, using stand-ins'); }
+      let save = null; try { save = (await imp('engine/save.js')).save; } catch (e) { console.warn('[curling] engine/save.js not found, nothing is saved'); }
+      let CAST = null; try { CAST = (await imp('engine/cast.js')).CAST; } catch (e) {}
+      if (!CAST && fk) CAST = { player: { key: 'player', name: 'BEN', torso: ['#ffffff', '#e7edf4', '#6b7d93'], crest: '8', look: fk.PLAYER_MALE, outfit: 'armor', gear: 'none', eyes: ['#38bdf8', '#38bdf8'], mood: 'determined' } };
+      this.mod = mod; this.save = save;
+      const phone = /[?&]phone=/.test(location.search) ? true : undefined;
+      this.game = await mod.createCurling({ THREE, container: this.stageRef.current, foxKit: fk ? fk.foxKit : null, CAST, looks: fk ? { player: fk.PLAYER_MALE } : null, save, onState: hud => this.setState({ hud }), phone });
+      window.__curling = this.game; // for a host world / console
+      this.setState({ loading: false });
+      if (this.pendingRoom) { this.netOpen(); this.netJoin(this.pendingRoom); }
+      else if (!this.embed && !/[?&]demo=0/.test(location.search)) this.startDemo();
+    } catch (e) { console.error('[curling] boot failed', e); this.setState({ loading: false, err: String((e && e.message) || e) }); }
+  }
+
+  // ---------- keys ----------
+  onKey = e => {
+    const g = this.game, h = this.state.hud; if (!g || !h) return; if (e.target && /INPUT|TEXTAREA/.test(e.target.tagName)) return;
+    if (this.state.ui) { if (e.code === 'Escape' && (this.state.ui === 'menu' || this.state.ui === 'help') && h.phase !== 'idle') this.setState({ ui: null }); return; }
+    if (e.code === 'Space') { e.preventDefault(); if (e.repeat) return; if (h.phase === 'aim' || h.phase === 'charge') g.chargeDown(); else if (h.phase === 'run') g.sweep(true); }
+    else if (e.code === 'ArrowLeft') { e.preventDefault(); g.nudge(0.06); } else if (e.code === 'ArrowRight') { e.preventDefault(); g.nudge(-0.06); }
+    else if (e.code === 'ArrowUp') { e.preventDefault(); g.nudge(0, 0.12); } else if (e.code === 'ArrowDown') { e.preventDefault(); g.nudge(0, -0.12); }
+    else if (e.code === 'KeyA' || e.code === 'KeyQ') g.setTurn('L'); else if (e.code === 'KeyD' || e.code === 'KeyE') g.setTurn('R');
+    else if (e.code === 'KeyF') g.setFast(!h.fast);
+    else if (e.code === 'Enter' && h.phase === 'endcard') g.nextEnd();
+    else if (e.code === 'Escape') this.setState({ ui: 'menu' });
+  };
+  onKeyUp = e => { const g = this.game, h = this.state.hud; if (!g || !h || e.code !== 'Space') return; if (h.phase === 'charge') g.chargeUp(); else if (h.phase === 'run') g.sweep(false); };
+
+  // ---------- local game ----------
+  startGame = () => {
+    const S = this.state; if (!this.game) return;
+    if (S.mode === 'online') { this.netOpen(); return; }
+    const players = S.mode === 'cpu' ? [{ name: 'YOU', col: this.COLS[0][1] }, { name: 'ROCCO', col: this.COLS[1][1], cpu: true, level: S.level }]
+      : S.seats.map((s, i) => ({ name: this.COLS[i][0], col: this.COLS[i][1], cpu: !!s.cpu, level: 'club' }));
+    this.lastCfg = { mode: S.mode, players, ends: S.ends };
+    this.game.start({ ...this.lastCfg, skipTips: !!this.playedOnce }); this.playedOnce = true; this.setState({ ui: null });
+  };
+  startDemo = () => { if (!this.game) return; this.game.start({ mode: 'demo', players: [{ name: 'BEN', col: this.COLS[0][1], cpu: true, level: 'pro' }, { name: 'ROCCO', col: this.COLS[1][1], cpu: true, level: 'club' }], ends: 2, skipTips: true }); this.setState({ ui: null }); };
+  back = () => { try { window.parent.postMessage({ type: '8gates-minigame', game: 'curlingClub', action: 'back' }, '*'); } catch (e) {} };
+
+  // ---------- ONLINE (engine/duel-net.js, game 'curling'). Room = the 5 earliest joiners; host = lowest id; game messages ride on 'ev' {k:'g'} ----------
+  netSet = p => this.setState(s => ({ net: s.net ? { ...s.net, ...p } : s.net }));
+  peerSet = (id, p) => this.setState(s => s.net ? { net: { ...s.net, peers: { ...s.net.peers, [id]: { ...(s.net.peers[id] || {}), ...p } } } } : null);
+  netOpen = () => this.setState(s => ({ net: s.net || { st: 'menu', code: '', codeIn: '', peers: {}, ready: false, j: 0, status: '', msg: '', copied: false }, ui: 'online' }));
+  members() { const n = this.state.net; if (!n || !this.net) return []; const all = [{ id: this.net.id, j: n.j, ready: n.ready, playing: n.st === 'play', me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
+  hostId() { const m = this.members(); return m.length ? m.reduce((a, b) => a.id < b.id ? a : b).id : null; }
+  netCreate = () => { const A = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += A[Math.floor(Math.random() * A.length)]; this.netJoin(c); };
+  async netJoin(code) {
+    code = String(code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); if (code.length < 4) { this.netSet({ msg: 'Type the 4-letter room code from your friend.' }); return; }
+    this.netLeave(); if (!this.state.net) this.netOpen(); this.lastSeen = {}; this.netSet({ st: 'room', code, status: 'CONNECTING', peers: {}, ready: false, j: Date.now(), msg: '', copied: false });
+    let mod; try { mod = await import(new URL('engine/duel-net.js', document.baseURI).href); } catch (e) { this.netSet({ status: 'OFFLINE', msg: 'Online play could not load here. It works in the full 8 GATES build (engine/duel-net.js).' }); return; }
+    const tok = this.netTok;
+    try {
+      const N = await mod.connectDuel({ game: 'curling', code, onJoin: id => this.nHello(id), onLeave: id => this.nGone(id), onMsg: (t, d, id) => this.nMsg(t, d, id), onStatus: s => this.netSet({ status: String(s || '').toUpperCase() }) });
+      if (tok !== this.netTok) { N.leave(); return; } this.net = N; this.nHello(); this.forceUpdate();
+      clearInterval(this.nTimer); this.nTimer = setInterval(this.nTick, 4000);
+      try { const u = new URL(location.href); u.searchParams.set('room', code); history.replaceState(null, '', u.href); } catch (e) {}
+    } catch (e) { this.netSet({ status: 'OFFLINE', msg: 'Could not reach the network. Some school or work Wi-Fi blocks this.' }); }
+  }
+  netLeave() { this.netTok = (this.netTok || 0) + 1; clearInterval(this.nTimer); if (this.net) { try { this.net.send('ev', { k: 'bye' }); this.net.leave(); } catch (e) {} } this.net = null; this.matchIds = null; this.lastSeen = {}; try { const u = new URL(location.href); if (u.searchParams.has('room')) { u.searchParams.delete('room'); history.replaceState(null, '', u.href); } } catch (e) {} }
+  nHello(to) { const n = this.state.net; if (!this.net || !n) return; this.net.send('hi', { v: 1, j: n.j, ready: n.ready, playing: n.st === 'play' }, to); }
+  nMsg(t, d, id) {
+    const n = this.state.net; if (!n || !this.net || !d) return; const known = !!this.lastSeen[id]; this.lastSeen[id] = performance.now();
+    if (t === 'hi') { this.peerSet(id, { j: +d.j || Date.now(), ready: !!d.ready, playing: !!d.playing }); if (!known) setTimeout(() => this.nHello(id), 0); setTimeout(this.nMaybeStart, 0); return; }
+    if (t !== 'ev') return;
+    if (d.k === 'g') { if (this.game && this.matchIds && this.matchIds.includes(id)) this.game.netMsg(d.d, id); }
+    else if (d.k === 'ready') { this.peerSet(id, { ready: !!d.on }); setTimeout(this.nMaybeStart, 0); }
+    else if (d.k === 'start') this.nStart(d);
+    else if (d.k === 'playing') this.peerSet(id, { playing: !!d.on });
+    else if (d.k === 'bye') this.nGone(id);
+  }
+  nGone(id) { if (!this.lastSeen || !this.lastSeen[id]) return; delete this.lastSeen[id]; this.setState(s => { if (!s.net) return null; const peers = { ...s.net.peers }; delete peers[id]; return { net: { ...s.net, peers } }; }); if (this.matchIds && this.matchIds.includes(id) && this.game) this.game.netDrop(id); }
+  nTick = () => { if (!this.net) return; this.nHello(); const now = performance.now(); for (const id of Object.keys(this.lastSeen || {})) if (now - this.lastSeen[id] > 20000) this.nGone(id); };
+  nMaybeStart = () => { const n = this.state.net; if (!n || !this.net || n.st !== 'room' || this.hostId() !== this.net.id) return; const m = this.members(); if (m.length < 2 || !m.every(x => x.ready && !x.playing)) return;
+    this.mid = (this.mid || 0) + 1; const d = { k: 'start', ids: m.map(x => x.id), ends: this.state.ends, mid: this.mid }; this.net.send('ev', d); this.nStart(d); };
+  nStart(d) {
+    if (!this.net || !this.game || !Array.isArray(d.ids)) return; const me = this.net.id;
+    if (!d.ids.includes(me)) { this.netSet({ msg: 'A game started without you. You join the next one.' }); return; }
+    this.matchIds = d.ids.slice(0, 5);
+    const players = this.matchIds.map((id, i) => ({ name: id === me ? 'YOU' : this.COLS[i][0], col: this.COLS[i][1], netId: id, me: id === me }));
+    this.game.start({ mode: 'online', players, ends: [2, 4, 6].includes(+d.ends) ? +d.ends : 4, skipTips: !!this.playedOnce, net: { send: x => { if (this.net) this.net.send('ev', { k: 'g', d: x }); } } }); this.playedOnce = true;
+    this.setState(s => s.net ? { ui: null, net: { ...s.net, st: 'play', ready: false, msg: '', peers: Object.fromEntries(Object.entries(s.net.peers).map(([k, p]) => [k, { ...p, ready: false, playing: d.ids.includes(k) }])) } } : null);
+    this.net.send('ev', { k: 'playing', on: true });
+  }
+  netToRoom() { if (this.net) this.net.send('ev', { k: 'playing', on: false }); this.matchIds = null; this.game && this.game.quit(); this.netSet({ st: 'room', ready: false }); this.setState({ ui: 'online' }); }
+
+  renderVals() {
+    const S = this.state, h = S.hud, g = this.game, port = S.vh >= S.vw, low = S.vh < 480, N = S.net;
+    const phase = h ? h.phase : 'idle', inGame = !!h && phase !== 'idle';
+    const blur = e => { try { e && e.currentTarget && e.currentTarget.blur(); } catch (er) {} };
+    const seg = (opts, cur, set) => opts.map((o, i) => ({ label: o[1], sub: o[2] || '', sel: o[0] === cur, ml: i ? '-2px' : '0', bg: o[0] === cur ? '#ffd23a' : '#000000', fg: o[0] === cur ? '#000000' : '#ffffff', pick: e => { blur(e); set(o[0]); } }));
+    const players = h ? h.players : [];
+    const chips = players.map(p => ({ name: p.gone ? p.name + ' · LEFT' : p.name, score: p.score, col: p.col, bg: p.cur ? '#ffffff' : 'rgba(0,0,0,0.82)', fg: p.cur ? '#000000' : '#ffffff', pips: Array.from({ length: h.each }, (_, k) => ({ c: k < p.left ? p.col : (p.cur ? '#d7d3d3' : '#3a3836') })) }));
+    // mini house: x mirrored (screen right = world -x), z 23.6..30.2
+    const mini = h ? h.mini.map(s => ({ l: ((2.2 - s.x) / 4.4 * 100).toFixed(2) + '%', t: ((30.2 - s.z) / 6.6 * 100).toFixed(2) + '%', c: s.col, ring: s.count ? '3.5px' : '0px' })) : [];
+    const miniW = low ? 70 : port ? 92 : 84;
+    const aim = phase === 'aim' || phase === 'charge', mine = h && h.mine, cpuOrWait = phase === 'cpu' || phase === 'cpuaim' || phase === 'wait' || (phase === 'run' && !h.canSweep);
+    const zoneDefs = this.mod ? this.mod.ZONES : [];
+    const p = h && h.p != null ? h.p : null, zn = h && h.zone ? h.zone : null;
+    const cardUi = S.ui === 'welcome' && inGame ? null : S.ui;
+    const demo = !!(h && h.demo), charging = phase === 'charge' || phase === 'cpucharge';
+    const endCard = h && !demo && phase === 'endcard' && h.card && !cardUi, overCard = h && !demo && phase === 'over' && h.over && !cardUi;
+    const tableSrc = overCard ? h.over.rows : endCard ? players.map(x => ({ name: x.name, col: x.col, score: x.score, ends: [] })).sort((a, b) => b.score - a.score) : [];
+    const endsArr = endCard && g ? g.state.players : null;
+    const tableRows = tableSrc.map(r => { const src = endsArr ? endsArr.find(q => q.name === r.name && q.col === r.col) : r; const e = src && src.ends ? src.ends : r.ends; return { name: r.name, col: r.col, score: r.score, ends: (e || []).join(' ') }; });
+    const m = N ? this.members() : [], host = this.hostId(), rc = m.filter(x => x.ready).length, full = !!N && N.st === 'room' && !!this.net && m.length === 5 && !m.some(x => x.me);
+    const netRows = m.map((x, i) => ({ name: (x.me ? 'YOU' : this.COLS[i][0]) + (x.id === host ? ' · HOST' : ''), col: this.COLS[i][1], st: x.playing ? 'PLAYING' : x.ready ? 'READY' : 'NOT READY', stCol: x.ready ? '#22c55e' : '#cfcac4' }));
+    const stats = this.save ? { w: this.save.stat('curling.wins'), b: this.save.stat('curling.bestEnd'), gm: this.save.stat('curling.games') } : null;
+    const online = h && h.mode === 'online';
+    return {
+      stageRef: this.stageRef, loading: S.loading, errOn: !!S.err, err: S.err ? 'Check that vendor/three/three.module.js and minigames/curling/curling-club.js sit next to this page. (' + S.err + ')' : '',
+      chips, hudOn: inGame, barMax: port ? '100%' : '60%', chipCols: Math.max(1, players.length), infoMax: port ? 'calc(100% - ' + (miniW + 12) + 'px)' : '46%',
+      endTxt: h ? (h.extra && h.end > h.ends - h.extra ? 'EXTRA END' : 'END ' + h.end + ' OF ' + h.ends) + (h.curName ? ' · ' + h.curName : '') : '',
+      banner: h ? h.banner : '', bannerCol: h ? h.curCol : '#ec3013', bannerSize: low ? '18px' : '22px', hint: h ? h.hint : '', hintOn: !!(h && h.hint && !(h.demo)), msg: h ? h.msg : '', msgOn: !!(h && h.msg),
+      miniW: miniW + 'px', miniH: Math.round(miniW * 1.5) + 'px', mini, broomOn: !!(h && (aim || phase === 'cpuaim' || phase === 'wait')), broomL: h ? ((2.2 - h.broom.x) / 4.4 * 100).toFixed(1) + '%' : '50%', broomT: h ? ((30.2 - h.broom.z) / 6.6 * 100).toFixed(1) + '%' : '33%', broomCol: h ? h.curCol : '#ec3013',
+      sitTxt: h && h.sitting ? h.sitting.name + ' · ' + h.sitting.pts : 'EMPTY', sitCol: h && h.sitting ? h.sitting.col : '#cfcac4',
+      // aim controls
+      aimOn: !!(h && ((aim && mine) || (demo && (phase === 'cpuaim' || phase === 'cpucharge'))) && !cardUi), ctlPE: demo ? 'none' : 'auto', ctlB: demo && port ? 'calc(max(10px, env(safe-area-inset-bottom)) + ' + (low ? 118 : 128) + 'px)' : 'max(10px, env(safe-area-inset-bottom))',
+      demoOn: demo && !cardUi, demoR: port ? 'max(10px, env(safe-area-inset-right))' : 'max(calc(100% - 410px), 10px)', capH: '58px', demoWho: h ? h.curName + ' · END ' + h.end + ' OF ' + h.ends : '', demoCap: h ? (h.hint || h.banner) : '',
+      playNow: e => { blur(e); g && g.quit(); this.setState({ ui: 'welcome' }); }, watchDemo: e => { blur(e); this.startDemo(); }, ctlL: port ? 'max(10px, env(safe-area-inset-left))' : 'max(calc(100% - 430px), 10px)',
+      zones: zoneDefs.map(z => ({ l: (z.a * 100).toFixed(1) + '%', w: ((z.b - z.a) * 100).toFixed(1) + '%', name: z.name, bg: zn && zn.id === z.id ? z.col : z.col + '55', fg: zn && zn.id === z.id ? '#000000' : '#ffffff' })),
+      fillW: p != null ? (p * 100).toFixed(1) + '%' : '0%', markOn: p != null, zoneTxt: zn ? zn.name + ' WEIGHT' : 'HOLD THROW', zoneCol: zn ? zn.col : '#ffffff',
+      turnW: low ? '52px' : '58px', turnLOn: !!(h && h.turn === 'L'), turnROn: !!(h && h.turn === 'R'),
+      turnLBg: h && h.turn === 'L' ? '#ffd23a' : '#000000', turnLFg: h && h.turn === 'L' ? '#000000' : '#ffffff', turnRBg: h && h.turn === 'R' ? '#ffd23a' : '#000000', turnRFg: h && h.turn === 'R' ? '#000000' : '#ffffff',
+      turnL: e => { blur(e); g && g.setTurn('L'); }, turnR: e => { blur(e); g && g.setTurn('R'); }, nudgeL: e => { blur(e); g && g.nudge(0.08); }, nudgeR: e => { blur(e); g && g.nudge(-0.08); },
+      thrDown: e => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} e.preventDefault(); g && g.chargeDown(); }, thrUp: e => { e.preventDefault(); g && g.chargeUp(); }, thrCancel: () => { g && g.cancelCharge(); }, noMenu: e => e.preventDefault(),
+      thrTxt: phase === 'cpucharge' ? 'HOLDING…' : phase === 'charge' ? (h.tapMode ? 'TAP TO THROW' : 'LET GO') : 'HOLD THROW', thrSub: charging ? (zn ? zn.name : '') : 'OR TAP · TAP', thrBg: charging ? '#ae1800' : '#ec3013', thrBorder: charging ? '#ffffff' : '#ec3013',
+      // run / watch
+      runOn: !!(h && phase === 'run' && (h.canSweep || demo) && !cardUi), sweepH: low ? '64px' : '84px', swBg: h && h.sweeping ? '#ffd23a' : '#000000', swFg: h && h.sweeping ? '#000000' : '#ffffff', swTxt: h && h.sweeping ? 'SWEEPING' : 'HOLD SWEEP', swSub: h ? 'OR HOLD THE ICE · ' + h.sweepPct + '% SWEPT' : '',
+      swDown: e => { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} e.preventDefault(); g && g.sweep(true); }, swUp: () => { g && g.sweep(false); },
+      watchOn: !!(h && cpuOrWait && !demo && !cardUi), curCol: h ? h.curCol : '#fff', watchTxt: h ? (phase === 'wait' ? h.curName + ' IS AIMING…' : phase === 'run' ? h.curName + '’S STONE' : h.curName + ' IS THROWING') : '',
+      fastOn: !!(h && h.fast), fastBg: h && h.fast ? '#ffd23a' : '#000000', fastFg: h && h.fast ? '#000000' : '#ffd23a', fastT: e => { blur(e); g && g.setFast(!(h && h.fast)); },
+      openMenu: e => { blur(e); if (g && h && h.phase === 'charge') g.cancelCharge(); this.setState({ ui: 'menu' }); },
+      // cards
+      cardOn: !S.loading && !S.err && (!!cardUi || endCard || overCard), cardJustify: port ? 'center' : 'flex-start', scrim: cardUi && inGame ? 'rgba(0,0,0,0.45)' : 'transparent', titleSize: low ? '22px' : '30px', headPad: low ? '8px 14px 8px' : '12px 14px 10px',
+      welcomeOn: cardUi === 'welcome', helpOn: cardUi === 'help', menuOn: cardUi === 'menu', onlineOn: cardUi === 'online', endOn: !!endCard, overOn: !!overCard,
+      statsOn: !!(stats && stats.gm), statsTxt: stats ? 'GAMES ' + stats.gm + ' · WINS ' + stats.w + ' · BEST END ' + stats.b : '',
+      modes: seg([['cpu', 'VS CPU'], ['local', 'PASS & PLAY'], ['online', 'ONLINE']], S.mode, v => this.setState({ mode: v })),
+      modeTxt: S.mode === 'cpu' ? 'You against Rocco, the club skip. Win for gold.' : S.mode === 'local' ? '2 to 5 players on this phone. Hand it over when the banner shows your colour. Any seat can be a CPU.' : '2 to 5 players, each on their own phone. Make a room and send the link.',
+      cpuOn: S.mode === 'cpu', levels: seg(this.LEVELS, S.level, v => this.setState({ level: v })),
+      seatsOn: S.mode === 'local', seats: S.seats.map((s, i) => ({ name: this.COLS[i][0], col: this.COLS[i][1], type: s.cpu ? 'CPU' : 'PLAYER', aria: this.COLS[i][0] + ' is ' + (s.cpu ? 'the computer' : 'a player') + '. Tap to switch.', bg: s.cpu ? '#3a3836' : '#ffd23a', fg: s.cpu ? '#ffffff' : '#000000', toggle: e => { blur(e); this.setState(st => ({ seats: st.seats.map((q, k) => k === i ? { ...q, cpu: !q.cpu } : q) })); } })),
+      seatAdd: e => { blur(e); this.setState(st => st.seats.length < 5 ? { seats: [...st.seats, { cpu: false }] } : null); }, seatRem: e => { blur(e); this.setState(st => st.seats.length > 2 ? { seats: st.seats.slice(0, -1) } : null); },
+      addOff: S.seats.length >= 5, remOff: S.seats.length <= 2, addFg: S.seats.length >= 5 ? '#605d5d' : '#ffffff', remFg: S.seats.length <= 2 ? '#605d5d' : '#ffffff',
+      endsOn: S.mode !== 'online', endsLbl: 'ENDS · ' + (S.mode === 'local' ? (S.seats.length === 2 ? '4' : S.seats.length === 3 ? '3' : '2') + ' STONES EACH PER END' : '4 STONES EACH PER END'),
+      endOpts: seg([[2, '2 ENDS'], [4, '4 ENDS'], [6, '6 ENDS']], S.ends, v => this.setState({ ends: v })),
+      playLbl: S.mode === 'online' ? 'OPEN ONLINE ROOM' : 'START', play: e => { blur(e); this.startGame(); }, welcomeCols: this.embed ? 3 : 2, backOn: !!this.embed, back: e => { blur(e); this.back(); },
+      openHelp: e => { blur(e); this.setState({ ui: 'help', menuFrom: S.ui }); }, closeHelp: e => { blur(e); this.setState({ ui: S.menuFrom && S.menuFrom !== 'help' ? S.menuFrom : inGame ? null : 'welcome' }); },
+      closeMenu: e => { blur(e); this.setState({ ui: null }); },
+      guideOn: !!(h && h.guide), guideTxt: h && h.guide ? 'GUIDE: ON' : 'GUIDE: OFF', toggleGuide: e => { blur(e); g && g.setGuide(!(h && h.guide)); },
+      soundOn: !(h && h.muted), soundTxt: h && h.muted ? 'SOUND: OFF' : 'SOUND: ON', toggleSound: e => { blur(e); g && g.setMuted(!(h && h.muted)); },
+      quitTxt: online ? 'LEAVE GAME' : 'QUIT TO MENU', quitGame: e => { blur(e); if (online) { this.netToRoom(); return; } g && g.quit(); this.setState({ ui: 'welcome' }); },
+      // end + over
+      endKicker: h && h.card ? 'END ' + h.card.end + ' OF ' + h.ends : '', endTitle: h && h.card ? h.card.title : '', endCol: h && h.card ? h.card.col : '#fff', endSub: h && h.card ? h.card.sub + (h.card.extra ? ' All square: one extra end.' : '') : '',
+      tableRows, nextLbl: h && h.card ? (online ? 'NEXT END IN A MOMENT…' : h.card.final ? 'SEE THE RESULT' : 'NEXT END') : '', nextOff: !!online, nextEnd: e => { blur(e); g && g.nextEnd(); },
+      overTitle: h && h.over ? h.over.title : '', overCol: h && h.over ? h.over.col : '#fff', rewardOn: !!(h && h.over && h.over.reward), reward: h && h.over ? h.over.reward || '' : '',
+      againLbl: online ? 'BACK TO ROOM' : 'PLAY AGAIN', again: e => { blur(e); if (online) { this.netToRoom(); return; } if (this.lastCfg && g) g.start({ ...this.lastCfg, skipTips: true }); },
+      toMenuLbl: online ? 'LEAVE ROOM' : 'CHANGE GAME', toMenu: e => { blur(e); if (online) { this.netLeave(); g && g.quit(); this.setState({ net: null, ui: 'welcome' }); return; } g && g.quit(); this.setState({ ui: 'welcome' }); },
+      // online card
+      netTitle: !N || N.st === 'menu' ? 'Play with friends' : 'Room ' + N.code, netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Up to 5 players. Make a room and send the link, or type a friend’s code.' : full ? 'Five players are already in room ' + N.code + '. Try another code.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : rc === m.length ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.',
+      netMenuOn: !N || N.st === 'menu', netRoomOn: !!N && N.st !== 'menu', netCode: N ? N.code : '', netStatus: N ? N.status : '', netRows,
+      codeIn: N ? N.codeIn : '', codeType: e => this.netSet({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4), msg: '' }), codeKey: e => { if (e.key === 'Enter') { e.preventDefault(); this.netJoin(this.state.net && this.state.net.codeIn); } e.stopPropagation(); },
+      netCreate: e => { blur(e); this.netCreate(); }, netJoinBtn: e => { blur(e); this.netJoin(N && N.codeIn); },
+      readyOff: !this.net || m.length < 2, readyTxt: N && N.ready ? 'READY ✓ ' + rc + '/' + m.length : 'READY', readyBg: N && N.ready ? '#22c55e' : '#ec3013', readyFg: N && N.ready ? '#000000' : '#ffffff',
+      netReady: e => { blur(e); const n = this.state.net; if (!n || !this.net) return; const on = !n.ready; this.netSet({ ready: on }); this.net.send('ev', { k: 'ready', on }); setTimeout(this.nMaybeStart, 0); },
+      shareTxt: N && N.copied ? 'LINK COPIED' : 'SHARE LINK',
+      netShare: async e => { blur(e); if (!N) return; let u; try { u = new URL(location.href); u.searchParams.set('room', N.code); } catch (er) { return; } try { if (navigator.share && port) await navigator.share({ title: '8 GATES · Curling Club', text: 'Curl with me in 8 GATES. Room ' + N.code, url: u.href }); else { await navigator.clipboard.writeText(u.href); this.netSet({ copied: true }); setTimeout(() => this.netSet({ copied: false }), 2000); } } catch (er) {} },
+      netBackTxt: !N || N.st === 'menu' ? 'BACK' : 'LEAVE ROOM', netBack: e => { blur(e); const n = this.state.net; if (!n || n.st === 'menu') { this.setState({ net: null, ui: 'welcome', mode: S.mode === 'online' ? 'cpu' : S.mode }); return; } this.netLeave(); this.setState({ net: null, ui: 'welcome' }); },
+    };
+  }
+}
+</script>
+</body>
+</html>

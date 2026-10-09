@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fox Mini Golf · Landscape</title>
+<script src="./support.js"></script>
+<script src="blob/49bcd482bcf7015fdc41a123c019abbd.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&amp;display=swap">
+<style>body{margin:0;background:#000;overflow:hidden}a{color:#ffd23a}a:hover{color:#ffffff}</style>
+</helmet>
+<div style="width:844px;height:390px;overflow:hidden;background:#0b1430;color:#fff;font-family:Archivo, system-ui, sans-serif">
+<dc-import name="Main" orientation="landscape" auto-demo="{{ autoDemo }}" hint-size="844px,390px"></dc-import>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"autoDemo":{"editor":"boolean","default":true},"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return { autoDemo: this.props.autoDemo ?? true };
+  }
+}
+</script>
+</body>
+</html>

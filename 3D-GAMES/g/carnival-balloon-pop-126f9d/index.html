@@ -1,0 +1,307 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Carnival Balloon Pop</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&display=swap">
+<style>
+/* Layout: the game is a phone-shaped screen; full screen on phones, a centred phone on wide screens. Modernist kit look: Archivo, 2px rules, no rounded corners */
+:root {
+  --bg: #141018;
+  --panel: #000;
+  --ink: #fff;
+  --muted: #cfcac4;
+  --rule: #3a3836;
+  --gold: #ffd23a;
+  --red: #ec3013;
+  --font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  color-scheme: dark;
+}
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); overflow: hidden; overscroll-behavior: none; -webkit-user-select: none; user-select: none; }
+#wrap { height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+#phone { position: relative; width: 100%; height: 100%; overflow: hidden; background: #000; touch-action: none; }
+#stage { position: absolute; inset: 0; }
+.rot { display: none; }
+@media (min-width: 621px) and (min-height: 600px) {
+  #wrap { padding-block: 16px; box-sizing: border-box; }
+  #phone { width: 390px; height: min(844px, calc(100% - 64px)); border: 10px solid #000; border-radius: 34px; box-shadow: 0 0 0 2px var(--rule), 0 24px 60px rgba(0,0,0,.55); }
+  #phone.land { width: min(844px, calc(100% - 40px)); height: 390px; }
+  .rot { display: flex; gap: 8px; }
+}
+button { font-family: var(--font); border-radius: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+.rot button { min-height: 44px; padding: 0 14px; border: 2px solid var(--rule); background: #000; color: var(--ink); font-weight: 800; font-size: 12px; letter-spacing: .1em; }
+.rot button[aria-pressed="true"] { border-color: var(--gold); color: var(--gold); }
+.ui { position: absolute; z-index: 3; }
+.hidden { display: none !important; }
+/* top bar */
+#bar { left: 0; right: 0; top: 0; display: flex; align-items: stretch; background: var(--panel); border-bottom: 2px solid var(--gold); }
+#bar .cell { padding: 5px 10px; display: flex; flex-direction: column; justify-content: center; border-right: 2px solid var(--rule); }
+#bar .cell small { font-size: 10px; font-weight: 800; letter-spacing: .12em; color: var(--muted); white-space: nowrap; }
+#bar .cell b { font-size: 22px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums; }
+#bar .grow { flex: 1; min-width: 0; }
+#k-mode { color: var(--gold) !important; }
+#pips { display: flex; gap: 3px; height: 22px; align-items: center; }
+#pips i { width: 7px; height: 20px; display: block; background: var(--gold); }
+#pips i.used { background: #3a3836; }
+#bar .icon { width: 48px; border: 0; border-right: 2px solid var(--rule); background: var(--panel); color: var(--ink); font-size: 18px; font-weight: 900; }
+#bar .icon:last-child { border-right: 0; }
+/* barker */
+#say { left: 12px; top: 12px; width: min(330px, calc(100% - 24px)); background: rgba(0,0,0,.9); border: 2px solid var(--rule); pointer-events: none; }
+#say small { display: block; padding: 4px 10px 0; font-size: 10px; font-weight: 900; letter-spacing: .16em; color: var(--gold); }
+#say span { display: block; padding: 3px 10px 8px; font-size: 14px; font-weight: 700; line-height: 1.3; }
+/* flash + count */
+#flash { left: 50%; top: 58%; transform: translate(-50%, -50%); background: #000; border: 2px solid var(--gold); padding: 8px 16px; font-size: 22px; font-weight: 900; white-space: nowrap; pointer-events: none; }
+#count { left: 50%; top: 40%; transform: translate(-50%, -50%); background: #000; border: 3px solid var(--gold); padding: 10px 26px; font-size: 54px; font-weight: 900; color: var(--gold); pointer-events: none; }
+#hint { left: 50%; bottom: calc(16px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: #000; border: 2px solid var(--gold); padding: 8px 14px; font-size: 13px; font-weight: 900; letter-spacing: .08em; color: var(--gold); white-space: nowrap; pointer-events: none; }
+#steady { right: 12px; top: 64px; background: #7dd3fc; color: #000; border: 2px solid #000; padding: 5px 10px; font-size: 12px; font-weight: 900; letter-spacing: .08em; pointer-events: none; }
+/* cards */
+.card { left: 12px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: min(400px, calc(100% - 24px)); max-height: calc(100% - 24px); overflow-y: auto; background: var(--panel); border: 2px solid var(--rule); display: flex; flex-direction: column; box-sizing: border-box; }
+.card header { padding: 10px 14px; border-bottom: 2px solid var(--rule); display: flex; flex-direction: column; gap: 2px; }
+.card header small { font-size: 11px; font-weight: 800; letter-spacing: .12em; color: var(--gold); }
+.card header strong { font-size: clamp(21px, 6vw, 26px); font-weight: 900; line-height: 1.05; }
+.card header p { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 2px solid var(--rule); }
+.stats div { padding: 6px 14px; border-right: 2px solid var(--rule); display: flex; flex-direction: column; }
+.stats div:last-child { border-right: 0; }
+.stats small { font-size: 10px; font-weight: 800; letter-spacing: .1em; color: var(--muted); }
+.stats b { font-size: 18px; font-weight: 900; color: var(--gold); font-variant-numeric: tabular-nums; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; }
+.big { min-height: 56px; padding: 6px 14px; border: 0; border-bottom: 2px solid var(--rule); border-right: 2px solid var(--rule); background: #000; color: var(--ink); text-align: left; display: flex; flex-direction: column; justify-content: center; gap: 2px; }
+.big:nth-child(2n) { border-right: 0; }
+.big b { font-size: 16px; font-weight: 900; letter-spacing: .04em; }
+.big small { font-size: 10px; font-weight: 800; letter-spacing: .08em; color: var(--muted); }
+.big.primary { background: var(--red); }
+.big.primary small { color: #fff; }
+.big.gold { background: var(--gold); color: #000; grid-column: 1 / -1; border-right: 0; }
+.big.gold small { color: #000; }
+.row3 { display: grid; grid-template-columns: repeat(3, 1fr); }
+.row3 button, .row5 button { min-height: 48px; border: 0; border-right: 2px solid var(--rule); background: #000; color: var(--ink); font-size: 12px; font-weight: 900; letter-spacing: .08em; text-align: left; padding: 0 14px; }
+.row3 button:last-child, .row5 button:last-child { border-right: 0; }
+.row5 { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 2px solid var(--rule); }
+.row5 button { text-align: center; font-size: 22px; }
+.list { display: flex; flex-direction: column; }
+.list .li { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 2px solid var(--rule); font-size: 14px; font-weight: 800; }
+.list .li .sw { width: 14px; height: 14px; flex: none; }
+.list .li .grow { flex: 1; min-width: 0; }
+.list .li b { font-variant-numeric: tabular-nums; }
+.list .li button { min-height: 44px; padding: 0 12px; border: 2px solid var(--gold); background: #000; color: var(--gold); font-size: 12px; font-weight: 900; }
+.list .li button:disabled { border-color: var(--rule); color: #6d6862; cursor: default; }
+.help { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; font-weight: 700; line-height: 1.35; color: var(--muted); border-bottom: 2px solid var(--rule); }
+.help b { color: var(--ink); }
+.total { padding: 12px 14px; border-bottom: 2px solid var(--rule); display: flex; align-items: baseline; gap: 10px; }
+.total b { font-size: 44px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.total span { font-size: 13px; font-weight: 800; color: var(--gold); letter-spacing: .06em; }
+/* demo caption */
+#demoCap { left: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); width: min(460px, calc(100% - 20px)); display: flex; background: #000; border: 2px solid var(--gold); }
+#demoCap .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+#demoCap .k { display: flex; justify-content: space-between; padding: 5px 12px 0; font-size: 10px; font-weight: 900; letter-spacing: .12em; color: var(--gold); }
+#demoCap .c { padding: 4px 12px 9px; font-size: 14px; font-weight: 900; letter-spacing: .03em; text-transform: uppercase; }
+#demoCap button { flex: none; min-width: 84px; min-height: 52px; border: 0; background: var(--red); color: #fff; font-size: 12px; font-weight: 900; letter-spacing: .1em; }
+#err { left: 12px; right: 12px; top: 40%; background: #000; border: 2px solid var(--red); padding: 14px; font-size: 14px; font-weight: 700; line-height: 1.4; }
+#loading { inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; letter-spacing: .14em; color: var(--gold); background: #000; }
+</style>
+
+<div id="wrap">
+  <div class="rot" role="group" aria-label="Phone orientation">
+    <button id="o-port" type="button" aria-pressed="true">PORTRAIT</button>
+    <button id="o-land" type="button" aria-pressed="false">LANDSCAPE</button>
+  </div>
+  <div id="phone">
+    <div id="stage"></div>
+    <div class="ui" id="loading">LOADING THE STALL…</div>
+
+    <div class="ui hidden" id="bar" data-safe="top">
+      <div class="cell grow"><small id="k-mode">CLASSIC</small><b id="v-score">0</b></div>
+      <div class="cell"><small id="k-mid">DARTS</small><b id="v-time" class="hidden">45</b><div id="pips"></div></div>
+      <div class="cell"><small>STREAK</small><b id="v-streak">–</b></div>
+      <button class="icon" id="b-mute" type="button" aria-label="Sound on or off">♪</button>
+      <button class="icon" id="b-quit" type="button" aria-label="Back to the stall menu">✕</button>
+    </div>
+
+    <div class="ui hidden" id="say"><small>ZIGGY · THE BARKER</small><span id="say-t"></span></div>
+    <div class="ui hidden" id="flash"></div>
+    <div class="ui hidden" id="count"></div>
+    <div class="ui hidden" id="hint"></div>
+    <div class="ui hidden" id="steady">STEADY</div>
+
+    <!-- menu -->
+    <section class="ui card hidden" id="c-menu" data-safe="card">
+      <header><small id="m-kick">CARNIVAL · BALLOON POP</small><strong>Pop a balloon, win a prize</strong><p>Drag to aim, let go to throw. Gold pays 50, the pink star 100.</p></header>
+      <div class="stats"><div><small>GOLD</small><b id="m-gold">0g</b></div><div><small>TICKETS</small><b id="m-tix">0</b></div><div><small>BEST</small><b id="m-best">0</b></div></div>
+      <div class="grid2">
+        <button class="big primary" id="m-classic" type="button"><b>CLASSIC</b><small>6 DARTS · 2g · WIN TICKETS</small></button>
+        <button class="big" id="m-blitz" type="button"><b>BLITZ</b><small>45 S · MOVING BOARD · 2g</small></button>
+        <button class="big" id="m-party" type="button"><b>PARTY</b><small>PASS THE PHONE · 2-5</small></button>
+        <button class="big" id="m-demo" type="button"><b>DEMO</b><small>WATCH THE STALL PLAY</small></button>
+        <button class="big gold" id="m-prizes" type="button"><b>PRIZE SHELF</b><small id="m-prsub">SPEND YOUR TICKETS</small></button>
+      </div>
+      <div class="row3"><button id="m-help" type="button">HOW TO PLAY</button><button id="m-assist" type="button">ASSIST OFF</button><button id="m-sound" type="button">SOUND ON</button></div>
+    </section>
+
+    <!-- party size -->
+    <section class="ui card hidden" id="c-party" data-safe="card">
+      <header><small>PARTY · PASS THE PHONE</small><strong>How many players?</strong><p>Same board for everyone, 6 darts each.</p></header>
+      <div class="row5"><button type="button" data-n="2">2</button><button type="button" data-n="3">3</button><button type="button" data-n="4">4</button><button type="button" data-n="5">5</button></div>
+      <div class="row3"><button type="button" class="back">BACK</button></div>
+    </section>
+
+    <!-- pass the phone -->
+    <section class="ui card hidden" id="c-pass" data-safe="card">
+      <header><small id="p-kick">PARTY</small><strong id="p-title">Pass to RED</strong><p id="p-sub">Hand the phone over, then tap below.</p></header>
+      <div class="list" id="p-list"></div>
+      <div class="grid2"><button class="big primary" id="p-go" type="button"><b id="p-go-t">I'M RED · THROW</b><small>6 DARTS</small></button><button class="big" id="p-end" type="button"><b>END PARTY</b><small>BACK TO THE STALL</small></button></div>
+    </section>
+
+    <!-- results -->
+    <section class="ui card hidden" id="c-done" data-safe="card">
+      <header><small id="d-kick">RESULT</small><strong id="d-title">Round over</strong><p id="d-sub"></p></header>
+      <div class="total" id="d-total"><b id="d-score">0</b><span id="d-badge"></span></div>
+      <div class="list" id="d-list"></div>
+      <div class="grid2"><button class="big primary" id="d-again" type="button"><b>PLAY AGAIN</b><small id="d-again-s">SAME MODE</small></button><button class="big" id="d-menu" type="button"><b>STALL MENU</b><small>PICK A MODE</small></button></div>
+    </section>
+
+    <!-- prizes -->
+    <section class="ui card hidden" id="c-prizes" data-safe="card">
+      <header><small>PRIZE SHELF</small><strong id="z-tix">0 tickets</strong><p>Prizes go into your bag across every world.</p></header>
+      <div class="list" id="z-list"></div>
+      <div class="row3"><button type="button" class="back">BACK</button></div>
+    </section>
+
+    <!-- help -->
+    <section class="ui card hidden" id="c-help" data-safe="card">
+      <header><small>HOW TO PLAY</small><strong>Aim, wobble, pop</strong></header>
+      <div class="help">
+        <div><b>Drag</b> anywhere to aim. The ring sits just above your finger and wobbles more the longer you hold. <b>Let go</b> to throw.</div>
+        <div>Every balloon is <b>10</b>. <b>Gold "50"</b> pays 50. <b>Pink star</b> pays 100. <b>Black blast</b> pops its 4 neighbours. <b>Ice snowflake</b> stops the wobble for 5 s. <b>White plus</b> gives one more dart.</div>
+        <div><b>3 hits in a row</b> doubles your points, <b>5 in a row</b> triples them. A miss resets it.</div>
+        <div><b>Assist</b> pulls the ring onto the nearest balloon and plays a tone when a balloon is under it.</div>
+      </div>
+      <div class="row3"><button type="button" class="back">BACK</button></div>
+    </section>
+
+    <!-- demo caption -->
+    <div class="ui hidden" id="demoCap" data-safe="card"><div class="txt"><div class="k"><span>■ DEMO</span><span id="dc-n">DART 1 / 6</span></div><div class="c" id="dc-t"></div></div><button id="dc-exit" type="button">EXIT DEMO</button></div>
+
+    <div class="ui hidden" id="err"></div>
+  </div>
+</div>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+const phone = $('phone'), stage = $('stage');
+const cards = ['c-menu', 'c-party', 'c-pass', 'c-done', 'c-prizes', 'c-help'];
+let g = null, h = null, ui = null, touched = false, idle = 0;
+const show = (id, on) => $(id).classList.toggle('hidden', !on);
+
+// orientation buttons (wide screens only)
+function orient(land) { phone.classList.toggle('land', land); $('o-port').setAttribute('aria-pressed', String(!land)); $('o-land').setAttribute('aria-pressed', String(land)); setTimeout(safe, 60); }
+$('o-port').onclick = () => orient(false); $('o-land').onclick = () => orient(true);
+
+function render() {
+  if (!h) return;
+  const ph = h.phase, playing = ph === 'play' || ph === 'count';
+  // top bar
+  show('bar', playing || (ph === 'done' && !h.demo));
+  $('k-mode').textContent = h.demo ? 'DEMO' : h.party ? (h.party.players[h.party.cur] || {}).name + ' · PARTY' : (h.modeName || h.mode || '').toUpperCase() + (h.practice ? ' · PRACTICE' : '');
+  $('v-score').textContent = h.score;
+  $('k-mid').textContent = h.timed ? 'TIME' : 'DARTS';
+  show('v-time', h.timed); show('pips', !h.timed);
+  if (h.timed) $('v-time').textContent = Math.ceil(h.tLeft);
+  else { const n = h.dartsMax, pips = $('pips'); if (pips.children.length !== n) pips.innerHTML = '<i></i>'.repeat(n); [...pips.children].forEach((p, i) => p.classList.toggle('used', i >= h.darts)); }
+  $('v-streak').textContent = h.streak ? (h.mult > 1 ? '×' + h.mult : h.streak) : '–';
+  $('b-mute').textContent = h.muted ? '×' : '♪';
+  // barker, flash, count, hint
+  show('say', !!h.say && !h.demo && !ui); $('say-t').textContent = h.say || '';
+  const barOn = !$('bar').classList.contains('hidden'); $('say').style.top = barOn ? ($('bar').offsetHeight + 8) + 'px' : '12px'; $('steady').style.top = barOn ? ($('bar').offsetHeight + 8) + 'px' : '12px';
+  show('flash', !!h.flash); if (h.flash) { $('flash').textContent = h.flash.txt; $('flash').style.color = h.flash.col || '#ffd23a'; $('flash').style.borderColor = h.flash.col || '#ffd23a'; }
+  show('count', ph === 'count' && h.count != null); $('count').textContent = h.count == null ? '' : h.count;
+  show('hint', !!h.hint); $('hint').textContent = h.hint;
+  show('steady', h.steady); $('steady').textContent = 'STEADY · ' + Math.ceil(h.steadyT || 0);
+  // demo caption
+  show('demoCap', !!h.demo); if (h.demo) { $('dc-n').textContent = 'DART ' + Math.min(h.demo.n + 1, h.demo.of) + ' / ' + h.demo.of; $('dc-t').textContent = h.demo.cap || ''; }
+  // cards
+  let card = null;
+  if (h.demo) card = null;
+  else if (ph === 'menu') card = ui || 'c-menu';
+  else if (ph === 'pass') card = 'c-pass';
+  else if (ph === 'done' && h.done) card = 'c-done';
+  cards.forEach(c => show(c, c === card));
+  if (card === 'c-menu') {
+    $('m-kick').textContent = (h.world === 'CARNIVAL' ? 'CARNIVAL' : h.world + ' CARNIVAL') + ' · BALLOON POP';
+    $('m-gold').textContent = h.gold + 'g'; $('m-tix').textContent = h.tickets; $('m-best').textContent = h.best;
+    const can = h.prizes.filter(p => p.afford).length; $('m-prsub').textContent = h.tickets + ' TICKETS · ' + can + ' PRIZE' + (can === 1 ? '' : 'S') + ' IN REACH';
+    $('m-assist').textContent = 'ASSIST ' + (h.assist ? 'ON' : 'OFF'); $('m-sound').textContent = 'SOUND ' + (h.muted ? 'OFF' : 'ON');
+  }
+  if (card === 'c-pass' && h.party) {
+    const p = h.party.players[h.party.cur];
+    $('p-kick').textContent = 'PARTY · PLAYER ' + (h.party.cur + 1) + ' OF ' + h.party.n; $('p-title').textContent = 'Pass to ' + p.name; $('p-title').style.color = p.col; $('p-go-t').textContent = "I'M " + p.name + ' · THROW';
+    $('p-list').innerHTML = h.party.players.map(q => '<div class="li"><span class="sw" style="background:' + q.col + '"></span><span class="grow">' + q.name + (q.cur ? ' · UP NEXT' : '') + '</span><b>' + (q.score == null ? '–' : q.score) + '</b></div>').join('');
+  }
+  if (card === 'c-done') {
+    const d = h.done;
+    if (d.kind === 'party') {
+      $('d-kick').textContent = 'PARTY · RESULTS'; $('d-title').textContent = d.tie ? 'A tie at the top!' : d.winner.name + ' wins!'; $('d-title').style.color = d.tie ? '' : d.winner.col; $('d-sub').textContent = '';
+      show('d-total', false); $('d-again-s').textContent = 'SAME PLAYERS';
+      $('d-list').innerHTML = d.ranking.map(r => '<div class="li"><span class="sw" style="background:' + r.col + '"></span><span class="grow">' + r.place + '. ' + r.name + '</span><b>' + r.score + '</b></div>').join('');
+    } else {
+      $('d-kick').textContent = d.kicker || 'RESULT'; $('d-title').textContent = d.title || 'Round over'; $('d-title').style.color = '';
+      $('d-sub').textContent = d.practice ? 'Practice round: no tickets. Win gold elsewhere to play for prizes.' : (d.tickets ? '+' + d.tickets + ' tickets' : '') + (d.gold ? ' · +' + d.gold + ' gold' : '');
+      show('d-total', true); $('d-score').textContent = d.total; $('d-badge').textContent = (d.grade ? d.grade + ' · ' : '') + (d.newBest ? 'NEW BEST!' : 'BEST ' + d.best);
+      $('d-again-s').textContent = 'SAME MODE';
+      $('d-list').innerHTML = (d.rows || []).map(r => '<div class="li"><span class="grow">' + (r.label || r.k || '') + '</span><b>' + (r.value != null ? r.value : r.v != null ? r.v : '') + '</b></div>').join('');
+    }
+  }
+  if (card === 'c-prizes') {
+    $('z-tix').textContent = h.tickets + ' tickets';
+    $('z-list').innerHTML = h.prizes.map(p => '<div class="li"><span class="grow">' + p.name + (p.owned ? ' · YOU HAVE ' + p.owned : '') + '</span><b>' + p.cost + '</b><button type="button" data-buy="' + p.id + '"' + (p.afford ? '' : ' disabled') + '>BUY</button></div>').join('');
+  }
+  requestAnimationFrame(safe);
+}
+
+// keep the board clear of the bars and cards
+function safe() {
+  if (!g || !g.setSafe) return;
+  const rb = phone.getBoundingClientRect(), land = rb.width > rb.height; let top = 0, bot = 0, left = 0;
+  phone.querySelectorAll('[data-safe]').forEach(el => { if (el.classList.contains('hidden')) return; const r = el.getBoundingClientRect(); if (!r.height) return;
+    if (el.dataset.safe === 'top') top = Math.max(top, r.bottom - rb.top); else if (land && el.id !== 'demoCap') left = Math.max(left, r.right - rb.left); else bot = Math.max(bot, rb.bottom - r.top); });
+  const playing = h && (h.phase === 'play' || h.phase === 'count');
+  g.setSafe(Math.round(Math.min(top, rb.height * 0.34)), Math.round(Math.min(bot, rb.height * (playing || (h && h.demo) ? 0.3 : 0.64))), Math.round(Math.min(left, rb.width * 0.6)));
+}
+
+// buttons
+const go = fn => () => { touched = true; fn(); };
+$('m-classic').onclick = go(() => { ui = null; g.startClassic(); });
+$('m-blitz').onclick = go(() => { ui = null; g.startBlitz(); });
+$('m-party').onclick = go(() => { ui = 'c-party'; render(); });
+$('m-demo').onclick = go(() => { ui = null; touched = false; g.demoStart(); });
+$('m-prizes').onclick = go(() => { ui = 'c-prizes'; render(); });
+$('m-help').onclick = go(() => { ui = 'c-help'; render(); });
+$('m-assist').onclick = go(() => g.toggleAssist());
+$('m-sound').onclick = go(() => g.toggleMute());
+$('b-mute').onclick = go(() => g.toggleMute());
+$('b-quit').onclick = go(() => { ui = null; g.quitRound(); });
+document.querySelectorAll('.back').forEach(b => b.onclick = go(() => { ui = null; render(); }));
+document.querySelectorAll('#c-party [data-n]').forEach(b => b.onclick = go(() => { ui = null; g.partySetup(+b.dataset.n); }));
+$('p-go').onclick = go(() => g.partyGo());
+$('p-end').onclick = go(() => { ui = null; g.toMenu(); });
+$('d-again').onclick = go(() => g.again());
+$('d-menu').onclick = go(() => { ui = null; g.toMenu(); });
+$('z-list').onclick = e => { const b = e.target.closest('[data-buy]'); if (b) { touched = true; g.buyPrize(b.dataset.buy); } };
+$('dc-exit').onclick = () => { touched = true; g.demoStop(); };
+phone.addEventListener('pointerdown', () => { touched = true; }, true);
+
+// boot: the demo plays by itself and loops until someone touches the screen
+try {
+  const m = await import('./minigames/carnival/balloon-pop.js');
+  g = await m.createBalloonPop({ container: stage, onState: s => { h = s; render(); } });
+  window.__balloonPop = g;
+  show('loading', false);
+  new ResizeObserver(() => safe()).observe(phone);
+  setTimeout(() => { if (!touched) g.demoStart(); }, 900);
+  setInterval(() => { if (touched || !g) return; const st = g.state; if (st && !st.demo && (st.phase === 'menu' || st.phase === 'done')) { if (++idle >= 4) { idle = 0; g.demoStart(); } } else idle = 0; }, 1000);
+} catch (e) {
+  show('loading', false); show('err', true);
+  $('err').textContent = 'The stall could not load: ' + (e && e.message ? e.message : e);
+}
+</script>
+
+</body></html>

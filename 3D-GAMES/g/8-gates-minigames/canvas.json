@@ -1,0 +1,55 @@
+{
+ "v": 3,
+ "createdOnFiles": {
+  "v": 1,
+  "at": "2026-10-07T18:10:00Z"
+ },
+ "title": "8 GATES Minigames",
+ "launch": {
+  "view": "focused",
+  "file": "MarshBlaster.dc.html"
+ },
+ "pages": [],
+ "boards": {
+  "Main.dc.html": {
+   "x": 0,
+   "y": 0,
+   "w": 390,
+   "h": 844,
+   "title": "Shooting Gallery \u00b7 iPhone portrait",
+   "is_interactive": true
+  },
+  "Landscape.dc.html": {
+   "x": 470,
+   "y": 0,
+   "w": 844,
+   "h": 390,
+   "title": "Shooting Gallery \u00b7 iPhone landscape",
+   "is_interactive": true
+  },
+  "MarshBlaster.dc.html": {
+   "x": 0,
+   "y": 1084,
+   "w": 390,
+   "h": 844,
+   "title": "Marsh Blaster \u00b7 iPhone portrait",
+   "is_interactive": true
+  },
+  "MarshBlasterLandscape.dc.html": {
+   "x": 470,
+   "y": 1084,
+   "w": 844,
+   "h": 390,
+   "title": "Marsh Blaster \u00b7 iPhone landscape",
+   "is_interactive": true
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "Landscape.dc.html",
+  "MarshBlaster.dc.html",
+  "MarshBlasterLandscape.dc.html"
+ ],
+ "notes": {},
+ "designSystems": []
+}
