@@ -11,6 +11,8 @@
 // 3 TURBO, fireworks only, nothing breaks) inside the Barracks yard + the base road. The PLANET DEFENSE gate opens on the same rule.
 import { vehicleKit } from '../engine/vehicle-kit.js';
 import { PLAYER_MALE } from '../fox-kit.js';
+import { buildHangar } from '../minigames/meru/range-hangar.js';
+import { buildYardDress } from './meru2-yardsdress.js';
 export function buildYards({ THREE, scene, M, toon, grad, kit, cols, L, save, touch, audio = () => null }) {
   const Y = L.YARDS, SP = Y.skate, TY = Y.tank, clamp = (v, a, b) => Math.max(a, Math.min(b, v)), damp = (a, b, k, dt) => a + (b - a) * (1 - Math.exp(-k * dt));
   const CT = (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
@@ -129,15 +131,15 @@ export function buildYards({ THREE, scene, M, toon, grad, kit, cols, L, save, to
     const tr = L.SPEAKERS.find(s => s.key === 'tread'), cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, ttx = cx + (tr ? tr.at.x : 0), ttz = cz + (tr ? tr.at.z : -6);
     fox('tread', { look: PLAYER_MALE, torso: ['#4b5563', '#e5e7eb', '#1f2937'], outfit: 'armor', gear: 'none', mood: 'happy' }, ttx, ttz, -Math.PI / 2, g);
     spots.push({ key: 'tankJob', x: ttx - 1.4, z: ttz, r: 2.2, prompt: 'PUT ME TO WORK \u00b7 TANK WORKS JOB', play: { label: b.label.toUpperCase(), url: b.hiring.url } }); }
-  // TANK RANGE hangar (f 150..200 × -440..-405, door S at x 175): range board, benches, crates, target rack
+  // TANK RANGE hangar (f 150..200 × -440..-405, door S at x 175): the game's hangar + blackboards, crates, target rack
   { const { b, g } = room('tankRange'), [x0, x1, z0, z1] = b.f, cx = (x0 + x1) / 2;
-    plate(9, 4, (q, w, h) => { q.fillStyle = '#201e1d'; q.fillRect(0, 0, w, h); q.fillStyle = '#ec3013'; q.fillRect(0, 0, w, 50); q.fillStyle = '#ffffff'; q.font = '900 38px Archivo, sans-serif'; q.textBaseline = 'middle'; q.fillText('TANK RANGE', 18, 26);
-      q.strokeStyle = '#ffd23a'; q.lineWidth = 6; q.beginPath(); q.moveTo(40, h - 40); q.bezierCurveTo(160, 80, 320, h - 30, w - 60, 90); q.stroke(); q.fillStyle = '#ec3013'; for (let i = 0; i < 6; i++) { q.beginPath(); q.arc(90 + i * 80, 110 + (i % 2) * 70, 12, 0, 7); q.fill(); } }, g, cx, 3, z0 + 0.45, 0, false);
-    spots.push({ key: 'rangePlay', x: cx, z: z0 + 3.4, r: 2.2, prompt: 'PLAY \u00b7 TANK RANGE', play: { label: 'TANK RANGE', url: b.hiring.url } });
-    for (const z of [z0 + 12, z0 + 16]) { B(10, 0.45, 0.6, '#5c4430', cx, 0.45, z, 0, 0.02, g); box(cx - 5, cx + 5, z - 0.3, z + 0.3); }
+    // the game's own hangar + both chalk blackboards (minigames/meru/range-hangar.js), back wall on the shell's north wall, boards by the door
+    const H = buildHangar({ THREE, M, toon, glowTex, scene: g, origin: { x: cx, z: z0 + 119 }, mounted: true });
+    for (const Bd of H.BOARDS) { const p = H.world(Bd.x, Bd.z), dx = Math.cos(Bd.yaw) * 2.6, dz = -Math.sin(Bd.yaw) * 2.6; for (const k of [-1, 0, 1]) ring(p.x + dx * k, p.z + dz * k, 0.9); }
+    for (const sx of [-1, 1]) { const r = H.world(sx * 15, -106); box(r.x - 0.6, r.x + 0.6, r.z - 1.8, r.z + 1.8); const d = H.world(sx * 13.5, -113); box(d.x - 0.5, d.x + 0.5, d.z - 1.6, d.z + 1.6); }
+    { const p = H.world(0, -90); spots.push({ key: 'rangePlay', x: p.x, z: p.z, r: 2.6, prompt: 'PLAY \u00b7 TANK RANGE', play: { label: 'TANK RANGE', url: b.hiring.url } }); }
     for (const [x, z] of [[x0 + 3, z0 + 3], [x0 + 4.4, z0 + 3], [x0 + 3.7, z0 + 3, 1], [x1 - 3, z0 + 3], [x1 - 4.4, z0 + 3]]) B(1.3, 0.9, 1.1, '#5b6b3a', x, 0.45, z, 0.1, 0.02, g); box(x0 + 2, x0 + 5.2, z0 + 2.3, z0 + 3.7); box(x1 - 5.2, x1 - 2, z0 + 2.3, z0 + 3.7);
-    for (let i = 0; i < 4; i++) { const x = x1 - 2, z = z1 - 9 + i * 1.6; rod(x, 0, z, x, 1.6, z, 0.04, ink, g); C(0.55, 0.06, i % 2 ? '#f3f2f2' : '#ec3013', x, 1.9, z, 0.01, g, 16).rotation.z = Math.PI / 2; } box(x1 - 2.6, x1 - 1.4, z1 - 9.6, z1 - 3.6);
-    for (const x of [cx - 12, cx, cx + 12]) { B(3.2, 0.12, 0.5, '#f3f2f2', x, 7.0, z0 + 17, 0, 0, g); glow(x, 6.8, z0 + 17, 3.5, 0xffffff, g); } }
+    for (let i = 0; i < 4; i++) { const x = x1 - 2, z = z1 - 9 + i * 1.6; rod(x, 0, z, x, 1.6, z, 0.04, ink, g); C(0.55, 0.06, i % 2 ? '#f3f2f2' : '#ec3013', x, 1.9, z, 0.01, g, 16).rotation.z = Math.PI / 2; } box(x1 - 2.6, x1 - 1.4, z1 - 9.6, z1 - 3.6); }
   // the outdoor range: sandbag firing line, silhouette targets, an earth berm, the red range flag
   const yard = new THREE.Group(); scene.add(yard); groups.push({ g: yard, cx: 190, cz: -400, r: 220 });
   { const F = TY.field; for (let z = F.z[0]; z < F.z[1]; z += 1.2) { if (Math.abs(z - (F.z[0] + F.z[1]) / 2) < 3) continue; B(0.9, 0.5, 1.1, '#b8a77a', F.line, 0.25, z + 0.6, 0, 0.01, yard); B(0.9, 0.45, 1.1, '#a8976a', F.line, 0.72, z + 0.3, 0, 0.01, yard); } box(F.line - 0.5, F.line + 0.5, F.z[0], F.z[1]);
@@ -168,6 +170,8 @@ export function buildYards({ THREE, scene, M, toon, grad, kit, cols, L, save, to
   function boom2(c, v, f) { if (!c) return; const n = c.createBufferSource(), bf = c.createBuffer(1, c.sampleRate * 0.6, c.sampleRate), d = bf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length) ** 3; n.buffer = bf; const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = f * 4; const gn = c.createGain(); gn.gain.value = v; n.connect(lp); lp.connect(gn); gn.connect(c.destination); n.start(); }
   function engine(on) { const c = audio(); if (on && c && !TK.eng) { const o = c.createOscillator(), lp = c.createBiquadFilter(), gn = c.createGain(); o.type = 'sawtooth'; o.frequency.value = 38; lp.type = 'lowpass'; lp.frequency.value = 260; gn.gain.value = 0.035; o.connect(lp); lp.connect(gn); gn.connect(c.destination); o.start(); TK.eng = { o, gn }; } if (!on && TK.eng) { try { TK.eng.o.stop(); } catch (e) {} TK.eng = null; } }
   function rollSnd(on, k = 0) { const c = audio(); if (on && c && !SK.roll) { const n = c.createBufferSource(), bf = c.createBuffer(1, c.sampleRate, c.sampleRate), d = bf.getChannelData(0); for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1; n.buffer = bf; n.loop = true; const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 520; bp.Q.value = 0.8; const gn = c.createGain(); gn.gain.value = 0; n.connect(bp); bp.connect(gn); gn.connect(c.destination); n.start(); SK.roll = { n, gn }; } if (SK.roll) { if (!on) { try { SK.roll.n.stop(); } catch (e) {} SK.roll = null; } else SK.roll.gn.gain.value = k; } }
+
+  const dress = buildYardDress({ THREE, scene, L, toon, touch, cols, parkH });   // exterior polish round 8: skate benches + tags, tank yard apron + props
 
   // =============================== riding ===============================
   let toast = '', toastT = 0; const say = (t, s = 2.2) => { toast = t; toastT = s; };
@@ -219,7 +223,7 @@ export function buildYards({ THREE, scene, M, toon, grad, kit, cols, L, save, to
   // =============================== per-frame ===============================
   let night = null, cullT = 0, flagT = 0;
   function tick(dt, t, P, isNight) {
-    if (isNight !== night) { night = isNight; for (const s of glows) if (!s.userData.fade) s.visible = night; for (const p of pools) p.visible = night; }
+    dress.tick(isNight); if (isNight !== night) { night = isNight; for (const s of glows) if (!s.userData.fade) s.visible = night; for (const p of pools) p.visible = night; }
     cullT -= dt; if (cullT <= 0) { cullT = 0.5; for (const r of groups) r.g.visible = Math.hypot(P.x - r.cx, P.z - r.cz) < r.r; board.visible = Math.hypot(P.x - SK.x, P.z - SK.z) < 200; tankG.visible = Math.hypot(P.x - TK.x, P.z - TK.z) < 260; }
     for (const o of outs) { if (!o.f.parent.visible) continue; const d = Math.hypot(P.x - o.x, P.z - o.z), want = d < 6 ? Math.atan2(P.x - o.x, P.z - o.z) : o.yaw0; o.f.rotation.y += Math.atan2(Math.sin(want - o.f.rotation.y), Math.cos(want - o.f.rotation.y)) * Math.min(1, dt * 4); kit.animFox(o.f, dt, 0, false); }
     { const open = passed(); gateCol.on = !open; boom.rotation.x = damp(boom.rotation.x, open ? -1.35 : 0, 3, dt); lamp.material.color.set(open ? 0x22c55e : 0xff3a20); }

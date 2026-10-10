@@ -1,8 +1,8 @@
-// FOX GATE 8 minigames: no-server 1v1 (adapted from the Blind Canvas gallery's gallery-net.js).
-// Trystero over public Nostr relays finds the other player, then a direct WebRTC link carries the game.
-// ?net=local = BroadcastChannel (2 tabs on one device) · ?net=off = no network.
-// Channels: hi (profile) · in (guest inputs) · sn (host snapshots) · ev (events) · pg (ping).
-const CH = ['hi', 'in', 'sn', 'ev', 'pg'];
+// FOX GATE 8 minigames: no-server rooms for 2+ players (adapted from the Blind Canvas gallery's gallery-net.js).
+// Trystero over public Nostr relays finds the other players, then direct WebRTC links carry the game.
+// ?net=local = BroadcastChannel (tabs on one device) · ?net=off = no network.
+// Every message travels on ONE trystero action ('mx') as { t, d }, so a game may use ANY message name
+// ('hi', 'st', 'rq', 'ev', 'sn', ...). Older versions only carried hi / in / sn / ev / pg and silently dropped the rest.
 export async function connectDuel({ game = 'duel', code = 'lobby', onJoin = () => {}, onLeave = () => {}, onMsg = () => {}, onStatus = () => {} } = {}) {
   const qs = new URLSearchParams(location.search);
   const room = 'fg8-' + game + '-' + String(code).toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 12);
@@ -27,11 +27,12 @@ export async function connectDuel({ game = 'duel', code = 'lobby', onJoin = () =
   try {
     const { joinRoom, selfId } = await import('../vendor/trystero-nostr.js');
     id = selfId;
-    const r = joinRoom({ appId: '8gates-minigames' }, room), A = {};
-    for (const t of CH) { A[t] = r.makeAction(t); A[t].onMessage = (d, { peerId }) => onMsg(t, d, peerId); }
+    const r = joinRoom({ appId: '8gates-minigames' }, room);
+    const mx = r.makeAction('mx');
+    mx.onMessage = (m, { peerId }) => { if (m && typeof m.t === 'string') onMsg(m.t, m.d, peerId); };
     r.onPeerJoin = pid => onJoin(pid);
     r.onPeerLeave = pid => onLeave(pid);
-    send = (t, d, to) => { try { A[t].send(d, to ? { target: to } : undefined); } catch (e) {} };
+    send = (t, d, to) => { try { mx.send({ t, d: d === undefined ? null : d }, to ? { target: to } : undefined); } catch (e) {} };
     leave = () => { try { r.leave(); } catch (e) {} removeEventListener('pagehide', leave); };
     addEventListener('pagehide', leave);
     onStatus('online');

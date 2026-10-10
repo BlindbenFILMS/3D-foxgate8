@@ -6,7 +6,7 @@
 export function createNeon({ THREE, glowTex }) {
   const signs = [];
   const tube = (x, col, w, path) => { x.save(); x.lineCap = x.lineJoin = 'round'; x.shadowColor = col; x.shadowBlur = 16; x.strokeStyle = col; x.lineWidth = w; x.beginPath(); path(x); x.stroke(); x.shadowBlur = 6; x.strokeStyle = 'rgba(255,255,255,0.85)'; x.lineWidth = Math.max(1, w * 0.32); x.beginPath(); path(x); x.stroke(); x.restore(); };
-  const word = (x, txt, cx, cy, size, col, on = true) => { if (!on) return; x.save(); x.font = `900 ${size}px Archivo, Arial`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.shadowColor = col; x.shadowBlur = 18; x.strokeStyle = col; x.lineWidth = size * 0.14; x.strokeText(txt, cx, cy); x.shadowBlur = 4; x.strokeStyle = 'rgba(255,255,255,0.9)'; x.lineWidth = size * 0.045; x.strokeText(txt, cx, cy); x.restore(); };
+  const word = (x, txt, cx, cy, size, col, on = true) => { if (!on) return; x.save(); x.font = `900 ${size}px Archivo, Arial`; x.textAlign = 'center'; x.textBaseline = 'middle'; x.lineJoin = 'round'; x.strokeStyle = 'rgba(10,8,20,0.9)'; x.lineWidth = size * 0.16; x.strokeText(txt, cx, cy); x.shadowColor = col; x.shadowBlur = size * 0.12; x.fillStyle = col; x.fillText(txt, cx, cy); x.shadowBlur = 0; x.fillText(txt, cx, cy); x.globalAlpha = 0.4; x.fillStyle = '#ffffff'; x.fillText(txt, cx, cy); x.restore(); };   // sharp solid letters
   const circ = (cx, cy, r) => x => x.arc(cx, cy, r, 0, Math.PI * 2);
   const DRAW = {
     beer(x, W, H, t) { const u = (t % 3.2) / 3.2, lvl = Math.min(1, u * 1.4), cx = W * 0.42, top = H * 0.16, bot = H * 0.72, mw = W * 0.34;

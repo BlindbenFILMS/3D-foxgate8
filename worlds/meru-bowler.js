@@ -2,13 +2,13 @@
 // the ball hooks down the lane into the pocket, the pins scatter (a strike most times, a few left standing otherwise), a hop
 // or a slump, the pinsetter resets them, back to the return. Built in the lanes group's own frame (down the lane = −z).
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), lerp = (a, b, t) => a + (b - a) * t, ease = t => t * t * (3 - 2 * t);
-export function createBowler({ THREE, T, makeFox, animFox, M, toon, look, pins, lane = -4, audio }) {
-  const fox = makeFox({ key: 'bowlerDash', name: 'Dash', outfit: 'vest', torso: ['#fde047', '#7c3aed', '#3b0764'], crest: '8', mood: 'determined', look });
+export function createBowler({ THREE, T, makeFox, animFox, M, toon, look, pins, lane = -4, audio, ret = 1, who = {}, ballCol = '#7c3aed' }) {   // ret: which side the ball return is on (+1 / -1)
+  const fox = makeFox({ key: 'bowlerDash', name: 'Dash', outfit: 'vest', torso: ['#fde047', '#7c3aed', '#3b0764'], crest: '8', mood: 'determined', look, ...who });
   T.add(fox);
-  const ball = M(new THREE.SphereGeometry(0.2, 16, 12), toon('#7c3aed'), 0, -5, 0, T, 0.01, 0.2); ball.visible = false;
+  const ball = M(new THREE.SphereGeometry(0.2, 16, 12), toon(ballCol), 0, -5, 0, T, 0.01, 0.2); ball.visible = false;
   for (const [x, y, z] of [[0.06, 0.12, 0.13], [-0.05, 0.13, 0.13], [0, 0.17, 0.08]]) M(new THREE.SphereGeometry(0.03, 6, 4), toon('#1e1b2e'), x, y, z, ball, 0);
   const base = pins.map(p => ({ p, x: p.position.x, y: p.position.y, z: p.position.z, k: 0, hit: false, vx: 0, vz: 0, up: 0, rz: 0, rx: 0 }));
-  const RET = { x: lane + 1.0, z: 6.4 }, SET = { x: lane, z: 7.6 }, FOUL = { x: lane, z: 5.45 }, HEAD = -9.95;
+  const RET = { x: lane + ret, z: 6.4 }, SET = { x: lane, z: 7.6 }, FOUL = { x: lane, z: 5.45 }, HEAD = -9.95;
   const v = new THREE.Vector3(), CYCLE = 10.6;
   let c = Math.random() * 3, released = false, impacted = false, strike = true, fx = RET.x, fz = RET.z, face = Math.PI / 2, rollFrom = null;
   function knock() {

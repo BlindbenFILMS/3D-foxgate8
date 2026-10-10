@@ -19,7 +19,7 @@ export const ZONES = [
   { key: 'meruRuins', label: 'The Ruins', r: [-450, -400, -80, 80], music: 'ruins', depth: 50 },
   { key: 'meruLakePath', label: 'Lake Path', r: [-30, 30, 140, 215], music: 'lakepath', depth: 75 },
   { key: 'meruLake', label: 'The Lake', r: [-320, 320, 215, 450], music: 'lake', depth: 235 },
-  { key: 'pearlIsland', label: 'Pearl Island', c: [200, 350, 70], music: 'island', depth: 140 },
+  { key: 'pearlIsland', label: 'Pearl Island', c: [206, 356, 54], music: 'island', depth: 140 },
   // step 3 part 4: elevated areas (HILLS below)
   { key: 'meruFalls', label: 'Meru Falls', c: [-385, 320, 70], music: 'falls', depth: 70 },
   { key: 'meruRidge', label: 'Castle Ridge', r: [-300, -100, -450, -372], music: 'ridge', depth: 80 },
@@ -35,17 +35,32 @@ export const SURFACES = [
   { s: 'stone', r: [-6, 6, -330, -130] }, { s: 'stone', r: [-60, 60, -400, -330] },        // castle road + parade ground
   { s: 'grit', r: [-100, 260, -450, -400] },                                               // barracks yard, tank range ground
   { s: 'stone', r: [160, 200, -20, 20] }, { s: 'stone', r: [240, 280, -20, 20] }, { s: 'stone', r: [320, 360, -20, 20] }, // arena path clearings (grass between)
-  { s: 'grit', r: [200, 240, -5, 5] }, { s: 'grit', r: [280, 320, -5, 5] },                     // step 4: gravel road between the arena clearings
+  { s: 'grit', r: [200, 240, -5, 5] }, { s: 'grit', r: [280, 320, -5, 5] },
+  { s: 'stone', r: [360, 386, -16, 16] }, { s: 'stone', c: [406, 0, 31.5] },   // the Arena forecourt + the colosseum footprint (worlds/meru2-arena.js)                     // step 4: gravel road between the arena clearings
   { s: 'stone', r: [360, 450, -60, 60] },
   { s: 'grit', r: [-400, -240, -6, 6] }, { s: 'stone', r: [-450, -400, -80, 80] },         // ruins road climbs on grit to old stone
   { s: 'stone', r: [-240, -150, -50, 50] },                                                // skate concrete (stone surface)
-  { s: 'sand', r: [-320, 320, 200, 240] }, { s: 'sand', c: [200, 350, 70] }, { s: 'grass', c: [200, 352, 40] }, // lake shore, island beach ring, island hills
+  { s: 'sand', r: [-320, 320, 200, 240] }, { s: 'sand', c: [206, 356, 54] }, { s: 'grass', c: [206, 356, 36] }, // lake shore, island beach ring, island hills
   { s: 'wood', r: [-2.5, 2.5, 214, 238] },                                                 // step 4: Lake Path boardwalk over the shore sand
 ];
 export const WATER = [{ e: [0, 345, 320, 105] }];                                          // the swimmable lake (ellipse cx, cz, rx, rz)
-export const ISLAND = { c: [200, 350, 70], hills: [200, 352, 40], pond: { x: 206, z: 356, r: 9, depth: 30 } };
+export const ISLAND = { c: [206, 356, 48], hills: [206, 356, 34], pond: { x: 206, z: 356, r: 9, depth: 30 } };   // SHORE v2: smaller (was 70) so open water rings it
+// SHORE v2 (Ben: "more water round Pearl Island, randomise every shore, polish the beaches"): noisy shorelines from a few fixed sines (same every load).
+const sn = (t, S) => S.reduce((a, [k, ph, w]) => a + w * Math.sin(k * t + ph), 0), sm = (a, b, v) => { const k = Math.max(0, Math.min(1, (v - a) / (b - a))); return k * k * (3 - 2 * k); };
+const LAKE_N = [[2, 0.7, 0.32], [3, 2.1, 0.26], [4, 5.6, 0.18], [5, 4.0, 0.2], [7, 1.3, 0.14], [11, 5.2, 0.08], [17, 3.3, 0.04]], ISLE_N = [[2, 1.9, 0.3], [3, 0.4, 0.3], [5, 2.8, 0.22], [8, 4.4, 0.12], [13, 1.1, 0.06]];
+// lake: radius multiplier by angle t (normalised ellipse coords, t = atan2(dz / rz, dx / rx)); the town (north) shore with the jetties + boathouses only wiggles ±3 m
+export function lakeM(t) { const s = Math.sin(t), c = Math.cos(t), q = sm(0.15, 0.55, -s) * (1 - sm(0.62, 0.85, Math.abs(c))), A = (0.24 * (1 - q) + 0.03 * q) * (1 - 0.55 * sm(0.8, 0.97, -c)); return 1 + A * sn(t, LAKE_N); }
+export function lakeF(x, z) { const [cx, cz, rx, rz] = WATER[0].e, dx = (x - cx) / rx, dz = (z - cz) / rz; return Math.hypot(dx, dz) / lakeM(Math.atan2(dz, dx)); }   // < 1 = in the lake
+export const inLake = (x, z) => lakeF(x, z) < 1;
+export const lakeShoreD = (x, z) => (1 - lakeF(x, z)) * Math.min(WATER[0].e[2], WATER[0].e[3]);   // ≈ metres to the shore (+ in the water)
+export function lakeEdge(t) { const [cx, cz, rx, rz] = WATER[0].e, m = lakeM(t); return [cx + Math.cos(t) * rx * m, cz + Math.sin(t) * rz * m]; }
+// island: beyond r 30 from the pond the profile is stretched by islandM(t) (0.75..1.25); calm on the east (jetty) side
+export function islandM(t) { const e = 1 - sm(0.2, 0.5, Math.abs(Math.atan2(Math.sin(t), Math.cos(t)))); return 1 + 0.26 * (1 - e) * sn(t, ISLE_N); }
+export function islandR(x, z) { const dx = x - ISLAND.pond.x, dz = z - ISLAND.pond.z, r = Math.hypot(dx, dz); return r <= 30 ? r : 30 + (r - 30) / islandM(Math.atan2(dz, dx)); }
+export function islandPt(t, rEff) { const r = rEff <= 30 ? rEff : 30 + (rEff - 30) * islandM(t); return [ISLAND.pond.x + Math.cos(t) * r, ISLAND.pond.z + Math.sin(t) * r]; }
 // island lathe profile [radius from the pond centre, height]; step 3 part 4 made the hills taller (peak 19 m)
-ISLAND.prof = [[0, -22], [ISLAND.pond.r * 0.9, -22], [ISLAND.pond.r, 0.6], [ISLAND.pond.r + 3, 3.5], [16, 10], [26, 19], [34, 16], [42, 5], [ISLAND.c[2] - 14, 1.2], [ISLAND.c[2], 0.25], [ISLAND.c[2] + 6, -2]];
+ISLAND.prof = [[0, -22], [ISLAND.pond.r * 0.9, -22], [ISLAND.pond.r, 0.6], [ISLAND.pond.r + 3, 3.5], [16, 10], [23, 17], [29, 14], [34, 5], [38, 1.6], [42, 0.9], [45.5, 0.45], [ISLAND.c[2], 0.12], [ISLAND.c[2] + 2, -0.35], [ISLAND.c[2] + 6, -2]];
+export const islandAt = (x, z) => islandH(islandR(x, z));
 export function islandH(r) { const p = ISLAND.prof; for (let i = 1; i < p.length; i++) if (r <= p[i][0]) { const [r0, y0] = p[i - 1], [r1, y1] = p[i]; return y0 + (y1 - y0) * (r - r0) / Math.max(1e-3, r1 - r0); } return -2; }
 
 // ---------- step 3 part 4: elevated areas + lighthouses (built by worlds/meru2-heights.js) ----------
@@ -66,7 +81,7 @@ export const TRAILS = [
 // climbable lighthouses: spiral stair round the outside to the lamp gallery. a0 = the stair foot's direction from the centre.
 export const LIGHTHOUSES = [
   { key: 'lhFerry', label: 'Ferry Lighthouse', at: [155, 293], base: 1.2, a0: -Math.PI / 2, pier: { r: [153, 157, 224, 288], y: 0.9 }, note: 'end of the Pearl Ferry Dock pier' },
-  { key: 'lhPearl', label: 'Pearl Lighthouse', at: [250, 392], a0: Math.atan2(-42, -50), island: true, note: 'Pearl Island south-east beach' },
+  { key: 'lhPearl', label: 'Pearl Lighthouse', at: islandPt(0.686, 41), a0: Math.atan2(-42, -50), island: true, note: 'Pearl Island south-east beach' },
 ];
 
 // buildings: footprint, door (world point on the wall) + face, room table (centre, w, d, floor, kind), reverb wish.
@@ -84,7 +99,7 @@ export const BUILDINGS = [
   { key: 'crest', label: 'Crestview House', f: [-96, -60, 70, 110], door: [-60, 90], face: 'E', room: { w: 24, d: 24, floor: 'wood' } },
   { key: 'lake', label: 'Lakeside Tower', f: [100, 140, 100, 140], door: [100, 120], face: 'W', room: { w: 24, d: 24, floor: 'wood' }, note: 'step 2b: moved inside the ring road (South Gardens) so the train strip z 160-180 is clear' },
   { key: 'stationTown', label: 'Town Square Station', f: [-20, 20, 112, 132], door: [0, 112], face: 'N', door2: [0, 132], face2: 'S', room: { w: 40, d: 20, floor: 'stone' }, reverb: 'station hall', note: 'through-hall: the Lake Path walks in the north door and out the south door' },
-  { key: 'barracks', label: 'Barracks', f: [-40, 40, -440, -400], door: [0, -400], face: 'S', room: { w: 30, d: 24, floor: 'stone' }, reverb: 'drill hall' },
+  { key: 'barracks', own: true, label: 'Barracks', f: [-40, 40, -440, -400], door: [0, -400], face: 'S', room: { w: 30, d: 24, floor: 'stone' }, reverb: 'drill hall' },
   { key: 'tankWorks', hiring: { game: 'treadTankWorks', url: 'minigames/34-treads-tank-works/project/Main.dc.html?embed=1' }, label: "Tread's Tank Works", f: [70, 120, -430, -390], door: [70, -410], face: 'W', room: { w: 26, d: 22, floor: 'stone' } },
   { key: 'tankRange', hiring: { game: 'meruTankRange', url: 'Tank Range.dc.html?embed=1' }, label: 'Tank Range hangar', f: [150, 200, -440, -405], door: [175, -405], face: 'S', room: { w: 24, d: 20, floor: 'stone' } },
   { key: 'defense', label: 'Planet Defense Base', f: [225, 255, -445, -415], door: [225, -430], face: 'W', room: { w: 22, d: 14, floor: 'stone' }, note: 'bunker rebuilt 22 x 14 for the 12 m rule; on a 16 m plateau; road gate opens after the Tank Range' },
@@ -119,13 +134,13 @@ export const LAKE = {
     { key: 'bayEnd', r: [62, 78, 262, 268], y: 0.9, gaps: [{ side: 'N', at: 75, w: 6, join: true }, { side: 'S', at: 66 }, { side: 'E', at: 265 }] },
     { key: 'worksJetty', label: "Boatworks jetty", r: [-127, -121, 232, 264], y: 0.9, open: ['N'], gaps: [{ side: 'E', at: 256 }, { side: 'S', at: -124 }] },
     // step 6: the Pearl Island ferry jetty (east beach); the ferry moors on its south side
-    { key: 'islandJetty', label: 'Pearl Island jetty', r: [262, 285, 348, 352], y: 1.2, open: ['W'], gaps: [{ side: 'S', at: 279, w: 9 }, { side: 'N', at: 270 }] },
+    { key: 'islandJetty', label: 'Pearl Island jetty', r: [249, 272, 348, 352], y: 1.2, open: ['W'], gaps: [{ side: 'S', at: 266, w: 9 }, { side: 'N', at: 257 }] },
   ],
   // step 6: THE FERRY. Free (DRAFT). Shuttles Pearl Ferry Dock pier (east side) ↔ Pearl Island jetty on a loop round the north of the island.
-  ferry: { path: [[161.5, 256], [161.5, 266], [175, 272], [230, 272], [278, 292], [300, 325], [300, 345], [290, 356.4], [279, 356.4]], dwell: 20, speed: 7, accel: 1.4, draft: true,
-    stops: [{ key: 'dock', label: 'Pearl Ferry Dock', off: [156.2, 256, 0.9, -Math.PI / 2] }, { key: 'island', label: 'Pearl Island', off: [279, 350.4, 1.2, Math.PI] }] },
+  ferry: { path: [[161.5, 256], [161.5, 266], [175, 272], [230, 272], [278, 292], [294, 325], [292, 345], [277, 356.4], [266, 356.4]], dwell: 20, speed: 7, accel: 1.4, draft: true,
+    stops: [{ key: 'dock', label: 'Pearl Ferry Dock', off: [156.2, 256, 0.9, -Math.PI / 2] }, { key: 'island', label: 'Pearl Island', off: [266, 350.4, 1.2, Math.PI] }] },
   // step 6: Pearl Island. The deep pond dive = Meru Pearl Dive.dc.html (the Jidda Deep Dive engine, theme 'meru'). Trail = lanterns from the jetty up to the pond.
-  island: { dive: { label: 'THE DEEP POND', url: 'Meru Pearl Dive.dc.html?embed=1' }, trail: [[264, 350], [246, 352], [232, 356], [222, 360], [216, 364]], shack: [146, 338], palms: 30 },
+  island: { dive: { label: 'THE DEEP POND', url: 'Meru Pearl Dive.dc.html?embed=1' }, trail: [[251, 350], [242, 352], [232, 356], [222, 360], [216, 364]], shack: islandPt(-2.85, 39), palms: 30 },
   boat: { moor: [80.8, 252, 0], free: true, sign: 'FREE RENTAL TODAY!' },
   gate: { at: [75, 300], w: 14, label: 'SPEEDBOAT BAY', url: 'Speedboat Bay.dc.html?embed=1' },
   speed: { max: 18, rev: 5, nitro: 28, nitroT: 2.5, nitroCd: 8, draft: true },
@@ -155,6 +170,15 @@ export const ROADS = [
   { w: 10, p: [[60, -140], [60, -310], [300, -310]] }, { w: 10, p: [[160, 50], [380, 50]] },  // to the barracks, to the arena
   { w: 10, p: [[-160, 50], [-200, 50]] }, { w: 10, p: [[100, 150], [100, 200]] },              // to the skate park, to the lake
 ];
+// SKYLINE DISTRICTS (art pass, Ben: "make ALL the background buildings reachable by road or path, add an entrance, polish round each"):
+// paved plazas round the towers (painted by the blockout, dressed by worlds/meru2-districts.js) + an access road (spine) into each, added to ROADS.
+// Names DRAFT. Far East backdrop (past the map edge) removed: nothing out there could be reached.
+export const SKYLINE = {
+  plazas: [{ key: 'spire', r: [282, 400, -285, -82] }, { key: 'deco', r: [-242, -78, -300, -158] }, { key: 'pearl', r: [310, 446, 195, 300] }, { key: 'pearl', r: [380, 446, 300, 368] }, { key: 'garden', r: [-388, -262, 192, 266] }],
+  spines: { spire: [[300, -310], [356, -310], [356, -112]], deco: [[-130, -140], [-130, -290]], pearl: [[360, 50], [360, 200]], garden: [[-160, 150], [-262, 150], [-262, 230]] },
+  features: [{ kind: 'pool', at: [317, -128], w: 18, d: 7 }, { kind: 'obelisk', at: [-130, -298] }, { kind: 'pearl', at: [338, 268] }, { kind: 'lawn', at: [-325, 252], r: 7 }],
+};
+ROADS.push(...Object.values(SKYLINE.spines).map(p => ({ w: 10, p, sky: true })));
 export const PATHS = [  // foot paths (walk routes); checked for surface changes
   { key: 'toArena', label: 'Square → Arena', p: [[0, 0], [150, 0], [360, 0], [400, 0]] },
   { key: 'toRuins', label: 'Square → Ruins', p: [[0, 0], [-150, 0], [-240, 0], [-432, 0]] },
@@ -176,11 +200,11 @@ export const SPEAKERS = [
   // arena path: three clearings, 40 m quiet road between
   { key: 'james', tier: 1, at: [170, -10], draft: true }, { key: 'lucius', tier: 1, at: [190, 12], draft: true },
   { key: 'arenaStall2', tier: 2, at: [270, 12], draft: true, newAvatar: true },
-  { key: 'arenaStall3', tier: 2, at: [330, -10], draft: true, newAvatar: true },
+  { key: 'arenaStall3', tier: 2, at: [318, -10], draft: true, newAvatar: true },
   { key: 'arenaGate', tier: 2, at: [354, 12], draft: true, newAvatar: true },
   // step 4: the old Arena Path crowd (worlds/meru-arenapath.js), stall rows at z -24 / +26, mid-road at -10 / +12 (all ≥ 16 m)
   { key: 'torv', tier: 1, at: [210, -10] }, { key: 'odo', tier: 1, at: [290, -10], note: 'bookmaker, odds board' }, { key: 'tam', tier: 1, at: [230, 12] }, { key: 'rosk', tier: 1, at: [310, 12], note: 'juggler' },
-  { key: 'marla', tier: 1, at: [180, -24], note: 'ribbon stall' }, { key: 'pell', tier: 1, at: [220, -24], note: 'pie stall' }, { key: 'sela', tier: 1, at: [260, -24], note: 'flower stall' }, { key: 'wren', tier: 1, at: [300, -24] },
+  { key: 'marla', tier: 1, at: [180, -24], note: 'ribbon stall' }, { key: 'pell', tier: 1, at: [220, -24], note: 'pie stall' }, { key: 'sela', tier: 1, at: [240, -24], note: 'flower stall' }, { key: 'wren', tier: 1, at: [300, -24] },
   { key: 'ivy', tier: 1, at: [200, 26], note: 'fruit stall' }, { key: 'hetty', tier: 1, at: [240, 26], note: 'fish stall' }, { key: 'arenaGuard2', tier: 2, at: [280, 26] },
   { key: 'arenaRoadGuard1', tier: 2, at: [340, -24] }, { key: 'arenaRoadGuard2', tier: 2, at: [340, 26] }, { key: 'arenaGuard1', tier: 2, at: [356, -12] }, { key: 'vance', tier: 1, at: [372, 0], note: 'Arena Official, inside the arena gate' },
   // ruins
@@ -189,8 +213,8 @@ export const SPEAKERS = [
   { key: 'tony', tier: 1, at: [-190, -20], note: 'Skate Park coach' },
   // lake + island
   { key: 'fisherwoman', tier: 1, at: [-20, 236] }, { key: 'fisherman', tier: 1, at: [96, 232], note: 'boat hire → speedboat' },
-  { key: 'ferryCaptain', tier: 1, at: [160, 230], newAvatar: true }, { key: 'pearlLocal1', tier: 1, at: [150, 330], newAvatar: true },
-  { key: 'pearlLocal2', tier: 2, at: [240, 300], newAvatar: true }, { key: 'pearlDiver', tier: 1, at: [214, 366], newAvatar: true, note: 'pond edge, starts the dive' },
+  { key: 'ferryCaptain', tier: 1, at: [160, 230], newAvatar: true }, { key: 'pearlLocal1', tier: 1, at: islandPt(Math.atan2(-26, -56), 37), newAvatar: true },
+  { key: 'pearlLocal2', tier: 2, at: islandPt(Math.atan2(-56, 34), 37), newAvatar: true }, { key: 'pearlDiver', tier: 1, at: [214, 366], newAvatar: true, note: 'pond edge, starts the dive' },
   // interiors
   { key: 'noble', tier: 1, at: { room: 'tavern', x: -6, z: 4 }, note: 'starts here, joins later' }, { key: 'docBraun', tier: 1, at: { room: 'tavern', x: 7, z: -5 } },
   { key: 'hope', tier: 1, at: { room: 'blindSchool', x: 0, z: -6 }, note: 'teaching a class' },

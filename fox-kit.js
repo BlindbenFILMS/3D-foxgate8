@@ -7,7 +7,7 @@ export const PLAYER_MALE = {"armorAccent":"#38bdf8","snout":"#f3b26b","fur":"#f2
 export const HOPE_LOOK = { ...PLAYER_FEMALE, fur: '#f2741f', furDark: '#c2410c', snout: '#f6d2ad', muzzle: '#f7efe4', chin: '#ffffff', fluff: '#ffffff', ear: '#1c1917', earInner: '#3f2a22', paw: '#f2741f', tailBase: '#d9560f', tailMid: '#f2741f', tailTip: '#ffffff', ink: '#1c1917' };
 export const KING_MIGHT = { ...PLAYER_MALE, elder: 1, fur: '#d9733a', furDark: '#9a4a22', muzzle: '#f1c9a6', snout: '#e8b48a', chin: '#f4f1ec', fluff: '#f4f4f6', tailMid: '#e8945a', tailTip: '#ffffff', browColor: '#f8fafc', browWeight: 10, beard: '#eef0f4', eyeSize: 1.05, irisSize: 0.9, eyeY: 96, headTuft: 0.6, fluffSize: 1.9, cheeks: 1.7, chinPoint: 0.8, headWidth: 1.0, earBack: 0.6, blush: 0, armorAccent: '#c42d3c', bodyScale: 1.08 };
 export function loadLook() { try { return { ...DEFAULT_LOOK, ...JSON.parse(localStorage.getItem(LOOK_KEY) || '{}') }; } catch (e) { return { ...DEFAULT_LOOK }; } }
-export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, pick, clamp, smooth, damp }) {
+export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, pick, clamp, smooth, damp, merge: MERGE_DEFAULT = false }) {
   // ---------- foxes ----------
   const crestTexes = { '8': crestTex('8', '#38bdf8'), U: crestTex('U', '#eab308'), L: crestTex('L', '#eab308'), J: crestTex('J', '#1e3a8a', '#ffffff', '#1e3a8a'), G: crestTex('G', '#38bdf8'), M: crestTex('M', '#e6b45a', '#151b3d') };
   const crestStyle = { '8': ['#ffffff', '#0b1430', '#ffffff'], U: ['#eab308', '#2a1606', '#fff3c4'], L: ['#eab308', '#2a0a0a', '#fff3c4'], J: ['#1e3a8a', '#ffffff', '#1e3a8a'], G: ['#38bdf8', '#120d2a', '#ffffff'], M: ['#ffffff', '#0b1430', '#ffffff'] };
@@ -181,7 +181,7 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
   })(); geoCache.set(k, gg); return gg; };
   let _glowT = null;
   function glowTexFor() { if (_glowT) return _glowT; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); _glowT = new THREE.CanvasTexture(c); _glowT.colorSpace = THREE.SRGBColorSpace; return _glowT; }
-  function makeFox({ key, torso, crest, bow, glasses, legColor, cane, chair, crown, eyes = ['#38bdf8', '#38bdf8'], mood = 'neutral', look, gear = 'none', outfit = 'armor' }) {
+  function makeFox({ key, torso, crest, bow, glasses, legColor, cane, chair, crown, eyes = ['#38bdf8', '#38bdf8'], mood = 'neutral', look, gear = 'none', outfit = 'armor', merged }) {
     const L = { ...LOOK, ...(look || {}) };
     if (typeof torso === 'string') { const c = new THREE.Color(torso); torso = [torso, '#' + c.clone().multiplyScalar(0.72).getHexString(), '#' + c.clone().multiplyScalar(0.42).getHexString()]; }   // one colour → light / mid / dark
     const g = new THREE.Group(), body = new THREE.Group(); g.add(body); const P = { body };
@@ -306,10 +306,10 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
     }
     // head
     const head = new THREE.Group(); head.position.y = 1.6 + lift + (L.headScale - 1) * 0.3; head.scale.setScalar(L.headScale); body.add(head); P.head = head;
-    const skull = M(foxSkull(0.4, 40, 30, null, 0, 0, 0, L), fur, 0, 0, 0, head, 0.04, 0.4); skull.scale.set(L.headWidth, L.headHeight, 1);
+    const LOD = (merged ?? MERGE_DEFAULT) && FOX_PHONE && !CAST_KEYS.has(key), skull = M(foxSkull(0.4, LOD ? 26 : 40, LOD ? 20 : 30, null, 0, 0, 0, L), fur, 0, 0, 0, head, 0.04, 0.4); skull.scale.set(L.headWidth, L.headHeight, 1);
     const SZ = 0.3, SL = L.snoutLength * 1.6, tipZ = SZ + 0.25 * SL; const snoutMat = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: grad, emissive: new THREE.Color(L.snout || L.muzzle), emissiveIntensity: 0.32 }); const snout = M(snoutGeoFor(L), snoutMat, 0, -0.06, SZ, head, 0.022); snout.scale.set(L.snoutSize * 0.86, L.snoutSize * 0.92, SL); snout.rotation.x = 0.02; P.snout = snout;
     { // NOSE BRIDGE: a fur ridge that rounds up from the forehead and runs down the top of the snout, so the profile is one curve
-      const bg = new THREE.SphereGeometry(1, 20, 14), p = bg.attributes.position; for (let i = 0; i < p.count; i++) { const z = p.getZ(i), y = p.getY(i); p.setY(i, y - Math.max(0, z) * 0.35 * (y > 0 ? 0.6 : 1)); } p.needsUpdate = true; bg.computeVertexNormals();
+      const bg = new THREE.SphereGeometry(1, LOD ? 12 : 20, LOD ? 9 : 14), p = bg.attributes.position; for (let i = 0; i < p.count; i++) { const z = p.getZ(i), y = p.getY(i); p.setY(i, y - Math.max(0, z) * 0.35 * (y > 0 ? 0.6 : 1)); } p.needsUpdate = true; bg.computeVertexNormals();
       const br = M(bg, fur, 0, 0.07, SZ + 0.02, head, 0.022); br.scale.set(0.15 * L.snoutSize, 0.15, 0.2 * SL + 0.08); br.rotation.x = 0.22; P.bridge = br; }
 
     P.nose = M(new THREE.SphereGeometry(0.055, 14, 10), toon(L.nose), 0, -0.045, tipZ, head, 0.012, 0.055); P.nose.scale.set(1.3 * L.snoutSize, 0.85 * L.snoutSize, 0.9);
@@ -317,7 +317,7 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
     const fc = document.createElement('canvas'); fc.width = fc.height = 256; const fctx = fc.getContext('2d');
     const ftex = new THREE.CanvasTexture(fc); ftex.colorSpace = THREE.SRGBColorSpace; ftex.anisotropy = 4;
     const faceMat = new THREE.MeshToonMaterial({ map: ftex, transparent: true, alphaTest: 0.04, gradientMap: grad, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 });
-    const mask = new THREE.Mesh(foxSkull(0.403, 40, 32, Math.PI / 2 - 0.85, 1.7, Math.PI / 2 - 0.75, 1.5, L), faceMat); skull.add(mask);
+    const mask = new THREE.Mesh(foxSkull(0.403, LOD ? 26 : 40, LOD ? 22 : 32, Math.PI / 2 - 0.85, 1.7, Math.PI / 2 - 0.75, 1.5, L), faceMat); skull.add(mask);
     for (const s of [-1, 1]) for (const [dy, dz, len, rz] of [[-0.1, 0.1, 0.2, 0.55], [-0.2, 0.06, 0.16, 0.95]]) {
       const t = M(new THREE.ConeGeometry(0.06, len, 6), toon(L.fluff || L.muzzle), s * 0.42 * L.headWidth / 1.08, dy, dz, head, 0.016); t.rotation.z = -s * (Math.PI / 2 + rz); t.scale.setScalar(L.fluffSize); t.visible = L.fluffSize > 0.05;
     }
@@ -405,9 +405,46 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
     g.traverse(o => { if (o.isMesh && o.material !== outlineMat && o.material !== faceMat) o.castShadow = true; });
     g.userData = { hold, P, phase: rr(0, 6), amt: 0, blink: rr(1, 4), blinkT: 0, chair: !!chair, base: mood, mood, moodT: 0, look: 0, lookT: rr(1, 3), lookTo: 0, mouth: 0, talking: false, hop: 0, hopY: 0,
       face: { ctx: fctx, tex: ftex, eyeL: eyes[0], eyeR: eyes[1], key: '', L, sun: glasses === 'sun' }, lookAt: null };
+    // PHONE PERF (step 3): MERGED FOX. Static meshes are baked into one mesh per moving part (+ one ink shell per part).
+    // Off for Hope + Noble (their cane + chair rigs read the raw parts) and for the chair pose. The player has no rig: merged too (s32, ~200 → ~45 draws).
+    if ((merged ?? MERGE_DEFAULT) && !chair && key !== 'hope' && key !== 'noble') mergeFoxParts(g, P);
     g.scale.setScalar(L.bodyScale);
     scene.add(g); return g;
   }
+  const FOX_PHONE = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches, CAST_KEYS = new Set(['player', 'hope', 'noble']), _m4 = new THREE.Matrix4(), _inv = new THREE.Matrix4(), _n3 = new THREE.Matrix3(), _v = new THREE.Vector3(), _c = new THREE.Color();
+  function mergeFoxParts(g, P) {
+    const bones = new Set([g]); const addB = o => { if (!o) return; if (Array.isArray(o)) o.forEach(addB); else if (o.isObject3D) bones.add(o); };
+    for (const k in P) addB(P[k]);
+    const live = new Set([P.bladeMat, P.tipMat].filter(Boolean));
+    const okMat = m => m && !Array.isArray(m) && (m === outlineMat || (m.isMeshToonMaterial && !m.map && !m.transparent && !live.has(m)));
+    const ok = new Map(); const can = o => { if (ok.has(o)) return ok.get(o); let r = o.isMesh && !bones.has(o) && o.visible && okMat(o.material) && !o.isSkinnedMesh && !o.isInstancedMesh;
+      if (r) for (const c of o.children) if (!can(c)) { r = false; break; } ok.set(o, r); return r; };
+    const isAnchor = o => bones.has(o) || (o.isMesh && !can(o)) || (!o.isMesh && [...o.children].some(c => !can(c) && !(c.children.length === 0 && !c.isMesh)) && hasKept(o));
+    const kept = new Map(); const hasKept = o => { if (kept.has(o)) return kept.get(o); let r = false; for (const c of o.children) if ((c.isMesh && !can(c)) || bones.has(c) || (!c.isMesh && hasKept(c))) { r = true; break; } if (!o.isMesh && !bones.has(o) && o.children.length === 0) r = true; kept.set(o, r); return r; };
+    g.updateMatrixWorld(true);
+    const bins = new Map(), take = [];   // anchor -> sig -> [meshes]
+    g.traverse(o => { if (!o.isMesh || !can(o)) return; if (o.parent && o.parent.isMesh && can(o.parent)) { /* merged with its parent's walk */ }
+      let a = o.parent; while (a && !(bones.has(a) || (a.isMesh && !can(a)) || (!a.isMesh && hasKept(a)))) a = a.parent; if (!a) return;
+      const m = o.material, sig = m === outlineMat ? 'ink' : [m.emissive ? m.emissive.getHex() : 0, m.emissiveIntensity, m.side].join('|');
+      let A = bins.get(a); if (!A) bins.set(a, A = new Map()); let L = A.get(sig); if (!L) A.set(sig, L = []); L.push(o); take.push(o); });
+    for (const [a, A] of bins) { _inv.copy(a.matrixWorld).invert();
+      for (const [sig, list] of A) { if (list.length < 2 && sig !== 'ink') { if (list.length === 1 && list[0].parent === a) { const i = take.indexOf(list[0]); if (i >= 0) take.splice(i, 1); continue; } }
+        let nv = 0, ni = 0; for (const o of list) { const gg = o.geometry; nv += gg.attributes.position.count; ni += gg.index ? gg.index.count : gg.attributes.position.count; }
+        const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), col = new Float32Array(nv * 3), idx = new (nv > 65535 ? Uint32Array : Uint16Array)(ni); let vo = 0, io = 0;
+        for (const o of list) { const gg = o.geometry; if (!gg.attributes.normal) gg.computeVertexNormals(); _m4.multiplyMatrices(_inv, o.matrixWorld); _n3.getNormalMatrix(_m4); const flip = _m4.determinant() < 0;
+          const p = gg.attributes.position, n = gg.attributes.normal, vc = o.material.vertexColors && gg.attributes.color, base = o.material.color || _c.set(0xffffff), c = gg.attributes.color;
+          for (let i = 0; i < p.count; i++) { _v.fromBufferAttribute(p, i).applyMatrix4(_m4); pos.set([_v.x, _v.y, _v.z], (vo + i) * 3); _v.fromBufferAttribute(n, i).applyMatrix3(_n3).normalize(); nor.set([_v.x, _v.y, _v.z], (vo + i) * 3);
+            const r = vc ? c.getX(i) * base.r : base.r, gr = vc ? c.getY(i) * base.g : base.g, b = vc ? c.getZ(i) * base.b : base.b; col[(vo + i) * 3] = r; col[(vo + i) * 3 + 1] = gr; col[(vo + i) * 3 + 2] = b; }
+          if (gg.index) { const ix = gg.index.array; for (let i = 0; i < ix.length; i += 3) { idx[io++] = ix[i] + vo; idx[io++] = (flip ? ix[i + 2] : ix[i + 1]) + vo; idx[io++] = (flip ? ix[i + 1] : ix[i + 2]) + vo; } }
+          else for (let i = 0; i < p.count; i += 3) { idx[io++] = vo + i; idx[io++] = vo + (flip ? i + 2 : i + 1); idx[io++] = vo + (flip ? i + 1 : i + 2); }
+          vo += p.count; }
+        const G = new THREE.BufferGeometry(); G.setAttribute('position', new THREE.BufferAttribute(pos, 3)); G.setAttribute('normal', new THREE.BufferAttribute(nor, 3)); G.setIndex(new THREE.BufferAttribute(idx, 1)); G.computeBoundingSphere();
+        let mat; if (sig === 'ink') mat = outlineMat; else { G.setAttribute('color', new THREE.BufferAttribute(col, 3)); const m0 = list[0].material; mat = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: m0.gradientMap || grad, side: m0.side }); if (m0.emissive) { mat.emissive.copy(m0.emissive); mat.emissiveIntensity = m0.emissiveIntensity; } }
+        const me = new THREE.Mesh(G, mat); me.name = 'merged'; me.userData.merged = list.length; if (sig !== 'ink') me.castShadow = me.receiveShadow = true; a.add(me); } }
+    for (const o of take) if (o.parent) o.parent.remove(o);
+    // drop groups left empty by the merge (not bones)
+    const empty = []; g.traverse(o => { if (!o.isMesh && !bones.has(o) && o.children.length === 0 && !o.isSprite && !o.isLight) empty.push(o); }); for (const o of empty) if (o.parent) o.parent.remove(o);
+    g.userData.mergedFox = true; }
   const tmpV = new THREE.Vector3();
   function animFox(c, dt, speed, air = false) {
     const u = c.userData, P = u.P, mv = speed > 0.2; u.phase += dt * (mv ? 3 + speed * 1.4 : 1.4); u.amt = damp(u.amt, mv ? Math.min(1, speed / 4) : 0, 10, dt);

@@ -1,3 +1,4 @@
+import { plantTrees } from './meru2-flora.js';
 // MERU 2.0 — step 3 part 4: ELEVATED AREAS + LIGHTHOUSES. Data: HILLS / TRAILS / LIGHTHOUSES in worlds/meru2-layout.js.
 // Falls hill (cliff on the lake side, stream + waterfall, overlook deck) · Castle Ridge + lookout · Ruins Hills (wild, no trail)
 // · Hill Park (paved summit, skyline view) · the Ferry Lighthouse on its pier + the Pearl Lighthouse, both climbable outside.
@@ -29,13 +30,13 @@ export function buildHeights({ THREE, scene, toon, grad, CT, L, touch }) {
     const P = { r, y, open, s }; platforms.push(P); const w = r[1] - r[0], d = r[3] - r[2], cx = (r[0] + r[1]) / 2, cz = (r[2] + r[3]) / 2;
     box(w, 0.3, d, wood, cx, y - 0.15, cz);
     for (let k = r[2] + 0.6; k < r[3]; k += 1.2) box(w, 0.04, 0.08, woodD, cx, y + 0.01, k);
-    if (posts) for (const [px, pz] of [[r[0] + 0.3, r[2] + 0.3], [r[1] - 0.3, r[2] + 0.3], [r[0] + 0.3, r[3] - 0.3], [r[1] - 0.3, r[3] - 0.3]]) { const g = Math.min(terrainAt(px, pz), y) - (P.wet ? 2 : 0.2), hh = y - g; if (hh > 0.4) box(0.3, hh, 0.3, woodD, px, g + hh / 2, pz); }
+    if (posts) for (const [px, pz] of [[r[0] + 0.3, r[2] + 0.3], [r[1] - 0.3, r[2] + 0.3], [r[0] + 0.3, r[3] - 0.3], [r[1] - 0.3, r[3] - 0.3]]) { const g = Math.min(terrainAt(px, pz), y) - (P.wet ? 2 : 0.2), hh = y - 0.08 - g; if (hh > 0.4) box(0.3, hh, 0.3, woodD, px, g + hh / 2, pz);   /* flicker pass: post tops stop under the deck */ }
     if (rails) { const side = (x0, z0, x1, z1) => { const len = Math.hypot(x1 - x0, z1 - z0), ry = Math.atan2(-(z1 - z0), x1 - x0); box(len, 0.1, 0.1, ink, (x0 + x1) / 2, y + 1.05, (z0 + z1) / 2, ry); const n = Math.max(1, Math.round(len / 1.6)); for (let i = 0; i <= n; i++) box(0.1, 1.05, 0.1, ink, x0 + (x1 - x0) * i / n, y + 0.52, z0 + (z1 - z0) * i / n); };
       if (!open.includes('N')) side(r[0], r[2], r[1], r[2]); if (!open.includes('S')) side(r[0], r[3], r[1], r[3]); if (!open.includes('W')) side(r[0], r[2], r[0], r[3]); if (!open.includes('E')) side(r[1], r[2], r[1], r[3]); }
     return P; }
 
   // ---------- terrain meshes (one per hill, vertex colours: grass, rock where steep, grit on trails) ----------
-  const STEP = touch ? 2.5 : 1.6, cA = new THREE.Color(), cB = new THREE.Color();
+  const STEP = touch ? 3.6 : 1.6, cA = new THREE.Color(), cB = new THREE.Color();
   const tMat = new THREE.MeshToonMaterial({ gradientMap: grad, vertexColors: true });
   for (const H of HL) { const [x0, x1, z0, z1] = H.bb, w = x1 - x0, d = z1 - z0, nx = Math.ceil(w / STEP), nz = Math.ceil(d / STEP);
     const g = new THREE.PlaneGeometry(w, d, nx, nz); g.rotateX(-Math.PI / 2); const pos = g.attributes.position, col = [];
@@ -69,7 +70,7 @@ export function buildHeights({ THREE, scene, toon, grad, CT, L, touch }) {
     fallSheet = new THREE.Mesh(new THREE.PlaneGeometry(3.2, top), new THREE.MeshBasicMaterial({ map: fallTex, transparent: true, opacity: 0.9, side: THREE.DoubleSide })); fallSheet.rotation.y = Math.PI / 2; fallSheet.position.set(cx + 2.5, top / 2, fz); root.add(fallSheet);
     const plunge = new THREE.Mesh(new THREE.CircleGeometry(8, 32), waterM); plunge.rotation.x = -Math.PI / 2; plunge.position.set(cx + 9, 0.07, fz); root.add(plunge);
     foam = new THREE.Mesh(new THREE.CircleGeometry(3.2, 24), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.7 })); foam.rotation.x = -Math.PI / 2; foam.position.set(cx + 2.8, 0.1, fz); root.add(foam);
-    const W = L.WATER[0].e, shore = W[0] - W[2] * Math.sqrt(Math.max(0, 1 - ((fz - W[1]) / W[3]) ** 2)), sp = []; for (let x = cx + 15; x <= shore + 3; x += 2) sp.push([x, 0.08, fz + Math.sin(x * 0.15) * 1.5]); if (sp.length > 1) ribbon(sp, 3, waterM);
+    let shore = cx + 15; while (shore < 0 && !L.inLake(shore, fz)) shore += 1; const sp = []; for (let x = cx + 15; x <= shore + 3; x += 2) sp.push([x, 0.1, fz + Math.sin(x * 0.15) * 1.5]); if (sp.length > 1) ribbon(sp, 3, waterM);
     colliders.push({ c: [spring[0], spring[1], 3.6] });
     const dr = [cx - 6, cx + 2.5, fz - 18, fz - 10], dy = terrainAt(dr[0], (dr[2] + dr[3]) / 2) + 0.3; platform(dr, dy, 'W');
     for (let i = 0; i < 10; i++) { const z = fz - 28 + i * 6; if (Math.abs(z - fz) < 4 || (z > dr[2] - 2 && z < dr[3] + 2)) continue; const r = new THREE.Mesh(new THREE.DodecahedronGeometry(1.4 + Math.random() * 1.6), stone); r.position.set(cx + 3.5 + Math.random() * 3, 0.6, z); r.rotation.set(Math.random(), Math.random(), 0); root.add(r); colliders.push({ c: [r.position.x, z, 1.6] }); } } }
@@ -82,7 +83,7 @@ export function buildHeights({ THREE, scene, toon, grad, CT, L, touch }) {
   // ---------- Hill Park summit: paved plaza, benches facing the skyline, lamps, a few trees, west railing ----------
   { const P = HK.park; if (P && P.plaza) { const [px, pz] = P.c, y = P.h, R = P.plaza, face = Math.atan2(-pz, -px);
     const disc = new THREE.Mesh(new THREE.CircleGeometry(R, 48), toon('#cfcac3')); disc.rotation.x = -Math.PI / 2; disc.position.set(px, y + 0.04, pz); disc.receiveShadow = true; root.add(disc);
-    const rim = new THREE.Mesh(new THREE.RingGeometry(R, R + 0.6, 48), ink); rim.rotation.x = -Math.PI / 2; rim.position.set(px, y + 0.05, pz); root.add(rim);
+    const rim = new THREE.Mesh(new THREE.RingGeometry(R, R + 0.6, 48), ink); rim.rotation.x = -Math.PI / 2; rim.position.set(px, y + 0.09, pz); root.add(rim);
     { const pts = []; for (let i = 0; i <= 24; i++) { const a = face - 0.75 + 1.5 * i / 24; pts.push(V(px + Math.cos(a) * (R - 0.3), y + 1.05, pz + Math.sin(a) * (R - 0.3))); } const rail = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 40, 0.06, 6), ink); root.add(rail); for (let i = 0; i <= 24; i += 2) { const p = pts[i]; box(0.08, 1.05, 0.08, ink, p.x, y + 0.52, p.z); } }
     for (const k of [-1, 1]) { const a = face + k * 0.5, x = px + Math.cos(a) * (R - 4), z = pz + Math.sin(a) * (R - 4); box(2.2, 0.12, 0.6, wood, x, y + 0.5, z, -a + Math.PI / 2); box(2.2, 0.5, 0.1, wood, x - Math.cos(a) * 0.3, y + 0.8, z - Math.sin(a) * 0.3, -a + Math.PI / 2); colliders.push({ c: [x, z, 1.0] }); }
     for (let i = 0; i < 6; i++) { const a = face + Math.PI / 6 + i * Math.PI / 3; lanterns.push([px + Math.cos(a) * (R - 0.8), y, pz + Math.sin(a) * (R - 0.8)]); }
@@ -93,8 +94,8 @@ export function buildHeights({ THREE, scene, toon, grad, CT, L, touch }) {
   const treeOK = (x, z) => { const h = terrainAt(x, z); if (h < 1) return false; const sl = Math.hypot(terrainAt(x + 1, z) - terrainAt(x - 1, z), terrainAt(x, z + 1) - terrainAt(x, z - 1)) / 2; if (sl > 0.9 || trailD(x, z) < 4) return false;
     if (decks().some(r => x > r[0] - 3 && x < r[1] + 3 && z > r[2] - 3 && z < r[3] + 3)) return false; const P = HK.park; if (P && Math.hypot(x - P.c[0], z - P.c[1]) < P.plaza + 3) return false; const F = HK.falls; if (F && Math.abs(z - F.falls.z) < 5 && x < F.cliff.x + 2) return false; if (F && Math.hypot(x - F.c[0] + 12, z - F.falls.z) < 7) return false; return true; };
   const trees = []; for (let i = 0, N = touch ? 70 : 150; i < 6000 && trees.length < N; i++) { const H = HL[i % HL.length], x = H.bb[0] + Math.random() * (H.bb[1] - H.bb[0]), z = H.bb[2] + Math.random() * (H.bb[3] - H.bb[2]); if (Math.abs(x) < 448 && Math.abs(z) < 448 && treeOK(x, z)) trees.push([x, terrainAt(x, z), z, 0.8 + Math.random() * 0.7]); }
-  { const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), trunk = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.22, 0.32, 2.4, 6).translate(0, 1.2, 0), toon('#6b4a32'), trees.length), crown = new THREE.InstancedMesh(new THREE.ConeGeometry(1.9, 5.2, 7).translate(0, 4.6, 0), toon('#4f7a45'), trees.length);
-    trees.forEach(([x, y, z, s], i) => { M4.compose(V(x, y - 0.1, z), Q, V(s, s, s)); trunk.setMatrixAt(i, M4); crown.setMatrixAt(i, M4); colliders.push({ c: [x, z, 0.45 * s] }); }); trunk.castShadow = crown.castShadow = !touch; root.add(trunk, crown); }
+  { trees.forEach(([x, y, z, s]) => colliders.push({ c: [x, z, 0.45 * s] }));   // step 10 pass 3: pines with layered tiers, some oaks + birches (meru2-flora.js)
+    root.add(plantTrees(trees.map(([x, y, z, s]) => { const r = Math.abs(Math.sin(x * 12.9898 + z * 78.233) * 43758.5453) % 1; return [x, y - 0.1, z, s, r < 0.65 ? 'pine' : r < 0.82 ? 'broad' : 'birch']; }), { shadow: !touch }).group); }
   { const rocks = []; for (const H of HL.filter(q => q.wild)) for (let i = 0; i < (touch ? 10 : 18); i++) { const t = Math.random(), x = H.a[0] + (H.b[0] - H.a[0]) * t + (Math.random() - 0.5) * H.r * 1.2, z = H.a[1] + (H.b[1] - H.a[1]) * t + (Math.random() - 0.5) * H.r * 1.2, h = terrainAt(x, z); if (h > 0.5 && Math.abs(x) < 446) rocks.push([x, h, z, 0.8 + Math.random() * 1.8]); }
     for (const H of HL.filter(q => q.wild)) for (let i = 0; i < 4; i++) { const t = (i + 0.5) / 4, x = H.a[0] + (H.b[0] - H.a[0]) * t, z = H.a[1] + (H.b[1] - H.a[1]) * t; wild.push({ hill: H.key, x, z, y: terrainAt(x, z) }); }
     const M4 = new THREE.Matrix4(), Q = new THREE.Quaternion(), E = new THREE.Euler(), inst = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), toon('#8a8178'), rocks.length);
@@ -105,7 +106,7 @@ export function buildHeights({ THREE, scene, toon, grad, CT, L, touch }) {
   const glowTex = CT(64, 64, (g, w) => { const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,236,180,1)'); r.addColorStop(1, 'rgba(255,236,180,0)'); g.fillStyle = r; g.fillRect(0, 0, w, w); });
   const beamM = new THREE.MeshBasicMaterial({ color: 0xfff1c4, transparent: true, opacity: 0.13, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide });
   const LH = L.LIGHTHOUSES.map(D => {
-    const [x0, z0] = D.at, y0 = D.island ? L.islandH(Math.hypot(x0 - L.ISLAND.pond.x, z0 - L.ISLAND.pond.z)) + 0.3 : D.base, g = new THREE.Group(); g.position.set(x0, 0, z0); root.add(g);
+    const [x0, z0] = D.at, y0 = D.island ? L.islandAt(x0, z0) + 0.3 : D.base, g = new THREE.Group(); g.position.set(x0, 0, z0); root.add(g);
     const mats = [white.clone(), red.clone()], lh = { D, x: x0, z: z0, y0, g, mats, fade: 0 };
     cyl(PLR, PLR + 0.4, y0 + 3, stone, 0, (y0 - 3) / 2, 0, 32, g);
     for (let i = 0; i < 5; i++) { const a = R0 + (R1 - R0) * i / 5, b = R0 + (R1 - R0) * (i + 1) / 5; const m = new THREE.Mesh(new THREE.CylinderGeometry(b, a, HT / 5, 28), mats[i % 2]); m.position.y = y0 + HT / 5 * (i + 0.5); m.castShadow = !touch; g.add(m); }
@@ -122,10 +123,20 @@ export function buildHeights({ THREE, scene, toon, grad, CT, L, touch }) {
     const glass = new THREE.Mesh(new THREE.CylinderGeometry(1.7, 1.7, 2.4, 16, 1, true), new THREE.MeshPhongMaterial({ color: 0xbfe3ff, transparent: true, opacity: 0.4, shininess: 100, side: THREE.DoubleSide })); glass.position.y = y0 + HT + 1.3; g.add(glass);
     cyl(1.8, 1.8, 0.2, ink, 0, y0 + HT + 0.1, 0, 16, g); cyl(0.1, 2.1, 1.6, red, 0, y0 + HT + 3.3, 0, 16, g); cyl(0.25, 0.25, 0.5, ink, 0, y0 + HT + 4.3, 0, 8, g);
     lh.lamp = new THREE.Mesh(new THREE.SphereGeometry(0.7, 14, 10), new THREE.MeshBasicMaterial({ color: 0xe9dfb8 })); lh.lamp.position.y = y0 + HT + 1.3; g.add(lh.lamp);
-    lh.beam = new THREE.Group(); lh.beam.position.y = y0 + HT + 1.3; g.add(lh.beam); const bg = new THREE.ConeGeometry(7, 90, 20, 1, true); bg.translate(0, -45, 0); bg.rotateZ(Math.PI / 2);
+    lh.beam = new THREE.Group(); lh.beam.position.y = y0 + HT + 1.3; g.add(lh.beam); const bg = new THREE.ConeGeometry(7, 90, 20, 6, true); bg.translate(0, -45, 0); bg.rotateZ(Math.PI / 2);
+    { const P = bg.attributes.position, col = new Float32Array(P.count * 3); for (let i = 0; i < P.count; i++) { const u = Math.min(1, Math.hypot(P.getX(i), P.getY(i), P.getZ(i)) / 90), f = Math.pow(1 - u, 1.6); col.set([f, f, f], i * 3); } bg.setAttribute('color', new THREE.BufferAttribute(col, 3)); beamM.vertexColors = true; beamM.opacity = 0.2; }   // exterior polish: beam fades out along its length (no hard end disc)
     for (const r of [0, Math.PI]) { const b = new THREE.Mesh(bg, beamM); b.rotation.y = r; lh.beam.add(b); } lh.beam.visible = false;
     lh.glow = new THREE.Sprite(new THREE.SpriteMaterial({ map: glowTex, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); lh.glow.scale.set(9, 9, 1); lh.glow.position.y = y0 + HT + 1.3; lh.glow.visible = false; g.add(lh.glow);
     colliders.push({ c: [x0, z0, R0] });
+    // exterior polish round 10: windows half a turn off the stair (lit at night), a keeper's door + red hood under the first turn, weathervane, mooring bollards
+    { const tr = h => R0 + (R1 - R0) * (h - y0) / HT; lh.winM = new THREE.MeshBasicMaterial({ color: 0x2a2f3a }); mats.push(lh.winM);
+      const wi = new THREE.InstancedMesh(new THREE.BoxGeometry(0.5, 0.85, 0.14), lh.winM, 4); [0.22, 0.44, 0.66, 0.86].forEach((f, i) => { const h = y0 + HT * f, a = D.a0 + ((h - y0) / RISE + Math.PI) % TAU, r = tr(h) + 0.01;
+        M4.compose(V(Math.cos(a) * r, h, Math.sin(a) * r), Q.setFromAxisAngle(up, Math.atan2(Math.cos(a), Math.sin(a))), V(1, 1, 1)); wi.setMatrixAt(i, M4); }); g.add(wi);
+      const da = D.a0 + TAU - 0.7, dq = Math.atan2(Math.cos(da), Math.sin(da)), doorM = new THREE.MeshToonMaterial({ color: 0x4a3524, gradientMap: grad }); mats.push(doorM);
+      const door = new THREE.Mesh(new THREE.BoxGeometry(1.0, 2.0, 0.14), doorM); door.position.set(Math.cos(da) * (R0 + 0.01), y0 + 1.0, Math.sin(da) * (R0 + 0.01)); door.rotation.y = dq; g.add(door);
+      const hood = new THREE.Mesh(new THREE.BoxGeometry(1.4, 0.08, 0.42), mats[1]); hood.position.set(Math.cos(da) * (R0 + 0.2), y0 + 2.3, Math.sin(da) * (R0 + 0.2)); hood.rotation.y = dq; g.add(hood);
+      cyl(0.03, 0.03, 1.3, ink, 0, y0 + HT + 5.1, 0, 6, g); lh.vane = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.05, 0.05).translate(0.15, 0, 0), ink); lh.vane.position.y = y0 + HT + 5.5; g.add(lh.vane);
+      const bo = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.18, 0.24, 0.55, 10), ink, 4); [1.5, 2.5, 3.8, 4.8].forEach((o, i) => { const a = D.a0 + o, r = PLR - 0.55; M4.makeTranslation(Math.cos(a) * r, y0 + 0.27, Math.sin(a) * r); bo.setMatrixAt(i, M4); colliders.push({ c: [x0 + Math.cos(a) * r, z0 + Math.sin(a) * r, 0.3] }); }); bo.castShadow = !touch; g.add(bo); }
     if (D.pier) { const P = platform(D.pier.r, D.pier.y, 'NS', 'wood', true, false), r = D.pier.r; for (let z = r[2] + 2; z < r[3]; z += 4) for (const x of [r[0] + 0.25, r[1] - 0.25]) cyl(0.18, 0.18, D.pier.y + 2.5, woodD, x, (D.pier.y - 2.5) / 2, z, 8);
       for (let z = r[2] + 6; z < r[3] - 2; z += 10) lanterns.push([r[0] + 0.25, D.pier.y, z], [r[1] - 0.25, D.pier.y, z + 5]); }
     return lh; });
@@ -162,9 +173,9 @@ export function buildHeights({ THREE, scene, toon, grad, CT, L, touch }) {
   const carBlock = (x, z) => terrainAt(x, z) > 0.35 || platforms.some(p => x > p.r[0] - 1.2 && x < p.r[1] + 1.2 && z > p.r[2] - 1.2 && z < p.r[3] + 1.2) || LH.some(l => Math.hypot(x - l.x, z - l.z) < PLR + 1.2);
 
   let night = false, t = 0;
-  function setNight(on) { night = on; glows.visible = on; headM.color.set(on ? 0xffe2a0 : 0xd8cfb8); for (const l of LH) { l.beam.visible = l.glow.visible = on; l.lamp.material.color.set(on ? 0xfff4c8 : 0xe9dfb8); } }
+  function setNight(on) { night = on; glows.visible = on; headM.color.set(on ? 0xffe2a0 : 0xd8cfb8); for (const l of LH) { l.beam.visible = l.glow.visible = on; l.lamp.material.color.set(on ? 0xfff4c8 : 0xe9dfb8); if (l.winM) l.winM.color.set(on ? 0xffd98a : 0x2a2f3a); } }
   function tick(dt) { t += dt; fallTex.offset.y = (fallTex.offset.y + dt * 1.6) % 1; if (foam) foam.scale.setScalar(1 + Math.sin(t * 6) * 0.08); if (flag) flag.rotation.y = Math.sin(t * 2.2) * 0.25;
-    const p = api.player; for (const l of LH) { l.beam.rotation.y = t * 0.7; const want = p && p.y > l.y0 + 1 && Math.hypot(p.x - l.x, p.z - l.z) < 7 ? 1 : 0; l.fade += (want - l.fade) * Math.min(1, dt * 6);
+    const p = api.player; for (const l of LH) { l.beam.rotation.y = t * 0.7; if (l.vane) l.vane.rotation.y = 0.8 + Math.sin(t * 0.23 + l.x) * 0.5 + Math.sin(t * 1.3) * 0.06; const want = p && p.y > l.y0 + 1 && Math.hypot(p.x - l.x, p.z - l.z) < 7 ? 1 : 0; l.fade += (want - l.fade) * Math.min(1, dt * 6);
       for (const m of l.mats) { const o = 1 - l.fade * 0.65; m.transparent = o < 0.99; m.opacity = o; m.depthWrite = o >= 0.99; } } }
   const api = { groundAt, clamp, camAt, terrainAt, surfaceAt, onTerrain, outdoor, carBlock, colliders, wild, lighthouses: LH.map(l => ({ key: l.D.key, label: l.D.label, x: l.x, z: l.z, top: l.y0 + HT })), setNight, tick, player: null,
     stats: { hills: HL.length, trees: trees.length, lanterns: lanterns.length, lighthouses: LH.length, decks: platforms.length } };

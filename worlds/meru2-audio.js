@@ -82,6 +82,9 @@ export function audioKit({ L, getCtx, muted = () => false, manifestUrl = 'MERU/a
     let leakTxt = ''; for (const R of ROOMS) { if (R.inside) continue; const inR = room === R.key || (RB[room] && RB[room].inside === R.key), dd = R.doors.length ? Math.min(...R.doors.map(([x, z]) => Math.hypot(st.x - x, st.z - z))) : 99, g = inR ? 1 : room ? 0 : leak(dd);
       if (g <= 0 && !A.beds[R.key]) continue; const b = bed(R); b.g.gain.setTargetAtTime(g * (R.busy ? 1 : 0.6), now, 0.25); b.lp.frequency.setTargetAtTime(inR ? 18000 : 900, now, 0.2); if (b.send) b.send.gain.setTargetAtTime(inR ? 1 : 0, now, 0.2);
       if (!inR && g > 0.02) leakTxt = R.label + ' ' + Math.round(g * 100) + '%'; if (g <= 0 && !inR) { b.off = (b.off || 0) + dt; if (b.off > 3) killBed(R.key); } else b.off = 0; }
+    // exterior polish: OUTDOOR AMBIENCE (synth, until Ben's files): town traffic hum + the fountain (3D), wind (stronger out of town + up high),
+    // lake lapping near the shore, leaves by day out of town; birds + gulls by day, crickets + the odd owl at night. Indoors it drops to 15 %.
+    ambTick(c, now, dt, st, room);
     // greetings: one at a time, 7 m outdoors / 5.5 m indoors, same room only, 20 s rest per fox
     if (cur && !cur.el && cur.until <= now) cur = null;
     if (!cur && !st.aboard) for (const sp of SPK) { if (sp.mobile || (sp.room || null) !== (room || null)) continue; const lim = sp.room ? 5.5 : 7; if (Math.hypot(st.x - sp.x, st.z - sp.z) > lim) continue; if (lastT[sp.s.key] && now - lastT[sp.s.key] < 20) continue;
@@ -91,6 +94,31 @@ export function audioKit({ L, getCtx, muted = () => false, manifestUrl = 'MERU/a
     return info; }
   // say(key, url): the dialogue system plays a line through the fox's panner. Stops the current greeting. Resolves when it ends.
   function say(key, url) { const sp = SPK.find(q => q.s.key === key); if (!sp || !A) return Promise.resolve(); if (cur && cur.el) cur.el.pause(); cur = null; return playOn(sp, url || null, 'line'); }
-  function stopAll() { if (!A) return; for (const k in A.tracks) killTrack(k); for (const k in A.beds) killBed(k); for (const Lp of LOOPS) if (Lp.el) { Lp.el.pause(); Lp.el = null; } if (cur && cur.el) cur.el.pause(); cur = null; }
+  function stopAll() { if (!A) return; for (const kk in AMB.loops) { for (const n of AMB.loops[kk].nodes) try { n.stop(); } catch (e) {} AMB.loops[kk].g.disconnect(); delete AMB.loops[kk]; } for (const k in A.tracks) killTrack(k); for (const k in A.beds) killBed(k); for (const Lp of LOOPS) if (Lp.el) { Lp.el.pause(); Lp.el = null; } if (cur && cur.el) cur.el.pause(); cur = null; }
+
+  const AMB = { loops: {}, nextBird: 2, nextGull: 4, nextCricket: 1, nextOwl: 20 };
+  function ambLoop(c, kind) { if (AMB.loops[kind]) return AMB.loops[kind]; const n = c.createBufferSource(); n.buffer = A.noise; n.loop = true; n.playbackRate.value = 0.7 + Math.random() * 0.6;
+    const g = c.createGain(); g.gain.value = 0; const nodes = [n]; let head = n;
+    const F = (type, f, q = 0.7) => { const b = c.createBiquadFilter(); b.type = type; b.frequency.value = f; b.Q.value = q; head.connect(b); head = b; return b; };
+    const lfo = (rate, depth, target) => { const o = c.createOscillator(), og = c.createGain(); o.frequency.value = rate; og.gain.value = depth; o.connect(og); og.connect(target); o.start(); nodes.push(o); };
+    if (kind === 'wind') { F('lowpass', 420); const lv = c.createGain(); lv.gain.value = 1; head.connect(lv); head = lv; lfo(0.07, 0.45, lv.gain); }
+    else if (kind === 'water') { F('bandpass', 520, 0.8); const lv = c.createGain(); lv.gain.value = 1; head.connect(lv); head = lv; lfo(0.22, 0.6, lv.gain); }
+    else if (kind === 'traffic') { F('lowpass', 170); }
+    else if (kind === 'leaves') { F('highpass', 2600); const lv = c.createGain(); lv.gain.value = 1; head.connect(lv); head = lv; lfo(0.13, 0.7, lv.gain); }
+    else if (kind === 'fountain') { F('highpass', 1400); F('lowpass', 6000); const p = pan(c, 0, 1, 0, 5, 70); head.connect(p); head = p; }
+    head.connect(g); g.connect(A.amb); n.start(); return (AMB.loops[kind] = { g, nodes }); }
+  function blip(c, at, f0, f1, d, v, type = 'sine') { const o = c.createOscillator(), g = c.createGain(); o.type = type; o.frequency.setValueAtTime(f0, at); o.frequency.exponentialRampToValueAtTime(f1, at + d); g.gain.setValueAtTime(0.0001, at); g.gain.exponentialRampToValueAtTime(v, at + d * 0.2); g.gain.exponentialRampToValueAtTime(0.0001, at + d); o.connect(g); g.connect(A.amb); o.start(at); o.stop(at + d + 0.02); }
+  function ambTick(c, now, dt, st, room) {
+    const x = st.x, z = st.z, town = Math.abs(x) < 165 && z > -145 && z < 155, inside = !!room, k = inside ? 0.15 : 1, night = !!st.night;
+    const shore = L.lakeShoreD ? L.lakeShoreD(x, z) : -999, lakeW = clamp(1 + shore / 55, 0, 1), high = clamp((st.y - 6) / 20, 0, 1), fd = Math.hypot(x, z);
+    const set = (kind, v) => { if (v <= 0.002 && !AMB.loops[kind]) return; ambLoop(c, kind).g.gain.setTargetAtTime(v * k, now, 0.8); };
+    set('traffic', town ? (night ? 0.05 : 0.09) : 0); set('wind', (town ? 0.035 : 0.1) + high * 0.14); set('water', lakeW * 0.16); set('leaves', !town && !night ? 0.03 : 0); set('fountain', town && fd < 70 ? 0.5 : 0);
+    if (inside) return;
+    const grassy = !town || fd > 20;
+    if (!night && grassy && (AMB.nextBird -= dt) <= 0) { AMB.nextBird = 1.5 + Math.random() * 4.5; const f = 2600 + Math.random() * 2200, n = 2 + (Math.random() * 3 | 0); for (let i = 0; i < n; i++) blip(c, now + i * 0.11, f * (1 + Math.random() * 0.15), f * 0.82, 0.08, 0.025 + Math.random() * 0.02); }
+    if (!night && lakeW > 0.4 && (AMB.nextGull -= dt) <= 0) { AMB.nextGull = 5 + Math.random() * 9; for (let i = 0; i < 2; i++) blip(c, now + i * 0.42, 1250, 720, 0.36, 0.03, 'sawtooth'); }
+    if (night && grassy && (AMB.nextCricket -= dt) <= 0) { AMB.nextCricket = 0.4 + Math.random() * 1.4; const f = 4100 + Math.random() * 500; for (let i = 0; i < 3; i++) blip(c, now + i * 0.05, f, f * 0.98, 0.035, 0.012, 'square'); }
+    if (night && !town && (AMB.nextOwl -= dt) <= 0) { AMB.nextOwl = 18 + Math.random() * 30; blip(c, now, 420, 380, 0.45, 0.05); blip(c, now + 0.6, 440, 370, 0.7, 0.05); }
+  }
   return { tick, say, stopAll, events: ev, rooms: ROOMS, speakers: SPK, roomAt, info: () => info, manifest: () => man };
 }
