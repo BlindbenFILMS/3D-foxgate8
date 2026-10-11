@@ -27,10 +27,22 @@ import { STOCK, ITEM_LABELS, buy } from './meru-shops.js';
 import { buildRescue } from './meru2-rescue.js';
 import { buildCellar } from './meru2-cellar.js';
 import { buildBackrooms } from './meru2-backrooms.js';
+import { makeRelocator } from './meru2-relocate.js';
+import { buildYellowRoad } from './meru2-yellowroad.js';
+import { buildFronts } from './meru2-fronts.js';
+import { planBackDoors, buildRoadside } from './meru2-roadside.js';
+import { buildTavDeck } from './meru2-tavdeck.js';
+import { buildPlazaPaths } from './meru2-plazapaths.js';
+import { floraRemove } from './meru2-flora.js';
+import { buildStationLinks } from './meru2-stationlink.js';
+import { buildBackPaths } from './meru2-backpaths.js';
+import { buildBankSign } from './meru2-banksign.js';
+import { buildStationNight } from './meru2-stationnight.js';
 const DEFEAT = { carried: 0.5 };   // Ben: losing keeps BANKED gold (stat meru2Bank); you drop this share of the gold you carry (DRAFT 50 %)
 import { buildBowling } from './meru2-bowling.js';
 import { buildPlazaGames } from './meru2-plazagames.js';
 import { PLAYER_MALE } from '../fox-kit.js';
+import { createMeru2Net } from './meru2-net.js';
 
 export async function createWalk(B, { onState = () => {}, onHire = () => {}, onTicket = () => {}, onRental = () => {}, onCivic = () => {}, onPick = () => {} } = {}) {
   const { THREE, scene, camera, toon, grad, L, I } = B.K, V3 = (x = 0, y = 0, z = 0) => new THREE.Vector3(x, y, z);
@@ -54,8 +66,20 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
   // ---------- rental car: standard vehicle controls (stick y = throttle, stick x = steer) · 1 HORN · 2 LIGHTS · 3 BRAKE (hold) ----------
   const segD = (x, z, p) => { let m = 1e9; for (let i = 0; i < p.length - 1; i++) { const [ax, az] = p[i], [bx, bz] = p[i + 1], dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz || 1, u = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / L2)); m = Math.min(m, Math.hypot(x - ax - dx * u, z - az - dz * u)); } return m; };
   const roadD = (x, z) => Math.min(...L.ROADS.map(r => segD(x, z, r.p) - r.w / 2));
+  const RL = makeRelocator({ THREE, scene, L });   // s33: Ben's town layout, the interiors follow their shells
   const RB = L.BUILDINGS.find(b => b.key === 'carRental'), LOT = RB.lot.r, RENT = L.CAR_RENTAL, desk = { x: (RB.f[0] + RB.f[1]) / 2, z: RB.f[3] - 2.6 };
+  const deskF = { x: desk.x, z: desk.z - 1.3 }; if (RB.orig) { const o = RB.orig, dx = (o.f[0] + o.f[1]) / 2, dz = o.f[3] - 2.6, m = RL.MV.find(q => q.key === 'carRental'); [desk.x, desk.z] = RL.fwd(m, dx, dz); [deskF.x, deskF.z] = RL.fwd(m, dx, dz - 1.3); }
   cols.push({ f: [desk.x - 2, desk.x + 2, desk.z - 0.45, desk.z + 0.45] });
+  // s34: SECOND RENTAL (carRental2, door N): desk 2.6 m in from the door, customer side toward the door
+  const RB2 = L.BUILDINGS.find(b => b.key === 'carRental2'), LOT2 = RB2 && RB2.lot ? RB2.lot.r : null, desk2 = RB2 ? { x: (RB2.f[0] + RB2.f[1]) / 2, z: RB2.f[3] - 2.6 } : null, deskF2 = desk2 ? { x: desk2.x, z: desk2.z - 1.3 } : null;
+  if (desk2) cols.push({ f: [desk2.x - 2, desk2.x + 2, desk2.z - 0.45, desk2.z + 0.45] });
+  if (desk2) { const G2 = new THREE.Group(); G2.name = 'carRental2'; scene.add(G2); const ink = toon('#201e1d'), red = toon('#ec3013'), wht = toon('#f3f2f2'), wood = toon('#b08b5e'), dx = desk2.x, dz = desk2.z, F = RB2.f;   // s34: second rental
+    { const fl = new THREE.Mesh(new THREE.PlaneGeometry(F[1] - F[0] - 0.8, F[3] - F[2] - 0.8), new THREE.MeshLambertMaterial({ color: 0xb08b5e, polygonOffset: true, polygonOffsetFactor: -2 })); fl.rotation.x = -Math.PI / 2; fl.position.set(dx, 0.06, (F[2] + F[3]) / 2); G2.add(fl); }
+    M(new THREE.BoxGeometry(4, 1.1, 0.9), ink, dx, 0.55, dz, G2, 0.02); M(new THREE.BoxGeometry(4.1, 0.06, 1.0), wht, dx, 1.13, dz, G2, 0); M(new THREE.BoxGeometry(3.9, 0.5, 0.02), red, dx, 0.6, dz - 0.46, G2, 0);
+    M(new THREE.BoxGeometry(0.5, 0.32, 0.04), ink, dx - 1, 1.4, dz + 0.2, G2, 0);
+    M(new THREE.BoxGeometry(3.4, 1.4, 0.06), toon('#5a3d26'), dx, 1.8, F[3] - 0.45, G2, 0.01); for (let j = 0; j < 3; j++) for (let i = 0; i < 8; i++) M(new THREE.BoxGeometry(0.1, 0.14, 0.01), toon(['#ec3013', '#ffd23a', '#2e4a6b', '#f3efe2'][(i + j) % 4]), dx - 1.4 + i * 0.4, 2.13 - j * 0.42, F[3] - 0.52, G2, 0);
+    for (const z of [F[2] + 2.4, F[2] + 3.6]) { M(new THREE.BoxGeometry(0.55, 0.1, 0.55), red, F[0] + 1.0, 0.45, z, G2, 0); M(new THREE.BoxGeometry(0.08, 0.5, 0.55), red, F[0] + 0.75, 0.75, z, G2, 0); } cols.push({ f: [F[0] + 0.5, F[0] + 1.4, F[2] + 2, F[2] + 4] });
+    const clerk = kit.makeFox({ key: 'rentalClerk2', torso: '#ec3013', outfit: 'vest' }); clerk.position.set(dx, 0, dz + 1.2); clerk.rotation.y = Math.PI; scene.add(clerk); cols.push({ c: [dx, dz + 1.2, 0.45] }); }
   const car = new THREE.Group(), wheels = [], pools = []; scene.add(car); car.visible = false;
   { const red = toon('#ec3013'), white = toon('#f3f2f2'), ink = toon('#201e1d'), gl = new THREE.MeshPhongMaterial({ color: 0x1d2a33, shininess: 90, specular: 0x88aacc }), hl = new THREE.MeshBasicMaterial({ color: 0xfff3c0 }), tl = new THREE.MeshBasicMaterial({ color: 0xff3a20 });
     M(new THREE.BoxGeometry(1.9, 0.62, 4.3), red, 0, 0.66, 0, car, 0.03); M(new THREE.BoxGeometry(1.93, 0.12, 4.33), white, 0, 0.8, 0, car, 0);
@@ -65,10 +89,12 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
     const pt = (() => { const c = document.createElement('canvas'); c.width = c.height = 64; const q = c.getContext('2d'), r = q.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(255,240,200,0.8)'); r.addColorStop(1, 'rgba(255,240,200,0)'); q.fillStyle = r; q.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c); })();
     for (const sx of [-0.7, 0.7]) { const p = new THREE.Mesh(new THREE.PlaneGeometry(3, 9).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ map: pt, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending })); p.position.set(sx, 0.05, 6.5); car.add(p); pools.push(p); } }
   const day = () => save.stat('meru2Day', 1), rentOk = () => { const r = save.stat('meru2Rental', null); return !!r && r.until >= day(); };
-  const BAY = { x: LOT[0] + (LOT[1] - LOT[0]) * 0.5 / 6, z: LOT[2] + 4, yaw: Math.PI }, SPEC = { max: 16, rev: 5, accel: 8, turn: 2.0 };
+  const BAY1 = { x: LOT[0] + (LOT[1] - LOT[0]) * 0.5 / 6, z: LOT[2] + 4, yaw: Math.PI }, BAY2 = LOT2 ? { x: LOT2[0] + (LOT2[1] - LOT2[0]) * 0.5 / 5, z: LOT2[3] - 4, yaw: 0 } : BAY1; let BAY = BAY1;
+  const SPEC = { max: 16, rev: 5, accel: 8, turn: 2.0 };
   const CAR = { x: BAY.x, z: BAY.z, yaw: BAY.yaw, speed: 0, steer: 0, lights: false, brake: false, onPath: false, spin: 0 };
   { const p = save.stat('meru2RentalCar', null); if (rentOk() && p) Object.assign(CAR, { x: p.x, z: p.z, yaw: p.yaw }); }
-  const inLot = () => CAR.x > LOT[0] && CAR.x < LOT[1] && CAR.z > LOT[2] && CAR.z < LOT[3];
+  const inLot = () => [LOT, LOT2].some(R => R && CAR.x > R[0] && CAR.x < R[1] && CAR.z > R[2] && CAR.z < R[3]);
+  const lotBay = () => LOT2 && CAR.x > LOT2[0] && CAR.x < LOT2[1] && CAR.z > LOT2[2] && CAR.z < LOT2[3] ? BAY2 : BAY1;
   function placeCar() { car.position.set(CAR.x, 0, CAR.z); car.rotation.y = CAR.yaw; car.visible = rentOk(); for (const w of wheels) { w.t.rotation.x = CAR.spin; if (w.front) w.g.rotation.y = -CAR.steer * 0.45; } for (const p of pools) p.visible = CAR.lights; }
   placeCar();
   function driveMove(dt, ix, iy) { const C = CAR, thr = clamp(iy, -1, 1), str = clamp(ix, -1, 1);
@@ -86,23 +112,26 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
     C.spin += C.speed * dt / 0.36; placeCar(); }
   function horn() { const c = audio(); if (!c || muted) return; for (const f of [392, 494]) { const o = c.createOscillator(), g = c.createGain(); o.type = 'square'; o.frequency.value = f; g.gain.setValueAtTime(0.0001, c.currentTime); g.gain.exponentialRampToValueAtTime(0.05, c.currentTime + 0.02); g.gain.setValueAtTime(0.05, c.currentTime + 0.35); g.gain.exponentialRampToValueAtTime(0.0001, c.currentTime + 0.45); o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + 0.5); } }
   const nearCar = () => !P.car && !P.ab && car.visible && P.y < 1 && Math.hypot(P.x - CAR.x, P.z - CAR.z) < 3.2;
-  const nearDesk = () => !P.car && P.y < 1 && Math.hypot(P.x - desk.x, P.z - (desk.z - 1.3)) < 2.2;
+  const nearDesk = () => !P.car && P.y < 1 && (Math.hypot(P.x - deskF.x, P.z - deskF.z) < 2.2 || (deskF2 && Math.hypot(P.x - deskF2.x, P.z - deskF2.z) < 2.2));
   function getIn() { P.car = true; CAR.speed = 0; CAM.yaw = CAR.yaw + Math.PI; lastEmit = 0; }
   function getOut() { if (Math.abs(CAR.speed) > 2) return; P.car = false; CAR.speed = 0; CAR.brake = false; const lx = -2.0; P.x = CAR.x + lx * Math.cos(CAR.yaw); P.z = CAR.z - lx * Math.sin(CAR.yaw); P.yaw = CAR.yaw;
-    if (inLot()) { save.setStat('meru2Rental', null); save.setStat('meru2RentalCar', null); Object.assign(CAR, BAY, { lights: false }); toast = 'CAR RETURNED'; toastT = 2.5; } else save.setStat('meru2RentalCar', { x: CAR.x, z: CAR.z, yaw: CAR.yaw }); placeCar(); lastEmit = 0; }
+    if (inLot()) { save.setStat('meru2Rental', null); save.setStat('meru2RentalCar', null); BAY = lotBay(); Object.assign(CAR, BAY, { lights: false }); toast = 'CAR RETURNED'; toastT = 2.5; } else save.setStat('meru2RentalCar', { x: CAR.x, z: CAR.z, yaw: CAR.yaw }); placeCar(); lastEmit = 0; }
+  const RC0 = cols.length; RL.mark();
   const law = lawKit(save), halls = buildHalls({ THREE, scene, kit, cols, L, touch: matchMedia('(pointer: coarse)').matches }), barracks = (B.ownBlocks && B.ownBlocks.barracks && (B.ownBlocks.barracks.visible = false), buildBarracks({ THREE, scene, kit, cols, L, touch: matchMedia('(pointer: coarse)').matches })), civic = buildCivic({ THREE, scene, M, toon, kit, cols }), rooms = buildRooms({ THREE, scene, M, toon, kit, cast, cols, grad, save, audio: () => muted ? null : audio(), touch: matchMedia('(pointer: coarse)').matches }), rooms2 = buildRooms2({ THREE, scene, M, toon, kit, cols, grad }), apts = buildApts({ THREE, scene, M, toon, kit, cols, L }),
     lake = buildLake({ THREE, scene, M, toon, grad, kit, cast, cols, L, save, touch: matchMedia('(pointer: coarse)').matches, water: B.water, terrainAt: (x, z) => HZ.terrainAt(x, z), audio: () => muted ? null : audio() }),   // step 5: the lake
     allSpots = [...civic.spots, ...rooms.spots, ...rooms2.spots, ...apts.spots, ...lake.spots];
+  RL.collect(); RL.cols(cols, RC0); allSpots.forEach((q, i) => { allSpots[i] = RL.spot(q); });
+  for (const d of (halls.desks || [])) { const [x, z] = d.o ? RL.fwdAny(d.x, d.z) : [d.x, d.z]; T.addMachine(d.key, x, z); (window.__m2desks = window.__m2desks || []).push([d.key, x, z]); }   // s35: buy tickets at any station's counter / machines
   const yards = buildYards({ THREE, scene, M, toon, grad, kit, cols, L, save, touch: matchMedia('(pointer: coarse)').matches, audio: () => muted ? null : audio() });   // step 7: skate park + tank works
   allSpots.push(...yards.spots); if (B.arena) allSpots.push(...B.arena.spots);   // E at the arena tunnel barrier
   const fest = buildFestival({ THREE, scene, M, toon, grad, kit, cols, L, save, touch: matchMedia('(pointer: coarse)').matches }), RD = fest.rides; allSpots.push(...fest.spots);   // Arena Path festival row
-  const bowl = buildBowling({ THREE, scene, lanes: rooms2.lanes, save, audio: () => muted ? null : audio(), touch: matchMedia('(pointer: coarse)').matches }); allSpots.push(bowl.spot);   // 3D tenpin on lane 4
+  RL.mark(); const bowl = buildBowling({ THREE, scene, lanes: rooms2.lanes, save, audio: () => muted ? null : audio(), touch: matchMedia('(pointer: coarse)').matches }); RL.collect(); const bowlSpotP = RL.spot(bowl.spot); allSpots.push(bowlSpotP);   // 3D tenpin on lane 4
   const plazaG = buildPlazaGames({ THREE, scene, kit, cols, touch: matchMedia('(pointer: coarse)').matches }); allSpots.push(...plazaG.spots);   // chess / checkers / tetherball round the fountain
   // ROOM TALK (6d follow-up): people inside rooms with lines that already exist in the old Meru files. No new text.
   const TALK = {}; for (const p of BAR_PEOPLE) if (BAR_TALK[p.key]) TALK[p.key] = { name: p.name, role: p.role, lines: BAR_TALK[p.key] };
   for (const o of OLD_APTS) { const r = o.realtor; if (r && r.line) TALK[r.key] = { name: r.name, role: r.role, lines: [{ who: 'npc', text: r.line }] }; }
-  Object.assign(TALK, fest.TALK);
-  const talkers = [...(barracks.people || []), ...(apts.people || []), ...fest.talkers].filter(t => TALK[t.key]); let dlg = null, talkNear = null;
+  Object.assign(TALK, fest.TALK, rooms.TALK || {});
+  const talkers = [...(barracks.people || []), ...(apts.people || []), ...fest.talkers, ...(rooms.talkers || [])].filter(t => TALK[t.key]); let dlg = null, talkNear = null;
   const dlgHud = () => { if (!dlg) return null; const T0 = TALK[dlg.t.key], ln = T0.lines[dlg.i], me = ln.who === 'player'; return { name: me ? 'YOU' : ln.who === 'npc' ? T0.name : String(ln.who).toUpperCase(), role: me ? '' : T0.role, text: ln.text, step: dlg.i + 1, total: T0.lines.length }; };
   const dlgNext = () => { if (!dlg) return; dlg.i++; if (dlg.i >= TALK[dlg.t.key].lines.length) { dlg.t.obj.rotation.y = dlg.t.ry; dlg = null; } lastEmit = 0; emit(); };
   const vBlock = (nx, nz, r) => { const Hm = L.MAP.half - 3; if (Math.abs(nx) > Hm || Math.abs(nz) > Hm) return true; if (L.BUILDINGS.some(b => !b.open && b.key !== 'ferryDock' && !city.keys.has(b.key) && nx > b.f[0] - r && nx < b.f[1] + r && nz > b.f[2] - r && nz < b.f[3] + r)) return true;
@@ -123,18 +152,49 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
     if (under) { const u = Math.sin(sph); Pf.arms.forEach((a, i) => { a.rotation.x = -2.8 + Math.max(0, u) * 1.6; a.rotation.z = (i ? 1 : -1) * (0.2 + Math.max(0, -u) * 1.2); }); Pf.legs.forEach((l, i) => { l.rotation.x = Math.sin(sph * 2 + i * Math.PI) * 0.25; l.rotation.z = (i ? 1 : -1) * (0.1 + Math.max(0, u) * 0.3); }); }
     else { Pf.arms.forEach((a, i) => { a.rotation.x = -((sph + i * Math.PI) % (Math.PI * 2)); a.rotation.z = (i ? 1 : -1) * 0.15; }); Pf.legs.forEach((l, i) => { l.rotation.x = Math.sin(sph * 2.4 + i * Math.PI) * 0.35 * (0.4 + mv * 0.6); l.rotation.z = 0; }); }
     swimRing.visible = !under; swimRing.position.set(P.x, (ground(P.x, P.z).h || 0.08) + 0.03, P.z); swimRing.scale.setScalar(1 + 0.15 * Math.sin(sph * 0.6) + mv * 0.2); swimRing.material.opacity = 0.25 + mv * 0.25; }
+  const RC1 = cols.length; RL.mark();
   cellar = buildCellar({ THREE, scene, cols, touch: matchMedia('(pointer: coarse)').matches });   // backrooms: the tavern cellar
   backrooms = buildBackrooms({ THREE, scene, cols, kit, PLAYER_MALE, touch: matchMedia('(pointer: coarse)').matches });   // bank vault corridor, police evidence room, casino count room
+  RL.collect(); RL.cols(cols, RC1); cellar.groundAt = RL.ground(cellar.groundAt.bind(cellar)); apts.groundAt = RL.ground(apts.groundAt.bind(apts)); backrooms.groundAt = RL.ground(backrooms.groundAt.bind(backrooms));
   fox.traverse(o => { o.renderOrder = -2; });
   const rescue = buildRescue({ THREE, scene, kit, lake, L, ground, shoreD, save });   // lake rescue: carry anyone who needs help in the water
   const life = await buildPathLife({ THREE, scene, M, toon, kit, cols, L, HZ, audio: () => muted ? null : audio() });   // step 4: path people + Ruins wilds
   const walkers = buildWalkers({ THREE, scene, kit, L, cols, touch: matchMedia('(pointer: coarse)').matches, PLAYER_FEMALE: (await import('../fox-kit.js')).PLAYER_FEMALE });   // exterior polish: a few background walkers in Town Square
+  { const n = RL.clear(cols); if (n) console.info('town layout: cleared ' + n + ' outdoor props inside moved buildings'); }
+  const yellow = buildYellowRoad({ THREE, scene, L, heightAt: (x, z) => Math.max(0, (HZ.terrainAt && HZ.terrainAt(x, z)) || 0), roadD, touch: matchMedia('(pointer: coarse)').matches });   // s33: the yellow brick road
+  { const RG = yellow.ring || [8.6, 11.8], onR = (x, z) => { const r = Math.hypot(x, z); return r > RG[0] - 0.4 && r < RG[1] + 0.5; }; let n = floraRemove(onR); const M4 = new THREE.Matrix4(), v = new THREE.Vector3(), Z = new THREE.Matrix4().makeScale(0, 0, 0);   // s35: the fountain ring stays clear
+    scene.traverse(o => { if (!o.isInstancedMesh || o.userData.lamp) return; o.updateWorldMatrix(true, false); let hit = false; for (let k = 0; k < o.count; k++) { o.getMatrixAt(k, M4); v.setFromMatrixPosition(M4).applyMatrix4(o.matrixWorld); if (v.y < 3 && onR(v.x, v.z)) { o.setMatrixAt(k, Z); hit = true; n++; } } if (hit) o.instanceMatrix.needsUpdate = true; });
+    for (let k = cols.length - 1; k >= 0; k--) { const c = cols[k]; if (c.c && c.c[2] < 2 && onR(c.c[0], c.c[1])) { cols.splice(k, 1); n++; } }
+    if (B.nature && B.nature.clearGrass) B.nature.clearGrass(onR); window.__m2ringClear = n; }
+  const NEWPATHS = !/[?&]oldpaths=1/.test(location.search);
+  const fronts = buildFronts({ THREE, scene, L, cols, roadD, net: NEWPATHS, skip: o => { let p = o; while (p) { if (p.name && p.name.startsWith('moved:')) return true; p = p.parent; } return false; }, heightAt: (x, z) => Math.max(0, (HZ.terrainAt && HZ.terrainAt(x, z)) || 0), touch: matchMedia('(pointer: coarse)').matches });   // s33: clear building fronts + yellow spurs to the paths
+
+  let plaza = null; if (NEWPATHS) try { plaza = buildPlazaPaths({ THREE, scene, L, cols, roadD, heightAt: (x, z) => Math.max(0, (HZ.terrainAt && HZ.terrainAt(x, z)) || 0), touch: matchMedia('(pointer: coarse)').matches }); fronts.spurs.push(...plaza.segs.map(q => q.slice(0, 4))); } catch (e) { console.warn('plaza paths failed', e); }   // s34: Ben's fountain-area paths
+  window.__m2cols = cols;   // test hook (back-door planning)
+  { let back = null; try { const sv = JSON.parse(localStorage.getItem('meru2.backDoors') || 'null'); if (sv && sv.sig === L.LAYOUT_SIG) back = sv.doors; } catch (e) {}
+    if (!back) { back = planBackDoors({ L, cols, city }); try { localStorage.setItem('meru2.backDoors', JSON.stringify({ sig: L.LAYOUT_SIG, doors: back })); } catch (e) {} console.info('back doors planned for this layout: open on the next load'); }
+    buildRoadside({ THREE, scene, L, city, fronts, back, heightAt: (x, z) => Math.max(0, (HZ.terrainAt && HZ.terrainAt(x, z)) || 0), touch: matchMedia('(pointer: coarse)').matches });
+    try { const dk = buildTavDeck({ THREE, scene, L, cols, roadD, heightAt: (x, z) => Math.max(0, (HZ.terrainAt && HZ.terrainAt(x, z)) || 0), touch: matchMedia('(pointer: coarse)').matches }); if (dk && B.nature && B.nature.clearGrass) { const r = dk.rect; B.nature.clearGrass((x, z) => x > r[0] - 0.4 && x < r[1] + 0.4 && z > r[2] - 0.4 && z < r[3] + 0.4); } } catch (e) { console.warn('tavern deck failed', e); } }   // no grass through the boards
+  try { const bs = buildBankSign({ THREE, scene, L, city }); window.__m2bankSign = bs && bs.side; } catch (e) { console.warn('bank sign failed', e); }   // s35: the bank's rooftop sign, read from the train
+  try { const bp = buildBackPaths({ THREE, scene, L, cols, roadD, nature: B.nature, touch: matchMedia('(pointer: coarse)').matches }); window.__m2backpaths = bp.out; } catch (e) { console.warn('back paths failed', e); }   // s35: apron + path to the sidewalk at every back door
+  try { window.__m2stations = buildStationLinks({ THREE, scene, L, T, cols, nature: B.nature, touch: matchMedia('(pointer: coarse)').matches }).out; } catch (e) { console.warn('station links failed', e); }   // s35: covered walk from a moved station to its lift
+  let stNight = null; try { stNight = buildStationNight({ THREE, scene, L, T, links: window.__m2stations || [] }); window.__m2stNight = stNight.n; } catch (e) { console.warn('station night failed', e); }   // s35: stations at night
+  { const SW = (L.SIDEWALK || 3.3) + 0.9, onWalk = (x, z) => { const d = roadD(x, z); return d > -0.2 && d < SW; };   // + 0.9: a bush's own radius   // s34: sidewalks clear of bushes + grass
+    let n = floraRemove(onWalk, { trees: false }); const M4 = new THREE.Matrix4(), v = new THREE.Vector3(), Z = new THREE.Matrix4().makeScale(0, 0, 0);
+    scene.traverse(o => { if (!o.isInstancedMesh || o.userData.lamp) return; if (!o.userData.flora) return; o.updateWorldMatrix(true, false); let hit = false;
+      for (let i = 0; i < o.count; i++) { o.getMatrixAt(i, M4); v.setFromMatrixPosition(M4).applyMatrix4(o.matrixWorld); if (onWalk(v.x, v.z)) { o.setMatrixAt(i, Z); hit = true; n++; } } if (hit) o.instanceMatrix.needsUpdate = true; });
+    if (B.nature && B.nature.clearGrass) B.nature.clearGrass((x, z) => { const d = roadD(x, z); return d > -0.2 && d < (L.SIDEWALK || 3.3) + 0.4; }); window.__m2sidewalk = n; }   // s34: tavern deck off the back door; s33: back doors, billboards, painted walls, fingerposts, plaques, arrows, town map
+  if (B.nature && B.nature.clearGrass) { const segs = [...fronts.spurs.map(q => [...q, 1.6]), ...L.PATHS.map(p => [p.p[0][0], p.p[0][1], p.p[p.p.length - 1][0], p.p[p.p.length - 1][1], 2.0])], near = (x, z) => segs.some(([ax, az, bx, bz, w]) => { const dx = bx - ax, dz = bz - az, L2 = dx * dx + dz * dz || 1, u = Math.max(0, Math.min(1, ((x - ax) * dx + (z - az) * dz) / L2)); return Math.hypot(x - ax - dx * u, z - az - dz * u) < w; });
+    B.nature.clearGrass((x, z) => (Math.abs(x) < 3 || Math.abs(z) < 3 || Math.abs(x) < 170 && Math.abs(z) < 160) && near(x, z)); }   // no grass blades through the bricks
+  if (plaza && B.nature && B.nature.clearGrass) { const S = plaza.segs, P = plaza.routes.plazas.map(p => p.r); B.nature.clearGrass((x, z) => P.some(r => x > r[0] - 0.4 && x < r[1] + 0.4 && z > r[2] - 0.4 && z < r[3] + 0.4) || S.some(([ax, az, bx, bz, h]) => x > Math.min(ax, bx) - h && x < Math.max(ax, bx) + h && z > Math.min(az, bz) - h && z < Math.max(az, bz) + h)); }   // s34: clearings + new paths
   if (B.spk) B.spk.children.forEach(c => { if (life.keys.has(c.userData.key) || rooms.keys.has(c.userData.key) || lake.keys.has(c.userData.key) || yards.keys.has(c.userData.key)) c.visible = false; });
+  if (B.spk) { const inB = (x, z) => L.BUILDINGS.some(b => b.f && !b.open && x > b.f[0] && x < b.f[1] && z > b.f[2] && z < b.f[3]), off = [];   // s35: blockout speaker posts + 7 m rings never stand inside a building (indoor people are all built; moved rooms left them in the lobbies)
+    B.spk.children.forEach(c => { if (c.visible && inB(c.position.x, c.position.z)) { c.visible = false; off.push(c.position); } }); if (B.rings) B.rings.children.forEach(r => { if (off.some(p => Math.hypot(p.x - r.position.x, p.z - r.position.z) < 0.6) || inB(r.position.x, r.position.z)) r.visible = false; }); }
   const pentKey = () => { const r = save.stat('meru2Pent', null); return r && r.day >= save.stat('meru2Day', 1) ? r.key : null; };
   const LOBBY = { x: -86, z: -85, yaw: Math.PI };
   let escaping = false, jailSave = 0;
-  function toCell() { yards.off(P); if (P.boat) { lake.park(); P.boat = false; } P.ferry = false; lake.ferry.rider = false; Object.assign(P, { x: civic.CELL_IN.x, z: civic.CELL_IN.z, y: 0, vy: 0, yaw: 0, ab: null, car: false }); T.setView(null); civic.lockCell(); escaping = false; CAM.yaw = Math.PI; }
-  function freeAt(msg) { Object.assign(P, { x: LOBBY.x, z: LOBBY.z, y: 0, vy: 0, yaw: LOBBY.yaw }); civic.lockCell(); escaping = false; toast = msg; toastT = 3; lastEmit = 0; }
+  function toCell() { yards.off(P); if (P.boat) { lake.park(); P.boat = false; } P.ferry = false; lake.ferry.rider = false; { const w = RL.fwdAny(civic.CELL_IN.x, civic.CELL_IN.z, 0); Object.assign(P, { x: w[0], z: w[1], y: 0, vy: 0, yaw: w[2], ab: null, car: false }); } T.setView(null); civic.lockCell(); escaping = false; CAM.yaw = Math.PI; }
+  function freeAt(msg) { { const w = RL.fwdAny(LOBBY.x, LOBBY.z, LOBBY.yaw); Object.assign(P, { x: w[0], z: w[1], y: 0, vy: 0, yaw: w[2] }); } civic.lockCell(); escaping = false; toast = msg; toastT = 3; lastEmit = 0; }
   const zoneAt = (x, z) => { let best = null; for (const Z of L.ZONES) if (Z.r ? inR(Z.r, x, z) : Math.hypot(x - Z.c[0], z - Z.c[1]) <= Z.c[2]) best = Z; return best; };
   const indoorTalkers = new Set(L.SPEAKERS.filter(s => !Array.isArray(s.at)).map(s => s.key));
   const voices = L.SPEAKERS.filter(s => Array.isArray(s.at) && s.tier < 3 && !indoorTalkers.has(s.key));
@@ -163,7 +223,7 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
   // 0.45 m under the ceiling (CEIL = rooms whose ceiling sits below the roof). If the room is too small for that (closer than 1.6 m) the
   // camera stays where it was and the city cutaway fades just the wall it is behind. X-RAY: while inside, a gold silhouette of the fox
   // shows through anything that hides it (drawn before the fox: only where the room is in front of it).
-  const CEIL = { casino: 8.6, bowling: 6.6 }, IN_M = 0.35;
+  const CEIL = { casino: 8.6, bowling: 6.6, crest: 6.75, lake: 6.75 }, IN_M = 0.35;
   let inK = 1;
   function inCam(dt, tgt) { const bx = city.insideBox, c = camera.position; if (!bx && CAM.pitch < 0.08) CAM.pitch += (0.08 - CAM.pitch) * Math.min(1, dt * 4);
     if (!bx || P.car || P.ab || P.boat || P.ferry || bowl.active()) { inK = 1; return; }
@@ -219,10 +279,12 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
     stick.y = (ux * fx + uz * fz) * spd; stick.x = (ux * rx + uz * rz) * spd; return d; }
   function rideStart() { if (law.jail()) return false; yards.off(P); if (P.boat) { lake.park(); P.boat = false; } P.car = false; P.ferry = false; lake.ferry.rider = false; P.ab = null; T.setView(null);
     const st = T.stops.find(s => s.key === RIDE_KEY), W = (a, ls) => T.toW(RIDE_KEY, st.liftA + a, ls), mach = W(3.3, 11.5), up = W(0, 12.8), pad = W(0, 9.4);
+    // s35: the hall moved (Town Layout Workshop): inside points go through RL.fwdAny, the exit is its south door (b.door2) right by the lift
+    const fw = (x, z) => RL.fwdAny(x, z), d2 = st.b.door2 || [0, 132], F2 = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }[st.b.face2 || 'S'], in0 = fw(0, 121), in1 = fw(0, 128);
     ride = { st, W, step: 'walk', t: 0, wait: 0, stuck: 0, last: null, left: false, next: '', path: [
-      { x: 0, z: 128, msg: 'TOWN SQUARE STATION' }, { x: 0, z: 135.5 }, { x: up.x - 3, z: 135.8 }, { x: mach.x, z: mach.z, wait: 1.8, msg: 'TICKET MACHINE · A DAY TICKET', face: W(3.3, 9.6) },
+      { x: in1[0], z: in1[1], msg: 'TOWN SQUARE STATION' }, { x: d2[0] - F2[0] * 1.2, z: d2[1] - F2[1] * 1.2 }, { x: d2[0] + F2[0] * 1.2, z: d2[1] + F2[1] * 1.2 }, { x: mach.x, z: mach.z, wait: 1.8, msg: 'TICKET MACHINE · A DAY TICKET', face: W(3.3, 9.6) },
       { x: up.x, z: up.z, msg: 'THE LIFT' }, { x: pad.x, z: pad.z, r: 0.3, lift: true }] };
-    Object.assign(P, { x: 0, z: 121, y: 0, vy: 0, yaw: 0, sp: 0, swim: false, dive: 0 }); CAM.yaw = Math.PI; CAM.pitch = 0.3; CAM.dist = 7.5; CAM.drag = 0; T.dwell = null; T.hold = false;
+    Object.assign(P, { x: in0[0], z: in0[1], y: 0, vy: 0, yaw: 0, sp: 0, swim: false, dive: 0 }); CAM.yaw = Math.PI; CAM.pitch = 0.3; CAM.dist = 7.5; CAM.drag = 0; T.dwell = null; T.hold = false;
     toast = 'TRAIN RIDE · DEMO'; toastT = 2.5; paused = false; lastEmit = 0; return true; }
   function rideEnd(msg) { if (!ride) return; ride = null; stick.x = stick.y = 0; T.dwell = null; T.hold = false; toast = msg || 'BACK AT TOWN SQUARE STATION · END OF THE RIDE'; toastT = 4; lastEmit = 0; }
   function rideStep(dt) { const R = ride; R.t += dt; stick.x = stick.y = 0;
@@ -264,12 +326,12 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
         const r = T.moveInCar(P.ab, P.ab.x + Math.sin(P.ab.yaw) * P.sp * dt, P.ab.z + Math.cos(P.ab.yaw) * P.sp * dt);
         if (r.exit) { const yw = T.carF[P.ab.car].yaw + P.ab.yaw; P.ab = null; P.x = r.exit.x; P.z = r.exit.z; P.y = T.PLAT_Y; P.yaw = yw; T.setView(null); } }
       if (P.ab) { const w = T.toWorldCar(P.ab.car, P.ab.x, P.ab.z); P.x = w.x; P.z = w.z; P.y = w.y - (P.ab.sit ? 0.3 : 0); P.yaw = T.carF[P.ab.car].yaw + P.ab.yaw; P.vy = 0; P.ground = true; P.swim = false; }
-    } else if (!bowl.drive(dt, P, fox, stick)) walkMove(dt, im, mx, mz);
+    } else if (!(() => { const F = RL.frame(P); return RL.within(F.m, () => bowl.drive(dt, F.P, fox, stick)); })()) walkMove(dt, im, mx, mz);
     fox.visible = !(P.ab && P.ab.sit) && !P.car && !P.tank; fox.position.set(P.x, P.y + (P.skate ? yards.skateLift() : 0), P.z); if (P.heli || P.carousel) fox.position.y = P.y; fox.rotation.y = P.yaw + (P.skate ? Math.PI / 2 * 0.85 : 0); kit.animFox(fox, dt, P.boat || P.ferry || P.skate ? 0 : P.swim ? P.sp * 0.6 : P.wade ? P.sp * 0.7 : P.sp, !P.ground && !P.wade); swimPose(dt);
     bowl.pose(fox); RD.pose(fox, P);
-    walkers.tick(dt, P, false);
+    walkers.tick(dt, P, false); if (NETW) NETW.tick(dt, city.inside ? city.inside.key : '');
     { const r = life.tick(dt, now / 1000, P, fox, on && !P.car && !P.boat && !P.ferry && !P.ab && !P.skate && !P.tank && !P.heli && !P.carousel && !city.inside && !law.jail()); if (r.playerDown) { const s = life.safePoint(P.x, P.z); Object.assign(P, { x: s[0], z: s[1], vy: 0 }); P.y = ground(P.x, P.z, 0).h; const lost = Math.floor((save.data.gold || 0) * DEFEAT.carried); if (lost > 0) save.addGold(-lost); toast = 'KNOCKED OUT · BACK ON THE PATH' + (lost > 0 ? ' · DROPPED ' + lost + ' GOLD' : '') + ((save.stat('meru2Bank', 0) || 0) > 0 ? ' · BANK GOLD IS SAFE' : ''); toastT = 4; lastEmit = 0; } }
-    cellar.tick(camera.position); backrooms.tick(camera.position, dt, now / 1000, P);
+    { const F = RL.frame(P); RL.within(F.m, () => { cellar.tick(F.cam(camera.position)); backrooms.tick(F.cam(camera.position), dt, now / 1000, F.P); }); }
     rescue.tick(dt, P, on && !P.ab && !city.inside && !law.jail());
     // footsteps by surface
     const inside = city.inside, gh = ground(P.x, P.z); surface = P.ab ? 'rug' : inside ? (inside.room ? inside.room.floor : 'stone') : lake.surfaceAt(P.x, P.z, P.y) || HZ.surfaceAt(P.x, P.z, P.y) || (gh.water ? 'water' : gh.h > 0.5 ? 'grass' : L.surfaceAt(P.x, P.z)); if (P.ground && P.sp > 0.5 && !P.car && !P.boat && !P.ferry && !P.skate && !P.tank) { P.stepPh += dt * P.sp / 0.75; if (P.stepPh >= 1) { P.stepPh -= 1; step(surface); } } else P.stepPh = 0.6;
@@ -278,14 +340,14 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
     ai = sound.tick(dt, { x: P.x, y: P.y, z: P.z, camYaw: CAM.yaw, zone, inside: city.inside ? city.inside.key : null, aboard: !!P.ab, night: B.time ? B.time() > 0.45 : false }); voice = ai.voice;
     hire = hires.find(h => Math.hypot(P.x - h.x, P.z - h.z) < 2.8) || null;
     for (const h of hires) if (city.keys.has(h.b.key)) continue; else if (!h.near && Math.hypot(P.x - h.b.door[0], P.z - h.b.door[1]) < 2.5) { h.near = true; chime(); } else if (h.near && Math.hypot(P.x - h.b.door[0], P.z - h.b.door[1]) > 4) h.near = false;
-    rooms.tick(dt, now / 1000, P, fox, camera.position); rooms2.tick(dt, now / 1000, camera.position); plazaG.tick(dt, now / 1000, camera.position); apts.tick(dt, P, pentKey(), camera.position); halls.tick(dt, camera.position); barracks.tick(dt, P, camera.position); lake.tick(dt, now / 1000, P, night); yards.tick(dt, now / 1000, P, night); fest.tick(dt, camera.position, B.isNight ? B.isNight() : night, P); fest.bandTick(dt, { P, ctx: ac ? audio() : null, muted, camYaw: CAM.yaw });
-    { const J = law.jail(), r = civic.tick(dt, P, escaping && !!J);
+    const RF = RL.frame(P); RL.within(RF.m, () => { rooms.tick(dt, now / 1000, RF.P, fox, RF.cam(camera.position)); rooms2.tick(dt, now / 1000, RF.cam(camera.position)); }); plazaG.tick(dt, now / 1000, camera.position); RL.within(RF.m, () => apts.tick(dt, RF.P, pentKey(), RF.cam(camera.position))); halls.tick(dt, camera.position); barracks.tick(dt, P, camera.position); lake.tick(dt, now / 1000, P, night); yards.tick(dt, now / 1000, P, night); fest.tick(dt, camera.position, B.isNight ? B.isNight() : night, P); if (stNight) stNight.tick(dt, B.isNight ? B.isNight() : night); fest.bandTick(dt, { P, ctx: ac ? audio() : null, muted, camYaw: CAM.yaw });
+    { const J = law.jail(), r = RL.within(RF.m, () => civic.tick(dt, RF.P, escaping && !!J));
       if (J && !escaping) { J.left -= dt; jailSave += dt; if (jailSave > 2) { jailSave = 0; save.setStat('meru2Jail', { ...J }); } if (J.left <= 0) { law.release(); freeAt('TIME SERVED · YOU ARE FREE'); } else if (!civic.inJail(P)) toCell(); P.jailLeft = J.left; }
       if (r === 'caught') { J.left += 30; save.setStat('meru2Jail', { ...J }); toCell(); toast = 'CAUGHT · +30 S'; toastT = 3; }
       if (r === 'free') { law.release(); law.addFine('escape'); escaping = false; toast = 'YOU GOT OUT · ESCAPE FINE ADDED'; toastT = 3.5; } }
     civicSpot = !P.ab && !P.car && !P.boat && !P.ferry && !P.skate && !P.tank && !P.heli && !P.carousel && !law.jail() ? allSpots.find(q => Math.hypot(P.x - q.x, P.z - q.z) < q.r && (q.y ? P.y >= q.y[0] && P.y <= q.y[1] : P.y < 1)) || null : null;
-    talkNear = null; if (!P.ab && !P.car && !P.boat && !P.ferry && !P.tank && !P.heli && !P.carousel) { let bd = 9; for (const t of talkers) { const o = t.obj.position, d = Math.hypot(P.x - o.x, P.z - o.z); if (d < (t.r || 2.6) && d < bd && Math.abs(P.y - o.y) < 2) { bd = d; talkNear = t; } } }
-    if (dlg) { const o = dlg.t.obj.position; if (Math.hypot(P.x - o.x, P.z - o.z) > (dlg.t.r || 2.6) + 2) { dlg.t.obj.rotation.y = dlg.t.ry; dlg = null; lastEmit = 0; } else { const ty = Math.atan2(P.x - o.x, P.z - o.z), r = dlg.t.obj.rotation; r.y += Math.atan2(Math.sin(ty - r.y), Math.cos(ty - r.y)) * Math.min(1, dt * 6); } }
+    talkNear = null; if (!P.ab && !P.car && !P.boat && !P.ferry && !P.tank && !P.heli && !P.carousel) { let bd = 9; for (const t of talkers) { const o = RL.wpos(t.obj), d = Math.hypot(P.x - o.x, P.z - o.z); if (d < (t.r || 2.6) && d < bd && Math.abs(P.y - o.y) < 2) { bd = d; talkNear = t; } } }
+    if (dlg) { const o = RL.wpos(dlg.t.obj); if (Math.hypot(P.x - o.x, P.z - o.z) > (dlg.t.r || 2.6) + 2) { dlg.t.obj.rotation.y = dlg.t.ry; dlg = null; lastEmit = 0; } else { const ty = Math.atan2(P.x - o.x, P.z - o.z) - RL.pyaw(dlg.t.obj), r = dlg.t.obj.rotation; r.y += Math.atan2(Math.sin(ty - r.y), Math.cos(ty - r.y)) * Math.min(1, dt * 6); } }
     seatNear = P.ab && !P.ab.sit ? T.nearSeat(P.ab) : null; machine = !P.ab ? T.nearMachine(P.x, P.z, P.y) : null;
     if (!P.ferry && lake.ferry.arrived) lake.ferry.arrived = null;
     const fNear = !P.ferry && !P.boat && !P.car && !P.ab ? lake.nearFerry(P) : null, fP = P.ferry ? (lake.ferry.phase === 'dwell' ? 'GET OFF THE FERRY' : null) : fNear ? 'BOARD THE FERRY \u00b7 TO ' + lake.ferryStatus().next.toUpperCase() : null;
@@ -304,20 +366,25 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
       // ARENA APPROACH (Ben: epic): walking east down the Arena Path the camera drops low and looks up at the colosseum
       APR += ((!P.ab && !city.inside && P.y < 2 && P.x > 250 && P.x < 386 && Math.abs(P.z) < 22 && Math.sin(CAM.yaw) < -0.5 && CAM.drag <= 0 ? 1 : 0) - APR) * Math.min(1, dt * 1.2);
       if (APR > 0.01) { camera.position.y = THREE.MathUtils.lerp(camera.position.y, P.y + 2.9, APR); camera.position.x += Math.cos(CAM.yaw) * APR * 1.1; camera.position.z -= Math.sin(CAM.yaw) * APR * 1.1; camera.lookAt(tgt.x, tgt.y + APR * 3.6, tgt.z); }
-      { const th = Math.max(HZ.terrainAt(camera.position.x, camera.position.z), islandAt(camera.position.x, camera.position.z)) + (city.insideBox ? 0.45 : 1.2); if (camera.position.y < th) { camera.position.y = th; camera.lookAt(tgt); } }
+      if (P.y < -1.2) { const lim = -0.55; if (camera.position.y > lim) { camera.position.y = lim; camera.lookAt(tgt); } }   // s35: down a stair (cellar / vault / evidence / count room): the camera stays under the floor (it was pushed up through it)
+      else { const th = Math.max(HZ.terrainAt(camera.position.x, camera.position.z), islandAt(camera.position.x, camera.position.z)) + (city.insideBox ? 0.45 : 1.2); if (camera.position.y < th) { camera.position.y = th; camera.lookAt(tgt); } }
       if (P.ab) { const F = T.carF[P.ab.car], lx = (camera.position.x - F.x) * Math.cos(F.yaw) - (camera.position.z - F.z) * Math.sin(F.yaw); T.setView({ sit: false, camSide: Math.abs(lx) > 1.3 * (T.K || 1) ? Math.sign(lx) : 0 }); } }
     xray(!!city.insideBox && !P.car && fox.visible);
-    rooms.camFix(camera, P, dt); bowl.camFix(camera, P, dt);   // tavern darts: over-the-shoulder view of the board
+    { const F = RL.frame(P); RL.camWrap(F.m, camera, () => { rooms.camFix(camera, F.P, dt); bowl.camFix(camera, F.P, dt); }); }   // tavern darts: over-the-shoulder view of the board
     toastT -= dt; if (toastT <= 0) toast = '';
     emit(); }
   let lastEmit = 0; function emit() { const n = performance.now(); if (n - lastEmit < 120) return; lastEmit = n; onState(api.hud()); }
 
+  // s37 ONLINE: up to 4 foxes roam Meru together (worlds/meru2-net.js)
+  const NETW = createMeru2Net({ THREE, scene, cast, kit, P, name: () => { try { return save.data.name; } catch (e) { return ''; } },
+    CT: (w, h, fn) => { const c = document.createElement('canvas'); c.width = w; c.height = h; fn(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; } }, { onHud: n => { NET_HUD = n; } }); let NET_HUD = null;
   const api = {
+    get net() { return NETW; }, netHud: () => NET_HUD,
     enter(n) { on = true; yards.off(P); P.boat = false; P.ferry = false; lake.ferry.rider = false; night = B.isNight ? B.isNight() : !!n; if (law.jail()) toCell(); fox.visible = true; audio(); city.player = P; T.player = P; HZ.player = P; city.onChime = chime; B.setDriver(frame); emit(); }, exit() { on = false; yards.off(P); RD.off(P); sound.stopAll(); if (P.boat) { lake.park(); P.boat = false; } fox.visible = false; city.player = null; T.player = null; HZ.player = null; P.ab = null; T.setView(null); B.setDriver(null); keys.clear(); stick.x = stick.y = 0; },
     hud: () => ({ dialog: dlgHud(), ride: !!ride, hour: B.hour ? B.hour() : (night ? 21 : 12), place: city.inside ? city.inside.label + ' · inside' : (zone ? zone.label : 'Meru') + (zone ? ' [' + zone.key + ']' : ''), night, music: ai.music || (zone ? zone.music : ''), audioRoom: ai.room, leak: ai.leak, surface, swim: P.swim, breath: P.swim ? Math.round(P.breath / SWIM.BREATH * 100) : null, toast: toast || bowl.toast() || rescue.toast() || rooms.toast() || yards.toast() || RD.toast(), voice: voice || null, prompt, jail: law.jail() ? { left: Math.max(0, Math.ceil(law.jail().left)), escaping, bail: law.jail().bail } : null, owed: law.owed(), train: trainTxt, vehicle: P.heli ? 'heli' : P.carousel ? 'carousel' : P.skate ? 'skate' : P.tank ? 'tank' : P.boat ? 'speedboat' : P.car ? 'car' : P.swim ? 'swim' : '', rented: rentOk(), aboard: !!P.ab, sitting: !!(P.ab && P.ab.sit), outdoors: !P.ab && !P.car && !P.boat && !P.ferry && !P.skate && !P.tank && !P.heli && !P.carousel && (P.y < 1 || HZ.outdoor(P.x, P.z, P.y) || (islandAt(P.x, P.z) > 0.5 && Math.abs(islandAt(P.x, P.z) - P.y) < 0.6)) && !city.inside, hire: hire ? { label: hire.b.label, game: hire.b.hiring.game, url: hire.b.hiring.url } : null, pos: [Math.round(P.x), Math.round(P.z)], hp: life.hp(), hpMax: life.max(), foes: life.foes() }),
     // Game HUD contract
     bowlOn() { return bowl.active(); },
-    bowlGo() { if (law.jail()) return false; P.car = false; P.boat = false; P.ab = null; P.x = bowl.spot.x; P.z = bowl.spot.z; P.y = 0; P.vy = 0; P.ground = true; P.swim = false; bowl.begin(P); lastEmit = 0; return true; },
+    bowlGo() { if (law.jail()) return false; P.car = false; P.boat = false; P.ab = null; P.x = bowlSpotP.x; P.z = bowlSpotP.z; P.y = 0; P.vy = 0; P.ground = true; P.swim = false; bowl.begin(RL.frame(P).P); lastEmit = 0; return true; },
     start() {}, setStick(x, y) { stick.x = x; stick.y = y; }, jump() { if (bowl.active()) { bowl.quit(); lastEmit = 0; return; } if (P.ferry) return; if (yards.btn.three(P)) { lastEmit = 0; return; } if (RD.btn.three(P)) { lastEmit = 0; return; } if (P.boat) { lake.nitro(); return; } if (P.car) { CAR.brake = true; return; } if (P.ab) return; if (P.swim) { if (P.dive > 0) P.dive = 0; else if (rescue.carrying()) { toast = 'NO DIVING WHILE YOU CARRY SOMEONE'; toastT = 1.5; } else if (P.breath < 15) { toast = 'CATCH YOUR BREATH FIRST'; toastT = 1.5; } else { P.dive = 1; lake.splash(0.05); } lastEmit = 0; return; } if (P.ground) { P.vy = 7.5; P.ground = false; P.y += 0.05; } }, jumpUp() { CAR.brake = false; },
     talk() { if (bowl.active()) { bowl.press(); lastEmit = 0; return; } if (dlg) { dlgNext(); return; } if (talkNear && !civicSpot) { dlg = { t: talkNear, i: 0 }; lastEmit = 0; emit(); return; } const J = law.jail(); if (J && !escaping) { if (civic.nearCellDoor(P)) { paused = true; onPick(); } return; } if ((P.skate || P.tank) && yards.talk(P)) { lastEmit = 0; return; } if ((P.heli || P.carousel) && RD.talk(P)) { lastEmit = 0; return; } if (boatTalk()) return; if (!P.car && !P.ab && !civicSpot && yards.talk(P)) { lastEmit = 0; return; } if (!P.car && !P.ab && !P.boat && !civicSpot && RD.talk(P)) { lastEmit = 0; return; } if (civicSpot && civicSpot.key.startsWith('elev:')) { paused = true; onCivic(civicSpot.key); return; }
       if (civicSpot && civicSpot.key.startsWith('pent:')) { const k = civicSpot.key.slice(5); if (pentKey() === k) { toast = 'THE PENTHOUSE IS YOURS TONIGHT · FLOOR 2'; toastT = 3; } else if (save.spend(10)) { save.setStat('meru2Pent', { key: k, day: save.stat('meru2Day', 1) }); toast = 'PENTHOUSE RENTED · ROOM 204 · FLOOR 2'; toastT = 3.5; } else { toast = 'NOT ENOUGH CR'; toastT = 2; } lastEmit = 0; return; }
@@ -328,11 +395,11 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
     travel(key, mode) { const q = T.placeAt(key, mode); if (!q || P.car || P.ferry || law.jail()) return false; yards.off(P); if (P.boat) { lake.park(); P.boat = false; } P.ab = null; T.setView(null); P.x = q.x; P.z = q.z; P.y = q.y; P.vy = 0; P.yaw = q.yaw; CAM.yaw = q.yaw + Math.PI; if (mode === 'train') visit(T.stops.find(s => s.key === key)); paused = false; lastEmit = 0; emit(); return true; },
     pos: () => ({ x: P.x, z: P.z, y: P.y }), law,
     tp(x, z, y = 0, yaw) { yards.off(P); if (P.boat) lake.park(); lake.ferry.rider = false; Object.assign(P, { x, z, ab: null, car: false, boat: false, ferry: false, vy: 0 }); P.y = ground(x, z, y).h; if (yaw != null) { P.yaw = yaw; CAM.yaw = yaw + Math.PI; } lastEmit = 0; },   // test hook
-    elevator(key, f) { const q = apts.elevTo(key, f); if (!q) return; Object.assign(P, { x: q.x, z: q.z, y: q.y, vy: 0, yaw: q.yaw }); CAM.yaw = q.yaw + Math.PI; paused = false; lastEmit = 0; }, shop: { STOCK, ITEM_LABELS, buy: (k, key) => buy(save, k, key) },
+    elevator(key, f) { const q0 = apts.elevTo(key, f); if (!q0) return; const qw = RL.fwdAny(q0.x, q0.z, q0.yaw || 0), q = { ...q0, x: qw[0], z: qw[1], yaw: qw[2] }; Object.assign(P, { x: q.x, z: q.z, y: q.y, vy: 0, yaw: q.yaw }); CAM.yaw = q.yaw + Math.PI; paused = false; lastEmit = 0; }, shop: { STOCK, ITEM_LABELS, buy: (k, key) => buy(save, k, key) },
     arrest(kind) { law.jailUp(kind); toCell(); toast = 'ARRESTED · ' + kind.toUpperCase(); toastT = 3; lastEmit = 0; emit(); },
     pickDone(ok) { paused = false; if (ok) { civic.unlock(); escaping = true; toast = 'THE CELL IS OPEN · SNEAK PAST THE GUARD'; toastT = 4; } lastEmit = 0; },
     bailOut() { if (!law.bail()) return false; freeAt('BAIL PAID · YOU ARE FREE'); paused = false; return true; }, ticketOk: () => ticketOk(), melee() { if (bowl.active()) return; if (P.ferry) return; if (yards.btn.one(P)) return; if (RD.btn.one(P)) { lastEmit = 0; return; } if (P.boat) { lake.horn(); return; } if (P.swim && !P.ab) { if (rescue.grab(P)) { lastEmit = 0; return; } if (!boatTalk()) lake.splash(0.1); return; } if (P.car) { horn(); return; } if (hire) { paused = true; onHire(hire.b); return; } if (!P.ab && !law.jail()) life.attack('melee', P, fox); }, meleeUp() {}, range() { if (bowl.active()) return; if (P.ferry) return; if (yards.btn.two(P)) return; if (RD.btn.two(P)) { lastEmit = 0; return; } if (P.boat) { lake.powerTurn(); return; } if (P.swim && !P.ab) { if (!P.kickCd) { P.kick = LS.kickT; P.kickCd = SWIM.KICK_CD; P.sp = Math.max(P.sp, SW.kick); lake.splash(0.08); } return; } if (P.car) { CAR.lights = !CAR.lights; placeCar(); return; } if (!P.ab && !law.jail()) life.attack('range', P, fox); }, rangeUp() {},
-    rent() { if (rentOk() || !save.spend(RENT.day)) return false; save.setStat('meru2Rental', { until: day() }); save.setStat('meru2RentalCar', null); Object.assign(CAR, BAY, { speed: 0 }); placeCar(); return true; },
+    rent() { if (rentOk() || !save.spend(RENT.day)) return false; BAY = deskF2 && Math.hypot(P.x - deskF2.x, P.z - deskF2.z) < Math.hypot(P.x - deskF.x, P.z - deskF.z) ? BAY2 : BAY1; save.setStat('meru2Rental', { until: day() }); save.setStat('meru2RentalCar', null); Object.assign(CAR, BAY, { speed: 0 }); placeCar(); return true; },
     lookBy(dx, dy = 0) { if (P.ab && P.ab.sit) { CAM.sy = clamp(CAM.sy - dx * 0.006, -1.2, 1.2); CAM.sp = clamp(CAM.sp + dy * 0.003, -0.5, 0.5); return; } CAM.yaw -= dx * 0.008; CAM.pitch = clamp(CAM.pitch + dy * 0.004, city.insideBox ? -0.5 : 0.08, 1.2); CAM.drag = 1.5; } /* indoors: tilt below the fox to look up at the ceiling */, eyeLook(dx, dy) { api.lookBy(dx, dy); }, eyeRelease() {}, zoomBy(f) { CAM.dist = clamp(CAM.dist * f, 5, 16); },
     getCam: () => ({ dist: CAM.dist, pitch: CAM.pitch }), setCam(c) { if (c && c.dist) CAM.dist = clamp(c.dist, 5, 16); }, togglePov() {},
     mapData: () => ({ p: [P.x, P.z, P.yaw], indoor: false, b: L.BUILDINGS.map(b => [b.label, (b.f[0] + b.f[1]) / 2, (b.f[2] + b.f[3]) / 2]), f: [], e: [], q: rescue.marker() }),
@@ -342,6 +409,6 @@ export async function createWalk(B, { onState = () => {}, onHire = () => {}, onT
     useItem() {}, closeWheel() {}, choose() {}, closeDialog() { if (dlg) { dlg.t.obj.rotation.y = dlg.t.ry; dlg = null; lastEmit = 0; emit(); } }, nextLine() { dlgNext(); },
     destroy() { removeEventListener('keydown', kd); removeEventListener('keyup', ku); scene.remove(fox); },
   };
-  window.__meru2Walk = api; api._life = life; api._lake = lake; api._yards = yards; api.sound = sound; api.say = (k, u) => sound.say(k, u); api._frame = frame;   // test hook (tp, pos, life.debug)
+  window.__meru2Walk = api; api._life = life; api._lake = lake; api._yards = yards; api.sound = sound; api.say = (k, u) => sound.say(k, u); api._frame = frame; api._train = T; api._spots = allSpots; api._RL = RL; api._bowl = bowl; api._civic = civic;   // test hook (tp, pos, life.debug)
   return api;
 }
