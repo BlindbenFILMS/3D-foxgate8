@@ -225,7 +225,7 @@ export async function createGame({ container, minimap, options = {}, onState = (
   embers.geometry.setAttribute('position', new THREE.BufferAttribute(embArr, 3)); scene.add(embers);
   const brazierPos = [[1080, 560], [1800, 560], [1080, 1060], [1800, 1060]].map(([a, b]) => [AX(a), AZ(b)]);
 
-  const { makeFox, animFox, MOOD, moodOf } = foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, pick, clamp, smooth, damp });
+  const { makeFox, animFox, MOOD, moodOf } = foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, pick, clamp, smooth, damp, merge: !/[?&]foxmerge=0/.test(location.search) });
   const cast = castKit({ THREE, M, toon, makeFox }, await loadCastRigs());   // player, Hope, Noble: engine/cast.js
   const EYES = { hope: ['#f472b6', '#2dd4bf'], noble: ['#dc2626', '#dc2626'], ulric: ['#65a30d', '#65a30d'], grand: ['#a78bfa', '#a78bfa'], james: ['#16a34a', '#16a34a'], lucius: ['#eab308', '#eab308'], jon: ['#d97706', '#d97706'] };
   const MOODS = { hope: 'happy', noble: 'determined', ulric: 'stern', grand: 'stern', james: 'stern', lucius: 'smug', jon: 'warm' };

@@ -28,6 +28,11 @@ export function buildTrain({ THREE, scene, toon, grad, CT, L, touch }) {
   function frame(st, x, z) { if (Math.abs(x - st.c[0]) > 62 || Math.abs(z - st.c[1]) > 62) return null; const i0 = Math.round(st.s / LEN * N); let bo = 0, bd = 1e18; for (let o = -52; o <= 52; o++) { const i = mod(i0 + o, N), q = (SX[i] - x) ** 2 + (SZ[i] - z) ** 2; if (q < bd) { bd = q; bo = o; } }
     const a0 = bo * LEN / N, p = at(st.s + a0), dx = x - p.x, dz = z - p.z, l = dx * p.tz - dz * p.tx; return { a: a0 + dx * p.tx + dz * p.tz, ls: l * st.side - PO }; }
   const toW = (st, a, ls) => { const p = at(st.s + a), l = (ls + PO) * st.side; return { x: p.x + p.tz * l, z: p.z - p.tx * l, yaw: Math.atan2(p.tx, p.tz) }; };
+  // s35: a station MOVED in the Town Layout Workshop gets its street lift at the platform point nearest the building (Lake Station sat 80 m
+  // from its lift). Town: lands on -26 again (right outside its south door). worlds/meru2-stationlink.js adds a covered walk if still apart.
+  for (const st of stops) { if (!st.b || !st.b.orig) continue; const bc = [(st.b.f[0] + st.b.f[1]) / 2, (st.b.f[2] + st.b.f[3]) / 2]; let best = st.liftA, bd = 1e18;
+    { const w0 = toW(st, st.liftA, 12.8); if ([st.b.door, st.b.door2].some(d => d && Math.hypot(d[0] - w0.x, d[1] - w0.z) < 5)) continue; }   // already at a door: keep it
+    for (let a = -HALF + 4; a <= HALF - 4; a++) { const w = toW(st, a, 12.8), d = (w.x - bc[0]) ** 2 + (w.z - bc[1]) ** 2; if (d < bd) { bd = d; best = a; } } st.liftA = best; }
 
   // ---------- track: deck, red rail, pillars (kept off roads and water, allowed in a road's centre median) ----------
   // train polish: a U-channel concrete GUIDEWAY swept along the loop (red band on both faces), two steel rails in the channel, sleepers
@@ -187,7 +192,7 @@ export function buildTrain({ THREE, scene, toon, grad, CT, L, touch }) {
   function onPlatform(x, z, y) { if (y < 6) return null; for (const st of stops) { const f = frame(st, x, z); if (f && Math.abs(f.a) <= HALF + 1 && f.ls > 1 && f.ls < 11) return st; } return null; }
   function keepOut(x, z, m = 0) { for (const st of stops) { const f = frame(st, x, z); if (f && Math.abs(f.a) < HALF + 4 + m && f.ls > -m && f.ls < 12 + m) return true; } return false; }
   function placeAt(key, mode) { const st = stops.find(q => q.key === key); if (!st) return null;
-    if (mode === 'train') { const w = toW(st, st.liftA - 5, 5); return { x: w.x, z: w.z, y: PLAT_Y, yaw: w.yaw }; }
+    if (mode === 'train') { const w = toW(st, st.liftA - 5 > -HALF + 2 ? st.liftA - 5 : st.liftA + 5, 5); return { x: w.x, z: w.z, y: PLAT_Y, yaw: w.yaw }; }
     const b = st.b, F = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }[b.face]; return { x: b.door[0] + F[0] * 3.5, z: b.door[1] + F[1] * 3.5, y: 0, yaw: Math.atan2(F[0], F[1]) }; }
   function setView(vw) { for (const c of cars) { const walk = vw && !vw.sit; c.roof.visible = !walk; c.wl.visible = !(walk && vw.camSide < 0); c.wr.visible = !(walk && vw.camSide > 0); c.dl.visible = c.dl.userData.ads.visible = c.dl.userData.fr.visible = c.wl.visible; c.dr.visible = c.dr.userData.ads.visible = c.dr.userData.fr.visible = c.wr.visible; for (const l of c.leaves) l.m.visible = !(walk && vw.camSide && l.sd === vw.camSide); } }
   function setNight(on) { night = on; adMat.color.set(on ? 0xffffff : 0xdedede); winMat.color.set(on ? 0xffe2b0 : 0x9fd6ff); winMat.opacity = on ? 0.42 : 0.35; for (const c of cars) { c.lamp.visible = on; c.lamp.intensity = on ? 6 : 0; } glow.visible = on; for (const m of signs) m.color.set(on ? 0xffffff : 0xe8e8e8); }
@@ -209,7 +214,7 @@ export function buildTrain({ THREE, scene, toon, grad, CT, L, touch }) {
       if (riding) { if (!Lf.trip) { Lf.wait += dt; if (Lf.wait > 0.7) { Lf.trip = true; Lf.target = Lf.y < 4 ? PLAT_Y : 0.05; } } } else if (!onPad) { Lf.trip = false; Lf.wait = 0; }
       Lf.y += clamp(Lf.target - Lf.y, -3 * dt, 3 * dt); Lf.mesh.position.y = Lf.y - 0.1; } }
   placeCars();
-  const api = { toW: (key, a, ls) => toW(stops.find(q => q.key === key), a, ls), carA: (key, k) => carA(stops.find(q => q.key === key), k), stops, PLAT_Y, LEN, K, line: L.TRAIN.line, colliders, groundAt, walkClamp, moveInCar, toWorldCar, carF, docked, nearSeat, nearMachine, onPlatform, keepOut, placeAt, setView, setNight, status, tick, player: null, onArrive: null, hold: false, dwell: null,
+  const api = { toW: (key, a, ls) => toW(stops.find(q => q.key === key), a, ls), carA: (key, k) => carA(stops.find(q => q.key === key), k), stops, PLAT_Y, LEN, K, line: L.TRAIN.line, colliders, groundAt, walkClamp, moveInCar, toWorldCar, carF, docked, nearSeat, nearMachine, addMachine(key, x, z) { const st = stops.find(q => q.key === key); if (st) machines.push({ st, x, z, hall: true }); }, onPlatform, keepOut, placeAt, setView, setNight, status, tick, player: null, onArrive: null, hold: false, dwell: null,
     // ride demo: bring the train in to a stop from 'lead' metres back (it pulls in and opens its doors)
     summon(key, lead = 150) { const i = stops.findIndex(q => q.key === key); if (i < 0) return; cur = i; phase = 'run'; S = mod(stops[i].s + DOCK - lead, LEN); v = 12; timer = 0; doorOpen = 0; placeCars(); },
     phase: () => phase };

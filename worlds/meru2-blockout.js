@@ -3,6 +3,7 @@
 // a gold-framed door + NOW HIRING sign, the train track + stations, a skyline of glass towers, lamps along the foot paths, speakers
 // with their 7 m voice triggers, zone labels. Orbit camera (drag / pinch / wheel), fly-to zones, day / night. Phone budget: one ground
 // texture, instanced lamps + towers, ~200 draw calls.
+import { keepClear, keepClearRects } from './meru2-townnet.js';
 import * as THREE from '../vendor/three/three.module.js';
 import * as L from './meru2-layout.js';
 import { buildCity } from './meru2-city.js';
@@ -79,6 +80,7 @@ export async function createBlockout({ container, onState = () => {} }) {
     const visit = (o, depth) => { if (!o.visible || o.isLight || o.isCamera || o.userData.noCull || o.userData.P) return;
       if (!o.userData.pcR) { box.setFromObject(o); if (box.isEmpty()) return; box.getBoundingSphere(sph); o.userData.pcR = sph.radius; o.updateWorldMatrix(true, false); o.userData.pcL = o.worldToLocal(sph.center.clone()); }   // centre kept in LOCAL space, so moving things (train, cars, boats) are tested where they are now
       if (o.userData.pcR < 22 || (o.name === 'sbCell' && o.userData.pcR < 70)) { out.push(o); return; }   /* merged static cells are culled as one piece */ if (depth < 3) for (const c of o.children) visit(c, depth + 1); };
+    for (const it of PC.list || []) if (it.far) for (const q of it.all) q.layers.set(0);   // s35: never leave a stale 'far' layer on things that drop out of the list (hidden during the scan): empty station halls, invisible lobby walls
     for (const c of foxCullScene.children) visit(c, 0); PC.list = out.map(o => { const all = []; o.traverse(q => all.push(q)); return { o, all, far: false }; }); }
   function propCull(now) { const cp = foxCullCam.position; if (!PC.ready) return; if (now - PC.scanT > 6000) { PC.scanT = now; propScan(); } if (now - PC.t < 250) return; PC.t = now;
     const R = (foxCullWalk() ? 1 : 2) * (matchMedia('(pointer: coarse)').matches ? 110 : 190), R2 = R * R;
@@ -133,7 +135,7 @@ export async function createBlockout({ container, onState = () => {} }) {
     g.strokeStyle = 'rgba(0,0,0,0.08)'; g.lineWidth = 1; for (let x = -45; x <= 45; x += 3) { g.beginPath(); g.moveTo(X(x), Z(-40)); g.lineTo(X(x), Z(40)); g.stroke(); }   // plaza paving joints
     g.lineCap = 'round'; g.lineJoin = 'round';
     for (const r of L.ROADS) { const line = (col, wd, dash) => { g.strokeStyle = col; g.lineWidth = wd * k; g.setLineDash(dash || []); g.beginPath(); r.p.forEach(([x, z], i) => i ? g.lineTo(X(x), Z(z)) : g.moveTo(X(x), Z(z))); g.stroke(); g.setLineDash([]); };
-      line('#bdb7ae', r.w + 6.4); line('#e8e4dc', r.w + 6); line('#3d3b3a', r.w); /* Ben: sidewalks 3 m a side */ line('#f5d35a', 0.35, [3 * k, 3 * k]); }
+      line('#bdb7ae', r.w + 7.0); line('#e8e4dc', r.w + 6.6); line('#3d3b3a', r.w); /* Ben: sidewalks 3 m a side; s34 +10 % = 3.3 m */ line('#f5d35a', 0.35, [3 * k, 3 * k]); }
     for (const P of L.PATHS) { g.strokeStyle = 'rgba(120,96,70,0.35)'; g.lineWidth = 4 * k; g.beginPath(); P.p.forEach(([x, z], i) => i ? g.lineTo(X(x), Z(z)) : g.moveTo(X(x), Z(z))); g.stroke(); }
     for (const b of L.BUILDINGS) if (b.lot) { const r = b.lot.r; g.fillStyle = '#4a4745'; g.fillRect(X(r[0]), Z(r[2]), (r[1] - r[0]) * k, (r[3] - r[2]) * k); g.strokeStyle = '#f3f2f2'; g.lineWidth = 0.25 * k; for (let i = 1; i < b.lot.bays; i++) { const x = r[0] + (r[1] - r[0]) * i / b.lot.bays; g.beginPath(); g.moveTo(X(x), Z(r[2] + 1)); g.lineTo(X(x), Z(r[2] + 7)); g.stroke(); } }
     lakePath(g, X, Z, 0); g.fillStyle = '#3c87b8'; g.fill(); });
@@ -167,13 +169,14 @@ export async function createBlockout({ container, onState = () => {} }) {
 
   // ---------- step 2: the Town Square city centre (real shells, sliding doors, cutaway, plaza, cars) ----------
   const train = buildTrain({ THREE, scene, toon, grad, CT, L, touch });
-  const city = buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoid: (x, z, m) => train.keepOut(x, z, m) });
+  const KC = /[?&]oldpaths=1/.test(location.search) ? () => false : keepClear(L);   // s34: nothing is placed on Ben's fountain-area paths (+ 1 m)
+  const city = buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoid: (x, z, m) => train.keepOut(x, z, m) || KC(x, z, m || 0) });
   const signs = buildSigns({ THREE, scene, CT, L, city, touch });   // art pass: a signature animated sign per building
   const heights = buildHeights({ THREE, scene, toon, grad, CT, L, touch });
   const nature = buildNature({ THREE, scene, L, groundCanvas: groundTex.image, heightAt: (x, z) => heights.terrainAt(x, z), touch });   // grass blades in the wind, clouds, birds   // step 3 part 4: hills, trails, decks, lighthouses
-  const paths = buildPaths({ THREE, scene, toon, CT, L, touch, avoid: (x, z, m) => train.keepOut(x, z, m) || city.covers(x, z) });   // step 4: the four paths
+  const paths = buildPaths({ THREE, scene, toon, CT, L, touch, avoid: (x, z, m) => train.keepOut(x, z, m) || city.covers(x, z) || KC(x, z, m || 0) });   // step 4: the four paths
   // ---------- buildings ----------
-  const HGT = { tavern: 9, casino: 14, bowling: 10, itemshop: 6, armory: 6, fortune: 5, burgers: 6, police: 12, bank: 16, carRental: 5, crest: 34, lake: 46, barracks: 14, tankWorks: 12, tankRange: 10, defense: 6, museum: 10, permit: 5, cave: 18, blindSchool: 10, boatworks: 8, boathouse: 7, ferryDock: 3, skateGate: 4 };
+  const HGT = { tavern: 9, casino: 14, bowling: 10, itemshop: 6, armory: 6, fortune: 5, burgers: 6, police: 12, bank: 16, carRental: 5, carRental2: 5, crest: 34, lake: 46, barracks: 14, tankWorks: 12, tankRange: 10, defense: 6, museum: 10, permit: 5, cave: 18, blindSchool: 10, boatworks: 8, boathouse: 7, ferryDock: 3, skateGate: 4 };
   const COL = { tavern: '#b8936a', casino: '#3a2f4a', bowling: '#c94c3a', police: '#2e4a6b', bank: '#e9e3d6', crest: '#a9bccb', lake: '#8fb8cf', barracks: '#9b8f7d', tankWorks: '#6c7166', tankRange: '#7a7a63', defense: '#5f6b5a', museum: '#c9bba0', cave: '#6e6458', blindSchool: '#e8d9b8', boatworks: '#8b6a48', boathouse: '#7d5e43' };
   const gold = new THREE.MeshBasicMaterial({ color: 0xffc64a }), glass = new THREE.MeshPhongMaterial({ color: 0x9fd6ff, transparent: true, opacity: 0.45, shininess: 100 });
   const hireTex = CT(256, 96, (g, w, h) => { g.fillStyle = '#16a34a'; g.fillRect(0, 0, w, h); g.fillStyle = '#ffffff'; g.font = '900 38px Archivo, sans-serif'; g.textBaseline = 'middle'; g.fillText('NOW', 18, 30); g.fillText('HIRING', 18, 70); g.fillStyle = '#ffd23a'; g.fillRect(w - 50, 22, 30, 52); g.fillStyle = '#16a34a'; g.beginPath(); g.moveTo(w - 42, 32); g.lineTo(w - 26, 48); g.lineTo(w - 42, 64); g.fill(); });
@@ -188,7 +191,7 @@ export async function createBlockout({ container, onState = () => {} }) {
       for (const sx of [-1, 1]) { const p = new THREE.Mesh(new THREE.BoxGeometry(0.45, dh + 0.45, 0.4), gold); p.position.set(sx * (dw / 2 + 0.22), (dh + 0.45) / 2, 0); g.add(p); }
       const top = new THREE.Mesh(new THREE.BoxGeometry(dw + 0.9, 0.45, 0.4), gold); top.position.y = dh + 0.22; g.add(top);
       const gl = new THREE.Mesh(new THREE.PlaneGeometry(dw, dh), glass); gl.position.set(0, dh / 2, 0.05); g.add(gl);
-      if (b.hiring) { const s = new THREE.Group(); s.position.set(dw / 2 + 2.2, 0, 1.2); g.add(s); const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.6, 0.15), toon('#201e1d')); post.position.y = 0.8; s.add(post); const pl = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.82), hireMat); pl.position.y = 2.0; s.add(pl); const back = pl.clone(); back.rotation.y = Math.PI; s.add(back); hires.push({ b, s }); } } }
+      if (b.hiring && !b.hiring.play) { const s = new THREE.Group(); s.position.set(dw / 2 + 2.2, 0, 1.2); g.add(s); const post = new THREE.Mesh(new THREE.BoxGeometry(0.15, 1.6, 0.15), toon('#201e1d')); post.position.y = 0.8; s.add(post); const pl = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.82), hireMat); pl.position.y = 2.0; s.add(pl); const back = pl.clone(); back.rotation.y = Math.PI; s.add(back); hires.push({ b, s }); } } }
     const lb = label(b.label.toUpperCase(), st ? '#ec3013' : '#201e1d', '#ffffff', 0.55); lb.position.set(x0, h + 6, (z0 + z1) / 2); labels.add(lb); }
   // the cave mouth: rock face + broken columns
   { const c = L.BUILDINGS.find(b => b.key === 'cave'); if (c) { const [x0, x1, z0, z1] = c.f; const rock = toon('#6e6458'); for (let i = 0; i < 9; i++) { const r = new THREE.Mesh(new THREE.DodecahedronGeometry(6 + Math.random() * 6), rock); r.position.set(x0 - 6 + Math.random() * 10, 4 + Math.random() * 8, z0 - 18 + i * 6); r.castShadow = true; scene.add(r); }
@@ -296,11 +299,13 @@ export async function createBlockout({ container, onState = () => {} }) {
     ib(geo, toon('#5d636b'), PB); ib(new THREE.CylinderGeometry(0.5, 1, 1, 6), toon('#8a9099'), MS);
     ib(new THREE.IcosahedronGeometry(1, 0), toon('#5f8f45'), LEAF.map(a => [a[0], a[1], a[2], a[3], a[3] * 0.9, a[3]]));
     towers.userData.stats = { boxes: BX.length, districts: 5 }; }
+  const KCR = /[?&]oldpaths=1/.test(location.search) ? [] : keepClearRects(L); if (city.colliders) city.colliders.push(...KCR);   // s34: decoration keeps off Ben's paths
   const breeze = buildBreeze({ THREE, scene, L, city, touch });   // banners, windsocks, kites, sailboats, washing line
   const market = buildMarket({ THREE, scene, L, city, toon, CT, touch });   // exterior polish round 2: market stalls + Lanes Court tables
   const gardens = buildGardens({ THREE, scene, L, city, toon, touch });   // exterior polish round 3: South Gardens pond + bandstand, Civic Row trees
   const parade = buildParade({ THREE, scene, L, city, toon, CT, touch });   // exterior polish round 4: the parade ground
   const arenaRoad = buildArenaRoad({ THREE, scene, L, city, toon, touch });
+  if (city.colliders) for (let i = city.colliders.length - 1; i >= 0; i--) if (city.colliders[i]._kc) city.colliders.splice(i, 1);
   const arena = buildArena({ THREE, scene, L, city, toon, CT, touch });   // the Meru Arena colosseum + forecourt (see-through arches, crowd, royal box)   // exterior polish round 4b: Arena Path fences, hay, wildflowers
   const lakeShore = buildLakeShore({ THREE, scene, L, city, toon, touch });   // exterior polish round 6: Lake Path edging, viewing deck, beach set, lifeguard tower, swim floats
   const townGround = buildTownGround({ THREE, scene, L, toon, touch, city });   // exterior polish: raised kerbs at paving / lawn edges
@@ -400,7 +405,7 @@ export async function createBlockout({ container, onState = () => {} }) {
   raf = requestAnimationFrame(frame);
   onState({ ready: true, counts: { buildings: L.BUILDINGS.length, speakers: L.SPEAKERS.length, lamps: lampPts.length + city.stats.lamps, hiring: L.BUILDINGS.filter(b => b.hiring).length, doors: city.stats.doors, trees: city.stats.trees, cars: city.stats.cars } });
   const API = window.__meru2 = { flyTo, pan, setNight, setTime, setHour, addHour: (n = 1) => setHour(TOD.h + n), hour: () => TOD.h, isNight: () => TOD.goal > 0.4, time: () => TOD.t, water, show(what, on) { if (what === 'labels') zoneLabels.userData.on = on; ({ rings, labels: zoneLabels, speakers: spk, towers, doors: doorsG })[what].visible = on; },
-    K: { THREE, scene, camera, renderer, toon, grad, CT, L, el, I }, city, signs, nature, districts, breeze, mist, market, gardens, parade, train, heights, paths, arena, spk, ownBlocks, setDriver(fn) { driver = fn; }, orbit: C,
+    K: { THREE, scene, camera, renderer, toon, grad, CT, L, el, I }, city, signs, nature, districts, breeze, mist, market, gardens, parade, train, heights, paths, arena, spk, rings, ownBlocks, setDriver(fn) { driver = fn; }, orbit: C,
     zones: L.ZONES.map(z => ({ key: z.key, label: z.label })), destroy() { dead = true; cancelAnimationFrame(raf); ro.disconnect(); renderer.dispose(); el.remove(); } };   // window.__meru2 = test hook
   return API;
 }

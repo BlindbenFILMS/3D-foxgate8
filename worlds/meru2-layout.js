@@ -2,6 +2,7 @@
 // Every rule in SOUND_LAYOUT_RULES.md is checked by checkLayout() and shown on Meru 2 Layout.dc.html.
 // Speaker keys are the existing pinned cast keys (worlds/meru*.js). Positions marked draft:true wait for Ben's dialogue notes.
 export const MAP = { half: 450 };
+export const SIDEWALK = 3.3;   // s34 (Ben): sidewalk width each side of every road (was 3 m); nothing green or wooden stands on it
 
 // zones: music + label areas. depth = the size along the main path through them (checked ≥ 30 m). busy = trim music for voices.
 export const ZONES = [
@@ -86,16 +87,17 @@ export const LIGHTHOUSES = [
 
 // buildings: footprint, door (world point on the wall) + face, room table (centre, w, d, floor, kind), reverb wish.
 export const BUILDINGS = [
-  { key: 'tavern', label: 'Tavern', f: [12, 52, -100, -60], door: [32, -60], face: 'S', room: { w: 24, d: 20, floor: 'wood' }, note: 'moved east of the Castle Path in step 2 so the path runs straight north' },
+  { key: 'tavern', label: 'Tavern', f: [12, 52, -100, -60], door: [32, -60], face: 'S', solid: ['E'], room: { w: 24, d: 20, floor: 'wood' }, note: 'moved east of the Castle Path in step 2 so the path runs straight north' },
   { key: 'casino', label: 'Casino', f: [-150, -105, -32, 32], door: [-105, 0], face: 'E', room: { w: 30, d: 24, floor: 'rug' }, busy: true },
   { key: 'bowling', label: 'Meru Lanes', f: [105, 150, -38, 10], door: [105, -14], face: 'W', room: { w: 28, d: 30, floor: 'wood' } },
-  { key: 'itemshop', label: 'Item Shop', f: [-38, -18, 60, 76], door: [-28, 60], face: 'N', room: { w: 12, d: 10, floor: 'wood' } },
+  { key: 'itemshop', label: 'Item Shop', f: [-56, -11, 60, 108], door: [-28, 60], face: 'N', room: { w: 43, d: 46, floor: 'stone' }, note: 'Ben (s33): the size of the Bank turned 90°, 45 x 48 (4 m clear of the Crestview door) (was -38..-18 x 60..76): Kia at the front + the MERU MARKET grocery behind (worlds/meru2-grocery.js)' },
   { key: 'armory', label: 'Armory', f: [18, 38, 60, 76], door: [28, 60], face: 'N', room: { w: 12, d: 10, floor: 'wood' } },
   { key: 'fortune', label: 'Fortune Teller', f: [-86, -74, -60, -48], door: [-80, -48], face: 'S', room: { w: 10, d: 10, floor: 'rug' } },
-  { key: 'burgers', hiring: { game: 'meruBurgers', url: 'Meru Burgers.dc.html?embed=1' }, label: 'Burgers', f: [70, 92, 40, 56], door: [70, 48], face: 'W', room: { w: 20, d: 14, floor: 'wood' } },
+  { key: 'burgers', hiring: { game: 'meruBurgers', url: 'Meru Burgers.dc.html?embed=1' }, label: 'Burgers', f: [70, 114, 32, 64], door: [70, 48], face: 'W', room: { w: 40, d: 28, floor: 'wood' }, note: 'Ben (s33): twice the size (was 70..92 x 40..56); diner by the door, new dining hall behind, back of house at the east end' },
   { key: 'police', label: 'Police', f: [-110, -62, -125, -80], door: [-86, -80], face: 'S', room: { w: 12, d: 12, floor: 'stone' }, rooms: [{ key: 'jail', w: 20, d: 20, floor: 'stone', at: [-86, -110] }] },
   { key: 'bank', label: 'Bank', f: [62, 110, -125, -80], door: [86, -80], face: 'S', room: { w: 22, d: 20, floor: 'stone' }, reverb: 'marble hall, a little tail' },
   { key: 'carRental', label: 'Car Rental', f: [118, 132, 26, 38], door: [125, 26], face: 'N', room: { w: 10, d: 8, floor: 'wood' }, lot: { r: [134, 156, 22, 44], bays: 6, note: 'rental lot: the rented car waits here and is returned here' } },
+  { key: 'carRental2', label: 'Car Rental', f: [-86, -72, -128, -116], door: [-79, -128], face: 'N', room: { w: 10, d: 8, floor: 'wood' }, lot: { r: [-108, -90, -130, -112], bays: 5, note: 'second rental lot (Ben, s34): between Crestview and the Tavern, by the ring road' }, note: 'Ben (s34): a second Car Rental between Crestview Tower and the Tavern, facing north onto the ring road; same desk + car as the first' },
   { key: 'crest', label: 'Crestview House', f: [-96, -60, 70, 110], door: [-60, 90], face: 'E', room: { w: 24, d: 24, floor: 'wood' } },
   { key: 'lake', label: 'Lakeside Tower', f: [100, 140, 100, 140], door: [100, 120], face: 'W', room: { w: 24, d: 24, floor: 'wood' }, note: 'step 2b: moved inside the ring road (South Gardens) so the train strip z 160-180 is clear' },
   { key: 'stationTown', label: 'Town Square Station', f: [-20, 20, 112, 132], door: [0, 112], face: 'N', door2: [0, 132], face2: 'S', room: { w: 40, d: 20, floor: 'stone' }, reverb: 'station hall', note: 'through-hall: the Lake Path walks in the north door and out the south door' },
@@ -105,6 +107,7 @@ export const BUILDINGS = [
   { key: 'defense', label: 'Planet Defense Base', f: [225, 255, -445, -415], door: [225, -430], face: 'W', room: { w: 22, d: 14, floor: 'stone' }, note: 'bunker rebuilt 22 x 14 for the 12 m rule; on a 16 m plateau; road gate opens after the Tank Range' },
   { key: 'stationCastle', label: 'Castle Station', f: [-75, -45, -320, -300], door: [-45, -310], face: 'E', room: { w: 30, d: 20, floor: 'stone' } },
   { key: 'skateGate', hiring: { game: 'skatePark', url: 'Skate Park.dc.html?embed=1' }, label: 'Skate Park', f: [-171, -169, -7, 7], door: [-170, 0], face: 'E', room: null, open: true, note: 'open-air park, Tony inside' },
+  { key: 'pearlSail', hiring: { game: 'pearlSailTower', url: 'Pearl Sail Tower.dc.html?embed=1', play: true }, label: 'Pearl Sail', f: [381, 385, 222.6, 223.4], door: [383, 222.6], face: 'N', room: null, open: true, note: 's35: battle map door on the sail belly (Pearl Quarter); opens the side-on tower climb' },
   { key: 'stationRuins', label: 'Skate / Ruins Station', f: [-230, -200, 60, 80], door: [-215, 60], face: 'N', room: { w: 30, d: 20, floor: 'stone' } },
   { key: 'museum', label: 'Ruins Museum', f: [-395, -365, -70, -45], door: [-380, -45], face: 'S', room: { w: 20, d: 20, floor: 'stone' }, reverb: 'old stone hall' },
   { key: 'permit', label: 'Permit Office', f: [-262, -248, -38, -26], door: [-255, -26], face: 'S', room: { w: 12, d: 10, floor: 'wood' } },
@@ -114,7 +117,7 @@ export const BUILDINGS = [
   { key: 'boathouse', hiring: { game: 'meruSpeedboatBay', url: 'Speedboat Bay.dc.html?embed=1' }, label: 'Speedboat Bay boathouse', f: [60, 90, 205, 228], door: [75, 205], face: 'N', room: { w: 22, d: 20, floor: 'wood' } },
   { key: 'stationLake', label: 'Lake Station', f: [-60, -30, 180, 198], door: [-45, 180], face: 'N', room: { w: 30, d: 20, floor: 'stone' } },
   { key: 'ferryDock', label: 'Pearl Ferry Dock', f: [140, 170, 205, 225], door: [155, 205], face: 'N', room: null },
-  { key: 'stationPearl', label: 'Pearl Dock Station', f: [180, 210, 180, 198], door: [180, 189], face: 'W', room: { w: 30, d: 20, floor: 'stone' } },
+  { key: 'stationPearl', label: 'Pearl Dock Station', f: [180, 210, 183.5, 201.5], door: [180, 192.5], face: 'W', note2: 's35: 3.5 m south (was z 180..198): its platform lift stood half inside the north wall', room: { w: 30, d: 20, floor: 'stone' } },
   { key: 'stationArena', label: 'Arena Station', f: [380, 410, 70, 90], door: [395, 70], face: 'N', room: { w: 30, d: 20, floor: 'stone' } },
 ];
 // the train loop + its 6 stops (station keys above); cars only on ROADS, never on the foot paths.
@@ -229,7 +232,7 @@ export const SPEAKERS = [
   { key: 'burgerCook', tier: 1, at: { room: 'burgers', x: -5, z: -4 } }, { key: 'michaelJay', tier: 1, at: { room: 'burgers', x: 7, z: 3 } },
   { key: 'policeDesk', tier: 1, at: { room: 'police', x: 0, z: -3 }, newAvatar: true }, { key: 'jailGuard', tier: 2, at: { room: 'jail', x: 0, z: 6 }, newAvatar: true },
   { key: 'bankTeller', tier: 1, at: { room: 'bank', x: -5, z: -6 }, newAvatar: true }, { key: 'bankVault', tier: 2, at: { room: 'bank', x: 7, z: 4 }, newAvatar: true },
-  { key: 'rentalClerk', tier: 1, at: { room: 'carRental', x: 0, z: -2 }, newAvatar: true },
+  { key: 'rentalClerk', tier: 1, at: { room: 'carRental', x: 0, z: -2 }, newAvatar: true }, { key: 'rentalClerk2', tier: 1, at: { room: 'carRental2', x: 0, z: 2 }, newAvatar: true },
   { key: 'ticketClerk', tier: 1, at: { room: 'stationTown', x: -10, z: 0 }, newAvatar: true }, { key: 'trainConductor', tier: 1, at: { room: 'train', x: 0, z: 0 }, newAvatar: true },
   { key: 'aptRealCrest', tier: 1, at: { room: 'crest', x: 0, z: -6 } }, { key: 'aptRealLake', tier: 1, at: { room: 'lake', x: 0, z: -6 } },
   { key: 'barracksGuardCaptain', tier: 1, at: { room: 'barracks', x: -8, z: 0 } }, { key: 'barracksMasterOfArms', tier: 1, at: { room: 'barracks', x: 8, z: 6 } },
@@ -270,3 +273,63 @@ export const NEW_AVATARS = SPEAKERS.filter(s => s.newAvatar);
 export const WILD = { key: 'ruinsWild', area: [-405, -245, -175, 175], band: 9, leash: 26, respawn: 40, spots: [
   { kind: 'rat', x: -290, z: 24 }, { kind: 'rat', x: -300, z: -30 }, { kind: 'rat', x: -335, z: 34 }, { kind: 'rat', x: -350, z: -24 }, { kind: 'rat', x: -372, z: 40 }, { kind: 'rat', x: -395, z: 22 },
   { kind: 'rat', x: -290, z: -60 }, { kind: 'rat', x: -345, z: 62 }, { kind: 'bat', x: -310, z: -22 }, { kind: 'bat', x: -365, z: 20 }, { kind: 'bat', x: -300, z: 40 }, { kind: 'bat', x: -385, z: -14 }] };
+
+// ---------- s33: BEN'S TOWN LAYOUT (Town Layout Workshop, 'meru2.townLayout'; this copy is the default) ----------
+// Both walking paths clear (Ruins <-> Arena along z 0, Castle <-> Lake along x 0, 12 m), only the fountain in them. Applied here at load:
+// each moved building keeps b.orig { f, door, face }; MOVES = the quarter-turn + shift from the old place to the new (worlds/meru2-relocate.js
+// carries the interiors). The workshop's live copy in localStorage wins, so a change there shows in the game on the next load.
+export const TOWN_MOVES = {"width":16,"b":{"stationTown":{"f":[12,52,116,136],"door":[32,116],"face":"N"},"stationLake":{"f":[-140,-110,161,179],"door":[-125,161],"face":"N"},"lake":{"f":[61,101,80,120],"door":[81,80],"face":"N"},"crest":{"f":[-149,-113,-131,-91],"door":[-113,-111],"face":"E"},"bank":{"f":[-63,-15,97,142],"door":[-39,97],"face":"N"},"casino":{"f":[14.5,78.5,-127.5,-82.5],"door":[46.5,-82.5],"face":"S"},"tavern":{"f":[-58,-18,-122,-82],"door":[-38,-82],"face":"S"},"carRental":{"f":[84,98,-87,-75],"door":[91,-75],"face":"S"},"burgers":{"f":[103,147,19,51],"door":[103,35],"face":"W"},"bowling":{"f":[102,147,-67,-19],"door":[102,-43],"face":"W"},"police":{"f":[-143.5,-98.5,-66.5,-18.5],"door":[-98.5,-42.5],"face":"E"},"armory":{"f":[-117,-101,67,87],"door":[-101,77],"face":"E"},"fortune":{"f":[-96,-84,97,109],"door":[-90,97],"face":"N"},"itemshop":{"f":[-146,-98,18.5,63.5],"door":[-98,41],"face":"E"}}};
+// s34: FIXED BACK DOORS (Ben): placed by hand in each building's ORIGINAL frame (before TOWN_MOVES), so a moved building carries its
+// back door with it. These win over the auto planner (worlds/meru2-roadside.js planBackDoors only fills buildings not listed here).
+export const BACK_DOORS = {
+  bowling: { door: [150, 3.2], face: 'E', note: 'east wall where the old blank arcade row stood, 4.5 m clear of the Claw Crane' },
+  itemshop: { door: [-41, 108], face: 'S', note: 'grocery back wall (now the west wall, road side), in the gap between the 1st + 2nd freezer islands; the cooler wall splits round it (meru2-grocery.js GROCERY.backX)' },
+  casino: { door: [-150, 26], face: 'W', note: 'old west wall (now the north wall, road side) between the slot bank (z 16.5) and the corner plant (z 30.7), by the cashier + bar; the casino wainscot opens there (buildCasino backDoor)' },
+  burgers: { door: [114, 48], face: 'E', note: 'east wall straight across from the front door (z 48): front door → hall lane → staff door (z 46..50) → back of house → out' },
+  bank: { door: [65.5, -125], face: 'N', note: 's35 (Ben): the SIDEWALK LOBBY: back wall (now the south wall on the ring-road sidewalk), west end; glass vestibule + red runner past the lockers into the hall (meru2-civic.js)' },
+  stationPearl: { door: [195, 183.5], face: 'N', note: 's35: side door straight onto the lift' }, stationArena: { door: [395, 90], face: 'S', note: 's35: onto the lift' },
+  stationCastle: { door: [-60, -320], face: 'N', note: 's35: onto the lift' }, stationRuins: { door: [-205, 80], face: 'S', note: 's35: onto the lift (x -205)' },
+  stationLake: { door: [-30, 195], face: 'E', note: 's35: side door to the covered walk + the lift at the west end of the Lake platform (worlds/meru2-stationlink.js)' },
+  tavern: { door: [49.4, -100], face: 'N', clear: [47, 52, -100, -95], note: 'north wall, darts end of the room, just east of the cellar trapdoor (x 41..46); barrels + any table in the way move (meru-tavern.js clear); opens onto the outdoor deck (worlds/meru2-tavdeck.js)' },
+};
+(() => { if (typeof location !== 'undefined' && /[?&]backdoors=0/.test(location.search)) return;
+  for (const b of BUILDINGS) { const p = BACK_DOORS[b.key]; if (!p || b.door2) continue; b.door2 = p.door.slice(); b.face2 = p.face; b.backDoor = true; b.fixedBack = true; } })();
+// lot r for building b (wanted spot first, then the opposite side, the other two sides, then a 14 m lot), clear of other buildings + 3 m and the sidewalk.
+// Also used by the Town Layout Workshop while you drag, so the plan shows the lot where the game will put it.
+export function fitLot(b, want, all) { const ov = (a, c) => a[0] < c[1] && a[1] > c[0] && a[2] < c[3] && a[3] > c[2], RING = [-151, 151, -131, 141];
+  const r = want, w = r[1] - r[0], d = r[3] - r[2], [x0, x1, z0, z1] = b.f, G = 2, cz = (r[2] + r[3]) / 2, cx = (r[0] + r[1]) / 2, n = 14;
+  const cands = [r, [x0 - G - w, x0 - G, cz - d / 2, cz + d / 2], [x1 + G, x1 + G + w, cz - d / 2, cz + d / 2], [cx - w / 2, cx + w / 2, z0 - G - d, z0 - G], [cx - w / 2, cx + w / 2, z1 + G, z1 + G + d],
+    [x0 - G - n, x0 - G, cz - d / 2, cz + d / 2], [x1 + G, x1 + G + n, cz - d / 2, cz + d / 2], [cx - w / 2, cx + w / 2, z1 + G, z1 + G + n], [cx - w / 2, cx + w / 2, z0 - G - n, z0 - G]];
+  const ok = c => c[0] > RING[0] && c[1] < RING[1] && c[2] > RING[2] && c[3] < RING[3] && !ov(c, [x0 - 1, x1 + 1, z0 - 1, z1 + 1]) && !all.some(o => o.key !== b.key && o.f && Math.abs((o.f[0] + o.f[1]) / 2) < 200 && ov(c, [o.f[0] - 3, o.f[1] + 3, o.f[2] - 3, o.f[3] + 3]));
+  return (cands.find(ok) || r).slice(); }
+// the lot moved with a building (same turn + shift as the shell), from its original spot
+export function movedLot(b, f, face) { if (!b.lot) return null; const o = b.orig || b, r = b.lot.r0 || b.lot.r, R = ['N', 'E', 'S', 'W'], q = ((R.indexOf(face) - R.indexOf(o.face)) % 4 + 4) % 4;
+  const ocx = (o.f[0] + o.f[1]) / 2, ocz = (o.f[2] + o.f[3]) / 2, ncx = (f[0] + f[1]) / 2, ncz = (f[2] + f[3]) / 2;
+  const mv = ([x, z]) => { let dx = x - ocx, dz = z - ocz; for (let i = 0; i < q; i++) { const t = dx; dx = -dz; dz = t; } return [ncx + dx, ncz + dz]; };
+  const p = mv([r[0], r[2]]), s = mv([r[1], r[3]]); return [Math.min(p[0], s[0]), Math.max(p[0], s[0]), Math.min(p[1], s[1]), Math.max(p[1], s[1])]; }
+export const LOTS = { carRental2: [-108, -90, -130, -112] };   // fixed lots for buildings that have not been moved
+export const MOVES = [];
+(() => { let T = TOWN_MOVES; try { const s = JSON.parse((typeof localStorage !== 'undefined' && localStorage.getItem('meru2.townLayout')) || 'null'); if (s && s.b) T = s; } catch (e) {}
+  if (typeof location !== 'undefined' && /[?&]townmove=0/.test(location.search)) return;
+  const R = ['N', 'E', 'S', 'W'];
+  for (const b of BUILDINGS) { const o = T.b[b.key]; if (!o || !b.f) continue;
+    const q = ((R.indexOf(o.face) - R.indexOf(b.face)) % 4 + 4) % 4, bw = b.f[1] - b.f[0], bd = b.f[3] - b.f[2], ew = q % 2 ? bd : bw, ed = q % 2 ? bw : bd;
+    const ncx = (o.f[0] + o.f[1]) / 2, ncz = (o.f[2] + o.f[3]) / 2, f = [ncx - ew / 2, ncx + ew / 2, ncz - ed / 2, ncz + ed / 2];
+    const ocx = (b.f[0] + b.f[1]) / 2, ocz = (b.f[2] + b.f[3]) / 2; if (Math.abs(ncx - ocx) < 0.01 && Math.abs(ncz - ocz) < 0.01 && !q) continue;
+    const rot = (dx, dz) => { for (let i = 0; i < q; i++) { const t = dx; dx = -dz; dz = t; } return [dx, dz]; }, mv = (p) => { const [a, c] = rot(p[0] - ocx, p[1] - ocz); return [ncx + a, ncz + c]; };
+    b.orig = { f: b.f.slice(), door: b.door.slice(), face: b.face, door2: b.door2 ? b.door2.slice() : null, face2: b.face2 };
+    MOVES.push({ key: b.key, q, o: [ocx, ocz], n: [ncx, ncz], fo: b.f.slice(), fn: f, face0: b.face });
+    b.f = f; b.door = mv(b.door); b.face = o.face; if (b.door2) { b.door2 = mv(b.door2); b.face2 = R[(R.indexOf(b.face2) + q) % 4]; }
+    if (b.lot && b.lot.r) { const p = mv([b.lot.r[0], b.lot.r[2]]), q = mv([b.lot.r[1], b.lot.r[3]]); b.lot.r0 = b.lot.r.slice(); b.lot.r = [Math.min(p[0], q[0]), Math.max(p[0], q[0]), Math.min(p[1], q[1]), Math.max(p[1], q[1])]; } }
+  // s34 (Ben): rental LOTS move WITH their building (same side, same turn: the first one had stayed at its old spot, in front of Burgers).
+  // If that spot hits another building (+3 m) or the ring-road sidewalk, the lot tries the opposite side, then the two other sides.
+  for (const b of BUILDINGS) if (b.lot && b.lot.r && b.orig) b.lot.r = fitLot(b, b.lot.r, BUILDINGS);
+  for (const b of BUILDINGS) { const r = LOTS[b.key]; if (r && b.lot && !b.orig) b.lot.r = r.slice(); }
+})();
+// s33: BACK DOORS on the road side, planned by worlds/meru2-roadside.js planBackDoors for this exact layout (saved with it), opened as door2
+export let LAYOUT_SIG = '';
+(() => { try { let T = TOWN_MOVES; const s = JSON.parse((typeof localStorage !== 'undefined' && localStorage.getItem('meru2.townLayout')) || 'null'); if (s && s.b) T = s; LAYOUT_SIG = JSON.stringify(T.b) + JSON.stringify(BACK_DOORS);
+  if (typeof location !== 'undefined' && /[?&]backdoors=0/.test(location.search)) return;
+  const bd = JSON.parse((typeof localStorage !== 'undefined' && localStorage.getItem('meru2.backDoors')) || 'null'); if (!bd || bd.sig !== LAYOUT_SIG) return;
+  for (const b of BUILDINGS) { const p = bd.doors[b.key]; if (!p || p.none || b.door2) continue; b.door2 = p.door.slice(); b.face2 = p.face; b.backDoor = true; } } catch (e) {} })();
+

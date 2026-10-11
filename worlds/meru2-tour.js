@@ -3,6 +3,7 @@
 // labels and walk mode are untouched; stop() hands the camera back to the orbit view at the last place.
 // Stop data: from [x, y, z], to [x, y, z], look [x, y, z] (optional look2 to pan), night = blend to night for that stop,
 // follow: 'train' = chase the moving train. inside: true = an interior stop (eye height, no terrain lift), dur = its own length in s.
+import { MOVES } from './meru2-layout.js';
 export const TOUR = [
   { key: 'start', label: 'Fountain Plaza', cap: 'The start: fountain, flower ring, street trees, Tavern + Bank to the north', from: [6, 3.2, 44], to: [4, 3.6, 24], look: [0, 4, -40] },
   { key: 'fountain', label: 'The Fountain', cap: 'Jets, lawn edging, benches, lamps', from: [18, 2.4, 14], to: [-16, 2.6, 16], look: [0, 2.5, 0] },
@@ -40,7 +41,12 @@ export const TOUR = [
   { key: 'night', label: 'Meru at Night', cap: 'Lit windows, neon, street lamps, beacons', night: true, from: [230, 40, -160], to: [180, 30, -120], look: [0, 10, 0] },
 ];
 
+// s35: interior stops inside a building moved in the Town Layout Workshop follow it (same quarter turn + shift as worlds/meru2-relocate.js)
+let MOVED = false; function moveStops() { if (MOVED) return; MOVED = true; const rot = (q, dx, dz) => { for (let k = 0; k < q; k++) { const t0 = dx; dx = -dz; dz = t0; } return [dx, dz]; };
+  for (const s of TOUR) { if (!s.inside || !s.from) continue; const m = (MOVES || []).find(q => s.from[0] > q.fo[0] - 1 && s.from[0] < q.fo[1] + 1 && s.from[2] > q.fo[2] - 1 && s.from[2] < q.fo[3] + 1); if (!m) continue;
+    for (const k of ['from', 'to', 'look', 'look2']) { const p = s[k]; if (!p) continue; const [a, b] = rot(m.q, p[0] - m.o[0], p[2] - m.o[1]); s[k] = [m.n[0] + a, p[1], m.n[1] + b]; } } }
 export function createTour(g, { onStop = () => {}, onProgress = () => {}, onEnd = () => {}, onTick = () => {} } = {}) {
+  moveStops();
   const { THREE, camera } = g.K, DUR = 8.5, ease = t => t * t * (3 - 2 * t), v = new THREE.Vector3(), look = new THREE.Vector3();
   let i = 0, t = 0, paused = false, on = false, nightWas = false;
   const safeY = (x, y, z, s) => { if (s && s.inside) return y; const h = g.heights && g.heights.terrainAt ? g.heights.terrainAt(x, z) || 0 : 0; return Math.max(y, h + 2.2); };

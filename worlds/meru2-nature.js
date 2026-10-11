@@ -8,7 +8,7 @@ export function buildNature({ THREE, scene, L, groundCanvas, heightAt, touch }) 
   // module has placed its props. Mask R = grass amount (green ground minus every collider + bench + lamp, softened), G = ground height / 40, B = town (mown).
   // Two layers that wrap round the camera: NEAR (dense, fine blades) and FAR (sparser, bigger clumps) out to ~95 m, cross-faded, so there is no
   // ring edge. Natural variation from low-frequency noise: meadow vs short, yellow-green vs blue-green drifts, clumping; wildflowers outside town.
-  let grassLayers = [], maskData = null, maskN = 1;
+  let grassLayers = [], maskData = null, maskN = 1, maskTex = null;
   const maskAt = (x, z) => { if (!maskData) return [0, 0, 0]; const i = Math.max(0, Math.min(maskN - 1, Math.floor((x + H) / SZ * maskN))), j = Math.max(0, Math.min(maskN - 1, Math.floor((z + H) / SZ * maskN))), p = (j * maskN + i) * 4; return [maskData[p] / 255, maskData[p + 1] / 255 * 40, maskData[p + 2] / 255]; };
   function bakeGrass(blockers = []) {
     const MN = touch ? 768 : 1280, mc = document.createElement('canvas'); mc.width = mc.height = MN; const g = mc.getContext('2d');
@@ -33,7 +33,7 @@ export function buildNature({ THREE, scene, L, groundCanvas, heightAt, touch }) 
       const h = Math.max(0, wet ? isl : (heightAt(x, z) || 0)); data[p] = m * 255; data[p + 1] = Math.min(255, h / 40 * 255); data[p + 2] = Math.abs(x) < 158 && Math.abs(z) < 148 ? 255 : 0; data[p + 3] = 255; }
     let on = 0; for (let p = 0; p < MN * MN; p++) if (data[p * 4] > 128) on++; bakeGrass.info = { MN, on: on / (MN * MN), src0: [src[((MN / 2 + 40) * MN + MN / 2 + 120) * 4], src[((MN / 2 + 40) * MN + MN / 2 + 120) * 4 + 1], src[((MN / 2 + 40) * MN + MN / 2 + 120) * 4 + 2]] };
     maskData = data; maskN = MN;
-    const mask = new THREE.DataTexture(data, MN, MN, THREE.RGBAFormat); mask.magFilter = mask.minFilter = THREE.LinearFilter; mask.needsUpdate = true;
+    const mask = new THREE.DataTexture(data, MN, MN, THREE.RGBAFormat); mask.magFilter = mask.minFilter = THREE.LinearFilter; mask.needsUpdate = true; maskTex = mask;
     const SEG = touch ? 2 : 3, clump = (NB, wMul) => { const pos = [], hh = [], idx = [];   // phone perf s32: 2-segment blades on phones (grass was ~190k of every phone frame)
       for (let b = 0; b < NB; b++) { const a = b / NB * Math.PI * 2 + R(), r = (0.03 + R() * 0.16) * wMul, ox = Math.cos(a) * r, oz = Math.sin(a) * r, fa = R() * Math.PI, fx = Math.cos(fa), fz = Math.sin(fa), ht = 0.65 + R() * 0.6, lean = (0.08 + R() * 0.22), base = pos.length / 3;
         for (let s = 0; s <= SEG; s++) { const t = s / SEG, w = 0.024 * wMul * (1 - t * 0.9), lx = ox + Math.cos(a) * lean * t * t, lz = oz + Math.sin(a) * lean * t * t; for (const sd of [-1, 1]) { pos.push(lx + fx * w * sd, t * ht, lz + fz * w * sd); hh.push(t); } }
@@ -137,5 +137,7 @@ export function buildNature({ THREE, scene, L, groundCanvas, heightAt, touch }) 
       bOff[i * 4] = x; bOff[i * 4 + 1] = y; bOff[i * 4 + 2] = z; bOff[i * 4 + 3] = b.sc * 1.6; bYawA.array[i * 2] = Math.atan2(-Math.sin(a) * Math.sign(F.w), Math.cos(a) * Math.sign(F.w)); bYawA.array[i * 2 + 1] = b.ph; });
     bOffA.needsUpdate = true; bYawA.needsUpdate = true; }
   function setNight(n) { uNight.value = n; nightK = n; for (const c of clouds) { c.sp.material.color.setRGB(1 - 0.72 * n, 1 - 0.7 * n, 1 - 0.6 * n); c.sp.material.opacity = 0.92 - 0.35 * n; } birdMesh.visible = n < 0.6; }
-  return { tick, setNight, bakeGrass, get grass() { return grassLayers; }, clouds: cloudG, birds: birdMesh, stats: { clouds: clouds.length, birds: NBI } };
+  // s33: no grass on the yellow brick road / spurs / building aprons (pred(x, z) true = bare)
+  function clearGrass(pred) { if (!maskData || !maskTex) return 0; let c = 0; const k = maskN / SZ; for (let j = 0; j < maskN; j++) { const z = (j + 0.5) / k - H; if (Math.abs(z) > 460) continue; for (let i = 0; i < maskN; i++) { const p = (j * maskN + i) * 4; if (!maskData[p]) continue; const x = (i + 0.5) / k - H; if (pred(x, z)) { maskData[p] = 0; c++; } } } maskTex.needsUpdate = true; return c; }
+  return { tick, setNight, bakeGrass, clearGrass, get grass() { return grassLayers; }, clouds: cloudG, birds: birdMesh, stats: { clouds: clouds.length, birds: NBI } };
 }

@@ -29,7 +29,7 @@ export function buildTrainSide({ THREE, scene, L, train, touch }) {
 
   // ---------- stations ----------
   const totems = [], pools = [], boards = [], grassOff = [], PY = train.PLAT_Y;
-  for (const st of train.stops) { const W = (a, ls) => train.toW(st.key, a, ls), la = st.liftA, own = st.key === 'stationTown' ? null : st.key, inB = (x, z) => inBld(x, z, own);
+  for (const st of train.stops) { const W = (a, ls) => train.toW(st.key, a, ls), la = st.liftA, own = null, inB = (x, z) => inBld(x, z, own);
     { const lw = W(la, 9.4); grassOff.push({ c: [lw.x, lw.z, 2.4] });
       for (const [hw, l0, l1] of [[5.5, 6.5, 12.6], [2.6, 7.4, 11.6]]) { const c = W(la, (l0 + l1) / 2), cs = [W(la - hw, l0), W(la + hw, l0), W(la - hw, l1), W(la + hw, l1)]; if (cs.some(p => onRoad(p.x, p.z, 0.2) || inB(p.x, p.z))) continue;
         part(B(l1 - l0, 0.04, hw * 2), STONE, c.x, 0.02, c.z, c.yaw); part(B(l1 - l0 + 0.2, 0.02, hw * 2 + 0.2), STONED, c.x, 0.01, c.z, c.yaw); for (const o of [-hw / 2, hw / 2]) { const q = W(la + o, (l0 + l1) / 2); grassOff.push({ c: [q.x, q.z, Math.max(hw, (l1 - l0) / 2) * 0.75] }); } break; } }

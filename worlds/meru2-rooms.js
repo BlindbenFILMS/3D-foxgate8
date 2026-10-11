@@ -1,8 +1,9 @@
 // MERU 2.0 — step 3: interiors, part 1. TAVERN [meruTavern] and CASINO [meruCasino], dressed inside the city shells.
 // Every game spot opens the original 2D minigame (minigames/meru/*.html) full-screen in the job panel.
 // Casino = three SOUND BAYS split by glass partitions (slots west, poker north, wheel south) + the cashier cage, so voices don't stack.
+import { BACK_DOORS } from './meru2-layout.js';
 import { buildTavern } from './meru-tavern.js';
-import { buildCasinoArt } from './meru2-funrooms.js';
+import { buildCasino, CASINO_TALK } from './meru2-casino.js';
 const G = 'minigames/meru/';
 export function buildRooms({ THREE, scene, M, toon, kit, cast, cols, grad, save, audio, touch }) {
   const B = (w, h, d, col, x, y, z, ry = 0, o = 0.02) => { const m = M(new THREE.BoxGeometry(w, h, d), typeof col === 'string' ? toon(col) : col, x, y, z, null, o); m.rotation.y = ry; return m; };
@@ -16,21 +17,17 @@ export function buildRooms({ THREE, scene, M, toon, kit, cast, cols, grad, save,
 
   // ================= TAVERN [meruTavern] (f 12..52 × -100..-60, door S at x 32): the old Meru tavern, worlds/meru-tavern.js =================
   // bar, fireplace, tables, the 3D JUKEBOX and DARTS on the real board (+ Flick); replaces the step-3 placeholder that opened darts.html / jukebox.html
-  const tav = buildTavern({ THREE, scene, M, toon, grad, kit, cols, save, audio, touch, rect: { x0: 12, x1: 52, z0: -100, z1: -60 } }); spots.push(...tav.spots);
+  const tav = buildTavern({ THREE, scene, M, toon, grad, kit, cols, save, audio, touch, rect: { x0: 12, x1: 52, z0: -100, z1: -60 }, clear: BACK_DOORS.tavern && BACK_DOORS.tavern.clear && !/[?&]backdoors=0/.test(location.search) ? [BACK_DOORS.tavern.clear] : [] }); spots.push(...tav.spots);
   {
-    const noble = cast.make('noble'); noble.position.set(26, 0, -76); noble.rotation.y = Math.PI * 0.85; scene.add(noble); ring(26, -76, 0.6); npcs.push(noble);
-    npcs.push(fox('docBraun', { torso: '#5c6670', outfit: 'coat' }, 39, -85, -Math.PI * 0.75)); tavDancers.push(npcs[npcs.length - 1]); }
+    const TP = Object.fromEntries((tav.layout.people || []).map(p => [p.key, p])), nb = TP.noble || { x: 26, z: -76, a: 153 }, br = TP.docBraun || { x: 39, z: -85, a: 225 };   // placed in Tavern Workshop
+    const noble = cast.make('noble'); noble.position.set(nb.x, 0, nb.z); noble.rotation.y = nb.a * Math.PI / 180; scene.add(noble); ring(nb.x, nb.z, 0.6); npcs.push(noble);
+    npcs.push(fox('docBraun', { torso: '#5c6670', outfit: 'coat' }, br.x, br.z, br.a * Math.PI / 180)); tavDancers.push(npcs[npcs.length - 1]); }
 
-  // ================= CASINO (f -150..-105 × -32..32, door E at z 0): art pass 6b dressing + colliders in worlds/meru2-funrooms.js =================
-  const casArt = buildCasinoArt({ THREE, scene, cols, touch });
-  { const kinds = [['LUCKY GATES SLOTS', '../../slots.dc.html?embed=1'], ['LUCKY GATES SLOTS', '../../slots.dc.html?embed=1'], ['LUCKY GATES SLOTS', '../../slots.dc.html?embed=1']];   // the 3D slot machine (minigames/arcade/slots.js) replaces the 2D slot1 / slot3 / slotFox
-    for (let i = 0; i < 3; i++) play(kinds[i][0], kinds[i][1], -146.4, -7.5 + i * 3, 1.3);
-    for (let i = 3; i < 6; i++) spots.push({ ...spots[spots.length - 3], z: -7.5 + i * 3 });
-    for (const [x, z, lab, url] of [[-137, -21, 'FIVE CARD STUD', '../../Meru%20Five%20Card%20Stud.dc.html?embed=1'], [-122, -22, "TEXAS HOLD'EM", '../../Meru%20Texas%20Holdem.dc.html?embed=1']]) { ring(x, z, 2.2); play(lab, url, x, z + 3.4, 1.6); }
-    play('TREASURE WHEEL', '../../Meru%20Treasure%20Wheel.dc.html?embed=1', -118, 22.5, 1.8);   // the 3D Treasure Wheel (minigames/meru/treasure-wheel.js) replaces the 2D wheel.html
-    play('SNACK STOP', '../../Arcade%20Vending%20Machine.dc.html?embed=1&sign=MERU%20CASINO', -110, -29.4, 1.3);   // the arcade vending machine by the door
-    npcs.push(fox('casinoPoker1', { torso: '#201e1d', outfit: 'vest' }, -137, -23.6, 0), fox('casinoPoker2', { torso: '#201e1d', outfit: 'vest' }, -122, -24.6, 0), fox('casinoWheel', { torso: '#7a2a3a', outfit: 'suit' }, -121, 26, Math.PI), fox('casinoCashier', { torso: '#2e4a6b', outfit: 'vest' }, -140, 23.6, Math.PI)); }
+  // ================= CASINO (f -150..-105 × -32..32, door E at z 0): worlds/meru2-casino.js, laid out in Casino Workshop.dc.html =================
+  const casArt = buildCasino({ THREE, scene, cols, touch, backDoor: BACK_DOORS.casino && !/[?&]backdoors=0/.test(location.search) ? BACK_DOORS.casino.door[1] : null }), casTalkers = [];
+  { for (const s of casArt.spots) play(s.label, s.url, s.x, s.z, s.r);
+    for (const p of casArt.people) { const f = fox(p.key, p.look, p.x, p.z, p.ry); npcs.push(f); if (CASINO_TALK[p.key]) casTalkers.push({ key: p.key, obj: f, ry: p.ry, r: 2.4 }); } }
 
   function tick(dt, t, P, pfox, cam) { for (const f of npcs) kit.animFox(f, dt, 0, false); tav.tick(dt, t, P, pfox, tavDancers); casArt.tick(dt, t, cam || P); for (const f of flick) { if (f.spin) f.spin.rotation.y += dt * 0.4; else f.scale.y = 0.85 + Math.sin(t * 13) * 0.1 + Math.sin(t * 7.1) * 0.08; } }
-  return { spots, tick, tavern: tav, keys: tav.keys, toast: tav.toast, camFix: tav.camFix };
+  return { spots, tick, tavern: tav, keys: new Set([...tav.keys, ...casTalkers.map(t => t.key)]), TALK: CASINO_TALK, talkers: casTalkers, toast: tav.toast, camFix: tav.camFix };
 }

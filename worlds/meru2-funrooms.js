@@ -115,11 +115,7 @@ export function buildLanes2({ THREE, scene, kit, cols, touch, M, toon, grad, aud
   for (const [x, z] of [[112, 2], [118, 2], [112, 6.5], [118, 6.5], [127, 2], [135, 2]]) { b.cyl('gls', '#c0c4cc', 0.05, 1.0, x, 0.5, z, 6); b.cyl('mat', '#201e1d', 0.45, 0.04, x, 1.02, z, 16); b.cyl('mat', '#201e1d', 0.25, 0.03, x, 0.015, z, 12);
     for (const s of [-1, 1]) { b.cyl('gls', '#c0c4cc', 0.035, 0.7, x + s * 0.8, 0.35, z, 6); b.cyl('mat', '#c42d3c', 0.2, 0.06, x + s * 0.8, 0.72, z, 12); }
     ring(x, z, 0.55); pendant(b, x, z, 2.4, 9.6, '#201e1d'); }
-  // Ben: pool tables taken out of Meru Lanes. Old arcade row (east wall):
-  for (let i = 0; i < 3; i++) { const z = 1.6 + i * 1.6, c = ['#2e4a6b', '#c42d3c', '#3a3448', '#ffd23a'][i % 4];
-    b.box('mat', c, 0.9, 1.8, 0.8, 149.0, 0.9, z); b.box('mat', '#201e1d', 0.4, 0.12, 0.8, 148.4, 1.0, z); b.box('glo', ['#7cff9b', '#38bdf8', '#ff3fb4'][i % 3], 0.02, 0.5, 0.62, 148.54, 1.42, z, 0, 0, -0.15);
-    b.box('glo', ['#ffd23a', '#ff3fb4', '#52e3ff'][i % 3], 0.02, 0.24, 0.7, 148.54, 1.94, z); b.sph('glo', '#ff3030', 0.03, 148.3, 1.08, z - 0.12, 1, 6); b.sph('glo', '#ffd23a', 0.03, 148.3, 1.08, z + 0.12, 1, 6);
-    box(148.1, 149.6, z - 0.45, z + 0.45); }
+  // Ben: pool tables taken out of Meru Lanes. s34: the old blank arcade row on the east wall (z 1.6..4.8) is gone: the BACK DOOR is there now (meru2-layout BACK_DOORS).
   // ===== ARCADE CORNER (Ben): the real 3D arcade games, each with its cabinet / booth, open in the panel =====
   const PLAY = (label, url, x, z, r = 1.3) => spots.push({ key: label, x, z, r, prompt: 'PLAY \u00b7 ' + label, play: { label, url } });
   // ARCADE LAYOUT (Ben: "move them myself"): every machine's centre (x, z) + facing a in degrees (0 = faces south / the café, 90 = east,

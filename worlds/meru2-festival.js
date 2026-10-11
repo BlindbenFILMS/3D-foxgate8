@@ -7,6 +7,7 @@
 import { PLAYER_MALE, PLAYER_FEMALE } from '../fox-kit.js';
 import { buildRides } from './meru2-rides.js';
 import { buildBand } from './meru2-band.js';
+import { makeNightLit } from './meru2-nightlit.js';
 import { buildBooth as balloonBooth, THEMES as BP_THEMES, slotXY, TYPES as BP_TYPES } from '../minigames/carnival/balloon-pop.js';
 
 export function buildFestival({ THREE, scene, M, toon, grad, kit, cols, touch, L, save }) {
@@ -26,7 +27,8 @@ export function buildFestival({ THREE, scene, M, toon, grad, kit, cols, touch, L
   const BULB = ['#ffd23a', '#ff6b6b', '#7dd3fc', '#86efac', '#fff4d0'];
   const v3 = new THREE.Vector3();
   // a booth group at (X, Z) facing the road: ry 0 faces +z (north side of the road), PI faces -z (south side). Local +z = the player's side.
-  function place(X, Z, ry) { const g = new THREE.Group(); g.position.set(X, 0, Z); g.rotation.y = ry; root.add(g); g.updateMatrixWorld(); return g; }
+  const NL = makeNightLit(THREE);   // s35: night lighting (booth insides glow, pools, spot beams on the action)
+  function place(X, Z, ry) { const g = new THREE.Group(); g.position.set(X, 0, Z); g.rotation.y = ry; root.add(g); g.updateMatrixWorld(); booths.push(g); return g; }
   const W = (g, lx, lz) => { v3.set(lx, 0, lz); g.localToWorld(v3); return [v3.x, v3.z]; };
   const footprint = (g, x0, x1, z0, z1) => { const a = W(g, x0, z0), b = W(g, x1, z1); box(Math.min(a[0], b[0]), Math.max(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[1], b[1])); };
   const bulbLocal = (g, pts, marq) => { g.updateMatrixWorld(true); pts.forEach(([x, y, z], i) => { v3.set(x, y, z); g.localToWorld(v3); bulbs.push({ p: v3.clone(), col: BULB[i % BULB.length], marq, ph: i }); }); };
@@ -182,6 +184,12 @@ export function buildFestival({ THREE, scene, M, toon, grad, kit, cols, touch, L
     TALK.michaelJay2 = { name: 'MICHAEL JAY', role: 'On the dunk seat (DRAFT)', lines: ['Is that all you\u2019ve got?', 'Dry as a desert up here!', 'You couldn\u2019t hit the tank!'].map(text => ({ who: 'npc', text })) };
     { D.updateMatrixWorld(true); const px = new THREE.Object3D(); mj.getWorldPosition(px.position); px.position.y = 0; talkers.push({ key: 'michaelJay2', obj: px, ry: 0, r: 4.2 }); } keepers.push(mj); mj.userData.sitPose = sitPose;
     footprint(g, -1.7 * k, 1.7 * k, (TZ1 + 1.85 - 0.2) * k, (TZ0 + 1.85 + 0.1) * k); { const [x, z] = W(g, 1.95 * k, (-6.95 + 1.85) * k); ring(x, z, 0.4); } { const [x, z] = W(g, -1.7 * k, (-0.4 + 1.85) * k); ring(x, z, 0.4); }
+    // s35 NIGHT: three spot beams from lamp heads on the cage top onto MICHAEL JAY on the seat, the TARGET and the BALL BUCKET; the water glows
+    { D.updateMatrixWorld(true); const wp = (x, y, z) => { const v = new THREE.Vector3(x, y, z); D.localToWorld(v); return [v.x, v.y, v.z]; };
+      NL.lit(D, 0.32); NL.lit(surf, 0.9); NL.lit(water, 0.7);
+      NL.beam(wp(0, 5.6, TZ1 + 2.6), wp(0, SEAT_Y - 0.1, TZ1 + 0.4), 1.05, '#fff1c8', 0.34);
+      NL.beam(wp(1.95, 5.4, -5.3), wp(1.95, 0.05, -6.95), 0.95, '#ffd9a0', 0.3); NL.beam(wp(-1.7, 4.6, 1.0), wp(-1.7, 0.05, -0.4), 0.8, '#ffd9a0', 0.3);
+      NL.pool(...wp(0, 0.04, -3), 4.2, '#7fd0ff', 0.35); }
     play(g, 'DUNK TANK', 'Meru%20Dunk%20Tank.dc.html?embed=1&world=meru', 0, 1.5, 1.8); }
 
   // ================= FESTOON STRING BULBS along the whole row (poles between the booths, both sides) + cross strings over the path =================
@@ -193,8 +201,8 @@ export function buildFestival({ THREE, scene, M, toon, grad, kit, cols, touch, L
   // paving pads under the booths that stand between the clearings (x 200..240)
   for (const s of [-1, 1]) B(9.5, 0.05, 7.5, '#c9b89c', 226, 0.025, s * 15.5, root, 0);
   // ================= OPEN-AIR STAGE (north) + BLEACHERS facing it across the path (south), in the clearing before the rides, x 256 =================
-  let band = null;
-  { const AX = 256, g = new THREE.Group(); g.position.set(AX, 0, -21); root.add(g); band = buildBand({ THREE, M, toon, grad, kit, stage: g, ring, AX, AZ: -21 });
+  let band = null, stageG = null;
+  { const AX = 256, g = new THREE.Group(); g.position.set(AX, 0, -21); root.add(g); stageG = g; band = buildBand({ THREE, M, toon, grad, kit, stage: g, ring, AX, AZ: -21 });
     const st = M(new THREE.CylinderGeometry(7.2, 7.2, 0.9, 32, 1, false, -Math.PI / 2, Math.PI), toon('#c89a62'), 0, 0.45, 0, g, 0.02, 7); st.rotation.y = Math.PI;
     B(14.4, 0.9, 1.2, '#b5844e', 0, 0.45, -0.6, g, 0.02); const lip = M(new THREE.TorusGeometry(7.2, 0.07, 6, 40, Math.PI), toon('#e6b45a'), 0, 0.9, 0, g, 0); lip.rotation.x = -Math.PI / 2;
     for (let i = 0; i < 3; i++) B(3, 0.3, 0.45, '#9c7a52', 0, 0.15 + i * 0.3 - 0.0, 7.65 - i * 0.45, g, 0.01);
@@ -216,6 +224,16 @@ export function buildFestival({ THREE, scene, M, toon, grad, kit, cols, touch, L
     box(AX - WB / 2, AX + WB / 2, 12.6, 12.5 + backZ + 0.2); }
   // ================= THE TWO RIDES at x 280 (helicopter N, carousel S) =================
   const rides = buildRides({ THREE, scene, M, toon, grad, kit, cols, L, save, touch, root, bulbs, TALK, talkers, keepers, signTower });
+  // s35 NIGHT: every booth glows inside (counter, walls, prizes, roof) + a warm pool at the counter and one inside; the carousel glows and
+  // gets a big pool + four beams from its sign tower side; the stage gets coloured beams from its two light towers; pools at the bleachers + heli pad
+  for (const g of booths) { if (g === booths.stage) continue; NL.lit(g, 0.38); g.updateMatrixWorld(true); const a = new THREE.Vector3(0, 0.04, 2.0), b = new THREE.Vector3(0, 0.04, -1.2); g.localToWorld(a); g.localToWorld(b); NL.pool(a.x, 0.04, a.z, 3.4, '#ffd9a0', 0.5); NL.pool(b.x, 0.05, b.z, 2.4, '#fff1c8', 0.45); }
+  if (rides.car) { NL.lit(rides.car, 0.5); const c = rides.car.position; NL.pool(c.x, 0.05, c.z, 9.5, '#ffd9a0', 0.45);
+    for (let i = 0; i < 4; i++) { const a = i / 4 * Math.PI * 2 + Math.PI / 4; NL.beam([c.x + Math.cos(a) * 9.5, 7.5, c.z + Math.sin(a) * 9.5], [c.x + Math.cos(a) * 3.5, 0.6, c.z + Math.sin(a) * 3.5], 2.0, i % 2 ? '#ffb3d1' : '#fff1c8', 0.22, false); } }
+  if (rides.pad) NL.pool(rides.pad[0], 0.05, rides.pad[1], 6, '#d6ecff', 0.4);
+  if (stageG) { NL.lit(stageG, 0.3); const wp = (x, y, z) => { const v = new THREE.Vector3(x, y, z); stageG.localToWorld(v); return [v.x, v.y, v.z]; }; stageG.updateMatrixWorld(true);
+    NL.beam(wp(-6.2, 4.4, 5.4), wp(-1.8, 0.95, -1.5), 1.8, '#ff7ab8', 0.3, false); NL.beam(wp(6.2, 4.4, 5.4), wp(1.8, 0.95, -1.5), 1.8, '#7dd3fc', 0.3, false); NL.beam(wp(0, 8.4, 3.5), wp(0, 0.95, -0.5), 1.6, '#fff1c8', 0.26, false);
+    NL.pool(...wp(0, 0.06, 10.5), 7, '#ffd9a0', 0.35); }
+  NL.done(root);
   // ---------- bulbs: one instanced draw (dim by day, lit + chasing marquees at night) + one additive glow draw at night ----------
   const bulbM = new THREE.InstancedMesh(new THREE.SphereGeometry(0.065, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffffff }), bulbs.length), m4 = new THREE.Matrix4(), cc = new THREE.Color();
   bulbs.forEach((b, i) => { m4.makeTranslation(b.p.x, b.p.y, b.p.z); bulbM.setMatrixAt(i, m4); bulbM.setColorAt(i, cc.set(b.col)); }); bulbM.instanceColor.needsUpdate = true; root.add(bulbM);
@@ -227,12 +245,12 @@ export function buildFestival({ THREE, scene, M, toon, grad, kit, cols, touch, L
   function setNight(on) { if (on === night) return; night = on; glow.visible = on; bulbs.forEach((b, i) => { cc.set(b.col); if (!on) cc.multiplyScalar(0.55); bulbM.setColorAt(i, cc); }); bulbM.instanceColor.needsUpdate = true; }
   setNight(false);
   let T = 0;
-  function tick(dt, cam, isNight, P) { T += dt; setNight(!!isNight); if (far) rides.tick(dt, P, isNight);
+  function tick(dt, cam, isNight, P) { T += dt; setNight(!!isNight); NL.tick(dt, !!isNight); if (far) rides.tick(dt, P, isNight);
     if ((farT -= dt) <= 0) { farT = 0.5; const f = !cam || cam.x < 155 || cam.x > 420 || Math.abs(cam.z) > (touch ? 120 : 180); if (f !== far) { far = f; root.visible = !f; } }
     if (far) return;
     for (const a of anim) a(dt, T);
     for (const f of keepers) { if (kit.animFox) kit.animFox(f, dt, 0); if (f.userData.sitPose) f.userData.sitPose(); }
     rides.tick(dt, P, isNight);
     if (night && (chaseT -= dt) <= 0) { chaseT = 0.16; chaseK++; let any = false; bulbs.forEach((b, i) => { if (!b.marq) return; any = true; cc.set(b.col); if ((b.ph + chaseK) % 3) cc.multiplyScalar(0.35); bulbM.setColorAt(i, cc); }); if (any) bulbM.instanceColor.needsUpdate = true; } }
-  return { root, spots, TALK, talkers, tick, setNight, rides, bandTick: (dt, o) => band && band.tick(dt, { ...o, visible: !far }), stats: { booths: 8, bulbs: bulbs.length } };
+  return { root, spots, TALK, talkers, tick, setNight, rides, bandTick: (dt, o) => band && band.tick(dt, { ...o, visible: !far }), stats: { booths: 8, bulbs: bulbs.length }, night: NL };
 }

@@ -98,6 +98,12 @@ function palmParts() { const L = []; let x = 0, y = 0, rz = 0;
 
 // list: [x, y, z, scale, kind]. Returns { group, count }. Instance colour = a small per-tree tint.
 let blotTex = null; const CP = new THREE.Vector3();
+// s33: take planted things out after the fact (building fronts / moved buildings): drops them from the LOD lists so a re-sort never brings them back
+const LOD_REG = [];
+export function floraRemove(pred, { trees = true } = {}) { let n = 0; const Z = new THREE.Matrix4().makeScale(0, 0, 0);
+  for (const R of LOD_REG) { if (R.sets && !trees) continue; if (R.sets) { for (const S of R.sets) { const k = S.T.length; S.T = S.T.filter(t => !pred(t.x, t.z)); n += k - S.T.length; } R.st.x = 1e9; R.st.z = 1e9; for (const S of R.sets) { S.n.count = S.T.length; S.f.count = 0; S.T.forEach((t, i) => { S.n.setMatrixAt(i, t.m); S.n.setColorAt(i, t.c); }); S.n.instanceMatrix.needsUpdate = true; if (S.n.instanceColor) S.n.instanceColor.needsUpdate = true; } }
+    else if (R.T) { const k = R.T.length; for (let i = R.T.length - 1; i >= 0; i--) if (pred(R.T[i].x, R.T[i].z)) R.T.splice(i, 1); n += k - R.T.length; R.st.x = 1e9; } }
+  return n; }
 const PHONE = /[?&]phone=1/.test(location.search) || matchMedia('(pointer: coarse)').matches, TREE_NEAR = PHONE ? 32 : 100, SMALL_NEAR = 55;   // metres: full trees inside, low trees beyond
 export function plantTrees(list, { shadow = true } = {}) {
   const group = new THREE.Group(); group.name = 'flora-trees';
@@ -106,7 +112,7 @@ export function plantTrees(list, { shadow = true } = {}) {
     list.forEach(([x, y, z, s, k], i) => { const r = (k === 'poplar' ? 2.4 : k === 'birch' ? 3.2 : k === 'palm' ? 3.4 : k === 'pine' ? 4 : 5.2) * s; M4.compose(V(x, y + 0.03, z), Q.identity(), V(r, 1, r)); bl.setMatrixAt(i, M4); }); bl.renderOrder = -1; group.add(bl); }
   // phone perf: TREE LOD. Each kind = a near mesh (full tree) + a far mesh (low tree, ~1/7 the triangles); trees are re-sorted
   // between them by distance from the view camera (checked when the camera moves 3 m, never per tree per frame)
-  const st = { x: 1e9, z: 1e9, sets: [] }, NEAR2 = TREE_NEAR * TREE_NEAR;
+  const st = { x: 1e9, z: 1e9, sets: [] }, NEAR2 = TREE_NEAR * TREE_NEAR; LOD_REG.push({ st, sets: st.sets });
   const resort = (cam) => { if (!cam || !cam.isPerspectiveCamera) return; const c = cam.getWorldPosition(CP); if ((c.x - st.x) ** 2 + (c.z - st.z) ** 2 < 9) return; st.x = c.x; st.z = c.z;
     for (const S of st.sets) { let a = 0, b = 0; for (const t of S.T) { const near = (t.x - c.x) ** 2 + (t.z - c.z) ** 2 < NEAR2, m = near ? S.n : S.f, k = near ? a++ : b++; m.setMatrixAt(k, t.m); m.setColorAt(k, t.c); }
       S.n.count = a; S.f.count = b; for (const m of [S.n, S.f]) { m.instanceMatrix.needsUpdate = true; m.instanceColor.needsUpdate = true; } } };
@@ -120,11 +126,11 @@ export function plantTrees(list, { shadow = true } = {}) {
     for (const m of [n, f]) { m.castShadow = shadow; m.receiveShadow = true; m.onBeforeRender = hook; group.add(m); } }
   return { group, count: list.length };
 }
-function inst(g, m, list, cols) { const im = new THREE.InstancedMesh(g, m, Math.max(1, list.length)); im.count = list.length; const T = [];
+function inst(g, m, list, cols) { const im = new THREE.InstancedMesh(g, m, Math.max(1, list.length)); im.userData.flora = true;   // s34: small flora (shrubs, tufts, flowers, reeds), for clean-ups im.count = list.length; const T = [];
   list.forEach(([x, y, z, s = 1, r], i) => { M4.compose(V(x, y, z), Q.setFromEuler(E.set(0, r ?? hash(x, 9, z) * 6.28, 0)), V(s, s, s)); im.setMatrixAt(i, M4); if (cols) im.setColorAt(i, TC2.set(cols(i, x, z))); if (PHONE) T.push({ x, z, m: M4.clone(), c: cols ? TC2.clone() : null }); });
   im.receiveShadow = true;
   // phone perf: shrubs / tufts / flowers / reeds are only drawn within SMALL_NEAR m of the camera (re-packed when the camera moves 4 m)
-  if (PHONE && list.length > 8) { im.computeBoundingSphere(); im.boundingSphere.radius += 2; const st = { x: 1e9, z: 1e9 }, R2 = SMALL_NEAR * SMALL_NEAR;
+  if (PHONE && list.length > 8) { im.computeBoundingSphere(); im.boundingSphere.radius += 2; const st = { x: 1e9, z: 1e9 }, R2 = SMALL_NEAR * SMALL_NEAR; LOD_REG.push({ st, T });
     im.onBeforeRender = (r, sc, cam) => { tickT(); if (!cam || !cam.isPerspectiveCamera) return; const c = cam.getWorldPosition(CP); if ((c.x - st.x) ** 2 + (c.z - st.z) ** 2 < 16) return; st.x = c.x; st.z = c.z; let k = 0;
       for (const t of T) if ((t.x - c.x) ** 2 + (t.z - c.z) ** 2 < R2) { im.setMatrixAt(k, t.m); if (t.c) im.setColorAt(k, t.c); k++; }
       im.count = k; im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true; }; }

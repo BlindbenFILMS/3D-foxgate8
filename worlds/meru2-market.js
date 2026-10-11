@@ -14,7 +14,7 @@ export function buildMarket({ THREE, scene, L, city, toon, CT, touch }) {
   const AWN = [['#ec3013', '#f3f2f2'], ['#2e4a6b', '#f3f2f2'], ['#e0a020', '#f3f2f2'], ['#3f7a52', '#f3f2f2']];
   const goods = [], lanterns = [], stalls = [];
   // ---------- MARKET STALLS ----------
-  for (const sz of [-1, 1]) { let lastX = 1e9; for (let x = -58; x > -142; x -= 1) { const z = sz * 10.4, ry = sz < 0 ? 0 : Math.PI, [ccx, ccz] = W(x, z, ry, 0, 0.3);   // front faces the path (toward z 0); slide along until clear, 13 m apart
+  for (const sz of [-1, 1]) { let lastX = 1e9; for (let x = -58; x > -103; x -= 1) { const z = sz * 10.4, ry = sz < 0 ? 0 : Math.PI, [ccx, ccz] = W(x, z, ry, 0, 0.3);   // front faces the path (toward z 0); slide along until clear, 13 m apart
     if (Math.abs(x - lastX) < 13 || blocked(ccx, ccz, 1.75) || nearSpk(x, z, 3.2)) continue; lastX = x; const ai = stalls.length % AWN.length; stalls.push([x, z, ry, ai]);
     const P = (k, g, lx, y, lz, r2 = 0) => { const [wx, wz] = W(x, z, ry, lx, lz); add(k, g, wx, y, wz, ry + r2); };
     P('wood', Box(3.0, 0.9, 1.1), 0, 0.45, 0.35); P('top', Box(3.1, 0.06, 1.2), 0, 0.93, 0.35); P('wood', Box(3.0, 0.12, 0.05), 0, 0.2, 0.92);

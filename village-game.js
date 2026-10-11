@@ -127,8 +127,13 @@ const DIALOG = {
 };
 
 // ---------- audio ----------
+// HARD MUTE (Ben, s32): every page that loads this file is silent (Web Audio + mp3s). ?sound=1 brings it back.
+export const HARD_MUTE = typeof location === 'undefined' || !/[?&]sound=1/.test(location.search);
+if (HARD_MUTE && typeof window !== 'undefined' && !window.__8gMute) { window.__8gMute = true;
+  const P = window.HTMLMediaElement && HTMLMediaElement.prototype; if (P) { const play = P.play; P.play = function () { this.muted = true; this.volume = 0; return play.call(this); }; }
+  for (const k of ['AudioContext', 'webkitAudioContext']) { const AC = window[k]; if (!AC) continue; window[k] = class extends AC { constructor(...a) { super(...a); try { const g = super.createGain(); g.gain.value = 0; g.connect(super.destination); Object.defineProperty(this, 'destination', { value: g }); this.suspend(); } catch (e) {} } resume() { return Promise.resolve(); } }; } }
 class Ambience {
-  constructor() { this.ctx = null; this.muted = false; this.tBird = 2; this.tCricket = 1; }
+  constructor() { this.ctx = null; this.muted = HARD_MUTE; this.tBird = 2; this.tCricket = 1; }
   init() {
     if (this.ctx) { this.ctx.resume(); return; }
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;

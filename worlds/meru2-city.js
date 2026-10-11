@@ -16,10 +16,13 @@ export function buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoi
     burgers: { s: 'brick', base: '#b0623f', h: 7, awn: '#ec3013', goods: 'food' },
     police: { s: 'panel', base: '#2e4a6b', h: 12, bar: true },
     bank: { s: 'stone', base: '#ece6d8', h: 16, cols: true },
-    carRental: { s: 'glass', base: '#56636e', h: 7, awn: '#ec3013' },
-    crest: { s: 'glass', base: '#4f5c66', h: 34, crown: true, balc: true },
-    lake: { s: 'glass', base: '#43525e', h: 46, crown: true, balc: true },
+    carRental: { s: 'glass', base: '#56636e', h: 7, awn: '#ec3013' }, carRental2: { s: 'glass', base: '#56636e', h: 7, awn: '#ec3013' },
+    crest: { s: 'glass', base: '#4f5c66', h: 34, crown: true, balc: true, lobby: 8 },   // s35: lobby = ground-floor windows only within 8 m of the front door
+    lake: { s: 'glass', base: '#43525e', h: 46, crown: true, balc: true, lobby: 8 },
     stationTown: { s: 'glass', base: '#56636e', h: 8, canopy: true, sign: ['#ec3013', '#ffffff'] },
+    stationPearl: { s: 'glass', base: '#56636e', h: 8, canopy: true, sign: ['#ec3013', '#ffffff'] }, stationArena: { s: 'glass', base: '#56636e', h: 8, canopy: true, sign: ['#ec3013', '#ffffff'] },
+    stationCastle: { s: 'glass', base: '#56636e', h: 8, canopy: true, sign: ['#ec3013', '#ffffff'] }, stationRuins: { s: 'glass', base: '#56636e', h: 8, canopy: true, sign: ['#ec3013', '#ffffff'] },   // s35: real halls
+    stationLake: { s: 'glass', base: '#56636e', h: 8, canopy: true, sign: ['#ec3013', '#ffffff'] },   // s35: a real hall (meru2-halls.js) instead of the blockout box
     // step 5: the lakeside buildings
     blindSchool: { s: 'stone', base: '#e8d9b8', h: 9, roof: 'hip', roofC: '#2e4a6b', awn: '#ffd23a' },
     boatworks: { s: 'panel', base: '#8b6a48', h: 9, awn: '#2e4a6b', roofC: '#3d3b3a', goods: 'tools' },
@@ -28,6 +31,7 @@ export function buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoi
     tankWorks: { s: 'panel', base: '#6c7166', h: 9, awn: '#ffd23a', roofC: '#3d3b3a' },
     tankRange: { s: 'panel', base: '#7a7a63', h: 9, awn: '#ec3013', roofC: '#3d3b3a' },
   };
+  const lobbyMats = {}, lobbyMat = S => lobbyMats[S.base] || (lobbyMats[S.base] = (() => { const t = CT(256, 256, (g, w) => { g.fillStyle = shade(S.base, 0.12); g.fillRect(0, 0, w, w); g.fillStyle = shade(S.base, -0.06); for (let y = 0; y < w; y += 64) g.fillRect(0, y, w, 3); for (let x = 0; x < w; x += 128) g.fillRect(x, 0, 3, w); }); t.wrapS = t.wrapT = THREE.RepeatWrapping; return new THREE.MeshLambertMaterial({ map: t }); })());
   const keys = new Set(Object.keys(STY)), RECT = [-170, 170, -150, 160];
   const T = 0.4, DW = 4, DH = 4.5, GAP = DW / 2 + 0.45, CW = 3, CH = 3.5, TU = 4 * CW, TV = 4 * CH, SIDES = ['N', 'S', 'W', 'E'];
   const FACE = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] }, clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -187,8 +191,12 @@ export function buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoi
       if (collide) colliders.push({ f: side === 'N' ? [s0, s1, z0, z0 + T] : side === 'S' ? [s0, s1, z1 - T, z1] : side === 'W' ? [x0, x0 + T, s0, s1] : [x1 - T, x1, s0, s1] }); };
     for (const side of SIDES) { const along = side === 'N' || side === 'S', a0 = along ? x0 : z0, a1 = along ? x1 : z1, out = [];
       const gaps = dl.filter(([, f]) => f === side).map(([p]) => along ? p[0] : p[1]).sort((p, q) => p - q), w1 = along ? a1 : a1 - T; let a = along ? a0 : a0 + T;   /* flicker pass: E/W walls stop inside the N/S walls, no doubled corner faces */
-      const gl = [], wall = (p, q) => side === noWin ? seg(side, p, q, 0, h1, out, true) : segW(side, along, p, q, out, gl, gaps);
+      const gl = [], wall0 = (p, q) => side === noWin || (b.solid || []).includes(side) ? seg(side, p, q, 0, h1, out, true) : segW(side, along, p, q, out, gl, gaps);
+      const outL = [];   // s35 lobby: the solid ground-storey walls get their own opaque stone podium material (the glass facade map is see-through)
+      const wall = !S.lobby ? wall0 : (p, q) => { if (side !== b.face) return seg(side, p, q, 0, h1, outL, true); const u = along ? b.door[0] : b.door[1], lo = u - S.lobby, hi = u + S.lobby;   // s35 lobby: solid except near the front door
+        if (Math.min(q, lo) > p) seg(side, p, Math.min(q, lo), 0, h1, outL, true); if (Math.min(q, hi) > Math.max(p, lo)) segW(side, along, Math.max(p, lo), Math.min(q, hi), out, gl, gaps); if (q > Math.max(p, hi)) seg(side, Math.max(p, hi), q, 0, h1, outL, true); };
       for (const u of gaps) { wall(a, u - GAP); seg(side, u - GAP, u + GAP, DH + 0.45, h1, out, false); a = u + GAP; } wall(a, w1);
+      if (outL.length) addPart(bd.cut[side], new THREE.Mesh(merge(outL), lobbyMat(S)));
       const m = winify(fac.clone()); facMats.push(m); addPart(bd.cut[side], new THREE.Mesh(merge(out), m));
       if (gl.length) { const gm = new THREE.Mesh(merge(gl), glassMat); gm.renderOrder = 2; root.add(gm); bd.cut[side].meshes.push(gm); } detail(side, along, a0, a1, gaps); if (side === noWin && bd.art) artWall(side, a0, a1);
       if (S.s === 'stone' || S.s === 'brick') { let s0 = a0; for (const u of [...gaps, null]) { const e = u === null ? a1 : u - GAP; if (e - s0 > 0.3) D(S.s === 'stone' ? '#9c907c' : '#6e5a4e', along ? Box(e - s0, 0.6, 0.14) : Box(0.14, 0.6, e - s0), ...onWall(side, (s0 + e) / 2, 0.3, 0.07)); if (u !== null) s0 = u + GAP; } } }
@@ -240,20 +248,24 @@ export function buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoi
       doors.push({ b, x: dx, z: dz, l: leaf(-1), r: leaf(1), open: 0, was: false, blk });
       pools.push([...W(0, 0, 2.6), 8]); glowP.push(W(0, DH + 0.25, 0.7));
       // step 9: neon BLADE SIGN projecting from the wall beside the first door (stacked letters, both faces, lit at night)
-      if (di === 0) { const bx = -(DW / 2 + 2.6) > lo + 0.8 ? -(DW / 2 + 2.6) : !b.hiring && DW / 2 + 2.6 < hi - 0.8 ? DW / 2 + 2.6 : null;
-        if (bx !== null && h >= 6) { const words = b.label.toUpperCase().split(/\s+/).filter(t => !['THE', 'MERU', 'OF', '&'].includes(t)), word = (words[0] || b.label.toUpperCase()).slice(0, 8), n = word.length;
-          const col = S.s === 'stone' ? '#ffb347' : BLADE[nBlade++ % BLADE.length], top = Math.min(h - 0.6, 11), bh = Math.min(top - (S.awn ? 4.9 : 3.2), n * 0.8 + 0.5), y0 = top - bh, cell = bh / (n + 0.6), bw = 1.25;
-          if (cell > 0.45) { const tex = CT(96 * bw / cell | 0, 96 * (n + 0.6) | 0, (g, w, hh) => { g.fillStyle = '#151317'; g.fillRect(0, 0, w, hh); g.strokeStyle = col; g.lineWidth = 3; g.strokeRect(5, 5, w - 10, hh - 10); g.font = '900 64px Archivo, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.shadowColor = col; g.shadowBlur = 14; g.fillStyle = col; for (let i = 0; i < n; i++) g.fillText(word[i], w / 2, 96 * (i + 0.8)); g.shadowBlur = 0; g.fillStyle = '#ffffff'; g.globalAlpha = 0.55; g.font = '900 40px Archivo, sans-serif'; for (let i = 0; i < n; i++) g.fillText(word[i], w / 2, 96 * (i + 0.8)); });
+      // s34 (Ben): the CASINO-STYLE vertical marquee (dark board, stacked letters white / gold) beside EVERY front + back door. Tall buildings: above
+      // the door frame, up to the roofline; low ones (under 8 m): from 1 m up beside the door. The Casino front keeps its own big one (meru2-casino.js).
+      let bladeX = null;   // s34: where this door's blade went, so the awning + columns leave room for it
+      if (b.key !== 'casino' || di > 0) { const bx = -(DW / 2 + 2.6) > lo + 0.8 ? -(DW / 2 + 2.6) : !(b.hiring && di === 0) && DW / 2 + 2.6 < hi - 0.8 ? DW / 2 + 2.6 : null;
+        if (bx !== null && h >= 4) { const words = b.label.toUpperCase().split(/\s+/).filter(t => !['THE', 'MERU', 'OF', '&'].includes(t)), word = ({ carRental: 'RENTALS', carRental2: 'RENTALS', itemshop: 'MARKET', stationTown: 'STATION', stationLake: 'STATION' }[b.key] || words[0] || b.label.toUpperCase()).slice(0, 9), n = word.length;
+          const low = h < 8, y0 = low ? 1.0 : DH + 0.9, top = low ? h - 0.4 : Math.min(h - 0.6, 12.5), cell = Math.min(0.84, (top - y0) / (n + 0.6)), bh = cell * (n + 0.6), bw = Math.max(0.9, Math.min(1.5, cell * 1.8));
+          if (cell > 0.36) { bladeX = bx; const tex = CT(128, 128 * bh / bw | 0, (g, w, hh) => { g.fillStyle = '#201e1d'; g.fillRect(0, 0, w, hh); g.strokeStyle = '#ffd23a'; g.lineWidth = 4; g.strokeRect(6, 6, w - 12, hh - 12); const step = hh / (n + 0.6); g.font = '900 ' + Math.round(Math.min(w * 0.62, step * 0.9)) + 'px Archivo, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; for (let i = 0; i < n; i++) { g.fillStyle = i % 2 ? '#ffd23a' : '#ffffff'; g.fillText(word[i], w / 2, step * (i + 0.8)); } });
             const bm = new THREE.MeshBasicMaterial({ map: tex, color: 0x8a8a8a }); bladeMats.push(bm);
             const ink = toon('#201e1d'), blade = new THREE.Group(); blade.position.set(...W(bx, y0 + bh / 2, 0.25 + bw / 2)); blade.rotation.y = ry;
             const back = new THREE.Mesh(Box(0.2, bh, bw), ink); blade.add(back); for (const s of [1, -1]) { const pl = new THREE.Mesh(new THREE.PlaneGeometry(bw, bh), bm); pl.rotation.y = s * Math.PI / 2; pl.position.x = s * 0.13; blade.add(pl); }
             const arm = new THREE.Mesh(Box(0.08, 0.08, bw + 0.3), ink); arm.position.set(0, bh / 2 + 0.12, -0.1); blade.add(arm);
             root.add(blade); blade.updateMatrix(); for (const c of [...blade.children]) { c.applyMatrix4(blade.matrix); addPart(bd.cut[face], c); } root.remove(blade);   // overlap audit: bake the blade transform (the faces used to land at the world origin)
-            bladeGlow.push([...W(bx, y0 + bh / 2, 0.25 + bw / 2), new THREE.Color(col)]); } } }
+            bladeGlow.push([...W(bx, y0 + bh / 2, 0.25 + bw / 2), new THREE.Color('#ffd23a')]); } } }
       if (b.hiring && di === 0) { const s = new THREE.Group(); s.position.set(DW / 2 + 2.2, 0, 1.2); g.add(s); const post = new THREE.Mesh(Box(0.15, 1.6, 0.15), matFor('#201e1d')); post.position.y = 0.8; s.add(post); const pl = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 0.82), hireMat); pl.position.y = 2.0; s.add(pl); const bk = pl.clone(); bk.rotation.y = Math.PI; s.add(bk); }
-      if (S.awn) for (const [s0, s1] of [[lo + 0.8, -3.3], [3.3, hi - 0.8]]) if (s1 - s0 > 2) { const ln = s1 - s0, sU = gg => { const uv = gg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * ln / 1.2); return gg; };
+      const awnSegs = []; for (const [p, q] of [[lo + 0.8, -3.3], [3.3, hi - 0.8]]) { if (bladeX != null && bladeX > p && bladeX < q) { awnSegs.push([p, bladeX - 1.05], [bladeX + 1.05, q]); } else awnSegs.push([p, q]); }
+      if (S.awn) for (const [s0, s1] of awnSegs) if (s1 - s0 > 2) { const ln = s1 - s0, sU = gg => { const uv = gg.attributes.uv; for (let i = 0; i < uv.count; i++) uv.setX(i, uv.getX(i) * ln / 1.2); return gg; };
         D('awn:' + S.awn, sU(Box(ln, 0.08, 2)), ...W((s0 + s1) / 2, 4.4, 1), ry, 0.22); D('awn:' + S.awn, sU(Box(ln, 0.4, 0.05)), ...W((s0 + s1) / 2, 3.98, 1.98), ry); }
-      if (S.cols && di === 0) { for (let lx = lo + 2.5; lx < hi - 2; lx += 5.5) { if (Math.abs(lx) < 4) continue; const q = W(lx, 3.5, 1.9); D('#e6dfcf', Cyl(0.7, 0.8, 7, 12), ...q); colliders.push({ c: [q[0], q[2], 0.8] }); }
+      if (S.cols && di === 0) { for (let lx = lo + 2.5; lx < hi - 2; lx += 5.5) { if (Math.abs(lx) < 4 || (bladeX != null && Math.abs(lx - bladeX) < 1.8)) continue; const q = W(lx, 3.5, 1.9); D('#e6dfcf', Cyl(0.7, 0.8, 7, 12), ...q); colliders.push({ c: [q[0], q[2], 0.8] }); }
         D('#ece6d8', Box(hi - lo - 1, 1.2, 3.8), ...W((lo + hi) / 2, 7.6, 1.7), ry);
         { const pw = hi - lo - 1, sh = new THREE.Shape(); sh.moveTo(-pw / 2, 0); sh.lineTo(pw / 2, 0); sh.lineTo(0, 2.4); sh.closePath(); const pg = new THREE.ExtrudeGeometry(sh, { depth: 3.6, bevelEnabled: false }); pg.translate(0, 0, -1.8); D('#ece6d8', pg, ...W((lo + hi) / 2, 8.2, 1.7), ry); } D('#cfc6b4', Box(hi - lo - 1, 0.25, 3.8), ...W((lo + hi) / 2, 0.125, 1.7), ry); } }); }
 
@@ -354,7 +366,7 @@ export function buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoi
   const lampG = merge([piece(Cyl(0.11, 0.16, 6.2, 6), 0, 3.1, 0), piece(Cyl(0.3, 0.36, 0.7, 8), 0, 0.35, 0), piece(Box(3, 0.12, 0.12), 0, 6.1, 0), piece(Box(0.95, 0.18, 0.5), -1.5, 6.02, 0), piece(Box(0.95, 0.18, 0.5), 1.5, 6.02, 0), piece(Cyl(0.16, 0.16, 0.3, 6), 0, 6.3, 0)]), lensMat = new THREE.MeshBasicMaterial({ color: 0xd9d6cf });
   const lampI = new THREE.InstancedMesh(lampG, matFor('#201e1d'), lampP.length), lensI = new THREE.InstancedMesh(merge([piece(Box(0.8, 0.04, 0.38), -1.5, 5.92, 0), piece(Box(0.8, 0.04, 0.38), 1.5, 5.92, 0)]), lensMat, lampP.length);
   lampP.forEach(([x, z, r = 0], i) => { M4.compose(V(x, 0, z), Q.setFromEuler(E.set(0, r, 0)), ONE); lampI.setMatrixAt(i, M4); lensI.setMatrixAt(i, M4); colliders.push({ c: [x, z, 0.3] }); const cx = Math.cos(r) * 1.5, cz = -Math.sin(r) * 1.5; pools.push([x + cx, 0, z + cz, 9], [x - cx, 0, z - cz, 9]); glowP.push([x + cx, 5.8, z + cz], [x - cx, 5.8, z - cz]); });
-  root.add(lampI, lensI);
+  lampI.userData.lamp = lensI.userData.lamp = true; root.add(lampI, lensI);
   // exterior polish: HANGING FLOWER BASKETS on every plaza + promenade lamp (chains, a coir basket, a mound of trailing flowers), 3 draws
   { const pl = lampP.filter(([x, z]) => L.surfaceAt(x, z) === 'stone'), BC = ['#ec3013', '#f472b6', '#facc15', '#c084fc', '#fb923c'];
     const chainI = new THREE.InstancedMesh(merge([-0.12, 0.12].map(o => piece(Cyl(0.012, 0.012, 0.55, 3), o, -0.28, 0))), matFor('#201e1d'), pl.length * 2);
@@ -560,6 +572,6 @@ export function buildCity({ THREE, scene, camera, toon, grad, CT, L, touch, avoi
 
   const api = { keys, colliders, props: [...benchP.map(([x, z]) => ({ c: [x, z, 1.2] })), ...lampP.map(([x, z]) => ({ c: [x, z, 0.4] }))], rect: RECT, covers: inRect, heightOf: k => STY[k] ? STY[k].h : 7, player: null, inside: null, onChime: null, setNight, tick,
     stats: { street: api_street, parks: api_parks, buildings: blds.length, doors: doors.length, lamps: lampP.length, trees: trees.length, cars: cars.length, blades: bladeMats.length, trims: inst.length, trimKinds: instN } };
-  window.__meru2City = api;   // test hook
+  api.blds = blds; window.__meru2City = api;   // test hook
   return api;
 }

@@ -187,5 +187,5 @@ export function buildRides({ THREE, scene, M, toon, grad, kit, cols, L, save, to
     if (P.carousel) { const a = R.ang + horses[mine].a + 0.62, r = 9.6; camera.position.set(RX + Math.cos(a) * r, 6.0, CZ0 + Math.sin(a) * r); camera.lookAt(P.x, P.y + 0.6, P.z); CAM.yaw = Math.atan2(camera.position.x - P.x, camera.position.z - P.z); } }
   function keeper(key, name, role, lines, opt, x, z, ry) { const f = kit.makeFox({ key, crest: '', gear: 'none', mood: 'happy', outfit: 'vest', ...opt }); const P = f.userData.P; if (P && P.sword) P.sword.visible = false; if (P && P.gun) P.gun.visible = false;
     f.position.set(x, 0, z); f.rotation.y = ry; root.add(f); ring(x, z, 0.45); TALK[key] = { name, role, lines: lines.map(text => ({ who: 'npc', text })) }; talkers.push({ key, obj: f, ry, r: 2.4 }); keepers.push(f); }
-  return { prompt, talk, off, btn, heliDrive, tick, pose, cam, toast: () => (toastT > 0 ? toast : ''), heli: H, ride: R };
+  return { prompt, talk, off, btn, heliDrive, tick, pose, cam, toast: () => (toastT > 0 ? toast : ''), heli: H, ride: R, car, pad: [RX, HZ0] };
 }

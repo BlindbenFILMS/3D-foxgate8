@@ -97,7 +97,7 @@ export function buildCivic({ THREE, scene, M, toon, kit, cols }) {
   // behind the counter: teller desks + a rack of safe-deposit boxes on the north wall
   for (let i = 0; i < 4; i++) { const x = 76 + i * 6.4; k.box('mat', '#5a3d26', 2.0, 0.76, 0.9, x, 0.38, -104.2); k.box('mat', '#3d2a1c', 2.04, 0.04, 0.94, x, 0.78, -104.2); k.box('mat', '#201e1d', 0.4, 0.28, 0.03, x, 1.0, -104.4); k.box('glo', '#9fd6ff', 0.36, 0.24, 0.01, x, 1.0, -104.38);
     k.box('mat', '#201e1d', 0.5, 0.08, 0.5, x, 0.5, -103.2); k.box('mat', '#201e1d', 0.5, 0.6, 0.06, x, 0.82, -102.96); box(x - 1, x + 1, -104.65, -103.75); }
-  for (let i = 0; i < 26; i++) for (let j = 0; j < 9; j++) { const x = 64.6 + i * 0.95, y = 0.3 + j * 0.42; if (x > 89.4) continue; k.box('gls', (i + j) % 2 ? '#b08d3c' : '#a07d30', 0.9, 0.38, 0.06, x, y, -124.55); k.box('mat', '#201e1d', 0.04, 0.04, 0.02, x + 0.3, y, -124.51); }
+  for (let i = 0; i < 26; i++) for (let j = 0; j < 9; j++) { const x = 64.6 + i * 0.95, y = 0.3 + j * 0.42; if (x > 89.4 || x < 71.2) continue; /* s35: x < 71 = the sidewalk lobby */ k.box('gls', (i + j) % 2 ? '#b08d3c' : '#a07d30', 0.9, 0.38, 0.06, x, y, -124.55); k.box('mat', '#201e1d', 0.04, 0.04, 0.02, x + 0.3, y, -124.51); }
   // storage lockers on the west wall (steel cabinets with brass numbers + handles)
   for (let z = -112; z < -99.9; z += 1.5) for (let y = 0; y < 3; y++) { const zc = z + 0.75, yc = 0.5 + y; k.box('gls', y % 2 ? '#9aa0a6' : '#7c8794', 0.5, 0.95, 1.4, 62.9, yc, zc); k.box('mat', '#5c6670', 0.01, 0.9, 0.01, 63.16, yc, zc - 0.68);
     k.box('gls', GOLD, 0.02, 0.1, 0.18, 63.16, yc + 0.32, zc + 0.4); k.cyl('gls', '#c0c4cc', 0.035, 0.03, 63.17, yc, zc + 0.55, 8, 0, Math.PI / 2); }
@@ -118,6 +118,19 @@ export function buildCivic({ THREE, scene, M, toon, kit, cols }) {
   for (const x of [79, 93]) { const y = 5.4, z = -90; k.box('gls', BR, 0.03, 9 - y, 0.03, x, (9 + y) / 2, z); k.sph('gls', BR, 0.22, x, y, z);
     for (const [R, yy, n] of [[1.2, y - 0.25, 12], [0.7, y + 0.15, 8]]) { k.tor('gls', BR, R, 0.04, x, yy, z, Math.PI / 2); for (let q = 0; q < n; q++) { const a = q / n * Math.PI * 2, px = x + Math.cos(a) * R, pz = z + Math.sin(a) * R; k.cyl('mat', '#f3efe2', 0.03, 0.14, px, yy + 0.09, pz, 6); k.sph('glo', '#ffe2a8', 0.07, px, yy + 0.22, pz, 1.3, 6); } } }
   wallPlane(BG, signTex('BANK OF MERU'), 5.2, 0.98, 86, 4.3, -124.6, 0, true);
+  // s35 (Ben): the SIDEWALK LOBBY: a street door in the back wall at x 65.5 (BACK_DOORS.bank) for people on the ring-road sidewalk. A brass-framed
+  // glass VESTIBULE (3.4 m deep), a pair of ATMs on the wall beside it, a red runner with gold edges from the door past the lockers to the hall,
+  // a WELCOME board over the inner opening, two palms. The corridor x 63.2..69.8 stays clear (the vault stair starts at x 70).
+  { const vx = 65.5, vz0 = -124.7, vz1 = -121.3, vw = 5.2;
+    for (const s of [-1, 1]) { const x = vx + s * vw / 2; k.box('glass', '#cfe9ff', 0.05, 3.6, vz1 - vz0, x, 1.8, (vz0 + vz1) / 2); for (const z of [vz0 + 0.05, (vz0 + vz1) / 2, vz1]) k.box('gls', BR, 0.12, 3.6, 0.12, x, 1.8, z); box(x - 0.08, x + 0.08, vz0, vz1); }
+    k.box('gls', BR, vw + 0.2, 0.14, 0.14, vx, 3.62, vz1); k.box('glass', '#cfe9ff', vw, 0.04, vz1 - vz0, vx, 3.66, (vz0 + vz1) / 2); k.box('gls', BR, vw + 0.2, 0.1, vz1 - vz0 + 0.1, vx, 3.72, (vz0 + vz1) / 2);
+    k.box('mat', '#201e1d', vw - 0.3, 0.02, vz1 - vz0 - 0.2, vx, 0.064, (vz0 + vz1) / 2);   // the door mat
+    k.box('mat', '#7a2a3a', 2.4, 0.012, 21, vx, 0.062, -110.7); for (const s of [-1, 1]) k.box('gls', GOLD, 0.08, 0.014, 21, vx + s * 1.22, 0.064, -110.7);
+    // ATMs on the back wall, east of the vestibule (green screens, brass keypads, card slots)
+    for (const x of [69.0]) { k.box('mat', '#2e4a6b', 1.3, 2.2, 0.7, x, 1.1, -124.3); k.box('mat', '#201e1d', 1.0, 0.6, 0.02, x, 1.55, -123.94); k.box('glo', '#7cff9b', 0.9, 0.5, 0.01, x, 1.55, -123.92);
+      k.box('gls', BR, 0.6, 0.06, 0.3, x, 1.05, -123.85); for (let q = 0; q < 9; q++) k.box('mat', '#e9e3d6', 0.1, 0.02, 0.06, x - 0.15 + (q % 3) * 0.15, 1.09, -123.8 - (q / 3 | 0) * 0.06); k.box('gls', '#ffc64a', 0.4, 0.15, 0.01, x, 2.0, -123.93); box(x - 0.7, x + 0.7, -124.7, -123.9); }
+    wallPlane(BG, signTex('WELCOME · BANK OF MERU'), vw, 0.62, vx, 4.2, vz1 + 0.05, Math.PI, true);
+    for (const x of [63.4, 67.9]) { if (x > 67) continue; k.cyl('gls', BR, 0.32, 0.6, x, 0.3, -120.4, 14, 0, 0, 1.15); k.cyl('mat', '#5a3d26', 0.05, 1.1, x, 1.1, -120.4, 6); for (let f = 0; f < 7; f++) { const a = f / 7 * Math.PI * 2; k.box('mat', f % 2 ? '#3d6b4a' : '#4f8a5c', 0.16, 0.03, 1.0, x + Math.sin(a) * 0.4, 1.6, -120.4 + Math.cos(a) * 0.4, a, 0.5); } ring(x, -120.4, 0.4); } }
   // vault: glass wall with brass mullions, thick steel frame, round door (open) with locking bolts + wheel, gold, sacks, deposit shelves
   const gl = new THREE.MeshPhongMaterial({ color: 0xbfe6ff, transparent: true, opacity: 0.25, shininess: 120, depthWrite: false });
   const vglass = new THREE.Mesh(new THREE.BoxGeometry(14, 4, 0.06), gl); vglass.position.set(97, 2, -112); BG.add(vglass); box(90, 104, -112.2, -111.8);
