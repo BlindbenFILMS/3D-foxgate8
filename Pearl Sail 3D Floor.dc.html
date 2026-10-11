@@ -50,6 +50,25 @@
       <sc-for list="{{ netPeers }}" as="p" hint-placeholder-count="0"><div style="display:flex;align-items:center;gap:6px;background:rgba(0,0,0,0.85);border:2px solid #3a3836;border-top:0;padding:3px 8px"><span style="flex:none;width:9px;height:9px;background:{{ p.col }};display:block"></span><span style="font:900 11px var(--font-heading);color:#fff;white-space:nowrap">{{ p.name }}</span><span style="margin-left:auto;font:800 10px var(--font-heading);letter-spacing:0.06em;color:#cfcac4;white-space:nowrap">{{ p.what }}</span></div></sc-for>
     </div>
   </sc-if>
+  <sc-if value="{{ invOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:45;background:rgba(0,0,0,0.78);display:flex;align-items:center;justify-content:flex-start;padding:12px;box-sizing:border-box;overflow:auto;pointer-events:auto">
+      <div style="width:min(420px,100%);background:#000;border:2px solid #ffd23a;display:flex;flex-direction:column;color:#fff">
+        <div style="padding:12px 16px;display:flex;flex-direction:column;gap:3px;border-bottom:2px solid #3a3836"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">{{ invKick }}</span><span style="font:900 24px var(--font-heading);line-height:1.05">Invite friends</span><span style="font:600 13px/1.4 var(--font-body);color:#cfcac4;text-wrap:pretty">{{ invNote }}</span></div>
+        <div style="display:flex;gap:12px;padding:12px 16px;align-items:flex-start;border-bottom:2px solid #3a3836">
+          <img src="{{ invQr }}" alt="QR code to join" style="flex:none;width:132px;height:132px;background:#fff;border:2px solid #fff;display:block">
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#cfcac4">SCAN OR SEND THIS LINK</span><input readonly value="{{ invUrl }}" onFocus="{{ invSel }}" style="width:100%;box-sizing:border-box;min-height:40px;padding:6px 8px;border:2px solid #3a3836;border-radius:0;background:#141312;color:#fff;font:700 12px var(--font-body)"><span style="font:800 12px var(--font-heading);letter-spacing:0.08em;color:{{ invMsgCol }}">{{ invMsg }}</span></div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button onClick="{{ invCopy }}" style="min-height:52px;padding:0 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#ffd23a;color:#000;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left">COPY LINK</button>
+          <button onClick="{{ invShare }}" style="min-height:52px;padding:0 14px;border:0;border-radius:0;background:#2a2826;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left">SHARE…</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:2px solid #3a3836">
+          <button onClick="{{ invPrivate }}" style="min-height:48px;padding:0 14px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 12px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left">{{ invPrivTxt }}</button>
+          <button onClick="{{ invClose }}" style="min-height:48px;padding:0 14px;border:0;border-radius:0;background:#ec3013;color:#fff;font:900 12px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left">CLOSE</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
   <sc-if value="{{ netFull }}" hint-placeholder-val="{{ false }}">
     <div style="position:absolute;inset:0;z-index:40;background:rgba(0,0,0,0.8);display:flex;align-items:center;padding:12px"><div style="width:min(420px,100%);background:#000;border:2px solid #ec3013;display:flex;flex-direction:column"><div style="padding:14px 16px;display:flex;flex-direction:column;gap:4px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ff6b5a">PEARL SAIL · ONLINE</span><span style="font:900 24px var(--font-heading)">This world is full (4/4)</span><span style="font:600 14px/1.4 var(--font-body);color:#cfcac4">Make a private room and invite your friends, or play solo.</span></div><div style="display:grid;grid-template-columns:1fr 1fr"><button onClick="{{ netPrivate }}" style="min-height:52px;border:0;border-right:2px solid #3a3836;border-radius:0;background:#ffd23a;color:#000;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;padding:0 14px">PRIVATE ROOM</button><button onClick="{{ netSolo }}" style="min-height:52px;border:0;border-radius:0;background:#000;color:#fff;font:900 13px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;padding:0 14px">PLAY SOLO</button></div></div></div>
   </sc-if>
@@ -186,13 +205,20 @@ class Component extends DCLogic {
       bossOn: !!h.boss && play && !S.hi.menu, bossName: h.boss ? h.boss.name : '', bossW: h.boss ? h.boss.pct + '%' : '0%', bossTop: 'calc(' + bar + 'px + ' + (phone && !land ? 150 : 8) + 'px)',
       chalOn: !!h.challenge, chalName: h.challenge ? h.challenge.name : '', chalText: h.challenge ? h.challenge.text : '', acceptDuel: () => this.lab && this.lab.acceptDuel(),
       duelOn: !!S.duel, duelSrc: 'Kyoto Sword Duel.dc.html?pearl=1&embed=1&fox=ben',
+      ...(() => { const I = S.inv; if (!I) return { invOn: false }; const url = location.origin + location.pathname + '?' + ((new URLSearchParams(location.search).get('net') === 'local' ? 'net=local' : '') ? (new URLSearchParams(location.search).get('net') === 'local' ? 'net=local' : '') + '&' : '') + (I.code ? 'room=' + I.code : '').replace(/&$/, '');
+        return { invOn: true, invUrl: url.replace(/[?&]$/, ''), invQr: 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=8&data=' + encodeURIComponent(url.replace(/[?&]$/, '')), invKick: I.code ? 'PRIVATE ROOM ' + I.code : 'OPEN WORLD · NO CODE NEEDED',
+          invNote: I.code ? 'Only people with this link or code join you.' : 'Anyone who opens this link meets you here automatically (up to 4 foxes).', invMsg: I.msg || '', invMsgCol: I.ok ? '#7cff9b' : '#ff9b2a', invSel: e => e.target.select(),
+          invCopy: async () => { const u = url.replace(/[?&]$/, ''); let ok = false; try { await navigator.clipboard.writeText(u); ok = true; } catch (e) { try { const t = document.createElement('textarea'); t.value = u; document.body.appendChild(t); t.select(); ok = document.execCommand('copy'); t.remove(); } catch (er) {} } this.setState({ inv: { ...I, msg: ok ? 'COPIED · PASTE IT IN A MESSAGE' : 'COPY BLOCKED HERE · HOLD THE LINK TO COPY', ok } }); },
+          invShare: async () => { const u = url.replace(/[?&]$/, ''); if (navigator.share) { try { await navigator.share({ title: 'FOX GATE 8', text: 'Play with me!', url: u }); return; } catch (e) { if (e && e.name === 'AbortError') return; } } this.setState({ inv: { ...I, msg: 'SHARING NOT AVAILABLE HERE · USE COPY LINK', ok: false } }); },
+          invPrivTxt: I.code ? 'BACK TO OPEN WORLD' : 'MAKE A PRIVATE ROOM', invPrivate: () => { const q = new URLSearchParams(location.search); if (I.code) q.delete('room'); else q.set('room', Array.from({ length: 4 }, () => 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'[Math.random() * 31 | 0]).join('')); location.search = '?' + q.toString(); },
+          invClose: () => this.setState({ inv: null }) }; })(),
       hasBanner: !!h.banner && !S.hi.menu && !h.scope && !h.challenge && !h.blast,
       ...(() => { const n = h.net; if (!n || n.status === 'off') return { netOn: false, netFull: false }; const on = n.status === 'online' || n.status === 'local', code = n.code;
         return { netOn: !h.blast && !S.duel && !S.hi.menu, netFull: !!n.full, netTop: 'calc(' + (bar + (phone && !land ? 150 : 46)) + 'px)', netW: phone ? 'min(220px, 58vw)' : '260px', netCol: n.col || '#3a3836',
           netKick: n.status === 'connecting' ? 'CONNECTING…' : !on ? 'OFFLINE · SOLO' : (code ? 'ROOM ' + code : 'PEARL SAIL · OPEN WORLD') + (n.host ? ' · HOST' : ''),
           netTxt: !on ? 'Just you' : n.n > 1 ? n.n + '/4 FOXES · YOU ' + n.me : 'Just you · invite a friend', netInvTxt: n.n >= 4 ? 'FULL' : 'INVITE',
           netPeers: on ? (n.peers || []).map(p => ({ name: p.name, col: p.col, what: p.what })) : [],
-          netInvite: async () => { const c = code || this.lab.netInvite(), url = location.origin + location.pathname + '?room=' + c; try { if (navigator.share) await navigator.share({ title: 'FOX GATE 8 · Pearl Sail', text: 'Join me in the Pearl Sail! Room ' + c, url }); else await navigator.clipboard.writeText(url); } catch (e) {} if (!code) location.search = '?room=' + c; },
+          netInvite: () => this.setState({ inv: { code: code || '' } }),
           netPrivate: () => { location.search = '?room=' + this.lab.netInvite(); }, netSolo: () => { location.search = '?net=off'; } }; })(),
       ...(() => { const b = h.blast; if (!b) return { blOn: false }; const play = b.ready && !b.done, ndc = ev => { const r = this.stageRef.current.getBoundingClientRect(); return [((ev.clientX - r.left) / r.width) * 2 - 1, -((ev.clientY - r.top) / r.height) * 2 + 1, ev.clientX - r.left, ev.clientY - r.top]; };
         return { blOn: true, blPlay: !!play, blIntro: !b.ready && !b.done, blDone: !!b.done,
