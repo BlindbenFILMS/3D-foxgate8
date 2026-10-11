@@ -126,7 +126,7 @@ export function plantTrees(list, { shadow = true } = {}) {
     for (const m of [n, f]) { m.castShadow = shadow; m.receiveShadow = true; m.onBeforeRender = hook; group.add(m); } }
   return { group, count: list.length };
 }
-function inst(g, m, list, cols) { const im = new THREE.InstancedMesh(g, m, Math.max(1, list.length)); im.userData.flora = true;   // s34: small flora (shrubs, tufts, flowers, reeds), for clean-ups im.count = list.length; const T = [];
+function inst(g, m, list, cols) { const im = new THREE.InstancedMesh(g, m, Math.max(1, list.length)); im.userData.flora = true; im.count = list.length; const T = [];   // s34: small flora (shrubs, tufts, flowers, reeds), for clean-ups
   list.forEach(([x, y, z, s = 1, r], i) => { M4.compose(V(x, y, z), Q.setFromEuler(E.set(0, r ?? hash(x, 9, z) * 6.28, 0)), V(s, s, s)); im.setMatrixAt(i, M4); if (cols) im.setColorAt(i, TC2.set(cols(i, x, z))); if (PHONE) T.push({ x, z, m: M4.clone(), c: cols ? TC2.clone() : null }); });
   im.receiveShadow = true;
   // phone perf: shrubs / tufts / flowers / reeds are only drawn within SMALL_NEAR m of the camera (re-packed when the camera moves 4 m)
