@@ -128,7 +128,7 @@ const DIALOG = {
 
 // ---------- audio ----------
 // HARD MUTE (Ben, s32): every page that loads this file is silent (Web Audio + mp3s). ?sound=1 brings it back.
-export const HARD_MUTE = typeof location === 'undefined' || !/[?&]sound=1/.test(location.search);
+export const HARD_MUTE = typeof location === 'undefined' || (!/[?&]sound=1/.test(location.search) && !(typeof window !== 'undefined' && window.__8gSound));   // s36h: the Fox Fighters arcade page sets window.__8gSound (sound on)
 if (HARD_MUTE && typeof window !== 'undefined' && !window.__8gMute) { window.__8gMute = true;
   const P = window.HTMLMediaElement && HTMLMediaElement.prototype; if (P) { const play = P.play; P.play = function () { this.muted = true; this.volume = 0; return play.call(this); }; }
   for (const k of ['AudioContext', 'webkitAudioContext']) { const AC = window[k]; if (!AC) continue; window[k] = class extends AC { constructor(...a) { super(...a); try { const g = super.createGain(); g.gain.value = 0; g.connect(super.destination); Object.defineProperty(this, 'destination', { value: g }); this.suspend(); } catch (e) {} } resume() { return Promise.resolve(); } }; } }
