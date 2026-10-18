@@ -48,7 +48,7 @@
     </div>
     </sc-if>
   <div style="position:relative;flex:1;min-height:0;overflow:hidden">
-      <sc-if value="{{ cbOn }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ cbOnB }}" hint-placeholder-val="{{ true }}">
         <div onClick="{{ cbTap }}" role="button" aria-label="Open minimap" title="Tap for minimap" style="pointer-events:auto;position:absolute;left:0;right:0;top:0;height:30px;z-index:3;background:#000;border-bottom:2px solid #3a3836;overflow:hidden;cursor:pointer">
           <div style="position:absolute;inset:0;background:linear-gradient(90deg,#000 0%,rgba(0,0,0,0) 22%,rgba(0,0,0,0) 78%,#000 100%);z-index:2"></div>
           <sc-for list="{{ cbTicks }}" as="tk" hint-placeholder-count="12"><div style="position:absolute;left:{{ tk.l }};bottom:0;width:2px;height:{{ tk.h }};margin-left:-1px;background:{{ tk.c }}"></div></sc-for>
@@ -229,7 +229,7 @@
           </div>
           <sc-if value="{{ v2HasN }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:-2px;top:-2px;min-width:20px;height:20px;padding:0 3px;box-sizing:border-box;background:{{ v2NBg }};color:#000;font:900 15px var(--font-heading);line-height:1;display:flex;align-items:center;justify-content:center;pointer-events:none;font-variant-numeric:tabular-nums">{{ v2N }}</span></sc-if>
         </div>
-        <div onPointerDown="{{ bsd }}" onPointerUp="{{ bsu }}" onPointerCancel="{{ bsc }}" aria-label="{{ bsLabel }}" style="pointer-events:auto;position:absolute;right:58px;bottom:58px;width:38px;height:38px;border-radius:50%;background:{{ bsRing }};animation:{{ bsAnim }};display:flex;align-items:center;justify-content:center;touch-action:none;cursor:pointer">
+        <div onPointerDown="{{ bsd }}" onPointerUp="{{ bsu }}" onPointerCancel="{{ bsc }}" aria-label="{{ bsLabel }}" style="display:{{ bsDisp }};pointer-events:auto;position:absolute;right:58px;bottom:58px;width:38px;height:38px;border-radius:50%;background:{{ bsRing }};animation:{{ bsAnim }};align-items:center;justify-content:center;touch-action:none;cursor:pointer">
           <div style="width:31px;height:31px;border-radius:50%;background:#000;display:flex;align-items:center;justify-content:center;pointer-events:none">
             <sc-if value="{{ bsScope }}" hint-placeholder-val="{{ false }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ bsIcon }}" stroke-width="2.2" stroke-linecap="square"><circle cx="12" cy="12" r="8"></circle><circle cx="12" cy="12" r="2"></circle><line x1="12" y1="1" x2="12" y2="6"></line><line x1="12" y1="18" x2="12" y2="23"></line><line x1="1" y1="12" x2="6" y2="12"></line><line x1="18" y1="12" x2="23" y2="12"></line></svg></sc-if>
             <sc-if value="{{ bsMenuWord }}" hint-placeholder-val="{{ false }}"><span style="font:900 8px var(--font-heading);letter-spacing:0.02em;color:#ffd23a">MENU</span></sc-if><sc-if value="{{ bsMenuIcon }}" hint-placeholder-val="{{ true }}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffd23a" stroke-width="2.4" stroke-linecap="square"><line x1="4" y1="6" x2="20" y2="6"></line><line x1="4" y1="12" x2="20" y2="12"></line><line x1="4" y1="18" x2="20" y2="18"></line></svg></sc-if>
@@ -514,7 +514,7 @@ class Component extends DCLogic {
   componentDidMount() {
     window.addEventListener('resize', this.onResize); this.onResize();
     this.setState({ isTouch: window.matchMedia && matchMedia('(pointer: coarse)').matches });
-    this.onKey = e => { if (!this.props.started || this.props.busy || (this.props.skipKeys || []).includes(e.code)) return; if (e.code === 'KeyN' && !this.state.menu) { const o = ['player', 'hope', 'noble'], nx = o[(o.indexOf(this.state.hero) + 1) % 3]; try { localStorage.setItem('meru.combatHero.v1', nx); } catch (er) {} this.setState({ hero: nx }); } else if (e.code === 'KeyV' && !this.state.menu && this.game) { this.setState({ pov: this.game.togglePov() }); } else if ((e.code === 'KeyM' || e.code === 'KeyJ') && !this.state.cam) { const tab = e.code === 'KeyM' ? 'map' : 'journal'; this.state.menu && this.state.menu.tab === tab ? this.closeMenu() : this.openMenu(tab); } else if (e.code === 'KeyC' && !this.state.menu) { const b = document.querySelector('[aria-label=Camera]'); b && b.click(); } else if (e.code === 'KeyT' && !this.state.menu && this.game) { this.game.skipTime(1); this.setState(s => ({ hourPop: (s.hourPop || 0) + 1 })); clearTimeout(this.hpT); this.hpT = setTimeout(() => this.setState({ hourPop: 0 }), 1400); } else if ((e.code === 'KeyO' || e.code === 'KeyH') && !this.state.cam) { const jv = e.code === 'KeyO' ? 'opts' : 'help', M = this.state.menu; if (M && M.tab === 'journal' && M.jv === jv) this.closeMenu(); else { this.setState({ menu: { tab: 'journal', jt: (M && M.jt) || 'char', sub: (M && M.sub) || 'melee', jv } }); this.game && this.game.setPaused(true); } } else if (e.code === 'KeyI') { this.state.menu ? this.closeMenu() : this.openMenu('items'); } else if (e.code === 'Escape' && (this.state.menu || this.state.cam)) { this.state.cam ? this.camCancel() : this.closeMenu(); } };
+    this.onKey = e => { if (this.props.bare || !this.props.started || this.props.busy || (this.props.skipKeys || []).includes(e.code)) return; if (e.code === 'KeyN' && !this.state.menu) { const o = ['player', 'hope', 'noble'], nx = o[(o.indexOf(this.state.hero) + 1) % 3]; try { localStorage.setItem('meru.combatHero.v1', nx); } catch (er) {} this.setState({ hero: nx }); } else if (e.code === 'KeyV' && !this.state.menu && this.game) { this.setState({ pov: this.game.togglePov() }); } else if ((e.code === 'KeyM' || e.code === 'KeyJ') && !this.state.cam) { const tab = e.code === 'KeyM' ? 'map' : 'journal'; this.state.menu && this.state.menu.tab === tab ? this.closeMenu() : this.openMenu(tab); } else if (e.code === 'KeyC' && !this.state.menu) { const b = document.querySelector('[aria-label=Camera]'); b && b.click(); } else if (e.code === 'KeyT' && !this.state.menu && this.game) { this.game.skipTime(1); this.setState(s => ({ hourPop: (s.hourPop || 0) + 1 })); clearTimeout(this.hpT); this.hpT = setTimeout(() => this.setState({ hourPop: 0 }), 1400); } else if ((e.code === 'KeyO' || e.code === 'KeyH') && !this.state.cam) { const jv = e.code === 'KeyO' ? 'opts' : 'help', M = this.state.menu; if (M && M.tab === 'journal' && M.jv === jv) this.closeMenu(); else { this.setState({ menu: { tab: 'journal', jt: (M && M.jt) || 'char', sub: (M && M.sub) || 'melee', jv } }); this.game && this.game.setPaused(true); } } else if (e.code === 'KeyI') { this.state.menu ? this.closeMenu() : this.openMenu('items'); } else if (e.code === 'Escape' && (this.state.menu || this.state.cam)) { this.state.cam ? this.camCancel() : this.closeMenu(); } };
     window.addEventListener('keydown', this.onKey);
     const t0 = performance.now();
     this.camIv = setInterval(() => { const c = Math.round(((performance.now() - t0) / 1000 % 40) * 5) / 5, pt = Math.floor((performance.now() - t0) / 1000 % 70); if (c !== this.state.ct || pt !== this.state.pt) this.setState({ ct: c, pt }); }, 200);
@@ -545,10 +545,11 @@ class Component extends DCLogic {
     const cur = G ? G.getCam() : { dist: 13, pitch: 0.38 };
     const heading = m ? (() => { const deg = ((Math.atan2(Math.sin(m.p[2]), -Math.cos(m.p[2])) * 180 / Math.PI) + 360) % 360; return ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'][Math.round(deg / 45) % 8] + ' ' + Math.round(deg) + '°'; })() : '—';
     const place = hud.place || 'Meru · Town Square', pl = place.split(' · ');
+    const BARE = !!this.props.bare;   // s55: a standalone minigame (Fox Fighters) — only its own controls, none of the open-world HUD
     return {
       barRef: this.barRef, rootRef: this.rootRef, mmRef: this.mmRef, mapRef: this.mapRef,
       hud,
-      showTopHud: started && !(hud.darts && phone) && !(land && d),
+      showTopHud: !BARE && started && !(hud.darts && phone) && !(land && d),
       // TOP BANNER
       barHpFlex: wide ? '0 0 190px' : '1 1 120px', barQuestOrder: wide ? 1 : 5, barTimeOrder: wide ? 2 : 6, barQuestBasis: wide ? '0px' : '60%', barQuestTop: wide ? '0' : '2px solid #3a3836', showWeaponsWord: wide,
       tPad: wide ? '8px 12px' : '7px 15px 7px 10px', tAlign: wide ? 'flex-start' : 'flex-end', tBorderR: wide ? '2px solid #3a3836' : '0', tMinW: wide ? '112px' : '95px', tLblFs: wide ? '10px' : '8.5px', tClkFs: wide ? '20px' : '17px', tAmFs: wide ? '11px' : '9.5px', wordBtnW: wide ? '58px' : '48px', camBtnW: wide ? '70px' : '58px', btnTop: (barH + 44) + 'px', stickTop: (barH + 70) + 'px',
@@ -600,8 +601,8 @@ class Component extends DCLogic {
       topBtnDisp: started && !pad && !S.cam ? 'flex' : 'none', openMenu: e => { blur(e); this.openMenu(); }, padBorder: pad ? '#ffd23a' : '#3a3836', padToggle: e => { blur(e); this.setState({ pad: !pad }); },
       // PAD
       padOn: pad && started && !S.cam && !d && !busy && !this.props.busy,
-      ...(() => { const bH = barH; return { bandTop: bH + 'px', bandH: 'calc((100% - ' + bH + 'px) / 2)', splitDisp: S.split ? 'block' : 'none', mmT: (bH + 8) + 'px', mmL: '8px', mmR: '8px', mmB: 'calc((100% - ' + bH + 'px) / 2 + 10px)', mmShowMap: true, mmShowMsg: false, mmMsg: '', mmSub: '', mmMsgBg: '#000', mmMsgFg: '#fff', mmMsgFs: '24px',
-        eyeL: 'calc(max(22px, env(safe-area-inset-left)) + 125px)', eyeB: 'max(20px, env(safe-area-inset-bottom))', bagL: 'calc(max(22px, env(safe-area-inset-left)) + 123px)', bagB: 'calc(max(20px, env(safe-area-inset-bottom)) + 54px)' }; })(),
+      ...(() => { const bH = barH; return { bandTop: bH + 'px', bandH: 'calc((100% - ' + bH + 'px) / 2)', splitDisp: S.split && !BARE ? 'block' : 'none', mmT: (bH + 8) + 'px', mmL: '8px', mmR: '8px', mmB: 'calc((100% - ' + bH + 'px) / 2 + 10px)', mmShowMap: true, mmShowMsg: false, mmMsg: '', mmSub: '', mmMsgBg: '#000', mmMsgFg: '#fff', mmMsgFs: '24px',
+        eyeL: BARE ? '-9999px' : 'calc(max(22px, env(safe-area-inset-left)) + 125px)', eyeB: 'max(20px, env(safe-area-inset-bottom))', bagL: 'calc(max(22px, env(safe-area-inset-left)) + 123px)', bagB: 'calc(max(20px, env(safe-area-inset-bottom)) + 54px)' }; })(),
       splitClose: e => { blur(e); this.setState({ split: false }); },
       stKx: (56.5 + (S.st ? (S.st.kx - S.st.bx) * 0.75 : 0)) + 'px', stKy: (56.5 + (S.st ? (S.st.ky - S.st.by) * 0.75 : 0)) + 'px', stKo: S.st ? '0.95' : '0.7',
       stDown: e => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} const r = e.currentTarget.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top; this.setState({ st: { id: e.pointerId, bx: x, by: y, kx: x, ky: y } }); G && G.setStick(0, 0); },
@@ -624,18 +625,18 @@ class Component extends DCLogic {
       bsd: e => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} }, bsu: () => this.openMenu('weapons'), bsc: () => {},
       ...(() => { const VW = this.props.vehicle && VEH_WEAPONS[this.props.vehicle], am = hud.vehAmmo || [], o = { vehBtns: !!VW, noVehBtns: !VW }; const sw = hud.vehSwap || []; [1, 2, 3].forEach(n => { const w = VW && VW.list[n - 1], c = am[n - 1], has = c != null, s = sw[n - 1]; o['v' + n + 'Ic'] = s ? IC[s[0]] || '' : w ? IC[w[0]] || '' : ''; o['v' + n + 'Name'] = s ? s[1] : w ? ((VEH_SHORT[this.props.vehicle] || [])[n - 1] || w[1]) : ''; o['v' + n + 'HasN'] = !!w && has; o['v' + n + 'N'] = has ? String(c) : ''; o['v' + n + 'NBg'] = has && c <= 0 ? '#8a847e' : '#ffd23a'; o['v' + n + 'Col'] = has && c <= 0 ? '#5b5753' : '#ffd23a'; }); return o; })(),
       ...(() => { const pt = S.pt || 0, slot = pt < 60 ? Math.floor(pt / 10) : -1; return { w1: slot === 0 ? 'MELEE' : '1', w1Fs: slot === 0 ? '10px' : '20px', w2: slot === 1 ? 'RANGED' : '2', w2Fs: slot === 1 ? '11px' : '23px', w3: slot === 2 ? 'JUMP' : '3', w3Fs: slot === 2 ? '11px' : '20px', bsMenuWord: slot === 3, bsMenuIcon: slot !== 3, eyeIconOn: slot !== 4, eyeWordOn: slot === 4, bagIconOn: slot !== 5, bagWordOn: slot === 5 }; })(),
-      bsScope: false, bsMenu: true, bsLabel: 'Menu', bsRing: '#3a3836', bsIcon: '#ffffff', bsAnim: 'none',
+      bsDisp: BARE ? 'none' : 'flex', bsScope: false, bsMenu: true, bsLabel: 'Menu', bsRing: '#3a3836', bsIcon: '#ffffff', bsAnim: 'none',
       showFoxSwap: false, showBag: false,
       ...(() => { const pin = items.find(i => i.id === S.hot), veh = !!this.props.vehicle; return {
         pinHint: pad ? 'PINNED ITEM · TAP ITEM TO USE · HOLD TO CHANGE' : 'PINNED ITEM · HOLD THE BAG 1 S TO USE',
-        showStrip: pad && started && !MU && !busy && !d, rootBottom: pad && started && !MU && !busy && !d ? 'calc(46px + env(safe-area-inset-bottom))' : '0px',
+        showStrip: !BARE && pad && started && !MU && !busy && !d, rootBottom: !BARE && pad && started && !MU && !busy && !d ? 'calc(46px + env(safe-area-inset-bottom))' : '0px',
         stripItemKicker: pin ? 'ITEM · ' : '', stripItemLabel: pin ? String(pin.label).toUpperCase() + (pin.n > 1 ? ' ×' + pin.n : '') : 'PIN AN ITEM +', stripItemCol: '#ffd23a',
         stripItemSub: pin ? 'TAP = USE · HOLD = CHANGE' : 'TAP TO CHOOSE ONE', stripItemBg: S.stripHeld ? '#2a2826' : '#000',
         stripItemDown: e => { e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (er) {} this.stripFired = false; clearTimeout(this.stripTimer); this.setState({ stripHeld: true }); this.stripTimer = setTimeout(() => { this.stripFired = true; this.pinFromStrip = true; this.setState({ stripHeld: false }); this.openMenu('items'); }, 600); },
         stripItemUp: () => { clearTimeout(this.stripTimer); this.setState({ stripHeld: false }); if (this.stripFired) return; if (pin && G) G.useItem(pin.id); else { this.pinFromStrip = true; this.openMenu('items'); } },
         stripItemCancel: () => { clearTimeout(this.stripTimer); this.setState({ stripHeld: false }); } }; })(),
       showTalkBtn: !!hud.prompt, talk: () => G && G.talk(),
-      showDeskRow: started && !pad && !S.cam && !d && !busy && !this.props.busy && !MU,
+      get cbOnB() { return !BARE && this.cbOn; }, showDeskRow: !BARE && started && !pad && !S.cam && !d && !busy && !this.props.busy && !MU,
       
       // MENU
       menuOn: !!MU, menuBackdrop: () => this.closeMenu(), menuClose: e => { blur(e); this.closeMenu(); },

@@ -9,68 +9,213 @@
 import { castKit } from '../../engine/cast.js';
 import { PLAYER_MALE, PLAYER_FEMALE, KING_MIGHT, HOPE_LOOK } from '../../fox-kit.js';
 import { nobleWeaponKit } from '../../engine/noble-weapons.js';
+import { BOSS_FOX, bossExtras, ironWarden, makerPrime, suds9 } from '../../engine/bosses.js';
+import { creatureKit } from '../../engine/creature-kit.js';
 
 // FOX FIGHTERS roster (s36e, Ben's picks). stats = 1..5 bars on the select screen; hp / speed / dmg are the fight numbers.
 // Cast foxes come from engine/cast.js (never restyled); the royals use the same configs as their Meru NPCs (worlds/meru-interiors.js, meru-game.js) + a sword.
 export const FOX_ROSTER = [
-  { id: 'ben', name: 'BEN', sub: 'SWORD · FISTS · FEET', style: 'All-rounder. Hop punches, spin kicks, the FOX BEAM.', cast: 'player', hp: 160, speed: 1, dmg: 1, stats: [3, 3, 3] },
-  { id: 'noble', name: 'NOBLE', sub: 'THE CHAIR · SHOEMERANG', style: 'Rams, spike wheels, a horn that stuns, and his boot that comes back.', cast: 'noble', hp: 180, speed: 0.85, dmg: 1.08, stats: [4, 2, 4] },
-  { id: 'might', name: 'KING MIGHT', sub: 'THE KING OF MERU', style: 'Slow and heavy. CROWN QUAKE shockwave and the ROYAL CHARGE.', cfg: { look: KING_MIGHT, outfit: 'armor', torso: ['#7a808c', '#474d59', '#23272f'], crest: 'M', crown: true, eyes: ['#e6b45a', '#e6b45a'], gear: 'sword', mood: 'stern' }, hp: 175, speed: 0.85, dmg: 1.15, stats: [5, 2, 4] },
-  { id: 'max', name: 'PRINCE MAX', sub: 'THE PRINCE · ARMOUR', style: 'Quick blade, quick feet. DASH SLASH and the RISING SWORD.', cfg: { look: PLAYER_MALE, outfit: 'armor', torso: ['#3a4a75', '#22304f', '#0e1730'], crest: 'M', gear: 'sword', mood: 'determined' }, hp: 155, speed: 1.12, dmg: 1, stats: [3, 4, 3] },
-  { id: 'michelle', name: 'MICHELLE', sub: 'THE PRINCESS', style: 'The fastest fox on the roof. SWORD BOOMERANG and the PIROUETTE.', cfg: { look: PLAYER_FEMALE, outfit: 'dress', torso: ['#3a4a75', '#22304f', '#0e1730'], crest: 'M', gear: 'sword', mood: 'smug' }, hp: 145, speed: 1.2, dmg: 0.92, stats: [2, 5, 2] },
-  { id: 'wren', name: 'WREN', sub: 'THE PILOT', style: 'Fast and airborne. DIVE BOMB and the TAILWIND.', cfg: { look: PLAYER_FEMALE, outfit: 'coat', torso: ['#cfe9ff', '#4c86b4', '#1e3a8a'], crest: 'J', gear: 'sword', mood: 'happy' }, hp: 150, speed: 1.15, dmg: 0.95, stats: [3, 5, 2] },
-  { id: 'penny', name: 'PENNY', sub: 'THE CASHIER', style: 'Throws gold. COIN TOSS and the CASH SPIN.', cfg: { look: PLAYER_FEMALE, outfit: 'vest', torso: ['#f7f1e6', '#1f6b45', '#0f3a26'], crest: 'M', gear: 'sword', mood: 'happy' }, hp: 155, speed: 1, dmg: 1, stats: [3, 3, 3] },
-  { id: 'fortune', name: 'LADY FORTUNE', sub: 'THE WHEEL HOST', style: 'Pure luck. WHEEL OF FORTUNE: a beam, a heal, or BANKRUPT!', cfg: { look: PLAYER_FEMALE, outfit: 'dress', torso: ['#fff7e0', '#e0a84a', '#8a6a2a'], crest: 'M', gear: 'sword', mood: 'happy' }, hp: 160, speed: 0.95, dmg: 1.05, stats: [4, 2, 3] },
-  { id: 'hope', name: 'HOPE', sub: 'THE CANE · ECHO SENSE', style: 'Hears every attack coming. ECHO DART and the CANE VAULT. Nobody trips her.', cfg: { look: HOPE_LOOK, outfit: 'armor', torso: ['#ffffff', '#e7edf4', '#6b7d93'], crest: '8', bow: true, glasses: 'sun', legColor: '#38bdf8', eyes: ['#f472b6', '#2dd4bf'], gear: 'sword', mood: 'happy' }, cane: true, hp: 150, speed: 1.05, dmg: 1, stats: [3, 4, 3], unlock: ['foxFightersClear', 'foxFightersHope'] },
+  // row 1
+  { id: 'ben', name: 'BEN', sub: 'THE HERO · FOX BEAM', style: 'The all-rounder. FOX BEAM, WHIRLWIND KICK and the RISING FOX.', cast: 'player', hp: 170, speed: 1, dmg: 1.12, stats: [3, 3, 3], mv: { w: 0.95 }, ai: 'balanced', gloves: '#dc2626' },
+  { id: 'hope', name: 'HOPE', sub: 'THE CANE · POLE VAULT', style: 'Her cane is a vaulting pole. VAULT DIVE from above and the CANE FLIP. Nobody trips her.', cast: 'hope', cane: true, hp: 178, speed: 1.1, dmg: 1.15, stats: [3, 5, 3], mv: { w: 0.9, r: 0.92, reach: 1.08, high: { reach: 1.18 } }, ai: 'rush', gloves: '#38bdf8' },
+  { id: 'noble', name: 'NOBLE', sub: 'THE CHAIR · THUNDER WHEELS', style: 'Electric wheels. The ROLLING CHAIR charge, WHEELIE KICKS and the SHOEMERANG.', cast: 'noble', hp: 160, speed: 0.88, dmg: 1.0, stats: [4, 3, 4], mv: { reach: 1.05 }, ai: 'balanced', gloves: '#2563eb' },
+  { id: 'might', name: 'KING MIGHT', sub: 'THE KING OF MERU', style: 'The old master. ROYAL CRUSHER flies at you, KNEE PRESS, and the CROWN STOMP from above.', boss: 'king', hp: 175, speed: 0.95, dmg: 1.08, stats: [5, 3, 4], mv: { w: 1.05, reach: 1.06, armor: ['spin'] }, ai: 'heavy', gloves: '#e6b45a' },
+  { id: 'michelle', name: 'MICHELLE', sub: 'THE PRINCESS OF MERU', style: 'The fastest feet on the roof. Long, quick kicks, the SPINNING CRANE KICK and the PALM BLAST.', boss: 'michelle', hp: 162, speed: 1.2, dmg: 0.98, stats: [2, 5, 3], mv: { w: 0.85, r: 0.88, reach: 0.94, kick: { reach: 1.14, w: 0.78 }, sweep: { reach: 1.1 }, akick: { reach: 1.12 } }, ai: 'rush', gloves: '#3b82f6', kickFlurry: true },
+  // row 2
+  { id: 'sumo', name: 'OYAKATA', sub: 'THE SUMO · KYOTO', style: 'Huge and hard to move. The SUMO TORPEDO and the BELLY SPLASH.', boss: 'sumo', hp: 180, speed: 0.8, dmg: 1.11, stats: [5, 1, 3], mv: { w: 1.2, r: 1.12, reach: 1.1, punch: { reach: 1.18, dmg: 1.15 }, armor: ['spin', 'high'] }, ai: 'grappler' },
+  { id: 'barnacle', name: 'BARNACLE', sub: 'BANDIT · SALT BUILDING', style: 'Forklift muscle. The FORKLIFT SLAM grab and the CRATE TOSS.', boss: 'barnacle', hp: 176, speed: 0.86, dmg: 1.12, stats: [5, 2, 3], mv: { w: 1.16, r: 1.1, reach: 1.06, armor: ['spin'] }, ai: 'grappler', gloves: '#1f2937' },
+  { id: 'jack', name: 'JALAPEÑO JACK', sub: 'BANDIT · PEPPER BUILDING', style: 'Sits back and waits. The PEPPER BOOM projectile and the CHILLI FLIP kick.', boss: 'jack', hp: 160, speed: 1.02, dmg: 1.12, stats: [3, 3, 5], mv: { w: 0.86, r: 0.9, reach: 0.98, akick: { reach: 1.12, dmg: 1.1 } }, ai: 'zoner', gloves: '#16a34a' },
+  { id: 'rook', name: 'ROOK', sub: 'BANDIT BOSS · RUINS CAVE', style: 'Long-range trouble. The SNIPER BEAM and the DUSTER DASH.', boss: 'rook', hp: 168, speed: 1.0, dmg: 1.14, stats: [3, 3, 5], mv: { reach: 1.04, kick: { reach: 1.08 } }, ai: 'zoner', gloves: '#92400e' },
+  { id: 'lox', name: 'LOX', sub: 'LEADER OF LUXOR · BOXER', style: 'A heavyweight boxer: every button is a punch. DASH STRAIGHT, DASH UPPER and the TURN PUNCH.', boss: 'lox', hp: 174, speed: 0.98, dmg: 1.14, stats: [5, 3, 2], mv: { w: 0.95, punch: { w: 0.7, r: 0.8, reach: 1.06 }, kick: { w: 0.85 }, armor: ['spin'] }, ai: 'rush', noSword: true, boxer: true },
+  // row 3
+  { id: 'warden', name: 'IRON WARDEN', sub: 'ROBOT · MERU ARENA', style: 'A walking fortress. ROCKET PUNCH and the STOMP shockwave.', rig: 'warden', hp: 192, speed: 0.78, dmg: 1.16, stats: [5, 1, 4], mv: { w: 1.2, r: 1.15, reach: 1.14, armor: ['spin', 'high'] }, ai: 'heavy' },
+  { id: 'prime', name: 'MAKER PRIME', sub: 'ROBOT · THE FACTORY', style: 'Claw, drill and a red laser eye. LASER EYE and the DRILL SPIN.', rig: 'prime', hp: 180, speed: 0.72, dmg: 1.18, stats: [5, 1, 5], mv: { w: 1.25, r: 1.2, reach: 1.16, armor: ['spin', 'high'] }, ai: 'zoner' },
+  { id: 'suds', name: 'SUDS-9', sub: 'ROBOT · WINDOW CLEANER', style: 'The roof boss, now yours. RINSE CYCLE from the hose hand and the SPIN CYCLE.', rig: 'suds', vo: 'suds9', hp: 212, speed: 0.9, dmg: 1.27, stats: [4, 2, 4], mv: { w: 1.0, reach: 1.25, armor: ['spin', 'high', 'kick'] }, ai: 'heavy' },
+  { id: 'slag', name: 'SLAGBACK', sub: 'LAVA BEAST · LUXOR', style: 'Molten under the crust. LAVA LOB and the MAGMA SLAM. Its crust cracks off as it gets hurt.', rig: 'slag', hp: 200, speed: 0.84, dmg: 1.2, stats: [4, 2, 3], mv: { w: 1.0, reach: 1.12, armor: ['spin', 'high'], crust: true }, ai: 'heavy' },
+  { id: 'shadow', name: 'SHADOW BEN', sub: 'THE DARK TWIN', style: 'Everything Ben can do, darker and faster. The SHADOW BEAM fires in the air too.', cast: 'player', shadow: true, hp: 178, speed: 1.12, dmg: 1.0, stats: [4, 4, 4], mv: { w: 0.92, r: 0.92 }, ai: 'rush', gloves: '#7c3aed' },
 ];
-// the secret challenger (arcade, no continues): Ben's shadow. Not on the select screen.
-export const FOX_SECRET = [
-  { id: 'shadow', name: 'SHADOW BEN', sub: '???', style: 'Everything Ben can do, darker and faster.', cast: 'player', shadow: true, hp: 190, speed: 1.15, dmg: 1.12, stats: [4, 4, 4] },
-];
+// s37 (Ben): all 15 are on the select screen now; Shadow Ben still shows up as the arcade's secret challenger.
+export const FOX_SECRET = [];
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), ss = t => t * t * (3 - 2 * t), lerp = (a, b, t) => a + (b - a) * t;
 // a fake "human L" whose numbers land the duel's pose targets on the fox's joints (fox ≈ 2.0 m to the ear tips, shoulders 1.37 m, hips 0.75 m)
-export const FOX_L = { H: 2.0, hipY: 0.75, torsoL: 0.667, footH: 0.05, shW: 0.42, uaL: 0.28, faL: 0.26, thL: 0.35, snL: 0.35 };
+export const FOX_L0 = { H: 2.0, hipY: 0.75, torsoL: 0.667, footH: 0.05, shW: 0.42, uaL: 0.28, faL: 0.26, thL: 0.35, snL: 0.35 };
+// s46 (Ben: longer arms and legs so punches and kicks read): the foxes stand 0.16 taller on longer legs; the robots keep FOX_L0 (their rigs map to it)
+export const LEG_UP = 0.16, FOX_L = { ...FOX_L0, H: FOX_L0.H + LEG_UP, hipY: FOX_L0.hipY + LEG_UP };
 const FOX_MOOD = { angry: 'stern', happy: 'excited', sad: 'sad', surprised: 'surprised', determined: 'determined', stern: 'stern', neutral: 'determined' };
 
 export function foxFighter({ THREE, kit, M, toon }, key = 'player', def = null) {
-  const CK = castKit({ THREE, M, toon, makeFox: kit.makeFox }), g = def && def.cfg ? kit.makeFox(def.cfg) : CK.make(key); g.rotation.order = 'YXZ';
+  const CK = castKit({ THREE, M, toon, makeFox: kit.makeFox }); let g, sc = 1;
+  if (def && def.boss) { const BF = BOSS_FOX[def.boss]; g = kit.makeFox({ ...BF, gear: 'both' }); bossExtras(def.boss, g, { THREE, M, toon }); sc = BF.scale || 1; }
+  else g = def && def.cfg ? kit.makeFox(def.cfg) : CK.make(key, key === 'noble' ? {} : { gear: 'both' });
+  g.rotation.order = 'YXZ'; if (sc !== 1) g.scale.setScalar(sc);
   const chair = key === 'noble' && !(def && def.cfg), NWK = chair ? nobleWeaponKit({ THREE, M, toon }) : null;
   if (def && def.shadow) { const pc = new THREE.Color(0x3a1050), tint = c => { c = c.clone(); if (c.color) c.color.multiplyScalar(0.3).lerp(pc, 0.3); if (c.emissive) c.emissive.setHex(0x1a0628); return c; }; g.traverse(m => { if (!m.material || !(m.isMesh || m.isSprite)) return; m.material = Array.isArray(m.material) ? m.material.map(tint) : tint(m.material); }); }
-  const u = g.userData, FP = u.P, HY = FOX_L.hipY, DOWN = new THREE.Vector3(0, -1, 0);
+  const LU = chair ? 0 : def && def.boss === 'sumo' ? 0.06 : LEG_UP;   // Oyakata stays low and squat
+  const u = g.userData, FP = u.P, HY = FOX_L0.hipY, DOWN = new THREE.Vector3(0, -1, 0);
+  // s38 (Ben): longer, looser arms for Fox Fighters (they looked like T-rex arms). The arm stretches 1.35× (a little wider for a looser sleeve);
+  // the paw / glove / laser at the end are counter-scaled so they keep their size. Only the duel does this; the rest of the game keeps the kit arms.
+  const ARM_L = 1.46, ARM_W = 1.08; for (const A of FP.arms || []) { A.scale.y *= ARM_L; A.scale.x *= ARM_W; A.scale.z *= ARM_W; for (const c of A.children) if (c.position.y <= -0.33) { c.scale.y /= ARM_L; c.scale.x /= ARM_W; c.scale.z /= ARM_W; } }
+  // s46: arms can REACH. A punch target beyond the arm's length stretches the arm (up to 1.32×) so a jab snaps out instead of only swinging up; the paw /
+  // glove keeps its size. Legs: the feet keep their shape however far the leg stretches, and the legs are a touch thicker for the longer length.
+  const ARMS = (FP.arms || []).map(A => ({ A, sy: A.scale.y, len: 0.42 * A.scale.y, paws: A.children.filter(c => c.position.y <= -0.33).map(c => ({ c, y: c.scale.y })) }));
+  const LEGS = (FP.legs || []).map(Lg => { Lg.scale.x *= 1.1; Lg.scale.z *= 1.1; return { Lg, feet: Lg.children.filter(c => c.position.y <= -0.38).map(c => ({ c, y: c.scale.y })) }; });
+  // s41 (Ben): small BOXING GLOVES on the foxes (about half the size of Lox's), in each fox's colour. Not on Lox (his own), Oyakata, the robots or
+  // Slagback. Hope wears one on her free paw only (her cane paw stays as it is). The fist inside the paw is hidden; the laser pistol still appears for LASER.
+  if (def && def.gloves) { const gm = toon(def.gloves), cuff = toon('#f7f1e6'), lace = toon('#141312');
+    FP.arms.forEach((A, i) => { if (def.cane && i === 0) return; const paw = A.children.find(c => c.isGroup && c !== FP.gun && c.position.y <= -0.33 && c.children.some(m => m.isMesh)); if (!paw) return;
+      paw.children.forEach(m => { if (m.isMesh) m.visible = false; }); const G = new THREE.Group(); G.position.set(0, -0.02, 0.02); paw.add(G);
+      M(new THREE.SphereGeometry(0.105, 16, 12), gm, 0, -0.01, 0.01, G, 0.016, 0.105).scale.set(1, 1.08, 1.2);
+      M(new THREE.SphereGeometry(0.045, 10, 8), gm, (A.position.x > 0 ? -1 : 1) * 0.08, 0.0, 0.05, G, 0.01, 0.045);
+      M(new THREE.CylinderGeometry(0.075, 0.075, 0.06, 14), cuff, 0, 0.085, 0, G, 0.008, 0.075);
+      M(new THREE.TorusGeometry(0.072, 0.008, 5, 14), lace, 0, 0.085, 0, G, 0).rotation.x = Math.PI / 2; }); }
   // the fox sword comes off the arm: the duel places it in the paw every frame (like the katana in the human fighters)
   let sw; const NW = chair ? NWK.attach(g) : null;
   if (chair) { sw = new THREE.Object3D(); sw.position.set(0, 1.05, 0.55); g.add(sw); const tp = new THREE.Object3D(); tp.position.set(0, 0, 0.45); sw.add(tp); sw.userData.tip = tp; }   // Noble: no sword, the 'blade tip' is the front of his chair
   else { sw = FP.sword; sw.parent.remove(sw); g.add(sw); sw.scale.setScalar(1.0); const tip = new THREE.Object3D(); tip.position.y = def && def.cane ? 1.2 : 1.3; sw.add(tip); sw.userData.tip = tip;
-    if (def && def.cane) { sw.children.forEach(c => { if (c !== tip) c.visible = false; }); const wh = toon('#f8fafc'), rd = toon('#dc2626'), bk = toon('#1f2937'); M(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 10), bk, 0, 0.0, 0, sw, 0.01); M(new THREE.CylinderGeometry(0.022, 0.022, 0.86, 10), wh, 0, 0.53, 0, sw, 0.01); M(new THREE.CylinderGeometry(0.023, 0.023, 0.2, 10), rd, 0, 1.06, 0, sw, 0.01); M(new THREE.SphereGeometry(0.04, 10, 8), toon('#e5e7eb'), 0, 1.18, 0, sw, 0.01); }
+    if (def && def.cane) { sw.visible = false; sw.children.forEach(c => { if (c !== tip) c.visible = false; }); const wh = toon('#f8fafc'), rd = toon('#dc2626'), bk = toon('#1f2937'); M(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 10), bk, 0, 0.0, 0, sw, 0.01); M(new THREE.CylinderGeometry(0.022, 0.022, 0.86, 10), wh, 0, 0.53, 0, sw, 0.01); M(new THREE.CylinderGeometry(0.023, 0.023, 0.2, 10), rd, 0, 1.06, 0, sw, 0.01); M(new THREE.SphereGeometry(0.04, 10, 8), toon('#e5e7eb'), 0, 1.18, 0, sw, 0.01); }
     if (def && def.shadow) sw.traverse(m => { if (m.isMesh && m.material && !Array.isArray(m.material)) { m.material = m.material.clone(); if (m.material.color) m.material.color.setHex(0x8b5cf6); if (m.material.emissive) m.material.emissive.setHex(0x5b21b6); } }); }
   // s36b (Ben): no laser in this duel: the gun is hidden and the near paw is a free fist again (punches)
   if (FP.gun) { FP.gun.visible = false; FP.arms[0].children.forEach(c => { if (c.isMesh && c.geometry.type === 'SphereGeometry' && Math.abs(c.position.y + 0.4) < 0.02) c.scale.setScalar(1); }); }
   const gunTip = new THREE.Object3D(); if (FP.tipGlow) FP.tipGlow.parent.add(gunTip), gunTip.position.copy(FP.tipGlow.position);
+  // s47 (Ben): the SWORD lives on the fox's BACK in a scabbard (hilt over the far shoulder) and the LASER in a HOLSTER on the near hip. They are drawn
+  // only while a hold is charging (sword: reach over the shoulder; gun: down to the hip) and put back after. Not on Noble (chair), Hope (cane) or Lox.
+  const TAIL_SIDE = 1, TAIL_B = 0.22, hasBack = !chair && !(def && (def.cane || def.noSword)), hasHol = !chair && !!FP.gun && !(def && def.noSword);
+  // s49 (Ben: the tail was sweeping through the sword): the scabbard runs down the FAR side of the back, angled out and away from the tail, and while
+  // the sword is sheathed the tail curls to the NEAR side with a narrower swing (see the end of upd), so the two never brush. Drawn = tail free again.
+  const SUMO = def && def.boss === 'sumo', BA = new THREE.Object3D(); BA.position.set(SUMO ? 0.4 : 0.22, SUMO ? 1.78 : 1.84, SUMO ? -0.46 : -0.4); BA.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(SUMO ? 0.42 : 0.17, -1.17, SUMO ? -0.24 : -0.46).normalize()); FP.body.add(BA);
+  if (hasBack) { const lea = toon(def && def.shadow ? '#2a0f3d' : '#3b2416'), brass = toon('#d4a73a'); M(new THREE.CylinderGeometry(0.06, 0.045, 1.12, 10), lea, 0, 0.72, 0, BA, 0.012);
+    M(new THREE.CylinderGeometry(0.068, 0.068, 0.07, 10), brass, 0, 0.18, 0, BA, 0.008); M(new THREE.CylinderGeometry(0.05, 0.05, 0.05, 10), brass, 0, 1.27, 0, BA, 0.008); }
+  const HA = new THREE.Object3D(); if (def && def.boss === 'sumo') HA.position.set(-0.62, 1.0, 0.1); else HA.position.set(-0.36, 0.66, 0.05); HA.rotation.set(Math.PI / 2, 0, 0.12); FP.body.add(HA); let HG = null;
+  if (hasHol) { HG = FP.gun.clone(true); HG.visible = true; HG.position.set(0, 0, 0); HG.quaternion.identity(); HG.scale.copy(FP.gun.scale); HA.add(HG);
+    M(new THREE.BoxGeometry(0.13, 0.1, 0.26), toon(def && def.shadow ? '#2a0f3d' : '#3b2416'), 0, -0.02, -0.02, HA, 0.01); M(new THREE.BoxGeometry(0.42, 0.04, 0.06), toon('#2b1a10'), 0.18, 0.02, 0.1, HA, 0.006); }
+  // s53 (Ben: a Street Fighter breathing guard, like the workshop robots): the fox arms get ELBOWS. Each one-piece kit arm is split at its elbow band
+  // into the upper arm (the kit arm group, rotates at the shoulder) and a FOREARM group (a sibling on the body, placed at the elbow every frame) that
+  // carries the sleeve cuff, paw / glove, gun and cane. Two-bone IK puts the paw on the pose target with the elbow bending down / back / out, so
+  // the fists can sit up by the chin in a real guard. Targets past full reach straighten the arm and stretch it (the punch reach from s46).
+  const FORE = (FP.arms || []).map((A, i) => { const sleeve = A.children.find(c => c.isMesh && c.geometry.type === 'CylinderGeometry' && c.geometry.parameters.openEnded && c.geometry.parameters.height > 0.3), boss = !!sleeve;
+    const ELB = boss ? 0.26 : 0.2, PAWY = boss ? 0.48 : 0.42, F = new THREE.Group(); F.scale.copy(A.scale); A.parent.add(F);
+    [...A.children].forEach(c => { if (c === sleeve || (c.isMesh && c.geometry.type === 'CapsuleGeometry')) return; if (c.position.y < -ELB - 0.005) { F.add(c); c.position.y += ELB; } });
+    if (boss) { sleeve.scale.y = 0.24 / 0.34; sleeve.position.y = -0.15; M(new THREE.CylinderGeometry(0.12, 0.095, 0.17, 14, 1, true), sleeve.material, 0, -0.07, 0, F, 0.012); }
+    else { const cap = A.children.find(c => c.isMesh && c.geometry.type === 'CapsuleGeometry'); if (cap) { cap.visible = false; const mat = cap.material; M(new THREE.CapsuleGeometry(0.07, 0.05, 4, 10), mat, 0, -0.115, 0, A, 0.012); M(new THREE.CapsuleGeometry(0.066, 0.07, 4, 10), mat, 0, -0.07, 0, F, 0.012); } }
+    return { A, F, ELB, PAWY, side: Math.sign(A.position.x) || (i ? 1 : -1) }; });
+  ARMS.forEach(R => { const Fo = FORE.find(q => q.A === R.A); R.Fo = Fo; R.paws = Fo.F.children.filter(c => c.position.y <= -0.33 + Fo.ELB).map(c => ({ c, y: c.scale.y })); });
+  // s54 (Ben: legs that move when they walk): KNEES. Each kit leg is split at the boot top into the thigh (the kit leg group, rotates at the hip) and
+  // a SHIN group (sibling on the body, placed at the knee) carrying the boot, cuff and foot. Two-bone IK puts the foot on its target with the knee
+  // bending forward; a target past full length straightens and stretches the leg (high kicks, as before). Legs are a fixed length now (SY0) so
+  // the stance has a little knee bend, and walking really steps.
+  const SHIN = (FP.legs || []).map((Lg, i) => { const big = Lg.children.some(c => c.isMesh && c.geometry.type === 'SphereGeometry' && Math.abs(c.position.y + 0.32) < 0.01), KN = big ? 0.21 : 0.17, Sg = new THREE.Group(); Lg.parent.add(Sg);
+    [...Lg.children].forEach(c => { if (c.isMesh && c.geometry.type === 'CapsuleGeometry') return; if (c.position.y < -KN - 0.005) { Sg.add(c); c.position.y += KN; } });
+    const cap = Lg.children.find(c => c.isMesh && c.geometry.type === 'CapsuleGeometry'); if (cap) { cap.visible = false; M(new THREE.CapsuleGeometry(0.095, 0.04, 4, 10), cap.material, 0, -0.09, 0, Lg, 0.012); M(new THREE.CapsuleGeometry(0.088, 0.1, 4, 10), cap.material, 0, -0.11, 0, Sg, 0.012); }
+    const R = LEGS.find(r => r.Lg === Lg); R.Sg = Sg; R.KN = KN; R.sy0 = 1.62 * (big ? 1.02 : 1.035); R.feet = Sg.children.filter(c => c.position.y <= -0.38 + KN).map(c => ({ c, y: c.scale.y })); R.side = Math.sign(Lg.position.x) || (i ? 1 : -1); return R; });
+  const pawOf = i => { const Fo = FORE[i]; return Fo ? Fo.F.localToWorld(_l2.set(0, -(Fo.PAWY - Fo.ELB), 0.06)) : FP.arms[i].localToWorld(_l2.set(0, -0.42, 0.06)); };
+  const _bq = new THREE.Quaternion(), _gq = new THREE.Quaternion();
   const R0 = { hip: [0, 0, 0], lean: 0, twist: 0, side: 0, yaw: 0, pitch: 0, hL: [0.42, 0.8, 0.1], hR: [-0.42, 0.8, 0.1], eL: [1, 1, 0], eR: [-1, 1, 0], fL: [0.14, 0.05, 0], fR: [-0.14, 0.05, 0], kL: [0.5, 0.4, 1], kR: [-0.5, 0.4, 1], fYawL: 0, fYawR: 0, blade: 0.95, mood: 'determined', mouth: 0, vis: 'a', gun: 0 };
-  const _t = new THREE.Vector3(), _s = new THREE.Vector3(), _m = new THREE.Matrix4(), _e = new THREE.Euler(), _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _hp = new THREE.Vector3(); let lastX = null;
+  const _l2 = new THREE.Vector3(), _t = new THREE.Vector3(), _s = new THREE.Vector3(), _m = new THREE.Matrix4(), _e = new THREE.Euler(), _q = new THREE.Quaternion(), _q2 = new THREE.Quaternion(), _hp = new THREE.Vector3(); let lastX = null;
   const toBody = a => _t.set(a[0], a[1], a[2]).applyMatrix4(_m);
-  function aimArm(arm, a) { toBody(a); _s.copy(_t).sub(arm.position); if (_s.lengthSq() < 1e-6) return; arm.quaternion.setFromUnitVectors(DOWN, _s.normalize()); }
-  function aimLeg(leg, a) { toBody([a[0], a[1] + 0.08, a[2]]); _s.copy(_t).sub(leg.position); const d = _s.length(); if (d < 1e-4) return; leg.quaternion.setFromUnitVectors(DOWN, _s.multiplyScalar(1 / d)); leg.scale.y = clamp(d / 0.42, 0.95, 1.62); }
+  const _E = new THREE.Vector3(), _pl = new THREE.Vector3(), _u = new THREE.Vector3();
+  function aimArm(arm, a) { toBody(a); _s.copy(_t).sub(arm.position); const d = _s.length(); if (d < 1e-3) return; const R = ARMS.find(r => r.A === arm), Fo = R && R.Fo; _s.multiplyScalar(1 / d);
+    if (!Fo) { arm.quaternion.setFromUnitVectors(DOWN, _s); return; } const a1 = Fo.ELB * R.sy, b1 = (Fo.PAWY - Fo.ELB) * R.sy, F = Fo.F; let st = 1;
+    if (d >= (a1 + b1) * 0.995) { st = clamp(d / (a1 + b1), 1, 1.32); arm.quaternion.setFromUnitVectors(DOWN, _s); _E.copy(arm.position).addScaledVector(_s, a1 * st); F.quaternion.copy(arm.quaternion); }
+    else { const ca = clamp((a1 * a1 + d * d - b1 * b1) / (2 * a1 * d), -1, 1), sa = Math.sqrt(1 - ca * ca); _pl.set(Fo.side * 0.35, -1, -0.5); _pl.addScaledVector(_s, -_pl.dot(_s)); if (_pl.lengthSq() < 1e-5) _pl.set(0, 0, -1); _pl.normalize();
+      _E.copy(arm.position).addScaledVector(_s, a1 * ca).addScaledVector(_pl, a1 * sa); _u.copy(_E).sub(arm.position).normalize(); arm.quaternion.setFromUnitVectors(DOWN, _u); _u.copy(_t).sub(_E).normalize(); F.quaternion.setFromUnitVectors(DOWN, _u); }
+    F.position.copy(_E); arm.scale.y = R.sy * st; F.scale.set(arm.scale.x, R.sy * st, arm.scale.z); R.paws.forEach(p => { p.c.scale.y = p.y / st; }); }
+  const _K = new THREE.Vector3();
+  function aimLeg(leg, a) { toBody([a[0], a[1] + 0.08, a[2]]); _s.copy(_t).sub(leg.position); const d = _s.length(); if (d < 1e-4) return; _s.multiplyScalar(1 / d); const R = LEGS.find(r => r.Lg === leg);
+    if (!R || !R.Sg) { leg.quaternion.setFromUnitVectors(DOWN, _s); leg.scale.y = clamp(d / 0.42, 1.0, 2.3); return; } const a1 = R.KN * R.sy0, b1 = (0.42 - R.KN) * R.sy0, Sg = R.Sg; let st = 1;
+    if (d >= (a1 + b1) * 0.995) { st = clamp(d / (a1 + b1), 1, 1.9); leg.quaternion.setFromUnitVectors(DOWN, _s); _K.copy(leg.position).addScaledVector(_s, a1 * st); Sg.quaternion.copy(leg.quaternion); }
+    else { const ca = clamp((a1 * a1 + d * d - b1 * b1) / (2 * a1 * d), -1, 1), sa = Math.sqrt(1 - ca * ca); _pl.set(R.side * 0.2, 0, 1); _pl.addScaledVector(_s, -_pl.dot(_s)); if (_pl.lengthSq() < 1e-5) _pl.set(0, 0, 1); _pl.normalize();
+      _K.copy(leg.position).addScaledVector(_s, a1 * ca).addScaledVector(_pl, a1 * sa); _u.copy(_K).sub(leg.position).normalize(); leg.quaternion.setFromUnitVectors(DOWN, _u); _u.copy(_t).sub(_K).normalize(); Sg.quaternion.setFromUnitVectors(DOWN, _u); }
+    Sg.position.copy(_K); leg.scale.y = R.sy0 * st; Sg.scale.set(leg.scale.x, R.sy0 * st, leg.scale.z); R.feet.forEach(p => { p.c.scale.y = p.y * 1.31 / (R.sy0 * st); }); }
   function upd(P, dt, f) { // P = a duel pose (human IK targets), already blended by the engine; f.cart = the cartoon layer (foxCartoonOf)
+    const ak = f && f.act && f.act.kind, swOut = !!f && (f.swordOut || ak === 'high' || ak === 'low' || ak === 'power' || (ak === 'shoe' && !f.shoe)), gOut = !!f && (f.gunOut || ak === 'laser');
+    if (!chair && !(def && def.cane)) sw.visible = hasBack; if (FP.gun) FP.gun.visible = hasHol && gOut; if (HG) HG.visible = !gOut;
     const x = g.position.x, sp = lastX == null ? 0 : Math.abs(x - lastX) / Math.max(dt, 1e-3); lastX = x;
     u.mood = FOX_MOOD[P.mood] || 'determined'; if ((P.mouth || 0) > (u.mouth || 0)) u.mouth = P.mouth;
     kit.animFox(g, dt, sp > 0.3 ? sp : 0, false);   // tail, ears, blink, face, sword glow (arms / legs / body are overwritten below)
     const B = FP.body, lean = (P.lean || 0) * (chair ? 0.3 : 1), tw = (P.twist || 0) * (chair ? 0.4 : 1), hip = chair ? [0, 0, 0] : P.hip || [0, 0, 0];
     B.rotation.set(lean, tw * 0.5, -(P.side || 0) * 0.6); _hp.set(0, HY, 0).applyEuler(B.rotation);   // lean pivots at the hips, not the feet
-    B.position.set(hip[0] - _hp.x, hip[1] + HY - _hp.y, hip[2] - _hp.z); B.updateMatrix(); _m.copy(B.matrix).invert();
+    B.position.set(hip[0] - _hp.x, hip[1] + HY - _hp.y + LU, hip[2] - _hp.z); B.updateMatrix(); _m.copy(B.matrix).invert();
     // sword paw = arms[1] (far side), gun paw = arms[0] (near the camera); targets mirrored in x so each arm keeps its own side
     if (!chair) { aimArm(FP.arms[1], [-P.hR[0], P.hR[1], P.hR[2]]); aimArm(FP.arms[0], [-P.hL[0], P.hL[1], P.hL[2]]); aimLeg(FP.legs[0], P.fR); aimLeg(FP.legs[1], P.fL); }
     FP.head.rotation.x = (P.pitch || 0) * 0.8 - lean * 0.4; FP.head.rotation.y = (P.yaw || 0) - tw * 0.5;
-    if (FP.gun) { FP.gun.quaternion.copy(FP.arms[0].quaternion).invert(); if (P.gun) FP.gun.quaternion.multiply(_q.setFromEuler(_e.set(-P.gun, 0, 0))); }
-    if (!chair) { g.updateMatrixWorld(true); const paw = FP.arms[1].localToWorld(_t.set(0, -0.42, 0.06)); g.worldToLocal(paw); sw.position.copy(paw); sw.rotation.set(P.blade ?? 0.95, 0, 0); }
+    if (FP.gun) { FP.gun.quaternion.copy(FORE[0] ? FORE[0].F.quaternion : FP.arms[0].quaternion).invert(); if (P.gun) FP.gun.quaternion.multiply(_q.setFromEuler(_e.set(-P.gun, 0, 0))); }
+    if (!chair) { g.updateMatrixWorld(true); if (swOut || !hasBack) { const paw = _t.copy(pawOf(1)); g.worldToLocal(paw); sw.position.copy(paw); sw.rotation.set(P.blade ?? 0.95, 0, 0); }
+      else { BA.getWorldPosition(_t); g.worldToLocal(sw.position.copy(_t)); BA.getWorldQuaternion(_bq); g.getWorldQuaternion(_gq); sw.quaternion.copy(_gq.invert().multiply(_bq)); } }
     if (chair) { const rig = u.rig; if (rig) { if (rig.throwT > 0) rig.throwT = Math.max(0, rig.throwT - dt); const bt = rig.boots && rig.boots[0]; if (bt) bt.visible = !(f && f.shoeOut); } NW.hover(f && f.y > 0.05 ? 1 : 0); const NP = NW.update(dt, sp); g.rotation.y += NP.yaw; g.rotation.x += NP.tilt; g.position.y += NP.lift; }
     // CARTOON LAYER (s36c): hops, spins, squash + stretch, ear / tail flop — un-blended so it stays snappy
     const C = f && f.cart; if (C) { g.position.y += C.hop; g.rotation.y += C.spinY; g.rotation.z += C.spinZ; const q = clamp(C.sq, -0.6, 0.7);
-      B.scale.set(1 + q * 0.2, 1 - q * 0.3, 1 + q * 0.2); FP.tail.rotation.y += C.tail; FP.tail.rotation.x -= C.hop * 0.5; FP.ears.forEach(e => { e.rotation.x += C.ear; }); FP.head.scale.setScalar(1 + Math.max(0, -q) * 0.06); } }
+      B.scale.set(1 + q * 0.2, 1 - q * 0.3, 1 + q * 0.2); FP.tail.rotation.y += C.tail; FP.tail.rotation.x -= C.hop * 0.5; FP.ears.forEach(e => { e.rotation.x += C.ear; }); FP.head.scale.setScalar(1 + Math.max(0, -q) * 0.06); }
+    if (hasBack && !swOut && FP.tail) { const ry = FP.tail.rotation.y; FP.tail.rotation.y = TAIL_SIDE * (TAIL_B + Math.abs(ry) * 0.3) + ry * 0.25; } }
   const _l = new THREE.Vector3();
-  function limb(kind) { if (chair) return sw.userData.tip.getWorldPosition(new THREE.Vector3()); const a = kind === 'punch' || kind === 'slaps' ? FP.arms[0] : FP.legs[0]; return a.localToWorld(_l.set(0, -0.42, 0.06)).clone(); }
-  return { g, U: { J: { heavy: false, head: FP.head } }, L: FOX_L, k: 1.0, R0, P: R0, sw, upd, fox: true, hw: chair ? 0.48 : 0.34, gunTip, parts: FP, limb, noble: chair, nw: NW, makeShoe: chair ? () => NWK.makeShoe('shoe') : null, head: FP.head };
+  function limb(kind, n) { if (chair) return sw.userData.tip.getWorldPosition(new THREE.Vector3()); if (kind === 'punch' || kind === 'slaps') return pawOf(n === 2 ? 1 : 0).clone(); const li = kind === 'kick' && n === 2 ? 1 : 0, Rl = LEGS[li]; if (Rl && Rl.Sg) return Rl.Sg.localToWorld(_l.set(0, -(0.42 - Rl.KN), 0.06)).clone(); return FP.legs[li].localToWorld(_l.set(0, -0.42, 0.06)).clone(); }
+  return { g, U: { J: { heavy: false, head: FP.head } }, L: { ...FOX_L0, H: (FOX_L0.H + LU) * sc, hipY: FOX_L0.hipY + LU }, k: 1.0, R0, P: R0, sw, upd, fox: true, hw: (chair ? 0.48 : 0.34) * sc, gunTip, parts: FP, limb, noble: chair, nw: NW, makeShoe: chair ? () => NWK.makeShoe('shoe') : null, head: FP.head };
+}
+
+// ---------------- s37: RIG FIGHTERS · Iron Warden, Maker Prime, SUDS-9 (engine/bosses.js) + Slagback (engine/creature-kit.js) ----------------
+// Same record as foxFighter, so every fox move, special and the cartoon layer just works. The duel's pose (fox-space hand / foot targets) is
+// mapped onto the robot: targets are taken relative to the fox shoulder / hip and scaled by the robot's own arm / leg length, then a two-bone
+// IK puts the upper arm + elbow (thigh + knee) on them. The robots keep everything built onto their arms. For their signature moves the
+// model plays its own workshop pose instead (Warden's rocket fist really flies, Prime's laser eye, SUDS-9's spray and cyclone).
+const RIGS = {
+  warden: { sc: 0.84, H: 2.6, hw: 0.62, hand: 0.62, own: { beam: 'rocket', quake: 'stomp', taunt: 'taunt' }, ownT: { beam: 0.12, quake: 0.45 } },
+  prime: { sc: 0.8, H: 2.72, hw: 0.7, hand: 0.85, own: { beam: 'laser', tatsu: 'combo', taunt: 'taunt' }, ownT: { beam: 0.0, tatsu: 0.2 } },
+  suds: { sc: 0.9, H: 2.6, hw: 0.6, hand: 0.62, own: { spray: 'spray', tatsu: 'cyclone', taunt: 'taunt' }, ownT: { spray: 0.0, tatsu: 0.0 }, win: 'victory' },
+  slag: { sc: 1.12, H: 2.35, hw: 0.55, hand: 0.42 },
+};
+export function rigFighter({ THREE, M, toon }, def) {
+  const RD = RIGS[def.rig], grad = toon('#ffffff').gradientMap, g = new THREE.Group(); g.rotation.order = 'YXZ';
+  let model, R, CRK = null; const slag = def.rig === 'slag';
+  if (slag) { CRK = creatureKit({ THREE, toon, M }); model = CRK.build('Slagback'); const J = model.userData.joints; R = { hips: J.hips, chest: J.torso, head: J.head, arms: J.arms.map(a => ({ up: a.sh, el: a.el, s: a.s })), legs: J.legs.map(l => ({ th: l.p, s: l.s, one: true })) }; }
+  else { model = (def.rig === 'warden' ? ironWarden : def.rig === 'prime' ? makerPrime : suds9)({ THREE, M, toon, grad }); R = model.userData.R; }
+  model.scale.setScalar(RD.sc); g.add(model); model.updateMatrixWorld(true);
+  const V = () => new THREE.Vector3(), wp = o => o.getWorldPosition(V());
+  // rest measurements (g-space = world while g sits at the origin)
+  const hip0 = R.hips.position.clone(), chest0 = R.chest.rotation.clone();
+  const arms = R.arms.map(a => ({ ...a, a: a.el.position.length() * RD.sc, b: RD.hand * RD.sc, sh0: wp(a.up) }));
+  const legs = R.legs.map(l => l.one ? { ...l, a: 0.8 * RD.sc, sh0: wp(l.th) } : { ...l, a: l.kn.position.length() * RD.sc, b: l.ft.position.length() * RD.sc, sh0: wp(l.th) });
+  const armLen = arms[0].a + arms[0].b, legLen = legs[0].one ? legs[0].a : legs[0].a + legs[0].b, kA = armLen / 0.5, kL = (legs[0].sh0.y - 0.02) / 0.72;
+  // the duel holds a 'sword' in the far paw: robots have none, so it's an empty holder at that hand (its tip = the reach point)
+  const sw = new THREE.Object3D(); g.add(sw); const tip = new THREE.Object3D(); tip.position.y = 0.35; sw.add(tip); sw.userData.tip = tip;
+  const gunTip = new THREE.Object3D(); if (def.rig === 'suds' && R.arms[0].noz) R.arms[0].noz.add(gunTip); else { R.head.add(gunTip); gunTip.position.set(0, 0.1, 0.4); }   // SUDS-9 fires from his hose hand
+  const R0 = { hip: [0, 0, 0], lean: 0, twist: 0, side: 0, yaw: 0, pitch: 0, hL: [0.42, 0.8, 0.1], hR: [-0.42, 0.8, 0.1], eL: [1, 1, 0], eR: [-1, 1, 0], fL: [0.14, 0.05, 0], fR: [-0.14, 0.05, 0], kL: [0.5, 0.4, 1], kR: [-0.5, 0.4, 1], fYawL: 0, fYawR: 0, blade: 0.95, mood: 'determined', mouth: 0, vis: 'a', gun: 0 };
+  const _a = V(), _b = V(), _c = V(), _d = V(), _h = V(), _u = V(), _e2 = V(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _qp = new THREE.Quaternion(), _qg = new THREE.Quaternion();
+  // aim a bone group so its local −y points along dir (world) with its local x on hinge (world)
+  function orient(o, dir, hinge) { _e2.copy(dir).negate(); const X = _h.copy(hinge).addScaledVector(dir, -hinge.dot(dir)); if (X.lengthSq() < 1e-6) X.set(1, 0, 0).addScaledVector(dir, -dir.x); X.normalize(); const Z = _d.crossVectors(X, _e2).normalize(); _m.makeBasis(X, _e2, Z); _q.setFromRotationMatrix(_m); o.parent.getWorldQuaternion(_qp); o.quaternion.copy(_qp.invert().multiply(_q)); }
+  function ik2(up, el, a, b, Tw, hinge, leg) { const S0 = wp(up); _a.copy(Tw).sub(S0); let d = _a.length(); const e1 = _a.normalize(); d = clamp(d, Math.abs(a - b) + 0.02, (a + b) * 0.995);
+    const al = Math.acos(clamp((a * a + d * d - b * b) / (2 * a * d), -1, 1)), ga = Math.acos(clamp((a * a + b * b - d * d) / (2 * a * b), -1, 1)), bend = Math.PI - ga;
+    const h = _c.copy(hinge).addScaledVector(e1, -hinge.dot(e1)).normalize(), e2 = _b.crossVectors(h, e1), u = _u.copy(e1).multiplyScalar(Math.cos(al)).addScaledVector(e2, (leg ? -1 : 1) * Math.sin(al));
+    orient(up, u, h); el.rotation.set(leg ? bend : -bend, 0, 0); }
+  const hingeArm = V(), hingeLeg = V(), T = V(); let lastX = null, t = 0, pose0 = null, lastAct = null, lastHit = -9, crust = 0;
+  const SH_F = s => [s * 0.21, 1.37, 0.0], HIP_F = s => [s * 0.14, 0.75, 0];
+  function setPose(p, pt) { const U = model.userData; if (U.pose !== p) { U.pose = p; U.pt = pt || 0; } }
+  function upd(P, dt, f) { t += dt; const U = model.userData, a = f && f.act, ak = a && a.kind;
+    // which pose the model plays itself: a signature move, taunt, hurt, stunned, the win
+    let own = null; if (a && RD.own && RD.own[ak] && !slag) { own = RD.own[ak]; if (a !== lastAct) { lastAct = a; U.pose = own; U.pt = (RD.ownT && RD.ownT[ak]) || 0; } }
+    else lastAct = null;
+    if (!slag) { if (own) {} else if (f && (f.daze > 0 || (f.stun > 0.3 && !a))) setPose('stunned'); else if (f && f.hitT != null && (f.hitAge ?? 9) < 0.35 && !a) { if (f.hitT !== lastHit) { lastHit = f.hitT; U.pose = 'hurt'; U.pt = 0; } }
+      else if (RD.win && P.mood === 'happy' && f && f.winOn) setPose(RD.win); else setPose('stance'); U.idle(t, dt); }
+    else { const st = a && (ak === 'quake') ? (a.fired ? 'attack' : 'windup') : f && f.daze > 0 ? 'stagger' : 'idle'; if (st !== pose0) { pose0 = st; U.st0 = t; } CRK.animate(model, st, t - (U.st0 || 0), dt); U.events.length = 0;
+      const want = f && f.hpMax ? (f.hp < f.hpMax * 0.34 ? 2 : f.hp < f.hpMax * 0.67 ? 1 : 0) : 0; if (f && f.hp >= f.hpMax) { U.crustLvl = 0; crust = 0; } while (crust < want) { crust++; CRK.enter(model, 'armorBreak'); U.events.length = 0; } }
+    if (own) { applyCart(f); return; }
+    // body: hips (crouch), chest lean / twist, head look
+    const hip = P.hip || [0, 0, 0]; R.hips.position.set(hip0.x + hip[0] * kL / RD.sc, hip0.y + hip[1] * kL / RD.sc, hip0.z + hip[2] * kL / RD.sc);
+    R.chest.rotation.set(chest0.x + (P.lean || 0) * 0.85, (P.twist || 0) * 0.5, -(P.side || 0) * 0.6); R.head.rotation.set((P.pitch || 0) * 0.8 - (P.lean || 0) * 0.3, (P.yaw || 0) - (P.twist || 0) * 0.5, 0);
+    g.updateMatrixWorld(true);
+    hingeArm.set(1, 0, 0).transformDirection(R.chest.matrixWorld); hingeLeg.set(1, 0, 0).transformDirection(R.hips.matrixWorld);
+    // arms: +x arm gets the (mirrored) far-paw target hR, −x arm the near-paw target hL (same rule as the fox)
+    for (const A of arms) { const src = A.s > 0 ? P.hR : P.hL, sF = SH_F(A.s); T.set(A.sh0.x + (-src[0] - sF[0]) * kA, A.sh0.y + (src[1] - sF[1]) * kA, A.sh0.z + (src[2] - sF[2]) * kA); g.localToWorld(T); ik2(A.up, A.el, A.a, A.b, T, hingeArm, false); }
+    for (const Lg of legs) { const src = Lg.s < 0 ? P.fR : P.fL, hF = HIP_F(Lg.s); T.set(Lg.sh0.x + (src[0] - hF[0]) * kL, Math.max(0.02, Lg.sh0.y + (src[1] - hF[1]) * kL), Lg.sh0.z + (src[2] - hF[2]) * kL); g.localToWorld(T);
+      if (Lg.one) { const S0 = wp(Lg.th); _a.copy(T).sub(S0); const d = _a.length(); orient(Lg.th, _a.normalize(), hingeLeg); Lg.th.scale.y = clamp(d / Lg.a, 0.75, 1.2); }
+      else { ik2(Lg.th, Lg.kn, Lg.a, Lg.b, T, hingeLeg, true); g.getWorldQuaternion(_qg); Lg.kn.updateMatrixWorld(true); Lg.kn.getWorldQuaternion(_qp); Lg.ft.quaternion.copy(_qp.invert().multiply(_qg)); if (Lg.rod) Lg.rod.scale.y = 1 + Lg.kn.rotation.x * 0.25; } }
+    // the holder 'sword' sits in the far (+x) hand
+    g.updateMatrixWorld(true); const fa = arms.find(A => A.s > 0); fa.el.localToWorld(_b.set(0, -RD.hand, 0)); g.worldToLocal(_b); sw.position.copy(_b); sw.rotation.set(P.blade ?? 0.95, 0, 0);
+    applyCart(f); }
+  function applyCart(f) { const C = f && f.cart; model.scale.setScalar(RD.sc); if (!C) return; g.position.y += C.hop * 0.7; g.rotation.y += C.spinY; g.rotation.z += C.spinZ * 0.6; const q = clamp(C.sq, -0.6, 0.7) * 0.6; model.scale.set(RD.sc * (1 + q * 0.2), RD.sc * (1 - q * 0.3), RD.sc * (1 + q * 0.2)); }
+  const _l = V();
+  function limb(kind) { const A = arms.find(x => x.s < 0), Lg = legs[0]; if (kind === 'punch' || kind === 'slaps') return A.el.localToWorld(_l.set(0, -RD.hand, 0)).clone(); return Lg.one ? Lg.th.localToWorld(_l.set(0, -0.8, 0)).clone() : Lg.ft.getWorldPosition(_l).clone(); }
+  model.traverse(m => { if (m.isMesh) m.castShadow = true; });
+  return { g, U: { J: { heavy: true, head: R.head } }, L: { ...FOX_L0, H: RD.H }, k: 1.0, R0, P: R0, sw, upd, fox: true, rig: def.rig, hw: RD.hw, gunTip, nozTip: gunTip, parts: null, limb, head: R.head, model, R };
 }
 
 // ---------------- SUDS-9 · THE WINDOW CLEANER ----------------
@@ -161,7 +306,22 @@ export function makeSuds9({ THREE, M, toon, glowTex, canvasTex, scene, touch }) 
     const sa = clock - spinT; if (sa < 0.6) head.rotation.y += ss(sa / 0.6) * Math.PI * 2;
     const ba = clock - bonkT; head.scale.set(1, 1, 1); if (ba < 0.25) { const k = Math.sin(ba / 0.25 * Math.PI); head.scale.set(1 + 0.25 * k, 1 - 0.4 * k, 1 + 0.25 * k); }
     if (dmg >= 2) wire.rotation.z = Math.sin(clock * 9) * 0.4; }
-  const upd0 = upd; function updB(P, dt, f) { upd0(P, dt, f); fx(dt); }
+  // s37 (Ben): the boss wears his NEW workshop body (engine/bosses.js suds9). The old rig above still runs the boss (poses, gondola, warnings,
+  // debris) but is hidden; every frame the new body copies its crouch, lean, head and legs, the squeegee hand points where the old pole pointed and
+  // the hose hand where the old nozzle pointed. The bubbles leave from the hose hand, the sweeps reach from the squeegee.
+  const NB = suds9({ THREE, M, toon, grad: toon('#ffffff').gradientMap }), NR = NB.userData.R, NSC = 0.95; NB.scale.setScalar(NSC);
+  g.traverse(o => { if ((o.isMesh || o.isSprite) && o !== warnL && o !== warnH) o.visible = false; }); root.add(NB); NB.traverse(m => { if (m.isMesh) m.castShadow = !touch; });
+  const nh0 = NR.hips.position.y, DN = new THREE.Vector3(0, -1, 0), _dir = new THREE.Vector3(), _eu = new THREE.Euler(0, 0, 0, 'YXZ');
+  if (NR.arms[0].noz) { NR.arms[0].noz.add(nozTip); nozTip.position.set(0, 0, 0); } if (NR.arms[1].sqTip) { NR.arms[1].sqTip.add(tip); tip.position.set(0, 0, 0); }
+  let nt = 0, lastHitT = null;
+  function skin(P, dt, f) { nt += dt; const U = NB.userData, down = (P.down || 0) > 0;
+    const want = down ? 'hurt' : f.daze > 0 || f.stun > 0.3 ? 'stunned' : P.mood === 'happy' ? 'victory' : 'stance'; if (f.hitT != null && f.hitT !== lastHitT && !down) { lastHitT = f.hitT; U.pose = 'hurt'; U.pt = 0; } else if (U.pose !== want && !(U.pose === 'hurt' && U.pt < 0.5)) { U.pose = want; U.pt = 0; }
+    U.idle(nt, dt);
+    NR.hips.position.y = nh0 + (hips.position.y - 0.95) / NSC; NR.chest.rotation.set(torso.rotation.x, torso.rotation.y, torso.rotation.z); NR.head.rotation.set(head.rotation.x, head.rotation.y, head.rotation.z); NR.head.scale.copy(head.scale);
+    NR.legs.forEach((l, i) => { const lr = legs[i].rotation.x, c = clamp(0.95 - hips.position.y, 0, 0.5); l.th.rotation.set(lr - c * 0.9, 0, l.s * 0.12); l.kn.rotation.x = c * 1.8; l.ft.rotation.x = -(lr - c * 0.9) - c * 1.8; });
+    const aim = (A, o) => { _eu.set(o.rotation.x, o.rotation.y, o.rotation.z || 0, 'YXZ'); _dir.set(0, 0, 1).applyEuler(_eu).normalize(); A.up.quaternion.setFromUnitVectors(DN, _dir); A.el.rotation.set(-0.25, 0, 0); };
+    aim(NR.arms[1], shR); aim(NR.arms[0], shL); }
+  const upd0 = upd; function updB(P, dt, f) { upd0(P, dt, f); fx(dt); skin(P, dt, f); }
   return { g, U: { J: { heavy: false, head } }, L: SUDS_L, k: 1.45, R0, P: R0, sw, upd: updB, robot: true, hw: 0.82, nozTip, sqTip: tip, setRig(r) { rig = r; }, eyeMat: E,
     debris, setDamage, headSpin() { spinT = clock; }, bonked() { bonkT = clock; }, tankTip, sparkAt };
 }
@@ -229,10 +389,13 @@ export function foxCartoonOf(f, S) {
   if (a && a.kind === 'slaps') { if (a.t < 0.6) { const ph = (a.t % 0.11) / 0.11; o.hop = Math.sin(ph * Math.PI) * 0.34; o.sq = ph < 0.2 ? 0.3 : -0.15; }
     else { const r = clamp((a.t - 0.6) / 0.24, 0, 1), s2 = clamp((a.t - 0.84) / 0.1, 0, 1); o.hop = Math.sin(r * Math.PI * 0.5) * 1.1 * (1 - s2); o.spinY = -ss(r) * TAU; o.sq = s2 > 0 ? 0.6 * Math.sin(s2 * Math.PI) : -0.3 * r; } o.ear = o.hop * 0.8; return o; }
   if (a && a.d) { const d = a.d, w = d.w * (a.slow || 1), tot = w + d.a + d.r * (a.slow || 1), u = a.t, pr = clamp(u / Math.max(w, 0.01), 0, 1), after = u - w, strike = u >= w;
-    if (a.kind === 'punch') { const n = a.n || 1, H = [0.32, 0.42, 1.0][n - 1]; o.hop = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * H; o.sq = strike ? (n === 3 ? -0.55 : -0.3) : 0.35 * pr; if (n === 3) o.spinZ = 0; }
-    else if (a.kind === 'kick') { o.spinY = -ss(clamp((u - w * 0.4) / (d.a + w * 0.6 + 0.1), 0, 1)) * TAU; o.hop = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 0.2; o.sq = strike ? -0.25 : 0.3 * pr; o.tail = Math.sin(clamp(after / 0.3, 0, 1) * Math.PI) * 1.2; }
+    if (a.kind === 'punch') { const n = a.n || 1, H = [0.03, 0.05, 0.7][n - 1]; o.hop = n === 3 ? (strike ? Math.sin(clamp((u - w) / (tot - w), 0, 1) * Math.PI) * H : 0) : Math.sin(clamp(u / tot, 0, 1) * Math.PI) * H; o.sq = strike ? (n === 3 ? -0.5 : -0.18) : 0.22 * pr; if (n === 3) o.spinZ = 0; }   // s46: jab / cross stay planted (the arm does the work); the uppercut still launches
+    else if (a.kind === 'kick' && a.n === 3) { o.spinY = -ss(clamp(u / (w + d.a * 0.6), 0, 1)) * TAU; o.hop = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 0.12; o.sq = strike ? -0.15 : 0.2 * pr; o.tail = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 1.4; o.ear = 0.3; }   // s48 spinning ROUNDHOUSE
+    else if (a.kind === 'kick') { o.hop = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 0.04; o.sq = strike ? -0.12 : 0.15 * pr; o.tail = Math.sin(clamp(after / 0.3, 0, 1) * Math.PI) * 1.0; }   // s46: no spin, so the side kick reads in profile
     else if (a.kind === 'sweep') { o.spinY = -ss(clamp((u - w * 0.3) / (d.a + 0.15), 0, 1)) * TAU; o.sq = 0.45; o.tail = 0.9 * Math.sin(clamp(after / 0.3, 0, 1) * Math.PI); }
     else if (a.kind === 'akick') { if (a.ph === 'a') o.spinZ = after * 26; o.sq = -0.35; }
+    else if (a.kind === 'spin' || a.kind === 'spinR') { const k2 = strike ? ss(clamp(after / (d.a + 0.12), 0, 1)) : 0; o.spinY = strike ? lerp(TAU * 0.12, -TAU, k2) : TAU * 0.12 * pr; o.hop = strike ? Math.max(0, 0.3 - after) * (a.kind === 'spin' ? 1.4 : 1) : 0; o.sq = strike ? -0.25 : 0.35 * pr; o.tail = strike ? 0.9 * (1 - k2) : 0; o.ear = o.hop; }
+    else if (a.kind === 'lspin') { o.spinY = strike ? -ss(clamp(after / 0.3, 0, 1)) * TAU : 0; o.sq = 0.45; }
     else if (a.kind === 'high' || a.kind === 'power') { const big = a.kind === 'power' ? 1.35 : 1; o.hop = (strike ? Math.max(0, 1 - after / (d.a * 0.7)) : Math.sin(pr * Math.PI * 0.5)) * 0.8 * big; o.spinY = -ss(pr) * TAU * (a.kind === 'power' ? 2 : 1); o.sq = strike ? (after < d.a ? -0.4 : 0.6 * Math.max(0, 1 - (after - d.a) / 0.2)) : 0.35 * (1 - pr) - 0.2 * pr; o.ear = o.hop; }
     else if (a.kind === 'low') { o.spinY = -ss(pr) * Math.PI; o.sq = 0.45; if (strike) o.spinY = -Math.PI - ss(clamp(after / 0.2, 0, 1)) * Math.PI; } }
   if (a && a.kind === 'tatsu') { o.spinY = -a.t * 30; o.sq = -0.15; o.tail = 0.8; o.ear = 0.3; return o; }
@@ -245,15 +408,20 @@ export function foxCartoonOf(f, S) {
 // ---------------- s36g: what each fox says (taunt · win quote · arcade ending) ----------------
 export const FOX_LINES = {
   ben: { taunt: 'COME ON!', win: "PEARL SAIL'S SAFE!", end: ['SUDS-9 went over the edge with his gondola. The Pearl Sail has never been this clean.', 'Down below, Meru switched its lights on, one street at a time.', 'Ben kept the squeegee. Just in case.'] },
-  noble: { taunt: 'HONK HONK!', win: 'WHEELS UP!', end: ['Noble rolled to the edge and watched the gondola sink into the clouds.', 'Then he honked the horn. Twice. For luck.', 'The Shoemerang got a new lace and a spot on the trophy shelf.'] },
-  might: { taunt: 'IS THAT ALL?', win: 'THE CROWN STAYS ON.', end: ['The King planted his sword on the helipad. "This roof is under the crown\'s protection."', 'All of Meru cheered from forty floors below.', 'That night he washed the palace windows himself. By hand. He insisted.'] },
-  max: { taunt: 'CATCH ME!', win: 'TOO QUICK FOR YOU!', end: ['Prince Max ran down the stairs three at a time to tell everyone.', 'By the bottom he had told the story eleven times.', 'Every time he told it, SUDS-9 got a little bigger.'] },
-  wren: { taunt: 'CLEAR SKIES!', win: 'SMOOTH LANDING.', end: ['Wren flew a victory lap around the Pearl Sail in her old prop plane.', 'She wrote FOX FIGHTERS in smoke across the sunset.', 'The tavern still argues about whether she spelled it right.'] },
-  penny: { taunt: 'CHA-CHING!', win: 'KEEP THE CHANGE.', end: ["Penny counted SUDS-9's bolts. All one thousand two hundred and four of them.", 'Then she sold them back to the Pearl Sail, at a very fair price.', 'The casino gave her a raise, and a much bigger cash drawer.'] },
-  fortune: { taunt: 'FEELING LUCKY?', win: 'THE WHEEL ALWAYS WINS!', end: ['Lady Fortune spun her wheel one last time on the roof.', 'It landed on JACKPOT. Of course it did.', 'Meru threw her a party that lasted until sunrise.'] },
-  hope: { taunt: 'TOO LOUD!', win: 'I HEARD THAT COMING.', end: ['Hope heard the last gear in SUDS-9 grind a full second before anyone saw it fall.', 'She tapped her cane on the helipad twice. Every pigeon on the roof flew home.', 'Now she narrates the Pearl Sail sky tour. It is the best one in Meru.'] },
+  hope: { taunt: 'TOO LOUD!', win: 'I HEARD THAT COMING.', end: ['Hope heard the last gear in SUDS-9 grind a full second before anyone saw it fall.', 'She planted her cane on the helipad and vaulted onto the railing, just to feel the wind.', 'Now she narrates the Pearl Sail sky tour. It is the best one in Meru.'] },
+  noble: { taunt: 'HONK HONK!', win: 'WHEELS UP!', end: ['Noble rolled to the edge and watched the gondola sink into the clouds.', 'His wheels were still crackling with sparks. He honked twice. For luck.', 'The Shoemerang got a new lace and a spot on the trophy shelf.'] },
+  might: { taunt: 'IS THAT ALL?', win: 'THE CROWN STAYS ON.', end: ['The King straightened his crown on the helipad. "This roof is under the crown\'s protection."', 'All of Meru cheered from forty floors below.', 'That night he washed the palace windows himself. By hand. He insisted.'] },
+  michelle: { taunt: 'TOO SLOW!', win: 'TRY TO KEEP UP!', end: ['Michelle fixed her tiara and took one last look at the sunset.', '"Too slow," she told the empty gondola rails.', 'The Pearl Sail named its new skylight after her.'] },
+  sumo: { taunt: 'COME, LITTLE ONE!', win: 'THE RING IS MINE!', end: ['Oyakata threw a handful of salt over the helipad to clean the ring.', 'Then he sat down. The whole roof shook. SUDS-9 never stood a chance.', 'Kyoto sent him a new mawashi, in Pearl Sail blue.'] },
+  barnacle: { taunt: 'COME AND GET IT!', win: 'HEAVY LIFTING!', end: ['Barnacle picked up what was left of SUDS-9 like a crate on a pallet.', 'He sold the scrap to the Salt Building. Twice.', 'The bandits still sing a song about it. It is not a good song.'] },
+  jack: { taunt: 'TOO HOT FOR YOU?', win: 'SPICY!', end: ['Jalapeño Jack tipped his hat to the empty gondola.', 'He left one red pepper on the helipad, so they would know who did it.', 'Nobody on the Pearl Sail has dared to eat it.'] },
+  rook: { taunt: 'STAY RIGHT THERE.', win: 'NEVER MISSED.', end: ['Rook blew the smoke off his laser and looked out over Meru.', '"Good view," he said. "Good place for a hideout."', 'The Pearl Sail changed every lock on the building that night.'] },
+  lox: { taunt: 'HIT ME. I DARE YOU.', win: 'KNOCKOUT!', end: ['Lox stood over the gondola rails, gloves up, breathing hard.', 'Luxor will hear about this. Every word.', 'He hung SUDS-9\'s squeegee on the wall of his throne room. It is still there.'] },
+  warden: { taunt: 'INTRUDER DETECTED.', win: 'ARENA SECURED.', end: ['The Iron Warden stomped once on the helipad. Every window in the Pearl Sail rattled.', 'It scanned the horizon for the next challenger. None came.', 'The Meru Arena put it back on guard duty. It now waves at the crowd.'] },
+  prime: { taunt: 'YOU WILL BE REBUILT.', win: 'PRODUCTION COMPLETE.', end: ['Maker Prime lifted SUDS-9 in its claw and carried it home to the factory.', 'Three days later a new window cleaner rolled out. It was very polite.', 'The Pearl Sail has never been cleaner. Or more nervous.'] },
+  suds: { taunt: 'PLEASE HOLD STILL FOR CLEANING.', win: 'SURFACE CLEAN. HAVE A NICE DAY.', end: ['SUDS-9 cleaned the helipad until it shone like a mirror.', 'Then he cleaned the gondola. Then the moon, as far as his pole would reach.', 'The Pearl Sail gave him a raise: one extra bucket.'] },
+  slag: { taunt: 'BURN.', win: 'MELT.', end: ['Slagback stood on the helipad, glowing in the dark like a sunset that never ended.', 'Where it walked, the roof tiles turned to glass.', 'Meru calls the Pearl Sail the Lava Tower now. Nobody argues.'] },
   shadow: { taunt: 'YOU CANNOT BEAT YOURSELF.', win: 'I AM YOUR SHADOW.', end: ['Shadow Ben stood alone on the roof.', 'Below, the city lights went out one by one.', 'Somewhere, the real Ben woke up and decided to train harder.'] },
-  michelle: { taunt: 'TOO SLOW!', win: 'TRY TO KEEP UP!', end: ['Michelle fixed her crown, dusted off her dress and took one last look at the sunset.', '"Too slow," she told the empty gondola rails.', 'The Pearl Sail named its new skylight after her.'] },
 };
 
 // ---------------- s36g: BONUS STAGE · the SUDS CO. cleaning cart (smash it before the timer runs out) ----------------
@@ -309,8 +477,9 @@ export function makeBonusCar({ THREE, M, toon, glowTex, canvasTex }) {
 }
 
 // ---------------- s36m: rival banter on the VS screen ----------------
-export const FOX_VS = { wren: 'Cleared for take-off!', penny: 'Pay up!', fortune: 'Round and round she goes!', ben: "Let's do this!", noble: 'Wheels up!', might: 'Kneel, or fight.', max: "Bet you can't catch me!", michelle: 'Try to keep up.', hope: 'I heard you coming.', shadow: '...', suds9: 'PLEASE HOLD STILL FOR CLEANING.' };
-const RIVAL = { 'penny|fortune': ['The house always wins, boss?', 'Tonight the house is me, dear.'], 'wren|max': ['Bet you can not outrun a plane.', 'Bet I can!'], 'max|michelle': ['Race you to the top, sis!', "I'm already there."], 'max|might': ["Father, I've been practising!", 'Show me, my boy.'], 'michelle|might': ["Don't go easy on me, Dad.", 'I never do.'], 'ben|noble': ['Ready, partner?', "Wheels are warm. Let's go!"], 'ben|hope': ['No holding back, Hope.', 'I can hear you smiling.'], 'hope|noble': ['I hear your wheels squeak.', "That's my warning honk!"], 'ben|might': ['Your Majesty.', 'Bow after I win.'], 'ben|shadow': ['Who... are you?', "I'm everything you're not."], 'hope|michelle': ['Your sword hums when you swing it.', "Then you'll hear me win."], 'max|noble': ['Bet my feet beat your wheels!', 'Bet they do not.'] };
+export const FOX_VS = { ben: "Let's do this!", hope: 'I heard you coming.', noble: 'Wheels up!', might: 'Kneel, or fight.', michelle: 'Try to keep up.', sumo: 'Step into my ring.', barnacle: 'I lift heavier things than you.', jack: 'Hope you like it hot.', rook: 'Nowhere to hide up here.', lox: 'Gloves up.', warden: 'Halt. You will not pass.', prime: 'Scanning. Weak. Rebuild.', suds: 'PLEASE HOLD STILL FOR CLEANING.', slag: 'Hssssss.', shadow: '...', suds9: 'PLEASE HOLD STILL FOR CLEANING.' };
+const RIVAL = { 'michelle|might': ["Don't go easy on me, Dad.", 'I never do.'], 'ben|noble': ['Ready, partner?', "Wheels are warm. Let's go!"], 'ben|hope': ['No holding back, Hope.', 'I can hear you smiling.'], 'hope|noble': ['I hear your wheels squeak.', "That's my warning honk!"], 'ben|might': ['Your Majesty.', 'Bow after I win.'], 'ben|shadow': ['Who... are you?', "I'm everything you're not."], 'hope|michelle': ['Your feet are so quiet.', "Then you'll never hear me coming."],
+  'barnacle|jack': ['You owe me a forklift, Jack.', 'Put it on my tab.'], 'barnacle|rook': ['The Salt crew stays out of your cave.', 'And my crew stays off your roof.'], 'jack|rook': ['Bet I draw faster.', 'Bet you miss.'], 'lox|rook': ['Luxor does not take orders from a cave bandit.', 'Then Luxor can take a laser.'], 'lox|slag': ['Back to the lava with you.', 'Hssss... home.'], 'lox|sumo': ['Gloves against palms. Let us see.', 'Come, little boxer.'], 'might|sumo': ['Old friend.', 'Old king. The ring remembers you.'], 'prime|warden': ['Unit Warden. Report for upgrade.', 'Negative. I guard the arena.'], 'prime|suds': ['You are a defective unit.', 'I PREFER THE TERM SPARKLING.'], 'suds|warden': ['YOUR ARMOUR IS FILTHY.', 'Halt.'], 'ben|lox': ['Luxor is a long way from home.', 'So is your luck.'], 'ben|rook': ['Let Prince Max go, Rook.', 'Beat me first.'], 'jack|michelle': ['Pretty quick for a princess.', 'Pretty slow for a bandit.'], 'ben|slag': ['Is it... smiling?', 'Hsssss.'], 'barnacle|sumo': ['I lift crates bigger than you.', 'Crates do not push back.'] };
 export function rivalLines(a, b) { if (a === b) return ["There's only room for one of us.", 'Agreed.']; const k = [a, b].sort().join('|'), L = RIVAL[k]; if (L) return [a, b].sort()[0] === a ? L : [L[1], L[0]]; return [FOX_VS[a] || '', FOX_VS[b] || '']; }
 
 // ---------------- s36n: BONUS STAGE 2 · a stack of SUDS CO. supply crates (same fighter record as the car) ----------------
@@ -330,4 +499,36 @@ export function makeCrateStack({ THREE, M, toon, glowTex, canvasTex }) {
     const age = f ? f.hitAge ?? 9 : 9, j = age < 0.4 ? Math.exp(-age * 10) * Math.cos(age * 44) : 0; body.position.x = j * 0.06; body.rotation.z = j * 0.05;
     for (const c of loose) { if (c.userData.rest) continue; const v = c.userData.v; v.y -= 12 * dt; c.position.addScaledVector(v, dt); c.rotation.x += c.userData.spin.x * dt; c.rotation.z += c.userData.spin.z * dt; if (c.position.y < 0.36 && v.y < 0) { c.position.y = 0.36; v.y *= -0.3; v.x *= 0.6; v.z *= 0.6; if (Math.abs(v.y) < 0.6) c.userData.rest = true; } if (c.position.z > 0.9) { c.position.z = 0.9; v.z = -Math.abs(v.z) * 0.3; } } }
   return { g, U: { J: { heavy: false, head: P[6] } }, L: { H: 2.2, hipY: 0.6, torsoL: 0.8, footH: 0.05 }, k: 1.25, R0: {}, P: {}, sw, upd, prop: true, hw: 1.0, reset, smash, debris() {} };
+}
+
+// ---------------- s50 (Ben): BREAKAWAY WALLS + BARRELS at the two ends of the fighting line ----------------
+// One breakable on each side of every stage: a themed WALL PANEL on the left and a BARREL on the right. While it stands it is the edge of the fight;
+// a big knock-back (roundhouse, power spin, super, throw) sends the fighter CRASHING THROUGH it: every piece flies off with its own spin and bounces
+// on the floor. The stage's own wall behind it is the real, unbreakable wall. reset() rebuilds it for the next round.
+export function breakable({ THREE, M, toon }, kind, theme) {
+  const g = new THREE.Group(), pieces = [], add = (geo, mat, x, y, z, ry = 0, rz = 0) => { const m = M(geo, mat, x, y, z, g, 0.012); m.rotation.set(0, ry, rz); pieces.push(m); return m; };
+  const W = { shoji: ['#5a3a22', '#f3ead7'], fence: ['#4a3324', '#6b4a33'], bamboo: ['#7a9a3a', '#b9c96a'], gate: ['#3a2a20', '#5b5f66'], board: ['#e9dfcf', '#ef4444'],
+    sake: ['#9a6a3a', '#3a3a3a'], rain: ['#4a3a30', '#2b2b2b'], iron: ['#5a4030', '#6b7280'], drum: ['#2563eb', '#dbeafe'] }[theme] || ['#6b4a33', '#3a3a3a'];
+  const A = toon(W[0]), Bm = toon(W[1]);
+  if (kind === 'wall') { const H = 1.95, D = 1.3;
+    if (theme === 'shoji') { add(new THREE.BoxGeometry(0.1, H, 0.1), A, 0, H / 2, -D / 2); add(new THREE.BoxGeometry(0.1, H, 0.1), A, 0, H / 2, D / 2); add(new THREE.BoxGeometry(0.1, 0.1, D), A, 0, H - 0.05, 0); add(new THREE.BoxGeometry(0.1, 0.12, D), A, 0, 0.06, 0);
+      for (let r = 0; r < 3; r++) for (let c = 0; c < 2; c++) { add(new THREE.BoxGeometry(0.03, H / 3 - 0.1, D / 2 - 0.1), Bm, 0, 0.15 + (r + 0.5) * (H - 0.25) / 3, (c - 0.5) * D / 2); add(new THREE.BoxGeometry(0.06, 0.04, D / 2), A, 0.01, 0.15 + (r + 1) * (H - 0.25) / 3, (c - 0.5) * D / 2); } }
+    else if (theme === 'bamboo') { for (let i = 0; i < 7; i++) add(new THREE.CylinderGeometry(0.065, 0.07, H - (i % 2) * 0.12, 9), i % 3 ? A : Bm, 0, (H - (i % 2) * 0.12) / 2, (i - 3) * 0.19); for (const y of [0.55, 1.4]) add(new THREE.BoxGeometry(0.16, 0.06, D + 0.1), toon('#6b4a2b'), 0, y, 0); }
+    else if (theme === 'board') { for (let i = 0; i < 4; i++) add(new THREE.BoxGeometry(0.08, H / 2 - 0.02, D / 2 - 0.02), i === 1 || i === 2 ? Bm : A, 0, (Math.floor(i / 2) + 0.5) * H / 2, (i % 2 - 0.5) * D / 2); for (const z of [-D / 2, D / 2]) add(new THREE.BoxGeometry(0.12, H + 0.1, 0.1), toon('#9ca3af'), 0.05, (H + 0.1) / 2, z); }
+    else { const n = theme === 'gate' ? 5 : 6; for (let i = 0; i < n; i++) add(new THREE.BoxGeometry(theme === 'gate' ? 0.12 : 0.08, H - (theme === 'fence' ? (i % 2) * 0.15 : 0), D / n - 0.03), i % 2 ? A : toon(W[0]).clone(), 0, (H - (theme === 'fence' ? (i % 2) * 0.15 : 0)) / 2, (i - (n - 1) / 2) * D / n);
+      for (const y of [0.4, 1.5]) add(new THREE.BoxGeometry(0.16, 0.1, D + 0.06), Bm, 0, y, 0); } }
+  else { const R = theme === 'drum' ? 0.4 : 0.44, H = theme === 'drum' ? 1.15 : 1.05, n = 12;
+    for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, bulge = theme === 'drum' ? 0 : 0.03; const m = add(new THREE.BoxGeometry(0.07, H, 2 * Math.PI * R / n + 0.01), theme === 'drum' && i % 3 === 0 ? Bm : A, Math.cos(a) * (R + bulge), H / 2, Math.sin(a) * (R + bulge), -a); m.userData.ring = 1; }
+    for (const y of [0.18, H - 0.18]) { const t = add(new THREE.TorusGeometry(R + 0.05, 0.03, 6, 18), Bm, 0, y, 0); t.rotation.x = Math.PI / 2; }
+    add(new THREE.CylinderGeometry(R, R, 0.05, 16), theme === 'drum' ? Bm : A, 0, H, 0); if (theme === 'sake') { const rope = add(new THREE.TorusGeometry(R + 0.07, 0.035, 6, 18), toon('#d9c7a0'), 0, H * 0.5, 0); rope.rotation.x = Math.PI / 2; } }
+  pieces.forEach(m => { m.userData.home = { p: m.position.clone(), r: m.rotation.clone() }; m.userData.v = new THREE.Vector3(); m.userData.w = new THREE.Vector3(); });
+  let broken = false, fade = 0, shk = 0, cracks = 0;
+  function shake(k = 1) { if (broken) return; shk = Math.min(1, shk + 0.7 * k); cracks++; }   // a hit that didn't break it: shudder (and it looks a little more battered)
+  function reset() { broken = false; fade = 0; shk = 0; cracks = 0; g.rotation.set(0, 0, 0); g.position.y = 0; pieces.forEach(m => { m.position.copy(m.userData.home.p); m.rotation.copy(m.userData.home.r); m.visible = true; m.userData.rest = false; }); }
+  // dir = +1 / -1 (the way the fighter is flying), spd = how hard
+  function smash(dir, spd = 8, fy = 1.0) { if (broken) return; broken = true; fade = 0; const k = Math.min(1.6, spd / 8);
+    pieces.forEach(m => { const v = m.userData.v, w = m.userData.w; v.set(dir * (2.5 + Math.random() * 5) * k, (1.5 + Math.random() * 4.5) * (0.6 + m.position.y / 2 * fy), (Math.random() - 0.5) * 5); w.set((Math.random() - 0.5) * 14, (Math.random() - 0.5) * 10, (Math.random() - 0.5) * 14); m.userData.rest = false; }); }
+  function tick(dt) { if (!broken) { if (shk > 0) { shk = Math.max(0, shk - dt * 3.5); const T = performance.now() * 0.06; g.rotation.z = Math.sin(T) * 0.06 * shk + Math.min(3, cracks) * 0.012 * (kind === 'wall' ? 1 : 0); g.rotation.x = Math.cos(T * 1.3) * 0.03 * shk; } return; } g.rotation.set(0, 0, 0); fade += dt; pieces.forEach(m => { if (m.userData.rest) return; const v = m.userData.v, w = m.userData.w; v.y -= 15 * dt; m.position.addScaledVector(v, dt); m.rotation.x += w.x * dt; m.rotation.y += w.y * dt; m.rotation.z += w.z * dt;
+      if (m.position.y < 0.05) { m.position.y = 0.05; if (Math.abs(v.y) < 1.2) { v.set(v.x * 0.5, 0, v.z * 0.5); w.multiplyScalar(0.4); if (v.lengthSq() < 0.05) { m.userData.rest = true; m.rotation.x = Math.round(m.rotation.x / (Math.PI / 2)) * Math.PI / 2; m.rotation.z = Math.round(m.rotation.z / (Math.PI / 2)) * Math.PI / 2; } } else { v.y = -v.y * 0.32; v.x *= 0.6; v.z *= 0.6; w.multiplyScalar(0.6); } } }); }
+  return { g, reset, smash, shake, tick, get broken() { return broken; }, kind };
 }

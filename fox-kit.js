@@ -1,8 +1,10 @@
 // Shared 3D fox model + face animation, used by every Meru scene.
 export const LOOK_KEY = 'meru.foxLook.v1';
-export const DEFAULT_LOOK = {"armorAccent":"#38bdf8","snout":"#f9a96a","fur":"#f07a2a","furDark":"#c2410c","muzzle":"#ffb772","chin":"#ffc179","ear":"#1e293b","earInner":"#9d174d","fluff":"#ffe4c4","leg":"#e2e8f0","boot":"#0f172a","paw":"#f07a2a","nose":"#0b0a12","tailBase":"#c2410c","tailMid":"#fb923c","tailTip":"#ffffff","ink":"#1e293b","headScale":1.14,"headWidth":0.85,"headHeight":0.97,"cheeks":2,"chinPoint":1.5,"snoutLength":0.61,"snoutSize":0.77,"earHeight":0.98,"earWidth":0.75,"earSpread":0.82,"earTilt":0.52,"earBack":0.37,"fluffSize":0.86,"headTuft":0,"eyeSize":1.3,"eyeSpacing":64,"eyeY":86,"irisSize":1.08,"pupil":1,"eyeTilt":0,"lashes":1,"browWeight":10,"blush":0.28,"whiskers":1,"bodyScale":1,"legLength":1.5,"tailSize":1,"tailCurl":0.42,"tailLift":1.53};
-export const PLAYER_FEMALE = {"armorAccent":"#38bdf8","snout":"#f9a96a","fur":"#f07a2a","furDark":"#c2410c","muzzle":"#ffb772","chin":"#ffc179","ear":"#1e293b","earInner":"#9d174d","fluff":"#ffe4c4","leg":"#e2e8f0","boot":"#0f172a","paw":"#f07a2a","nose":"#0b0a12","tailBase":"#c2410c","tailMid":"#fb923c","tailTip":"#ffffff","ink":"#1e293b","headScale":1.14,"headWidth":0.85,"headHeight":0.97,"cheeks":2,"chinPoint":1.5,"snoutLength":0.61,"snoutSize":0.77,"earHeight":0.98,"earWidth":0.75,"earSpread":0.82,"earTilt":0.52,"earBack":0.37,"fluffSize":0.86,"headTuft":0,"eyeSize":1.3,"eyeSpacing":64,"eyeY":86,"irisSize":1.08,"pupil":1,"eyeTilt":0,"lashes":1,"browWeight":10,"blush":0.28,"whiskers":1,"bodyScale":1,"legLength":1.5,"tailSize":1,"tailCurl":0.42,"tailLift":1.53};
-export const PLAYER_MALE = {"armorAccent":"#38bdf8","snout":"#f3b26b","fur":"#f2741f","furDark":"#c2410c","muzzle":"#ffb772","chin":"#ffc179","ear":"#1e293b","earInner":"#9d174d","fluff":"#ffe4c4","leg":"#e2e8f0","boot":"#0f172a","paw":"#f2741f","nose":"#0b0a12","tailBase":"#d9560f","tailMid":"#f2741f","tailTip":"#ffffff","ink":"#1e293b","headScale":1.14,"headWidth":0.95,"headHeight":0.97,"cheeks":1.57,"chinPoint":1.01,"snoutLength":0.61,"snoutSize":0.85,"earHeight":0.98,"earWidth":1.5,"earSpread":0.82,"earTilt":0.52,"earBack":1,"fluffSize":1.8,"headTuft":1.14,"eyeSize":1.3,"eyeSpacing":64,"eyeY":86,"irisSize":1.08,"pupil":1,"eyeTilt":0,"lashes":1,"browWeight":10,"blush":0.28,"whiskers":1,"bodyScale":1,"legLength":1.5,"tailSize":1,"tailCurl":0.42,"tailLift":1.53};   // same orange as Hope
+// FOX_SHAPE (Ben, s149 Fox Workshop): the shared head shape for every fox (snout, under the snout, ears, eyes). Colours stay per fox.
+export const FOX_SHAPE = {"snoutLength":0.52,"earHeight":0.81,"earWidth":0.86,"earSpread":0.71,"earBack":0.32,"eyeSize":1.5,"eyeSpacing":72,"eyeY":80,"lashes":0,"muzzleWedge":0.31,"underDepth":1.6,"jawTuck":0.36,"muzzleLow":1.4,"throat":0,"chinLine":0.44,"underRise":0.59};
+export const DEFAULT_LOOK = { ...{"armorAccent":"#38bdf8","snout":"#f9a96a","fur":"#f07a2a","furDark":"#c2410c","muzzle":"#ffb772","chin":"#ffc179","ear":"#1e293b","earInner":"#9d174d","fluff":"#ffe4c4","leg":"#e2e8f0","boot":"#0f172a","paw":"#f07a2a","nose":"#0b0a12","tailBase":"#c2410c","tailMid":"#fb923c","tailTip":"#ffffff","ink":"#1e293b","headScale":1.14,"headWidth":0.85,"headHeight":0.97,"cheeks":2,"chinPoint":1.5,"snoutLength":0.61,"snoutSize":0.77,"earHeight":0.98,"earWidth":0.75,"earSpread":0.82,"earTilt":0.52,"earBack":0.37,"fluffSize":0.86,"headTuft":0,"eyeSize":1.3,"eyeSpacing":64,"eyeY":86,"irisSize":1.08,"pupil":1,"eyeTilt":0,"lashes":1,"browWeight":10,"blush":0.28,"whiskers":1,"bodyScale":1,"legLength":1.5,"tailSize":1,"tailCurl":0.42,"tailLift":1.53}, ...FOX_SHAPE };
+export const PLAYER_FEMALE = { ...{"armorAccent":"#38bdf8","snout":"#f9a96a","fur":"#f07a2a","furDark":"#c2410c","muzzle":"#ffb772","chin":"#ffc179","ear":"#1e293b","earInner":"#9d174d","fluff":"#ffe4c4","leg":"#e2e8f0","boot":"#0f172a","paw":"#f07a2a","nose":"#0b0a12","tailBase":"#c2410c","tailMid":"#fb923c","tailTip":"#ffffff","ink":"#1e293b","headScale":1.14,"headWidth":0.85,"headHeight":0.97,"cheeks":2,"chinPoint":1.5,"snoutLength":0.61,"snoutSize":0.77,"earHeight":0.98,"earWidth":0.75,"earSpread":0.82,"earTilt":0.52,"earBack":0.37,"fluffSize":0.86,"headTuft":0,"eyeSize":1.3,"eyeSpacing":64,"eyeY":86,"irisSize":1.08,"pupil":1,"eyeTilt":0,"lashes":1,"browWeight":10,"blush":0.28,"whiskers":1,"bodyScale":1,"legLength":1.5,"tailSize":1,"tailCurl":0.42,"tailLift":1.53}, ...FOX_SHAPE };
+export const PLAYER_MALE = { ...{"armorAccent":"#38bdf8","snout":"#f3b26b","fur":"#f2741f","furDark":"#c2410c","muzzle":"#ffb772","chin":"#ffc179","ear":"#1e293b","earInner":"#9d174d","fluff":"#ffe4c4","leg":"#e2e8f0","boot":"#0f172a","paw":"#f2741f","nose":"#0b0a12","tailBase":"#d9560f","tailMid":"#f2741f","tailTip":"#ffffff","ink":"#1e293b","headScale":1.14,"headWidth":0.95,"headHeight":0.97,"cheeks":1.57,"chinPoint":1.01,"snoutLength":0.61,"snoutSize":0.85,"earHeight":0.98,"earWidth":1.5,"earSpread":0.82,"earTilt":0.52,"earBack":1,"fluffSize":1.8,"headTuft":1.14,"eyeSize":1.3,"eyeSpacing":64,"eyeY":86,"irisSize":1.08,"pupil":1,"eyeTilt":0,"lashes":1,"browWeight":10,"blush":0.28,"whiskers":1,"bodyScale":1,"legLength":1.5,"tailSize":1,"tailCurl":0.42,"tailLift":1.53}, ...FOX_SHAPE };   // same orange as Hope
 // Hope: a bright orange fox, cream-white muzzle and chin, black ears, orange paws, white tail tip
 export const HOPE_LOOK = { ...PLAYER_FEMALE, fur: '#f2741f', furDark: '#c2410c', snout: '#f6d2ad', muzzle: '#f7efe4', chin: '#ffffff', fluff: '#ffffff', ear: '#1c1917', earInner: '#3f2a22', paw: '#f2741f', tailBase: '#d9560f', tailMid: '#f2741f', tailTip: '#ffffff', ink: '#1c1917' };
 export const KING_MIGHT = { ...PLAYER_MALE, elder: 1, fur: '#d9733a', furDark: '#9a4a22', muzzle: '#f1c9a6', snout: '#e8b48a', chin: '#f4f1ec', fluff: '#f4f4f6', tailMid: '#e8945a', tailTip: '#ffffff', browColor: '#f8fafc', browWeight: 10, beard: '#eef0f4', eyeSize: 1.05, irisSize: 0.9, eyeY: 96, headTuft: 0.6, fluffSize: 1.9, cheeks: 1.7, chinPoint: 0.8, headWidth: 1.0, earBack: 0.6, blush: 0, armorAccent: '#c42d3c', bodyScale: 1.08 };
@@ -60,10 +62,10 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
     const W = 256; g.clearRect(0, 0, W, W);
     const md = MOOD[f.mood] || MOOD.neutral, L = f.L || DEFAULT_LOOK, ES = L.eyeSize, EX = L.eyeSpacing, EY = L.eyeY, INK = L.ink;
     // muzzle + chin
-    const jd = (f.mouth || 0) * 32; g.fillStyle = L.muzzle; g.beginPath(); g.ellipse(128, 176 - jd * 0.15, 66 + jd * 0.45, 46 + jd * 0.55, 0, 0, 7); g.fill(); g.beginPath(); g.ellipse(128, 200 + jd * 0.3, 60 + jd * 0.4, 30 + jd * 0.3, 0, 0, 7); g.fill(); { const tg2 = g.createRadialGradient(128, 150 - jd * 0.4, 4, 128, 160 - jd * 0.3, 52); tg2.addColorStop(0, L.snout || L.muzzle); tg2.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = tg2; g.globalAlpha = 0.55 + jd * 0.01; g.beginPath(); g.ellipse(128, 156 - jd * 0.4, 46, 26, 0, 0, 7); g.fill(); g.globalAlpha = 1; }
-    g.fillStyle = L.chin; g.beginPath(); g.ellipse(128, 222 + jd, 42 + jd * 0.2, 24 + jd * 0.25, 0, 0, 7); g.fill();
+    const jd = (f.mouth || 0) * 32; g.fillStyle = L.muzzle; g.beginPath(); g.ellipse(128, 176 - jd * 0.15, 66 + jd * 0.45, 46 + jd * 0.55, 0, 0, 7); g.fill(); { const ml = L.muzzleLow ?? 1; g.beginPath(); g.ellipse(128, 200 + jd * 0.3, (60 + jd * 0.4) * ml, (30 + jd * 0.3) * ml, 0, 0, 7); g.fill(); } { const tg2 = g.createRadialGradient(128, 150 - jd * 0.4, 4, 128, 160 - jd * 0.3, 52); tg2.addColorStop(0, L.snout || L.muzzle); tg2.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = tg2; g.globalAlpha = 0.55 + jd * 0.01; g.beginPath(); g.ellipse(128, 156 - jd * 0.4, 46, 26, 0, 0, 7); g.fill(); g.globalAlpha = 1; }
+    { const cp = L.chinPatch ?? 1; g.fillStyle = L.chin; g.beginPath(); g.ellipse(128, 222 + jd - (cp - 1) * 10, (42 + jd * 0.2) * cp, (24 + jd * 0.25) * cp, 0, 0, 7); g.fill(); }
     { const mc = L.muzzle; g.save(); g.strokeStyle = mc; g.lineWidth = 3; g.lineCap = 'round'; for (let i = 0; i < 26; i++) { const a = Math.PI * (0.05 + i / 25 * 0.9), ex = 128 + Math.cos(a) * 64 * (1 + jd * 0.006), ey = 176 - jd * 0.15 + Math.sin(a) * 44 - 44 * 0.15; if (Math.sin(a) > 0.5) continue; g.beginPath(); g.moveTo(ex, ey); g.lineTo(ex + Math.cos(a) * 6, ey - Math.abs(Math.sin(a)) * 5 - 2); g.stroke(); } g.restore(); }
-    { g.save(); g.fillStyle = L.chin; for (const [dx, dy, rz] of [[-10, 0, 0.3], [0, 4, 0], [10, 0, -0.3]]) { g.beginPath(); g.ellipse(128 + dx, 244 + jd + dy, 5, 9, rz, 0, 7); g.fill(); } g.restore(); }
+    { const ct = L.chinTuft ?? 1; if (ct > 0.02) { g.save(); g.fillStyle = L.chin; for (const [dx, dy, rz] of [[-10, 0, 0.3], [0, 4, 0], [10, 0, -0.3]]) { g.beginPath(); g.ellipse(128 + dx * Math.min(1.6, 0.6 + 0.4 * ct), 240 + jd + dy + 4 * ct, 5 * Math.min(1.5, 0.5 + 0.5 * ct), 9 * ct, rz, 0, 7); g.fill(); } g.restore(); } }
     if (L.elder) { g.fillStyle = 'rgba(235,235,240,0.55)'; for (let i = 0; i < 40; i++) { const a = (i / 40) * Math.PI, r = 58 + (i % 3) * 6; g.beginPath(); g.ellipse(128 + Math.cos(a) * r * 0.9, 178 + Math.sin(a) * r * 0.55, 6, 3, a, 0, 7); g.fill(); } }
     const cl = -(f.mouth || 0) * 8; for (const x of [128 - EX - 4, 128 + EX + 4]) { const bg2 = g.createRadialGradient(x, 150 + cl, 2, x, 150 + cl, 22); bg2.addColorStop(0, `rgba(244,114,182,${L.blush})`); bg2.addColorStop(1, 'rgba(244,114,182,0)'); g.fillStyle = bg2; g.beginPath(); g.ellipse(x, 150 + cl, 22, 12, 0, 0, 7); g.fill(); if (L.blush > 0.15) { g.save(); g.strokeStyle = `rgba(219,39,119,${L.blush * 1.2})`; g.lineWidth = 2; g.lineCap = 'round'; for (let q = 0; q < 3; q++) { g.beginPath(); g.moveTo(x - 8 + q * 7, 146 + cl); g.lineTo(x - 11 + q * 7, 153 + cl); g.stroke(); } g.restore(); } }
     if ((f.mouth || 0) > 0.08) { const sh = g.createLinearGradient(0, 190, 0, 214); sh.addColorStop(0, 'rgba(120,53,15,0)'); sh.addColorStop(1, `rgba(120,53,15,${0.25 * f.mouth})`); g.fillStyle = sh; g.beginPath(); g.ellipse(128, 204, 44, 14, 0, 0, 7); g.fill(); }
@@ -101,6 +103,14 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
       g.lineWidth = 2.2; g.strokeStyle = 'rgba(30,41,59,0.6)'; g.beginPath(); g.ellipse(cx, ccy, hw * 0.92, ry, 0, Math.PI * 0.18, Math.PI * 0.82); g.stroke(); g.restore();
     };
     eye(128 - EX, EY, -1, f.eyeL); eye(128 + EX, EY, 1, f.eyeR);
+    if (L.scar) {   // FACIAL SCAR (s149, Lox): a pale slash from brow to cheek through the eye that is not patched, with stitch ticks
+      const sx = L.eyePatch === 'R' ? -1 : 1, cx = 128 + sx * EX, x0 = cx - sx * 4, y0 = EY - 46 * ES, x1 = cx + sx * 16, y1 = EY + 52 * ES;
+      const gap = 30 * ES, ta = (EY - gap - y0) / (y1 - y0), tb = (EY + gap - y0) / (y1 - y0), segs = [[0, ta], [tb, 1]], pt = t2 => [x0 + (x1 - x0) * t2, y0 + (y1 - y0) * t2];   // the scar skips the eyeball (stops at the lids)
+      g.save(); g.lineCap = 'round'; for (const [lw, col] of [[9, 'rgba(70,20,16,0.85)'], [4, '#f2c6b4']]) { g.strokeStyle = col; g.lineWidth = lw; for (const [a0, a1] of segs) { const [ax, ay] = pt(a0), [bx, by] = pt(a1); g.beginPath(); g.moveTo(ax, ay); g.lineTo(bx, by); g.stroke(); } }
+      g.strokeStyle = 'rgba(70,20,16,0.9)'; g.lineWidth = 2.5; for (let k = 1; k < 6; k++) { const t2 = k / 6, px = x0 + (x1 - x0) * t2, py = y0 + (y1 - y0) * t2; if (Math.abs(py - EY) < gap + 4) continue; g.beginPath(); g.moveTo(px - 7, py - 1.5 * sx); g.lineTo(px + 7, py + 1.5 * sx); g.stroke(); } g.restore(); }
+    if (L.eyePatch) {   // EYE PATCH (s149, Lox): black patch over one eye + the strap running up over the brow and round the side
+      const sx = L.eyePatch === 'R' ? 1 : -1, cx = 128 + sx * EX, rw = 30 * ES, rh = 27 * ES;
+      g.save(); g.fillStyle = '#141312'; g.beginPath(); g.ellipse(cx, EY + 2, rw, rh, sx * 0.15, 0, 7); g.fill(); g.strokeStyle = '#3a3634'; g.lineWidth = 3; g.beginPath(); g.ellipse(cx, EY + 2, rw - 5, rh - 5, sx * 0.15, 0, 7); g.stroke(); g.restore(); }
     if (f.sun) {   // sunglasses painted onto the face so the lenses wrap the head exactly
       const lw = SUN.w * ES, lh = SUN.h * ES;
       g.lineJoin = 'round'; g.strokeStyle = '#111827'; g.lineWidth = 6; g.beginPath(); g.moveTo(128 - EX + lw * 0.7, EY - lh * 0.45); g.quadraticCurveTo(128, EY - lh * 0.75, 128 + EX - lw * 0.7, EY - lh * 0.45); g.stroke();
@@ -164,24 +174,25 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
       if (y > 0) x *= 1 + 0.06 * Math.min(1, y * 2);                          // broad between the ears
       if (z < 0) { z *= 0.74; if (y > 0) y *= 1 - 0.14 * (-z); } else z *= 1 - 0.1 * Math.max(0, y);
       if (z > 0) z += 0.2 * z * Math.exp(-(((y - 0.02) / 0.34) ** 2)) * Math.exp(-((x / 0.5) ** 2));   // profile: forehead slopes forward into the snout (fox 'stop')
-      if (y < -0.5 && z < 0.3) y += (-0.5 - y) * 0.25;                       // tuck the jaw so the head is not a ball underneath
-      if (z > 0 && y < 0.15 && y > -0.6) { const br = Math.exp(-((x / 0.42) ** 2)) * Math.exp(-(((y + 0.18) / 0.3) ** 2)); z += 0.16 * br * z; }  // muzzle wedge running into the snout
+      if (y < -0.5 && z < 0.3) y += (-0.5 - y) * (L.jawTuck ?? 0.25);
+      if (z > 0.1 && y < -0.22) { const tt = Math.min(1, (-0.22 - y) / 0.6); z -= (L.throat ?? 0.35) * tt * (z - 0.1); y += 0.12 * (L.throat ?? 0.35) * tt * Math.max(0, z); }   // throat: lower front recedes under the snout (fox jaw line)                       // tuck the jaw so the head is not a ball underneath
+      if (z > 0 && y < 0.15 && y > -0.6) { const br = Math.exp(-((x / 0.42) ** 2)) * Math.exp(-(((y + 0.18) / 0.3) ** 2)); z += (L.muzzleWedge ?? 0.26) * br * z; }  // muzzle wedge running into the snout
       { const ruff = Math.exp(-(((y + 0.35) / 0.22) ** 2)) * Math.max(0, 1 - Math.abs(z) * 0.6); x *= 1 + 0.12 * L.cheeks * ruff; }  // cheek ruff flares out (triangle face)
       p.setXYZ(i, x * r, y * r, z * r);
     }
     g.computeVertexNormals(); return g;
   }
-  const snoutGeoFor = L => { const k = 'snout' + (L.snout || L.muzzle) + L.chin; if (geoCache.has(k)) return geoCache.get(k); const gg = (() => {
-    const prof = [[0, 0], [0.18, 0.0], [0.185, 0.06], [0.15, 0.13], [0.1, 0.2], [0.055, 0.25], [0.02, 0.27], [0, 0.275]];
-    const top = C3(L.snout || L.muzzle), wh = C3(L.chin);
+  const snoutGeoFor = L => { const k = 'snout' + (L.snout || L.muzzle) + (L.underSnout || L.chin) + '|' + (L.underDepth ?? 1) + '|' + (L.underWidth ?? 1) + '|' + (L.chinLine ?? 0) + '|' + (L.underRise ?? 0.45); if (geoCache.has(k)) return geoCache.get(k); const gg = (() => {
+    const prof = [[0, 0], [0.18, 0.0], [0.185, 0.05], [0.17, 0.13], [0.14, 0.21], [0.1, 0.28], [0.062, 0.33], [0.026, 0.37], [0, 0.38]];
+    const top = C3(L.snout || L.muzzle), wh = C3(L.underSnout || L.chin), uD = L.underDepth ?? 1, uW = L.underWidth ?? 1, cL = (L.chinLine ?? 0) * 0.05, uR = L.underRise ?? 0.45;
     const g = new THREE.LatheGeometry(prof.map(([a, b]) => new THREE.Vector2(a, b)), 22); g.rotateX(Math.PI / 2);
     const p = g.attributes.position, c = new Float32Array(p.count * 3), col = new THREE.Color();
-    for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setX(i, p.getX(i) * 1.2); p.setY(i, y * (y > 0 ? 0.78 : 0.62) + p.getZ(i) * 0.12); col.copy(top).lerp(wh, smooth(-0.03, -0.09, y)); c.set([col.r, col.g, col.b], i * 3); }
+    for (let i = 0; i < p.count; i++) { const t = Math.min(1, Math.max(0, p.getZ(i) / 0.38)); if (p.getY(i) < 0) p.setY(i, p.getY(i) * (1 - uR * Math.pow(t, 1.3))); else p.setY(i, p.getY(i) * (1 - 0.18 * t)); p.setX(i, p.getX(i) * (1 - 0.12 * t)); const y = p.getY(i); p.setX(i, p.getX(i) * 1.2 * (1 + (uW - 1) * smooth(0.02, -0.08, y))); p.setY(i, y * (y > 0 ? 0.78 : 0.62 * uD) + p.getZ(i) * 0.12); col.copy(top).lerp(wh, smooth(-0.03 + cL, -0.09 + cL, y)); c.set([col.r, col.g, col.b], i * 3); }
     g.setAttribute('color', new THREE.BufferAttribute(c, 3)); g.computeVertexNormals(); return g;
   })(); geoCache.set(k, gg); return gg; };
   let _glowT = null;
   function glowTexFor() { if (_glowT) return _glowT; const c = document.createElement('canvas'); c.width = c.height = 64; const g = c.getContext('2d'); const gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,0.5)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); _glowT = new THREE.CanvasTexture(c); _glowT.colorSpace = THREE.SRGBColorSpace; return _glowT; }
-  function makeFox({ key, torso, crest, bow, glasses, legColor, cane, chair, crown, eyes = ['#38bdf8', '#38bdf8'], mood = 'neutral', look, gear = 'none', outfit = 'armor', merged }) {
+  function makeFox({ key, name, torso, crest, bow, glasses, legColor, cane, chair, crown, eyes = ['#38bdf8', '#38bdf8'], mood = 'neutral', look, gear = 'none', outfit = 'armor', merged }) {
     const L = { ...LOOK, ...(look || {}) };
     if (typeof torso === 'string') { const c = new THREE.Color(torso); torso = [torso, '#' + c.clone().multiplyScalar(0.72).getHexString(), '#' + c.clone().multiplyScalar(0.42).getHexString()]; }   // one colour → light / mid / dark
     const g = new THREE.Group(), body = new THREE.Group(); g.add(body); const P = { body };
@@ -201,11 +212,20 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
       const cp = cuirass.attributes.position; for (let i = 0; i < cp.count; i++) { const z = cp.getZ(i); if (z > 0) cp.setZ(i, z * 1.12); else cp.setZ(i, z * 0.9); } cuirass.computeVertexNormals();
       M(cuirass, vcToon, 0, lift, 0, body, 0.03);
       { const r1 = M(new THREE.TorusGeometry(0.3, 0.028, 8, 32), trim, 0, 0.7 + lift, 0.01, body, 0); r1.rotation.x = Math.PI / 2; r1.scale.set(1, 1.08, 1); }
-      M(new THREE.BoxGeometry(0.035, 0.42, 0.03), trim, 0, 0.94 + lift, 0.365, body, 0).rotation.x = -0.2;
+      { const st = M(new THREE.BoxGeometry(0.035, 0.12, 0.03), trim, 0, 0.73 + lift, 0.345, body, 0); st.rotation.x = -0.2; }   // s149: gold centre strip shortened so it stops below the crest
       M(new THREE.TorusGeometry(0.2, 0.045, 8, 26), steel, 0, 1.24 + lift, 0.01, body, 0.012).rotation.x = Math.PI / 2;
       // crest medallion
       const crestM = new THREE.MeshToonMaterial({ map: armorCrest(crest), gradientMap: grad, emissive: 0xffffff, emissiveMap: armorCrest(crest), emissiveIntensity: 0.18 });
-      const med = M(new THREE.CylinderGeometry(0.19, 0.2, 0.05, 40), [accent, crestM, accent], 0, 1.04 + lift, 0.425, body, 0.012, 0.2); med.rotation.set(Math.PI / 2 - 0.3, Math.PI / 2, 0, 'XYZ');
+      // s149: the crest is a DECAL that hugs the breastplate (projected onto the cuirass lathe profile) instead of a disc standing off it
+      { const PR = [[0.255, 0.66], [0.3, 0.7], [0.335, 0.82], [0.36, 0.98], [0.355, 1.08], [0.32, 1.17], [0.22, 1.23], [0.1, 1.255]], rAt = y => { const sm = (k, y0) => { const f = Math.max(0, Math.min(1, (y0 - PR[k - 1][1]) / (PR[k][1] - PR[k - 1][1]))); return PR[k - 1][0] + (PR[k][0] - PR[k - 1][0]) * f; }; let r = 0, wsum = 0; for (const d of [-0.03, -0.015, 0, 0.015, 0.03]) { const yy = y + d; let v = PR[PR.length - 1][0]; if (yy <= PR[0][1]) v = PR[0][0]; else for (let k = 1; k < PR.length; k++) if (yy <= PR[k][1]) { v = sm(k, yy); break; } const w = 1 - Math.abs(d) * 20; r += v * w; wsum += w; } return r / wsum; };   // smoothed profile (no kink line)
+        const CY0 = 1.0, RD = 0.18, zAt = (x, y, off) => { const r = rAt(y) + off; return Math.sqrt(Math.max(0, r * r - x * x)) * 1.12; };
+        const decal = (rad, off, N = 22) => { const pos = [], uv = [], idx = []; for (let j = 0; j <= N; j++) for (let i = 0; i <= N; i++) { const u = i / N, v = j / N, x = (u * 2 - 1) * rad, y = CY0 + (v * 2 - 1) * rad; pos.push(x, y, zAt(x, y, off)); uv.push(u, v); }
+          for (let j = 0; j < N; j++) for (let i = 0; i < N; i++) { const p = j * (N + 1) + i, cx = ((i + 0.5) / N * 2 - 1), cy = ((j + 0.5) / N * 2 - 1); if (cx * cx + cy * cy > 1.08) continue; idx.push(p, p + 1, p + N + 2, p, p + N + 2, p + N + 1); }
+          const gg = new THREE.BufferGeometry(); gg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); gg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2)); gg.setIndex(idx); gg.computeVertexNormals(); gg.translate(0, lift, 0); return gg; };
+        const rimPts = []; for (let k = 0; k <= 64; k++) { const an = k / 64 * Math.PI * 2, x = Math.cos(an) * (RD + 0.012), y = CY0 + Math.sin(an) * (RD + 0.012); rimPts.push(new THREE.Vector3(x, y + lift, zAt(x, y, 0.014))); }
+        const rim = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rimPts, true), 96, 0.016, 6, true), accent); rim.userData.crest = true; body.add(rim);
+        const cm = new THREE.MeshBasicMaterial({ map: crestM.map, color: 0xeeeeee, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });   // unlit: no toon shading band across the curved crest
+        const med = new THREE.Mesh(decal(RD, 0.012), cm); med.userData.crest = true; body.add(med); }
       // waist + faulds
       M(new THREE.CylinderGeometry(0.29, 0.28, 0.1, 28), under, 0, 0.64 + lift, 0, body, 0.018, 0.29);
       M(new THREE.BoxGeometry(0.13, 0.1, 0.04), trim, 0, 0.64 + lift, 0.3, body, 0.012);
@@ -307,10 +327,10 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
     // head
     const head = new THREE.Group(); head.position.y = 1.6 + lift + (L.headScale - 1) * 0.3; head.scale.setScalar(L.headScale); body.add(head); P.head = head;
     const LOD = (merged ?? MERGE_DEFAULT) && FOX_PHONE && !CAST_KEYS.has(key), skull = M(foxSkull(0.4, LOD ? 26 : 40, LOD ? 20 : 30, null, 0, 0, 0, L), fur, 0, 0, 0, head, 0.04, 0.4); skull.scale.set(L.headWidth, L.headHeight, 1);
-    const SZ = 0.3, SL = L.snoutLength * 1.6, tipZ = SZ + 0.25 * SL; const snoutMat = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: grad, emissive: new THREE.Color(L.snout || L.muzzle), emissiveIntensity: 0.32 }); const snout = M(snoutGeoFor(L), snoutMat, 0, -0.06, SZ, head, 0.022); snout.scale.set(L.snoutSize * 0.86, L.snoutSize * 0.92, SL); snout.rotation.x = 0.02; P.snout = snout;
+    const SZ = 0.3, SL = L.snoutLength * 1.6, tipZ = SZ + 0.345 * SL; const snoutMat = new THREE.MeshToonMaterial({ vertexColors: true, gradientMap: grad, emissive: new THREE.Color(L.snout || L.muzzle), emissiveIntensity: 0.32 }); const snout = M(snoutGeoFor(L), snoutMat, 0, -0.06, SZ, head, 0.022); snout.scale.set(L.snoutSize * 0.86, L.snoutSize * 0.92, SL); snout.rotation.x = 0.02; P.snout = snout;
     { // NOSE BRIDGE: a fur ridge that rounds up from the forehead and runs down the top of the snout, so the profile is one curve
       const bg = new THREE.SphereGeometry(1, LOD ? 12 : 20, LOD ? 9 : 14), p = bg.attributes.position; for (let i = 0; i < p.count; i++) { const z = p.getZ(i), y = p.getY(i); p.setY(i, y - Math.max(0, z) * 0.35 * (y > 0 ? 0.6 : 1)); } p.needsUpdate = true; bg.computeVertexNormals();
-      const br = M(bg, fur, 0, 0.07, SZ + 0.02, head, 0.022); br.scale.set(0.15 * L.snoutSize, 0.15, 0.2 * SL + 0.08); br.rotation.x = 0.22; P.bridge = br; }
+      const br = M(bg, fur, 0, 0.07, SZ + 0.02, head, 0.022); br.scale.set(0.15 * L.snoutSize, 0.15, 0.27 * SL + 0.08); br.rotation.x = 0.22; P.bridge = br; }
 
     P.nose = M(new THREE.SphereGeometry(0.055, 14, 10), toon(L.nose), 0, -0.045, tipZ, head, 0.012, 0.055); P.nose.scale.set(1.3 * L.snoutSize, 0.85 * L.snoutSize, 0.9);
     const shine = new THREE.Mesh(new THREE.SphereGeometry(0.014, 6, 4), new THREE.MeshBasicMaterial({ color: 0xffffff })); shine.position.set(-0.02, -0.027, tipZ + 0.048); head.add(shine); P.shine = shine;
@@ -339,7 +359,26 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
     if (crown) { const cw = new THREE.Group(); cw.position.set(0, 0.36, -0.02); cw.rotation.x = -0.12; head.add(cw); const gold = toon('#e6b45a', { emissive: new THREE.Color('#7a5a1a'), emissiveIntensity: 0.4 });
       M(new THREE.CylinderGeometry(0.2, 0.22, 0.1, 20, 1, true), gold, 0, 0, 0, cw, 0.015, 0.22);
       for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; M(new THREE.ConeGeometry(0.045, 0.14, 4), gold, Math.sin(a) * 0.2, 0.11, Math.cos(a) * 0.2, cw, 0.01); M(new THREE.SphereGeometry(0.025, 6, 4), toon('#c42d3c', { emissive: new THREE.Color('#c42d3c'), emissiveIntensity: 0.6 }), Math.sin(a) * 0.215, 0.0, Math.cos(a) * 0.215, cw, 0); } }
-    if (glasses === 'sun') {   // lenses are painted on the face (drawFace); here: side shields + arms back to the ears,
+    if (L.eyePatch) {   // EYE PATCH STRAP (s149): a black band that hugs the skull: through the patch, over the far brow, round the back (raycast onto the head)
+      g.updateMatrixWorld(true); const sx = L.eyePatch === 'R' ? 1 : -1, uv = mask.geometry.attributes.uv, pos = mask.geometry.attributes.position, V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+      const atUV = (px, py) => { const tu = px / 256, tv = 1 - py / 256; let bi = 0, bd = 1e9; for (let k = 0; k < uv.count; k++) { const d = (uv.getX(k) - tu) ** 2 + (uv.getY(k) - tv) ** 2; if (d < bd) { bd = d; bi = k; } } return head.worldToLocal(mask.localToWorld(V3().fromBufferAttribute(pos, bi))); };
+      const E = atUV(128 + sx * L.eyeSpacing, L.eyeY + 2), T = atUV(128 - sx * (L.eyeSpacing + 40), L.eyeY - 62), Bk = V3(0, E.y + 0.06, -0.5);
+      const n = T.clone().sub(E).cross(Bk.clone().sub(E)).normalize(), c = n.clone().multiplyScalar(n.dot(E)), u = E.clone().sub(c).normalize(), v = n.clone().cross(u).normalize();
+      const rc = new THREE.Raycaster(), tgt = [skull, mask], pts = [];
+      for (let k = 0; k < 48; k++) { const a = k / 48 * Math.PI * 2, d = u.clone().multiplyScalar(Math.cos(a)).addScaledVector(v, Math.sin(a)), o = c.clone().addScaledVector(d, 1.4);
+        rc.set(head.localToWorld(o.clone()), head.localToWorld(c.clone()).sub(head.localToWorld(o.clone())).normalize()); const h = rc.intersectObjects(tgt, false)[0];
+        if (h) pts.push(head.worldToLocal(h.point.clone()).addScaledVector(d, 0.014)); }
+      if (pts.length > 8) { const band = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, true), 96, 0.022, 6, true), toon('#141312')); head.add(band); P.patchBand = band; } }
+    if (glasses === 'sun') {   // SUN LAYER (s149): the lenses + bridge also go on a copy of the face mask pulled 7 cm toward the camera, so they sit ON TOP of the snout / nose bridge from any angle
+      { const sc = document.createElement('canvas'); sc.width = sc.height = 256; const sg = sc.getContext('2d'), ES = L.eyeSize, EX = L.eyeSpacing, EY = L.eyeY, lw = SUN.w * ES, lh = SUN.h * ES;
+        sg.lineJoin = 'round'; sg.lineCap = 'round'; sg.strokeStyle = '#111827'; sg.lineWidth = 16; sg.beginPath(); sg.moveTo(128 - EX + lw * 0.55, EY - lh * 0.25); sg.quadraticCurveTo(128, EY - lh * 0.55, 128 + EX - lw * 0.55, EY - lh * 0.25); sg.stroke();
+        for (const s of [-1, 1]) { sg.save(); sg.translate(128 + s * EX, EY); sg.rotate(-s * L.eyeTilt * 0.5); sg.fillStyle = '#0b0f19'; sg.beginPath(); sg.ellipse(0, 0, lw, lh, 0, 0, 7); sg.fill(); sg.lineWidth = 5; sg.strokeStyle = '#111827'; sg.stroke();
+          sg.strokeStyle = 'rgba(148,163,184,0.55)'; sg.lineWidth = 3; sg.lineCap = 'round'; sg.beginPath(); sg.ellipse(0, 0, lw * 0.7, lh * 0.66, 0, Math.PI * 1.1, Math.PI * 1.45); sg.stroke(); sg.restore(); }
+        const st = new THREE.CanvasTexture(sc); st.colorSpace = THREE.SRGBColorSpace; st.anisotropy = 4;
+        const sm = new THREE.MeshBasicMaterial({ map: st, transparent: true, alphaTest: 0.04, depthWrite: false });
+        sm.onBeforeCompile = sh => { sh.vertexShader = sh.vertexShader.replace('#include <project_vertex>', '#include <project_vertex>\n  mvPosition.z += 0.16; gl_Position = projectionMatrix * mvPosition;'); };
+        const sunL = new THREE.Mesh(mask.geometry, sm); sunL.renderOrder = 4; skull.add(sunL); P.sunLayer = sunL; }
+      // side shields + arms back to the ears,
       // starting from the painted lens's outer edge, found through the face mask's UVs
       const fr = toon('#111827'), shield = toon('#0b0f19'); g.updateMatrixWorld(true);
       const pos = mask.geometry.attributes.position, uv = mask.geometry.attributes.uv, nrm = mask.geometry.attributes.normal, nm = new THREE.Matrix3().getNormalMatrix(mask.matrixWorld);
@@ -349,6 +388,12 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
       const Zf = new THREE.Vector3(0, 0, 1);
       const seg = (A, B, w, h, mat) => { const d = B.clone().sub(A), m = M(new THREE.BoxGeometry(w, h, d.length()), mat, (A.x + B.x) / 2, (A.y + B.y) / 2, (A.z + B.z) / 2, head, 0.006); m.quaternion.setFromUnitVectors(Zf, d.normalize()); return m; };
       const lw = SUN.w * L.eyeSize;
+      { // 3D BRIDGE (s149): a black bar from lens to lens that arches over the nose ridge, so the orange never splits the glasses
+        const lh = SUN.h * L.eyeSize, iy = L.eyeY - lh * 0.25, A = at(128 - (L.eyeSpacing - lw * 0.6), iy), B = at(128 + (L.eyeSpacing - lw * 0.6), iy);
+        const my = (A.p.y + B.p.y) / 2, front = [P.bridge, skull, P.snout].filter(Boolean); rc.set(head.localToWorld(new THREE.Vector3(0, my, 2)), head.localToWorld(new THREE.Vector3(0, my, 0)).sub(head.localToWorld(new THREE.Vector3(0, my, 2))).normalize());
+        const hm = rc.intersectObjects(front, false)[0], mid = hm ? head.worldToLocal(hm.point.clone()).add(new THREE.Vector3(0, 0, 0.014)) : A.p.clone().lerp(B.p, 0.5).add(new THREE.Vector3(0, 0, 0.08));
+        const a0 = A.p.clone().addScaledVector(A.n, 0.008), b0 = B.p.clone().addScaledVector(B.n, 0.008), ma = a0.clone().lerp(mid, 0.5), mb = b0.clone().lerp(mid, 0.5); ma.z = Math.max(ma.z, mid.z - 0.02); mb.z = Math.max(mb.z, mid.z - 0.02);
+        for (const [p, q] of [[a0, ma], [ma, mid], [mid, mb], [mb, b0]]) seg(p, q, 0.03, 0.026, fr); }
       for (const cs of [-1, 1]) { const e = at(128 + cs * (L.eyeSpacing + lw - 2), L.eyeY), sx = Math.sign(e.p.x) || cs;
         const hinge = e.p.clone().addScaledVector(e.n, 0.006), pts = [hinge];
         for (const back of [0.08, 0.2, 0.32]) { const q = hitSide(sx, hinge.y, hinge.z - back); if (q) pts.push(q.add(new THREE.Vector3(sx * 0.01, 0, 0))); }
@@ -408,7 +453,7 @@ export function foxKit({ THREE, scene, toon, M, grad, outlineMat, crestTex, rr, 
     // PHONE PERF (step 3): MERGED FOX. Static meshes are baked into one mesh per moving part (+ one ink shell per part).
     // Off for Hope + Noble (their cane + chair rigs read the raw parts) and for the chair pose. The player has no rig: merged too (s32, ~200 → ~45 draws).
     if ((merged ?? MERGE_DEFAULT) && !chair && key !== 'hope' && key !== 'noble') mergeFoxParts(g, P);
-    g.scale.setScalar(L.bodyScale);
+    g.scale.setScalar(L.bodyScale); g.userData.foxKey = key || ''; g.userData.foxName = name || '';   // s104g: the CHARACTER ROSTER reads these
     scene.add(g); return g;
   }
   const FOX_PHONE = typeof matchMedia !== 'undefined' && matchMedia('(pointer: coarse)').matches, CAST_KEYS = new Set(['player', 'hope', 'noble']), _m4 = new THREE.Matrix4(), _inv = new THREE.Matrix4(), _n3 = new THREE.Matrix3(), _v = new THREE.Vector3(), _c = new THREE.Color();

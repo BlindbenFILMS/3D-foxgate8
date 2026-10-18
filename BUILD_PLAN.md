@@ -852,3 +852,151 @@ TESTED (one machine, ?net=local, a second copy in an iframe): seating + host, re
 NEXT: (1) test on 2 real phones / 2 tabs (?net=local); (2) LOCAL SPLIT-SCREEN with gamepads (viewports per player in one renderer, P per player, Gamepad API mapping 1 slash · 2 laser · A jump, blaster = one shared view with 1P / 2P / 3P / 4P crosshairs + RELOAD in each player's corner); (3) fox pick per player (Ben / Noble / Hope via castKit + loadCastRigs, tint by slot); (4) spectate a friend's duel after yours (stream the duel snapshot like the Kyoto online 1v1); (5) MERU 2: split up + explore freely, every minigame offers MORE PLAYERS and waits for friends to walk up and take a seat.
 - s37 MERU 2 ONLINE (Ben: "do the same for Meru 2"): `worlds/meru2-net.js` createMeru2Net (room 'fg8-meru2' / ?room=CODE, same seats + colours + remote foxes + 25 s drop as the tower), wired into meru2-walk.js (walker.net, walker.netHud(), ticked every frame; foxes only show when you're both outdoors or both inside the same building). Players SPLIT UP and explore freely, nobody waits. Online card top-right (status · n/4 · YOU colour · INVITE share link with ?walk=1&room=CODE · a row per friend: n M AWAY / INSIDE <building> / PLAYING <game>). MINIGAMES WITH FRIENDS: starting a NOW HIRING / PLAY spot broadcasts it ('mg'); friends see the prompt "<NAME> IS PLAYING · TAKE SEAT n" + JOIN when they walk up to the same spot; every seat opens the minigame with the SAME ?room=CODE (+ &players=n), so minigames with online rooms (Kyoto duel, Skate Park) put you together; the others still play solo side by side until each gets its own online mode. Backups: backup/meru2/*pre-online*. TESTED: 2 copies on one machine (?net=local): seats, remote foxes, the shared seat code. NOT tested: real phones, each minigame's own multiplayer.
 - s37b PARTY PLAY (Ben: start everyone at once in Meru like the Pearl blaster): tapping a minigame spot with friends online asks 1 PLAYER or PARTY PLAY. PARTY PLAY sends a live invite to every fox in Meru ("<NAME> wants to play <GAME>" · ACCEPT with a 10 s countdown · DECLINE); the first to accept fill the open seats (2 for duel / tennis / boxing / versus games, else 4, or b.hiring.players); the host's card shows the seats filling + START NOW / CANCEL; when the seats are full, everyone answered or 10 s pass, GO: every seated fox opens the game together with the same ?room=CODE&players=n&party=1 (nobody accepted = 1 player). Late accepts get "the seats filled up". worlds/meru2-net.js partyStart / partyNow / partyCancel / partyAnswer / onGo; page openGame(b, code, n) + seatsFor(b). TESTED with a fake second fox over ?net=local: invite → accept → seat → both open with the shared code, both directions.
+
+
+## FOX FIGHTERS (Pearl Roof Duel) · s37 NEW ROSTER + NEW BUTTONS
+(The full Fox Fighters log lives in this section; earlier Fox Fighters sessions s36* were logged in the duel project.)
+- WORKSHOP: Ben's uploaded FOXFIGHTER_workshop.zip replaces the workshops artifact (Fox Workshop with the MERU BOSSES row + Creature Workshop). fox-kit.js (FOX_SHAPE head, under-snout, eye patch, scar, crest decal) copied into the game; engine/bosses.js (+ `g.userData.R = R` on the 3 robots so the duel can drive their joints), engine/creature-kit.js + face-kit.js + polish-kit.js (for Slagback).
+- ROSTER (select screen 3 rows of 5, everyone unlocked): Ben, Hope, Noble, King Might, Michelle · Oyakata (sumo), Barnacle, Jalapeño Jack, Rook, Lox · Iron Warden, Maker Prime, SUDS-9, Slagback, Shadow Ben. Max, Wren, Penny and Lady Fortune are gone. Shadow Ben is still the arcade's secret challenger; the arcade never draws Shadow or SUDS-9 as normal rungs (SUDS-9 stays the rooftop final boss).
+- BODIES: fox bosses = BOSS_FOX look + bossExtras + scale (Oyakata/Barnacle ×1.3, Jack/Rook/Lox ×1.15, King ×1.06), L.H and hw scale with them. ROBOTS + SLAGBACK = duel-foxes.js rigFighter(): the duel's fox-space hand/foot targets are mapped relative to shoulder/hip and scaled by the rig's arm/leg length, then a 2-bone IK (shoulder+elbow, hip+knee, feet kept flat) poses the robot; for signature moves the model plays its own workshop pose (Warden rocket/stomp, Prime laser/combo, SUDS spray/cyclone, taunt, hurt, stunned, victory). Robots keep everything built onto their arms. Slagback sheds crust at 67 % / 34 % HP and its attacks wind up faster.
+- SUDS-9 BOSS: makeSuds9 still runs the boss (AI, gondola, warnings, debris) but its old meshes are hidden and the NEW workshop body (bosses.js suds9) copies the rig every frame; bubbles leave from the hose hand, sweeps from the squeegee.
+- UNARMED + NEW BUTTONS (Ben): 1 tap PUNCH · hold SWORD SWING (the sword only appears for the swing; down + hold = low cut) | 2 tap KICK · hold LASER (one bolt, 12 dmg vs kick 10; does not replace any ranged special) | 3 tap POWER SPIN (slowest, 17 dmg, unsafe on block; down = LOW SPIN sweep) · hold BLOCK, let go = regular spin (11). Back still blocks. Engine keeps the old internal numbering (1 = big move slot, 2 = punch, 3 = kick) via pressF → pressI, so specials (S,D + PUNCH · S,A + KICK), anti-air (S + SPIN) and head bonk (jump + SPIN) still work. Releases: keyup, HUD meleeUp/rangeUp/jumpUp, net {u:n}. Touch: big button = PUNCH, red = KICK, top = SPIN. Lox is a boxer (KICK = body hook, no sword).
+- SPECIALS (SIG table in sword-duel.js, SF-inspired per Ben): Ben Fox Beam/Whirlwind · Michelle Palm Blast/Spinning Crane Kick/LIGHTNING KICKS (kick ×5) · Oyakata Sumo Torpedo/Belly Splash/Hundred Palm · Noble Shoemerang/Rolling Chair/THUNDER WHEELS (electric flurry) · King Might Royal Crusher/Knee Press/Crown Stomp · Lox Dash Straight/Dash Upper · Hope Vault Dive/Cane Vault/Cane Flip · Jack Pepper Boom/Chilli Flip · Barnacle Crate Toss/Forklift Slam (long grab) · Rook Sniper Beam/Duster Dash · Warden Rocket Punch/Stomp · Prime Laser Eye/Drill Spin · SUDS-9 Rinse Cycle (hose hand)/Spin Cycle · Slagback Lava Lob/Magma Slam · Shadow Shadow Beam/Shadow Whirl.
+- VOICES: new speakers (sumo, barnacle, jack, rook, lox, warden, prime, slag) use the browser voice until recorded. Script with only the missing 166 lines: scratchpad out/FOX_FIGHTERS_new_cast_script.txt. When the recordings come back: add OYAKATA→sumo, BARNACLE→barnacle, JALAPENO JACK→jack, ROOK→rook, LOX→lox, IRON WARDEN→warden, MAKER PRIME→prime, SLAGBACK→slag to castproc.py SP (+ robot FX for warden/prime, lava rumble for slag).
+- CHECKED: all 15 fight (taps, holds, both specials, flurry) with no errors; portraits for all 15 + boss; select screen 390x844 (3x5); boss rush vs the new SUDS-9 body; online host Oyakata vs guest Iron Warden.
+- NOT YET: Ben's phone pass (thumb feel of tap vs hold, 0.3 s hold), tuning per fighter, robot IK look on every move, voice recording.
+
+## s38 · LONGER, LOOSER FOX ARMS (Ben: "T-rex arms") + a fix
+- duel-foxes.js foxFighter: every fox arm stretches ×1.35 long, ×1.08 wide (looser sleeve); paw / glove / gun groups at the end are counter-scaled so they keep their size. Duel only (other maps keep the kit arms).
+- sword-duel.js poseOf (PEARL foxes, not Noble): open guard (paws apart at chest/belly height, breathing), and the arms swing opposite the legs while walking (bigger when running) with a little torso twist.
+- FIX: an end-of-line comment added in s37 had commented out setStick + setPaused in the engine API (touch joystick + pause broke). Moved into a /* */ comment.
+
+## s39 · GAMEPLAY PASS (Ben: "take the lead on all of these") · backups backup/kyoto/*pre-s39*
+- MOVE FEEL PER FIGHTER (duel-foxes FOX_ROSTER mv + sword-duel tuneMv): wind-up / recovery / reach / damage multipliers per fighter with per-move overrides. Michelle fast with long kicks · Lox lightning jabs · Oyakata/Barnacle slow + long · robots slowest + longest · Hope's cane reach · Jack quick air kick. ARMOUR (mv.armor): the listed moves shrug off ONE hit ≤ 16 dmg during their wind-up (flash ARMOUR); heavies + robots + Slagback (crust). Hit range now adds the target's width (big robots are easier to hit).
+- SPECIAL CANCEL: a punch / kick / sweep / spin that made contact (hit or block) cancels into a special in early recovery (comic CANCEL!, +4 power). CPU uses it (chance by personality).
+- EX SPECIALS: special, then the same button again within 0.3 s (phone: tap ★ again) = −34 power: dmg ×1.45 projectiles / ×1.35 melee, faster + bigger shots, +1 hit / bubble, 0.22 s invincible, flash EX <name>.
+- SUPERS (full bar, 4 / Q / two buttons): SUPER table per fighter (Fox Beam Max, Shadow Storm, Stardust Vault, Thunder Chair, Royal Decree, Thousand Kicks, Hundred Palm Zenith, Forklift Finale→Crate Avalanche, Pepper Storm, Sniper Overcharge, Knockout Rush, Double Rocket, Laser Overload, Power Wash, Eruption): slow-mo + flash + boosted signature move + timed extras (superTick). Beam pool 2 → 4.
+- PHONE: ★ SPECIAL button (page, phones only, in a fight): tap = special 1, hold 0.28 s = special 2, tap again right after = EX. Engine API special(slot) (+ net {sp}). Hold feedback: tick + 12 ms buzz + 'SWORD!' when a hold kicks in. Vibration on hits taken/landed (touch only; OPT.noBuzz turns it off).
+- CPU PERSONALITIES (def.ai): zoner (Rook, Jack, Prime) keeps away + shoots · grappler (Barnacle, Oyakata) walks in + grabs · rush (Michelle, Lox, Hope, Shadow) pressure + jump-ins · heavy (King, Warden, SUDS, Slagback) armoured swings, punishes jumps · balanced (Ben, Noble).
+- AUDIO CUES (accessibility): every fighter's specials start with their own sound (CUE table: Warden servo whine, Oyakata taiko, Slagback hiss, Noble crackle, Lox ring bell, SUDS bubbles, Hope cane taps …), louder with the audio guide on.
+- Move list: EX / SPECIAL CANCEL / ★ button rows + each fighter's super name. Voice script: + 15 super shouts.
+- Test hooks: _cpuFight(a, b, stage), _S(), _special.
+- BALANCE (CPU vs CPU round robin, every pair both sides, 210 fights per pass, scratchpad t/bal.js + balan.py; _fast(true) skips model posing, one render per fight): pass 1 heavies dominated (Prime 86 %, Barnacle 82, Warden/Noble 75 … Hope 14, SUDS 11). Tuned hp / dmg / mv (robots less hp + reach, armour only spin + high; Barnacle grab 2.4 → 2.05; playable SUDS bubbles 8 dmg; Hope/Ben/Michelle/Jack/Slag up). Pass 3: 25–79 % (±9 % noise with 28 fights each). Final nudge after pass 3: Noble hp 160 dmg 1.0, Ben hp 170 dmg 1.12, Hope hp 170, SUDS dmg 1.2. CPU-vs-CPU only measures the CPU playing each fighter; Ben's real games decide the rest.
+- FIX: the duel API object had both a getter _ben and my _ben function (later wins, harmless).
+
+## s41 — Fox boxing gloves + Hope cane only
+- Foxes (ben, shadow, hope, noble, might, michelle, barnacle, jack, rook) now wear small boxing gloves (roster `gloves` colour; r 0.105, smaller than Lox's). Fist meshes hidden under the glove; cuff + lace detail.
+- Sumo unchanged, Lox keeps his big gloves, robots/Slagback get none.
+- Hope: duel's extra cane (sw) hidden — she holds only her cast cane in one paw; glove on the other.
+- Backup: backup/kyoto/duel-foxes.pre-gloves.js. Regression s37a: all 15 pass.
+
+## s42 — Buttons do one move each (Ben: punch was summoning Whirlwind Kick / Fox Beam)
+- Causes: (1) CONTROLS = ONE BUTTON (saved per device) makes every attack button auto-pick moves (beam every 2nd press at range, tatsu every 7th); (2) touch-stick drift (down then forward) + punch counted as the FOX BEAM motion.
+- Fix: motion specials (beam, whirlwind, rising anti-air motion) now only read keyboard/d-pad directions; on the touch stick, specials come from the ★ SPECIAL button only. Hist entries carry `k` (from keys).
+- ONE BUTTON mode now flashes "ONE BUTTON MODE · moves picked for you" at every round start.
+- Still on purpose: 5 fast punches = that fighter's FLURRY; same button within 0.3 s after a special = EX.
+- Landscape phone select screen: FIGHT/BACK bar was cut off. Tiles 2.9/1, bar 42px, stat bars hidden under 380px tall.
+- Backups: backup/kyoto/sword-duel.pre-s42.js, backup/Kyoto Sword Duel.pre-s42.dc.html. Test t/s42.js + s37a pass.
+
+## s43 — Opening shot + light zones
+- OPENING SHOT (round 1, same 2 s intro, driven by S.phT via S.oT): close-up on the opponent's face → pull straight back along the fighting line to the midpoint → 180° whip (through the back of the stage, SFX.whoosh) onto the player → pull back out to the fight camera. `openShot(fs)` returns hard-set shots; hands off exactly at the fight shot. Skipped for bonus props and cutscenes.
+- LIGHT ZONES (`ZONES` per stage): yard = 2 flickering lanterns + a breathing warm pool; roof = sweeping searchlight + moon pool; bamboo = 3 sunbeams that come and go; castle = 2 braziers + slow drifting moon shaft; pearlRoof = sweeping helipad floodlight + pink/blue neon pools. Each = additive shaft + floor pool + lamp glow, children of the stage group.
+- A fighter in a zone is lit by it through their existing GLOW point light (only when they have no glow/super), so the light count is unchanged — no shader recompiles on phones. Zones dim with the super dim.
+- Backup: backup/kyoto/sword-duel.pre-s43.js. Regression s37a: all 15 pass.
+
+## s44 — Opening shots per round
+- Round 1: the whole 2 s intro features the OPPONENT (face close-up → slow pull back along the fighting line, drifting toward the audience → last quarter eases into the fight camera). Round 2: same on the PLAYER. Round 3+: the standard intro. Whip turn removed. `openShot` picks the fighter by S.round.
+- Backup: backup/kyoto/sword-duel.pre-s44.js. Regression s37a: all 15 pass.
+
+## s45 — Buttons reset (Ben: "just reset them")
+- Fox buttons now do EXACTLY: PUNCH tap = punch · hold = sword swing; KICK tap = kick · hold = laser; SPIN tap = power spin · hold = block, release = spin. Crouch / air only change the height (low spin, trip sweep, air kick). `pressFox()` replaces the old fox path in pressI.
+- Removed from the buttons: motion specials, throw on punch+direction, 5-punch flurry, EX re-press, two-button super/taunt, anti-air, head bonk, headbutt, ONE BUTTON auto-pick (saved setting reset to STANDARD once via opts.v45).
+- Specials: ★ button (tap = special 1, hold = special 2, tap again = EX, tap with a full bar = SUPER); keyboard E / R = specials, Q / 4 = super, T = taunt.
+- Hold cancels the tap move cleanly (buffer cleared); laser only cancels the kick when it can actually fire; Noble horn/spike now hand over to the laser too.
+- Help updated: keys legend, ticker, move list (throw/flurry/anti-air/bonk rows dropped, specials point at ★ / E / R), tutorial (special = tap ★, throw step removed). Trophy SEE YOU LATER = KO with a sword swing.
+- Test t/s45.js: every old hidden trigger now gives only the plain move (ben, michelle, noble, warden). s37a: 15/15.
+
+## s46 — Longer limbs + real punches and kicks
+- Proportions: foxes stand on legs 0.16 longer (FOX_L hipY 0.91, H 2.16; LEG_UP); Oyakata only +0.06 (stays squat); Noble + robots keep FOX_L0. Arms 1.35 → 1.46. Legs 10% thicker; feet keep their shape at any stretch.
+- Arms REACH: aimArm stretches the arm toward a far target (up to 1.32×), paws/gloves counter-scaled. This is what lets a punch actually extend (the arms are one rigid piece otherwise).
+- New poses: JAB (near paw) / CROSS (far paw, body turns in) / UPPERCUT (dip, drive up): cock back → snap straight out past arm length → hold through the hit → back to guard; the other paw guards the chin. KICK: chamber the knee → side kick at hip height leaning away → hold → re-chamber → down. Trip sweep and air kick reach further. Pose blend 38/s for punches and kicks.
+- Cartoon layer: jab/cross no longer hop (0.03/0.05), uppercut still launches; kick no longer does a full spin (it hid the leg).
+- STRIKE STREAKS: 6 fading additive glows trail the fist/foot during the strike (streakTick, pooled per side).
+- limb(kind, n): the cross uses the far arm. Roster blurbs no longer mention mashing.
+- Backups: backup/kyoto/duel-foxes.pre-s46.js, sword-duel.pre-s46.js. s37a 15/15. Test sheets: scratchpad t/SHEET_*.png.
+
+## s47 — Sword on the back, laser holster, 1-second draw
+- Visual: scabbard on the back (BA anchor on the body, hilt behind the far shoulder, slanting down/back) and a holster on the near hip (HA, a clone of the gun). Oyakata holster at his belt. None for Noble, Hope (cane), Lox (no sword).
+- Buttons (fox player): TAP punch/kick fire on RELEASE. HOLD punch/kick: at 0.25 s a DRAW act starts (sword: reach over the shoulder, pull it out and up; gun: down to the holster, raise to aim), open to hits. Let go before 1.0 s = cancel, quick stow (0.22 s). Held 1.0 s = COMMIT: the swing (starts from the raised pose) or the laser bolt, then STOW (0.42 s, open to hits). Getting hit during the draw cancels it.
+- f.swordOut / f.gunOut; weaponTick() auto-stows whenever a weapon is out and the fighter is free (CPU swings too). Draw/stow are PCUST acts; poses in poseOf (generic wind-up for fighters without a back sword).
+- Mash situations (dazed, knocked down, lock, thrown) still act on press. Spin unchanged.
+- Help: keys legend, ticker, move list, tutorial say hold 1 s.
+- Tests: t/s47b.js (tap = on release; hold 0.6 = draw+stow, no swing; hold 1.2 = draw > swing/laser > stow; rapid taps = jab/cross/uppercut chain). s37a 15/15. Backups *.pre-s47.*
+
+## s48 — Kick chain (like the punches)
+- foxKickN (0.85 s window): KICK 1 = side kick (push 0.6) · KICK 2 = HIGH KICK (MVF.hkick: reach 2.2, 11 dmg, standing guard, push 0.5, knee chambered high, foot to head height, big lean back) · KICK 3 = spinning ROUNDHOUSE (MVF.round: w 0.22, 13 dmg, push 3.2, big; cartoon layer spins a full turn with the leg already out at head height). Hit words HIGH KICK! / ROUNDHOUSE!.
+- Not for Lox (body blows) or Noble (spike). CPU kicks chain too.
+- Test t/s48b.js: 3 taps = kick1 > kick2 > kick3 connecting for ben/michelle/sumo/warden. s37a 15/15. Backups *.pre-s48.*
+
+## s49 — Alternating hands/feet, shorter hold, simpler opening, tail clear of the sword
+- Cross turns the body hard into the punch (twist -1.0) so the far fist comes across in front; jab twists the other way (+0.5). Kick 2 (HIGH KICK) is the back (far) leg; limb() / streaks follow it.
+- Hold time -33%: TAP_T 0.22, COMMIT_T 0.67 (draw 0.45 s). Help text no longer says 1 s.
+- Opening shot: front close-up of the face, pull STRAIGHT back along the facing line for the full 2 s (openShot), then a quick 0.3 s turn to the fight camera on FIGHT! (openTurn from S.oLast).
+- Tail vs sword: scabbard high on the far side of the back (hilt above the shoulder, angled out/back; Oyakata wider); the sheathed tail is biased to the near side with a narrower swing (TAIL_B 0.22). Measured (t/tail.js): tail→blade min ~0.2 m, 0 touching frames for all 8 sword-wearers (was ~80% of frames touching).
+- s37a 15/15, s47b hold flow OK. Backups *.pre-s49.*
+
+## s50 — Breakaway walls + barrels
+- duel-foxes.js breakable(kind, theme): a themed wall panel (shoji · plank fence · bamboo fence · wooden gate · SUDS plywood board) on the LEFT and a barrel (sake · rain barrel · iron-hooped · blue chemical drum) on the RIGHT of every stage, built from separate pieces with their own debris physics (fly, spin, bounce, settle).
+- While standing it is the edge of the fight (BRK_IN 0.95 / 1.4 m in from XMAX; edgeLim()). A knock-back of |kx| > 4.0 into it (roundhouse, power spin, supers, throws; also on the KO hit) = crashThrough(): smash, slow-mo 0.3 for 0.5 s, shake, CRASH! + THROUGH THE WALL! / BARREL BUSTER!, wood burst, dust, -5 hp (never KO), knockdown; the fighter flies into the gap where the stage wall is the real, unbreakable wall (existing BOUNCE!). Rebuilt every round. Not in the bonus stage. Online: FXQ k event.
+- Trophy HOME RENOVATION (crash). Test t/s50.js (all five stages crash + settle).
+
+## s51 — Set lights: lanterns, lamps, fires
+- SETL per stage: two set lights (LT.set, created once, count constant) whose PROPS sit where the fight camera sees them (paper lanterns swaying into the top of the frame; stone lantern / campfire / braziers / helipad floodlamps just behind the fighting line) and whose LIGHT sits on the camera side (light z 1.2–1.8), so the faces you see get the warm flicker. Background fires (bonfires, brazier pots) per stage.
+- Fires are flame-texture sprites (glow + 4 tongues + 2 rising licks + embers), flickering. Dims with the super dim.
+- s37a 15/15. Backups *.pre-s50/s51*.
+
+## s52 — Gameplay polish deep dive (overnight)
+- FIXED: punch and kick chains did not connect: the standard 3.8 push-back on every hit shoved the opponent out of range after hit 1. Chain hits (punch/kick n1–n2) now push 1.0; finishers keep the big knock-back. Punch reach 1.95 (+small lunge), uppercut reach 2.0 + lunge 0.7, high kick lunge 0.8, roundhouse reach 2.45 + lunge 2.4 (a travelling spin). Test t/s48d/e: all 3 hits land vs rook/hope/sumo/warden for ben/michelle/jack (Hope still parries sometimes = her trait).
+- CPU plays by the same rules: its sword swing and laser go through the same DRAW (auto-commit) and STOW, so it is open to hits too (S.aiF marks the brain call). CPU finishes its chains (jab>cross>uppercut, side>high>roundhouse), laser on real cooldowns (was spamming), sometimes draws the sword at mid range.
+- Commit GLINT: sparkle + ping at the moment a hold commits (player and CPU).
+- Breakables: a hard shove that does not break them (|kx| 2.2–4.0) makes them shudder with CRACK! (and the wall leans a little more each time).
+- Caught + fixed before publishing: an end-of-line // comment had swallowed the rest of a line in attack() (ReferenceError in CPU fights). Regression now always checks page errors (t/reg.sh).
+- Balance (CPU round-robin, 210 fights, avg 29.8 s, 0 errors/timeouts, crash in ~74% of fights): nudges hope 178/1.15, michelle 162/0.98, rook 168/1.14, jack 160/1.12, might 175/1.08, suds 212/1.27, shadow 178/1.0, sumo 180/1.11, slag 200/1.2. Spread 39–64% (noise about ±10).
+
+## s53 — Elbows + Street Fighter breathing guard
+- Fox arms get ELBOWS: each kit arm is split at its elbow band (0.2; boss sleeves at 0.26, sleeve shortened + a lower-sleeve on the forearm) into the upper arm and a FOREARM group (sibling on the body) carrying cuff, paw/glove, gun, cane. Two-bone IK in aimArm (elbow pole down/back/out); past full reach the arm straightens and stretches (s46 reach kept). pawOf() feeds the sword, limb() and streaks.
+- Idle = SF GUARD (like the workshop robots): fists up by the chin, elbows down, lead fist forward, rear fist at the chin; bounce on the breath (|sin 3.7t|: hips dip, hands and head rise/fall); body turned slightly; guard stays up while walking. Hope: cane hand low/forward, staff-ready.
+- Tests: s37f2 (fast-mode regression, 15/15, no page errors), punch chain 3/3 vs all, hold flow OK. Note: the full-render s37a now exceeds its time budget in the software renderer (more lights) — use t/s37f2.js.
+
+## s54 — Knees + a real walk, lower/looser guard
+- Fox legs get KNEES: split at the boot top (0.17; Oyakata 0.21) into thigh + SHIN group (boot, cuff, foot) on the body; two-bone IK with the knee bending forward; past full length the leg straightens + stretches (kicks). Fixed leg length (sy0 = 1.62 × 1.035, Oyakata × 1.02) = a slight knee bend at rest. limb() kicks use the shin end.
+- WALK: feet step on a phase clock (f.wph): lift 0.17, stride ±0.24, hips bob, slight side sway, guard stays up.
+- GUARD lower (lead fist ~0.1 lower, rear fist at the chest) and looser: each fist bobs on its own breath beat and rolls in a small circle.
+- Test API: _sim no longer renders in fast mode (S.fastSim) — the software renderer made the regression time out. Game step itself ~0.3 ms median. s37f2 15/15, chains 3/3.
+
+## s55 — Fox Fighters HUD = only Fox Fighters
+- Game HUD gets a `bare` prop (standalone minigames). With bare: no top bar (HP/EN, quest, clock, CR, WEAPONS, map, camera, menu), no compass ribbon, no desk button row, no phone item strip / FOX SWAP / bag, no eye button, no small MENU circle, no minimap, and its keys (N, V, M, J, C, T, O, H, I) are off. Every other map is unchanged (bare defaults off).
+- Kyoto Sword Duel page passes bare when pearl (Fox Fighters). Kept: health bars, round timer, combo, joystick, PUNCH/KICK/SPIN, ★ SPECIAL, the key guide strip.
+- Fox Fighters own PAUSE: button under the P1 bar (left) + Esc / P on keys. Panel: RESUME (Enter/Space) · MOVE LIST · QUIT TO MENU. Not in online fights or demos.
+- Pub copy of Game HUD patched identically (paths stay _ds). s37f2 15/15. Backups backup/Game HUD.pre-s55, Kyoto Sword Duel.pre-s55.
+
+## s56 — Stick specials + two-button super back
+- motionSpecial() on the PRESS of PUNCH / KICK: ↓ ↘ → + PUNCH = special 1 (Fox Beam etc.), ↓ ↙ ← + KICK = special 2 (Whirlwind Kick etc.). Keys/d-pad may skip the diagonal; the touch stick needs the full quarter-circle (thumb drift stays a punch). Crouch-block + KICK is still a sweep.
+- SUPER: PUNCH + KICK within 0.15 s with a full bar (plus Q/4, ★/E with a full bar).
+- ★ / E / R keep working. Help (move list, key guide, power hint, tutorial) updated. Test t/s56.js (keys + touch, ben/michelle/noble). s37f2 15/15.
+
+## s57 — Dragon punch + walk back while blocking
+- DRAGON PUNCH: → ↓ ↘ + PUNCH = each fighters rising uppercut (antiAir: Ben RISING FOX, King CROWN UPPERCUT, Michelle PETAL RISE…). Keys: D then S+D + 1 also counts; touch needs → ↓ ↘. Checked before the Fox Beam; a → after the ↘ makes it a Fox Beam.
+- Any down input cancels a pending double-tap, so the motions never trigger the dodge roll (plain → → still rolls).
+- Walking back while blocking: was vx×0.5 EVERY frame near the opponent (= frozen). Now 70% walk speed while blocking within 2.6 m (≈0.7 m/s), still guarding.
+- Move list RISING UPPERCUT row back, key guide line added. Tests t/s57.js, t/roll.js, s56, s37f2 15/15.
+
+## s58 — Forgiving special inputs
+- Stick read as 8 even 45° zones + neutral (stickDir) — no gaps, so fast rolls never skip a step; history keeps 12 entries incl. neutral.
+- motionTrail: whole motion within 1 s; the last direction counts while still held (or released < 0.35 s ago) — late presses work.
+- FOX BEAM ↓ (↘) → + P · WHIRLWIND ↓ (↙) ← + K (diagonal optional); RISING UPPERCUT → ↓ ↘ + P (keys also → ↘), must end on ↘ (walk + crouch-punch stays a punch).
+- Touch stick: the motion must not drop back to the centre part-way (drift stays a punch) and the uppercut must dip to ↓ (sagging thumb while walking stays a punch). Fixed: a centred touch stick was flagged as keyboard.
+- Test t/s58.js: 17 cases × keys/touch (touch all correct; keys: the two "BAD" = intended keyboard shortcuts). s56, roll, s37f2 15/15.
+
+## s59 — FOX POP!
+- Bens rising uppercut is FOX POP! (SIG.ben.aa) and he shouts "Fox pop!" (SIG.ben.aaSay → shout). Other fighters keep their names. No recording yet: browser voice at Bens pitch until a ben "fox pop" clip is added to audio/vo/manifest.json.
