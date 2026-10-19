@@ -1,0 +1,357 @@
+speaker,file,text,where_it_plays
+ann,ann/press-g-for-the-audio-guide.mp3,Press G for the audio guide.,announcer
+ann,ann/training-choose-your-fox.mp3,Training. Choose your fox!,announcer
+ann,ann/pick-your-team.mp3,Pick your team.,announcer
+ann,ann/fox-one.mp3,Fox one.,announcer
+ann,ann/now-pick-a-sparring-partner.mp3,Now pick a sparring partner.,announcer
+ann,ann/round-four.mp3,Round four!,announcer
+ann,ann/round-five.mp3,Round five!,announcer
+ann,ann/trial-clear.mp3,Trial clear!,announcer
+ann,ann/how-to-play.mp3,How to play.,announcer
+ann,ann/online-make-a-room-and-send-the-link-to-a-friend.mp3,Online. Make a room and send the link to a friend.,announcer
+ann,ann/sword-workshop.mp3,Sword workshop.,announcer
+ann,ann/arcade.mp3,Arcade.,menu: mode name
+ann,ann/3-foxes-a-bonus-stage-then-suds-9.mp3,"3 foxes, a bonus stage, then SUDS-9.",menu: Arcade
+ann,ann/online-invite-a-friend.mp3,Online. Invite A Friend.,menu: mode name
+ann,ann/fight-a-friend-on-their-own-phone.mp3,Fight a friend on their own phone.,menu: Online. Invite A Friend
+ann,ann/send-them-a-link.mp3,Send them a link.,menu: Online. Invite A Friend
+ann,ann/2-players.mp3,2 Players.,menu: mode name
+ann,ann/one-keyboard-or-two-controllers.mp3,One keyboard or two controllers.,menu: 2 Players
+ann,ann/best-of-3.mp3,Best of 3.,menu: 2 Players
+ann,ann/survival.mp3,Survival.,menu: mode name
+ann,ann/one-health-bar.mp3,One health bar.,menu: Survival
+ann,ann/how-many-foxes-can-you-beat.mp3,How many foxes can you beat?,menu: Survival
+ann,ann/team-battle.mp3,Team Battle.,menu: mode name
+ann,ann/pick-3-foxes.mp3,Pick 3 foxes.,menu: Team Battle
+ann,ann/knock-out-their-whole-team.mp3,Knock out their whole team.,menu: Team Battle
+ann,ann/boss-rush.mp3,Boss Rush.,menu: mode name; trophy name
+ann,ann/three-suds-9s-in-a-row.mp3,Three SUDS-9s in a row.,menu: Boss Rush
+ann,ann/each-one-starts-angrier.mp3,Each one starts angrier.,menu: Boss Rush
+ann,ann/daily-challenge.mp3,Daily Challenge.,menu: mode name
+ann,ann/a-new-twist-every-day.mp3,A new twist every day.,menu: Daily Challenge
+ann,ann/training.mp3,Training.,menu: mode name
+ann,ann/practise-with-any-fox.mp3,Practise with any fox.,menu: Training
+ann,ann/combo-trials-input-display-dummy-settings.mp3,"Combo trials, input display, dummy settings.",menu: Training
+ann,ann/spin-each-fox-round-and-fine-tune-the-sword-on-its-back.mp3,Spin each fox round and fine-tune the sword on its back.,menu: Sword Workshop
+ann,ann/difficulty-audio-guide-easy-controls.mp3,"Difficulty, audio guide, easy controls.",menu: Options
+ann,ann/play-by-sound-beeps-for-distance-and-attacks-spoken-menus-and-health.mp3,"Play by sound: beeps for distance and attacks, spoken menus and health.",options: Audio guide
+ann,ann/g-anywhere.mp3,G anywhere.,options: Audio guide
+ann,ann/one-button-any-attack-button-picks-the-best-move-and-blocks-for-you.mp3,One button: any attack button picks the best move and blocks for you.,options: Controls
+ann,ann/slow-plays-the-fights-at-70-speed.mp3,Slow plays the fights at 70% speed.,options: Game speed
+ann,ann/high-contrast-darkens-the-background-so-the-foxes-stand-out.mp3,High contrast darkens the background so the foxes stand out.,options: Contrast
+ann,ann/walk-left-and-right.mp3,Walk left and right.,tutorial (how to play)
+ann,ann/tap-3-for-a-power-spin.mp3,Tap 3 for a power spin.,tutorial (how to play)
+ann,ann/hold-punch-draw-your-sword-and-swing.mp3,Hold punch: draw your sword and swing.,tutorial (how to play)
+ann,ann/hold-kick-draw-your-laser-and-fire.mp3,Hold kick: draw your laser and fire.,tutorial (how to play)
+ann,ann/you-re-ready-try-the-arcade.mp3,You're ready! Try the Arcade.,tutorial (how to play)
+ann,ann/first-win.mp3,First Win.,trophy name
+ann,ann/arcade-clear.mp3,Arcade Clear.,trophy name
+ann,ann/one-credit.mp3,One Credit.,trophy name
+ann,ann/crystal-clear.mp3,Crystal Clear.,trophy name
+ann,ann/comeback-kid.mp3,Comeback Kid.,trophy name
+ann,ann/ten-hit-combo.mp3,Ten hit Combo.,trophy name
+ann,ann/all-kicks.mp3,All Kicks.,trophy name
+ann,ann/special-finish.mp3,Special Finish.,trophy name
+ann,ann/see-you-later.mp3,See You Later.,trophy name
+ann,ann/home-renovation.mp3,Home Renovation.,trophy name
+ann,ann/seeing-stars.mp3,Seeing Stars.,trophy name
+ann,ann/not-today.mp3,Not Today.,trophy name
+ann,ann/nice-try.mp3,Nice Try.,trophy name
+ann,ann/show-off.mp3,Show-Off.,trophy name
+ann,ann/car-smasher.mp3,Car Smasher.,trophy name
+ann,ann/speed-smash.mp3,Speed Smash.,trophy name
+ann,ann/survivor.mp3,Survivor.,trophy name
+ann,ann/iron-fox.mp3,Iron Fox.,trophy name
+ann,ann/team-player.mp3,Team Player.,trophy name
+ann,ann/couch-champ.mp3,Couch Champ.,trophy name
+ann,ann/daily-dose.mp3,Daily Dose.,trophy name
+ann,ann/by-ear.mp3,By Ear.,trophy name
+ann,ann/ready-to-fight.mp3,Ready To Fight.,trophy name
+ann,ann/ben-25-percent.mp3,"Ben, 25 percent.",audio guide health
+ann,ann/ben-50-percent.mp3,"Ben, 50 percent.",audio guide health
+ann,ann/ben-75-percent.mp3,"Ben, 75 percent.",audio guide health
+ann,ann/hope-25-percent.mp3,"Hope, 25 percent.",audio guide health
+ann,ann/hope-50-percent.mp3,"Hope, 50 percent.",audio guide health
+ann,ann/hope-75-percent.mp3,"Hope, 75 percent.",audio guide health
+ann,ann/noble-25-percent.mp3,"Noble, 25 percent.",audio guide health
+ann,ann/noble-50-percent.mp3,"Noble, 50 percent.",audio guide health
+ann,ann/noble-75-percent.mp3,"Noble, 75 percent.",audio guide health
+ann,ann/king-might-25-percent.mp3,"King Might, 25 percent.",audio guide health
+ann,ann/king-might-50-percent.mp3,"King Might, 50 percent.",audio guide health
+ann,ann/king-might-75-percent.mp3,"King Might, 75 percent.",audio guide health
+ann,ann/michelle-25-percent.mp3,"Michelle, 25 percent.",audio guide health
+ann,ann/michelle-50-percent.mp3,"Michelle, 50 percent.",audio guide health
+ann,ann/michelle-75-percent.mp3,"Michelle, 75 percent.",audio guide health
+ann,ann/oyakata.mp3,Oyakata,"fighter name (for ""A versus B"")"
+ann,ann/oyakata-wins.mp3,Oyakata wins!,winner call
+ann,ann/oyakata-steps-in.mp3,Oyakata steps in!,team battle
+ann,ann/oyakata-25-percent.mp3,"Oyakata, 25 percent.",audio guide health
+ann,ann/oyakata-50-percent.mp3,"Oyakata, 50 percent.",audio guide health
+ann,ann/oyakata-75-percent.mp3,"Oyakata, 75 percent.",audio guide health
+ann,ann/barnacle.mp3,Barnacle,"fighter name (for ""A versus B"")"
+ann,ann/barnacle-wins.mp3,Barnacle wins!,winner call
+ann,ann/barnacle-steps-in.mp3,Barnacle steps in!,team battle
+ann,ann/barnacle-25-percent.mp3,"Barnacle, 25 percent.",audio guide health
+ann,ann/barnacle-50-percent.mp3,"Barnacle, 50 percent.",audio guide health
+ann,ann/barnacle-75-percent.mp3,"Barnacle, 75 percent.",audio guide health
+ann,ann/jalape-o-jack.mp3,Jalapeño Jack,"fighter name (for ""A versus B"")"
+ann,ann/jalape-o-jack-wins.mp3,Jalapeño Jack wins!,winner call
+ann,ann/jalape-o-jack-steps-in.mp3,Jalapeño Jack steps in!,team battle
+ann,ann/jalape-o-jack-25-percent.mp3,"Jalapeño Jack, 25 percent.",audio guide health
+ann,ann/jalape-o-jack-50-percent.mp3,"Jalapeño Jack, 50 percent.",audio guide health
+ann,ann/jalape-o-jack-75-percent.mp3,"Jalapeño Jack, 75 percent.",audio guide health
+ann,ann/rook.mp3,Rook,"fighter name (for ""A versus B"")"
+ann,ann/rook-wins.mp3,Rook wins!,winner call
+ann,ann/rook-steps-in.mp3,Rook steps in!,team battle
+ann,ann/rook-25-percent.mp3,"Rook, 25 percent.",audio guide health
+ann,ann/rook-50-percent.mp3,"Rook, 50 percent.",audio guide health
+ann,ann/rook-75-percent.mp3,"Rook, 75 percent.",audio guide health
+ann,ann/lox.mp3,Lox,"fighter name (for ""A versus B"")"
+ann,ann/lox-wins.mp3,Lox wins!,winner call
+ann,ann/lox-steps-in.mp3,Lox steps in!,team battle
+ann,ann/lox-25-percent.mp3,"Lox, 25 percent.",audio guide health
+ann,ann/lox-50-percent.mp3,"Lox, 50 percent.",audio guide health
+ann,ann/lox-75-percent.mp3,"Lox, 75 percent.",audio guide health
+ann,ann/iron-warden.mp3,Iron Warden,"fighter name (for ""A versus B"")"
+ann,ann/iron-warden-wins.mp3,Iron Warden wins!,winner call
+ann,ann/iron-warden-steps-in.mp3,Iron Warden steps in!,team battle
+ann,ann/iron-warden-25-percent.mp3,"Iron Warden, 25 percent.",audio guide health
+ann,ann/iron-warden-50-percent.mp3,"Iron Warden, 50 percent.",audio guide health
+ann,ann/iron-warden-75-percent.mp3,"Iron Warden, 75 percent.",audio guide health
+ann,ann/maker-prime.mp3,Maker Prime,"fighter name (for ""A versus B"")"
+ann,ann/maker-prime-wins.mp3,Maker Prime wins!,winner call
+ann,ann/maker-prime-steps-in.mp3,Maker Prime steps in!,team battle
+ann,ann/maker-prime-25-percent.mp3,"Maker Prime, 25 percent.",audio guide health
+ann,ann/maker-prime-50-percent.mp3,"Maker Prime, 50 percent.",audio guide health
+ann,ann/maker-prime-75-percent.mp3,"Maker Prime, 75 percent.",audio guide health
+ann,ann/suds-9-steps-in.mp3,SUDS-9 steps in!,team battle
+ann,ann/suds-9-25-percent.mp3,"SUDS-9, 25 percent.",audio guide health
+ann,ann/suds-9-50-percent.mp3,"SUDS-9, 50 percent.",audio guide health
+ann,ann/suds-9-75-percent.mp3,"SUDS-9, 75 percent.",audio guide health
+ann,ann/slagback.mp3,Slagback,"fighter name (for ""A versus B"")"
+ann,ann/slagback-wins.mp3,Slagback wins!,winner call
+ann,ann/slagback-steps-in.mp3,Slagback steps in!,team battle
+ann,ann/slagback-25-percent.mp3,"Slagback, 25 percent.",audio guide health
+ann,ann/slagback-50-percent.mp3,"Slagback, 50 percent.",audio guide health
+ann,ann/slagback-75-percent.mp3,"Slagback, 75 percent.",audio guide health
+ann,ann/crystal-warden.mp3,Crystal Warden,"fighter name (for ""A versus B"")"
+ann,ann/crystal-warden-wins.mp3,Crystal Warden wins!,winner call
+ann,ann/crystal-warden-steps-in.mp3,Crystal Warden steps in!,team battle
+ann,ann/crystal-warden-25-percent.mp3,"Crystal Warden, 25 percent.",audio guide health
+ann,ann/crystal-warden-50-percent.mp3,"Crystal Warden, 50 percent.",audio guide health
+ann,ann/crystal-warden-75-percent.mp3,"Crystal Warden, 75 percent.",audio guide health
+ann,ann/trophies-hi-scores.mp3,Trophies & hi-scores.,menu: mode name
+ann,ann/options-audio-guide-on.mp3,"Options. Audio guide, on.",options menu (whole line)
+ann,ann/options-audio-guide-off.mp3,"Options. Audio guide, off.",options menu (whole line)
+ann,ann/options-controls-one-button.mp3,"Options. Controls, one button.",options menu (whole line)
+ann,ann/options-controls-standard.mp3,"Options. Controls, standard.",options menu (whole line)
+ann,ann/options-game-speed-slow.mp3,"Options. Game speed, slow.",options menu (whole line)
+ann,ann/options-game-speed-normal.mp3,"Options. Game speed, normal.",options menu (whole line)
+ann,ann/options-contrast-high.mp3,"Options. Contrast, high.",options menu (whole line)
+ann,ann/options-contrast-normal.mp3,"Options. Contrast, normal.",options menu (whole line)
+ann,ann/trophies.mp3,Trophies.,menu
+narr,narr/she-planted-her-cane-on-the-helipad-and-vaulted-onto-the-railing-just-to-feel-th.mp3,"She planted her cane on the helipad and vaulted onto the railing, just to feel the wind.",ending: HOPE
+narr,narr/his-wheels-were-still-crackling-with-sparks-he-honked-twice-for-luck.mp3,His wheels were still crackling with sparks. He honked twice. For luck.,ending: NOBLE
+narr,narr/the-king-straightened-his-crown-on-the-helipad-this-roof-is-under-the-crown-s-pr.mp3,"The King straightened his crown on the helipad. ""This roof is under the crown's protection.""",ending: KING MIGHT
+narr,narr/michelle-fixed-her-tiara-and-took-one-last-look-at-the-sunset.mp3,Michelle fixed her tiara and took one last look at the sunset.,ending: MICHELLE
+narr,narr/oyakata-threw-a-handful-of-salt-over-the-helipad-to-clean-the-ring.mp3,Oyakata threw a handful of salt over the helipad to clean the ring.,ending: OYAKATA
+narr,narr/then-he-sat-down-the-whole-roof-shook-suds-9-never-stood-a-chance.mp3,Then he sat down. The whole roof shook. SUDS-9 never stood a chance.,ending: OYAKATA
+narr,narr/kyoto-sent-him-a-new-mawashi-in-pearl-sail-blue.mp3,"Kyoto sent him a new mawashi, in Pearl Sail blue.",ending: OYAKATA
+narr,narr/barnacle-picked-up-what-was-left-of-suds-9-like-a-crate-on-a-pallet.mp3,Barnacle picked up what was left of SUDS-9 like a crate on a pallet.,ending: BARNACLE
+narr,narr/he-sold-the-scrap-to-the-salt-building-twice.mp3,He sold the scrap to the Salt Building. Twice.,ending: BARNACLE
+narr,narr/the-bandits-still-sing-a-song-about-it-it-is-not-a-good-song.mp3,The bandits still sing a song about it. It is not a good song.,ending: BARNACLE
+narr,narr/jalape-o-jack-tipped-his-hat-to-the-empty-gondola.mp3,Jalapeño Jack tipped his hat to the empty gondola.,ending: JALAPEÑO JACK
+narr,narr/he-left-one-red-pepper-on-the-helipad-so-they-would-know-who-did-it.mp3,"He left one red pepper on the helipad, so they would know who did it.",ending: JALAPEÑO JACK
+narr,narr/nobody-on-the-pearl-sail-has-dared-to-eat-it.mp3,Nobody on the Pearl Sail has dared to eat it.,ending: JALAPEÑO JACK
+narr,narr/rook-blew-the-smoke-off-his-laser-and-looked-out-over-meru.mp3,Rook blew the smoke off his laser and looked out over Meru.,ending: ROOK
+narr,narr/good-view-he-said-good-place-for-a-hideout.mp3,"""Good view,"" he said. ""Good place for a hideout.""",ending: ROOK
+narr,narr/the-pearl-sail-changed-every-lock-on-the-building-that-night.mp3,The Pearl Sail changed every lock on the building that night.,ending: ROOK
+narr,narr/lox-stood-over-the-gondola-rails-gloves-up-breathing-hard.mp3,"Lox stood over the gondola rails, gloves up, breathing hard.",ending: LOX
+narr,narr/luxor-will-hear-about-this-every-word.mp3,Luxor will hear about this. Every word.,ending: LOX
+narr,narr/he-hung-suds-9-s-squeegee-on-the-wall-of-his-throne-room-it-is-still-there.mp3,He hung SUDS-9's squeegee on the wall of his throne room. It is still there.,ending: LOX
+narr,narr/the-iron-warden-stomped-once-on-the-helipad-every-window-in-the-pearl-sail-rattl.mp3,The Iron Warden stomped once on the helipad. Every window in the Pearl Sail rattled.,ending: IRON WARDEN
+narr,narr/it-scanned-the-horizon-for-the-next-challenger-none-came.mp3,It scanned the horizon for the next challenger. None came.,ending: IRON WARDEN
+narr,narr/the-meru-arena-put-it-back-on-guard-duty-it-now-waves-at-the-crowd.mp3,The Meru Arena put it back on guard duty. It now waves at the crowd.,ending: IRON WARDEN
+narr,narr/maker-prime-lifted-suds-9-in-its-claw-and-carried-it-home-to-the-factory.mp3,Maker Prime lifted SUDS-9 in its claw and carried it home to the factory.,ending: MAKER PRIME
+narr,narr/three-days-later-a-new-window-cleaner-rolled-out-it-was-very-polite.mp3,Three days later a new window cleaner rolled out. It was very polite.,ending: MAKER PRIME
+narr,narr/the-pearl-sail-has-never-been-cleaner-or-more-nervous.mp3,The Pearl Sail has never been cleaner. Or more nervous.,ending: MAKER PRIME
+narr,narr/suds-9-cleaned-the-helipad-until-it-shone-like-a-mirror.mp3,SUDS-9 cleaned the helipad until it shone like a mirror.,ending: SUDS-9
+narr,narr/then-he-cleaned-the-gondola-then-the-moon-as-far-as-his-pole-would-reach.mp3,"Then he cleaned the gondola. Then the moon, as far as his pole would reach.",ending: SUDS-9
+narr,narr/the-pearl-sail-gave-him-a-raise-one-extra-bucket.mp3,The Pearl Sail gave him a raise: one extra bucket.,ending: SUDS-9
+narr,narr/slagback-stood-on-the-helipad-glowing-in-the-dark-like-a-sunset-that-never-ended.mp3,"Slagback stood on the helipad, glowing in the dark like a sunset that never ended.",ending: SLAGBACK
+narr,narr/where-it-walked-the-roof-tiles-turned-to-glass.mp3,"Where it walked, the roof tiles turned to glass.",ending: SLAGBACK
+narr,narr/meru-calls-the-pearl-sail-the-lava-tower-now-nobody-argues.mp3,Meru calls the Pearl Sail the Lava Tower now. Nobody argues.,ending: SLAGBACK
+narr,narr/the-crystal-warden-stood-on-the-helipad-and-the-moonlight-broke-into-a-thousand-.mp3,The Crystal Warden stood on the helipad and the moonlight broke into a thousand colours across Meru.,ending: CRYSTAL WARDEN
+narr,narr/every-window-on-the-pearl-sail-hummed-one-clear-note.mp3,Every window on the Pearl Sail hummed one clear note.,ending: CRYSTAL WARDEN
+narr,narr/the-caves-under-luxor-glow-a-little-brighter-now-it-is-waiting-for-the-next-chal.mp3,The caves under Luxor glow a little brighter now. It is waiting for the next challenger.,ending: CRYSTAL WARDEN
+ben,ben/fox-pop.mp3,Fox pop!,special move call
+ben,ben/fox-beam-max.mp3,Fox beam max!,heard in play; super / special call
+ben,ben/let-prince-max-go-rook.mp3,"Let Prince Max go, Rook.",rival line vs ROOK; rival reply to ROOK
+ben,ben/luxor-is-a-long-way-from-home.mp3,Luxor is a long way from home.,rival line vs LOX; rival reply to LOX
+ben,ben/is-it-smiling.mp3,Is it... smiling?,rival line vs SLAGBACK; rival reply to SLAGBACK
+hope,hope/vault-dive.mp3,Vault dive!,heard in play; special move call
+hope,hope/stardust-vault.mp3,Stardust vault!,heard in play; super / special call
+hope,hope/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs HOPE
+hope,hope/agreed.mp3,Agreed.,rival reply to HOPE
+hope,hope/your-feet-are-so-quiet.mp3,Your feet are so quiet.,rival line vs MICHELLE; rival reply to MICHELLE
+noble,noble/rolling-chair.mp3,Rolling chair!,heard in play; special move call
+noble,noble/thunder-wheels.mp3,Thunder Wheels!,flurry (5 fast punches)
+noble,noble/thunder-chair.mp3,Thunder chair!,heard in play; super / special call
+noble,noble/thunder-surge.mp3,Thunder surge!,mash PUNCH
+noble,noble/thunder-arc.mp3,Thunder arc!,heard in play; mash KICK
+noble,noble/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs NOBLE
+noble,noble/agreed.mp3,Agreed.,rival reply to NOBLE
+might,might/royal-crusher.mp3,Royal crusher!,heard in play; special move call
+might,might/knee-press.mp3,Knee press!,special move call
+might,might/royal-decree.mp3,Royal decree!,heard in play; super / special call
+might,might/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs KING MIGHT
+might,might/agreed.mp3,Agreed.,rival reply to KING MIGHT
+might,might/old-friend.mp3,Old friend.,rival line vs OYAKATA; rival reply to OYAKATA
+michelle,michelle/palm-blast.mp3,Palm blast!,special move call
+michelle,michelle/spinning-crane-kick.mp3,Spinning crane kick!,special move call
+michelle,michelle/lightning-kicks.mp3,Lightning Kicks!,flurry (5 fast punches)
+michelle,michelle/thousand-kicks.mp3,Thousand kicks!,super / special call
+michelle,michelle/then-you-ll-never-hear-me-coming.mp3,Then you'll never hear me coming.,rival line vs HOPE; rival reply to HOPE
+michelle,michelle/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs MICHELLE
+michelle,michelle/agreed.mp3,Agreed.,rival reply to MICHELLE
+michelle,michelle/pretty-slow-for-a-bandit.mp3,Pretty slow for a bandit.,rival line vs JALAPEÑO JACK; rival reply to JALAPEÑO JACK
+sumo,sumo/sumo-torpedo.mp3,Sumo torpedo!,heard in play; special move call
+sumo,sumo/belly-splash.mp3,Belly splash!,heard in play; special move call
+sumo,sumo/hundred-palm.mp3,Hundred Palm!,flurry (5 fast punches)
+sumo,sumo/hundred-palm-zenith.mp3,Hundred palm zenith!,heard in play; super / special call
+sumo,sumo/bonk.mp3,Bonk!,head bonk (jump + punch on head); heard in play
+sumo,sumo/fox-toss.mp3,Fox toss!,throw forward
+sumo,sumo/body-slam.mp3,Body slam!,throw back
+sumo,sumo/come-little-one.mp3,"COME, LITTLE ONE!",heard in play; taunt
+sumo,sumo/the-ring-is-mine.mp3,THE RING IS MINE!,win quote
+sumo,sumo/step-into-my-ring.mp3,Step into my ring.,VS screen line; rival line vs BEN; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line vs IRON WARDEN; rival li
+sumo,sumo/old-king-the-ring-remembers-you.mp3,Old king. The ring remembers you.,rival line vs KING MIGHT; rival reply to KING MIGHT
+sumo,sumo/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs OYAKATA
+sumo,sumo/agreed.mp3,Agreed.,rival reply to OYAKATA
+sumo,sumo/crates-do-not-push-back.mp3,Crates do not push back.,rival line vs BARNACLE; rival reply to BARNACLE
+sumo,sumo/come-little-boxer.mp3,"Come, little boxer.",rival line vs LOX; rival reply to LOX
+barnacle,barnacle/crate-toss.mp3,Crate toss!,special move call
+barnacle,barnacle/forklift-slam.mp3,Forklift slam!,special move call
+barnacle,barnacle/salt-flurry.mp3,Salt Flurry!,flurry (5 fast punches)
+barnacle,barnacle/forklift-finale.mp3,Forklift finale!,super / special call
+barnacle,barnacle/bonk.mp3,Bonk!,head bonk (jump + punch on head)
+barnacle,barnacle/fox-toss.mp3,Fox toss!,throw forward
+barnacle,barnacle/body-slam.mp3,Body slam!,throw back
+barnacle,barnacle/come-and-get-it.mp3,COME AND GET IT!,taunt
+barnacle,barnacle/heavy-lifting.mp3,HEAVY LIFTING!,win quote
+barnacle,barnacle/i-lift-heavier-things-than-you.mp3,I lift heavier things than you.,VS screen line; rival line vs BEN; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line vs IRON WARDEN; rival li
+barnacle,barnacle/i-lift-crates-bigger-than-you.mp3,I lift crates bigger than you.,rival line vs OYAKATA; rival reply to OYAKATA
+barnacle,barnacle/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs BARNACLE
+barnacle,barnacle/agreed.mp3,Agreed.,rival reply to BARNACLE
+barnacle,barnacle/you-owe-me-a-forklift-jack.mp3,"You owe me a forklift, Jack.",rival line vs JALAPEÑO JACK; rival reply to JALAPEÑO JACK
+barnacle,barnacle/the-salt-crew-stays-out-of-your-cave.mp3,The Salt crew stays out of your cave.,rival line vs ROOK; rival reply to ROOK
+jack,jack/pepper-boom.mp3,Pepper boom!,heard in play; special move call
+jack,jack/chilli-flip.mp3,Chilli flip!,special move call
+jack,jack/jalape-o-jabs.mp3,Jalapeño Jabs!,flurry (5 fast punches)
+jack,jack/pepper-storm.mp3,Pepper storm!,super / special call
+jack,jack/bonk.mp3,Bonk!,head bonk (jump + punch on head)
+jack,jack/fox-toss.mp3,Fox toss!,throw forward
+jack,jack/body-slam.mp3,Body slam!,throw back
+jack,jack/too-hot-for-you.mp3,TOO HOT FOR YOU?,heard in play; taunt
+jack,jack/spicy.mp3,SPICY!,win quote
+jack,jack/hope-you-like-it-hot.mp3,Hope you like it hot.,VS screen line; rival line vs BEN; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line vs IRON WARDEN; rival li
+jack,jack/pretty-quick-for-a-princess.mp3,Pretty quick for a princess.,rival line vs MICHELLE; rival reply to MICHELLE
+jack,jack/put-it-on-my-tab.mp3,Put it on my tab.,rival line vs BARNACLE; rival reply to BARNACLE
+jack,jack/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs JALAPEÑO JACK
+jack,jack/agreed.mp3,Agreed.,rival reply to JALAPEÑO JACK
+jack,jack/bet-i-draw-faster.mp3,Bet I draw faster.,rival line vs ROOK; rival reply to ROOK
+rook,rook/sniper-beam.mp3,Sniper beam!,special move call
+rook,rook/duster-dash.mp3,Duster dash!,special move call
+rook,rook/bandit-barrage.mp3,Bandit Barrage!,flurry (5 fast punches)
+rook,rook/sniper-overcharge.mp3,Sniper overcharge!,super / special call
+rook,rook/bonk.mp3,Bonk!,head bonk (jump + punch on head)
+rook,rook/fox-toss.mp3,Fox toss!,throw forward
+rook,rook/body-slam.mp3,Body slam!,throw back
+rook,rook/stay-right-there.mp3,STAY RIGHT THERE.,taunt
+rook,rook/never-missed.mp3,NEVER MISSED.,win quote
+rook,rook/nowhere-to-hide-up-here.mp3,Nowhere to hide up here.,VS screen line; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line vs IRON WARDEN; rival line vs KING MIGHT; r
+rook,rook/beat-me-first.mp3,Beat me first.,rival line vs BEN; rival reply to BEN
+rook,rook/and-my-crew-stays-off-your-roof.mp3,And my crew stays off your roof.,rival line vs BARNACLE; rival reply to BARNACLE
+rook,rook/bet-you-miss.mp3,Bet you miss.,rival line vs JALAPEÑO JACK; rival reply to JALAPEÑO JACK
+rook,rook/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs ROOK
+rook,rook/agreed.mp3,Agreed.,rival reply to ROOK
+rook,rook/then-luxor-can-take-a-laser.mp3,Then Luxor can take a laser.,rival line vs LOX; rival reply to LOX
+lox,lox/dash-straight.mp3,Dash straight!,heard in play; special move call
+lox,lox/dash-upper.mp3,Dash upper!,heard in play; special move call
+lox,lox/body-blows.mp3,Body Blows!,flurry (5 fast punches)
+lox,lox/knockout-rush.mp3,Knockout rush!,heard in play; super / special call
+lox,lox/bonk.mp3,Bonk!,head bonk (jump + punch on head); heard in play
+lox,lox/fox-toss.mp3,Fox toss!,throw forward
+lox,lox/body-slam.mp3,Body slam!,throw back
+lox,lox/hit-me-i-dare-you.mp3,HIT ME. I DARE YOU.,heard in play; taunt
+lox,lox/knockout.mp3,KNOCKOUT!,win quote
+lox,lox/gloves-up.mp3,Gloves up.,VS screen line; rival line vs BARNACLE; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line vs IRON WARDEN; riv
+lox,lox/so-is-your-luck.mp3,So is your luck.,rival line vs BEN; rival reply to BEN
+lox,lox/gloves-against-palms-let-us-see.mp3,Gloves against palms. Let us see.,rival line vs OYAKATA; rival reply to OYAKATA
+lox,lox/luxor-does-not-take-orders-from-a-cave-bandit.mp3,Luxor does not take orders from a cave bandit.,rival line vs ROOK; rival reply to ROOK
+lox,lox/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs LOX
+lox,lox/agreed.mp3,Agreed.,rival reply to LOX
+lox,lox/back-to-the-lava-with-you.mp3,Back to the lava with you.,rival line vs SLAGBACK; rival reply to SLAGBACK
+warden,warden/rocket-punch.mp3,Rocket punch!,heard in play; special move call
+warden,warden/stomp.mp3,Stomp!,heard in play; special move call
+warden,warden/piston-punches.mp3,Piston Punches!,flurry (5 fast punches)
+warden,warden/double-rocket.mp3,Double rocket!,heard in play; super / special call
+warden,warden/bonk.mp3,Bonk!,head bonk (jump + punch on head); heard in play
+warden,warden/fox-toss.mp3,Fox toss!,throw forward
+warden,warden/body-slam.mp3,Body slam!,throw back
+warden,warden/intruder-detected.mp3,INTRUDER DETECTED.,heard in play; taunt
+warden,warden/arena-secured.mp3,ARENA SECURED.,win quote
+warden,warden/halt-you-will-not-pass.mp3,Halt. You will not pass.,VS screen line; rival line vs BARNACLE; rival line vs BEN; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line 
+warden,warden/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs IRON WARDEN
+warden,warden/agreed.mp3,Agreed.,rival reply to IRON WARDEN
+warden,warden/negative-i-guard-the-arena.mp3,Negative. I guard the arena.,rival line vs MAKER PRIME; rival reply to MAKER PRIME
+warden,warden/halt.mp3,Halt.,rival line vs SUDS-9; rival reply to SUDS-9
+prime,prime/laser-eye.mp3,Laser eye!,heard in play; special move call
+prime,prime/drill-spin.mp3,Drill spin!,special move call
+prime,prime/claw-flurry.mp3,Claw Flurry!,flurry (5 fast punches)
+prime,prime/laser-overload.mp3,Laser overload!,super / special call
+prime,prime/bonk.mp3,Bonk!,head bonk (jump + punch on head)
+prime,prime/fox-toss.mp3,Fox toss!,throw forward
+prime,prime/body-slam.mp3,Body slam!,throw back
+prime,prime/you-will-be-rebuilt.mp3,YOU WILL BE REBUILT.,taunt
+prime,prime/production-complete.mp3,PRODUCTION COMPLETE.,win quote
+prime,prime/scanning-weak-rebuild.mp3,Scanning. Weak. Rebuild.,VS screen line; rival line vs BARNACLE; rival line vs BEN; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line 
+prime,prime/unit-warden-report-for-upgrade.mp3,Unit Warden. Report for upgrade.,rival line vs IRON WARDEN; rival reply to IRON WARDEN
+prime,prime/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs MAKER PRIME
+prime,prime/agreed.mp3,Agreed.,rival reply to MAKER PRIME
+prime,prime/you-are-a-defective-unit.mp3,You are a defective unit.,rival line vs SUDS-9; rival reply to SUDS-9
+suds9,suds9/scrub-flurry.mp3,Scrub Flurry!,flurry (5 fast punches)
+suds9,suds9/bonk.mp3,Bonk!,head bonk (jump + punch on head)
+suds9,suds9/fox-toss.mp3,Fox toss!,throw forward
+suds9,suds9/body-slam.mp3,Body slam!,throw back
+suds9,suds9/your-armour-is-filthy.mp3,YOUR ARMOUR IS FILTHY.,rival line vs IRON WARDEN; rival reply to IRON WARDEN
+suds9,suds9/i-prefer-the-term-sparkling.mp3,I PREFER THE TERM SPARKLING.,rival line vs MAKER PRIME; rival reply to MAKER PRIME
+suds9,suds9/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs SUDS-9
+suds9,suds9/agreed.mp3,Agreed.,rival reply to SUDS-9
+slag,slag/lava-lob.mp3,Lava lob!,heard in play; special move call
+slag,slag/magma-slam.mp3,Magma slam!,heard in play; special move call
+slag,slag/molten-fists.mp3,Molten Fists!,flurry (5 fast punches)
+slag,slag/eruption.mp3,Eruption!,heard in play; super / special call
+slag,slag/bonk.mp3,Bonk!,head bonk (jump + punch on head); heard in play
+slag,slag/fox-toss.mp3,Fox toss!,throw forward
+slag,slag/body-slam.mp3,Body slam!,throw back
+slag,slag/burn.mp3,BURN.,heard in play; taunt
+slag,slag/melt.mp3,MELT.,win quote
+slag,slag/hssssss.mp3,Hssssss.,VS screen line; rival line vs BARNACLE; rival line vs CRYSTAL WARDEN; rival line vs HOPE; rival line vs IRON WARDEN; riv
+slag,slag/hsssss.mp3,Hsssss.,rival line vs BEN; rival reply to BEN
+slag,slag/hssss-home.mp3,Hssss... home.,rival line vs LOX; rival reply to LOX
+slag,slag/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs SLAGBACK
+slag,slag/agreed.mp3,Agreed.,rival reply to SLAGBACK
+crystal,crystal/crystal-shard.mp3,Crystal shard!,heard in play; special move call
+crystal,crystal/gem-cyclone.mp3,Gem cyclone!,heard in play; special move call
+crystal,crystal/crystal-rise.mp3,Crystal rise!,special move call
+crystal,crystal/prism-punches.mp3,Prism Punches!,flurry (5 fast punches)
+crystal,crystal/prism-storm.mp3,Prism storm!,heard in play; super / special call
+crystal,crystal/bonk.mp3,Bonk!,head bonk (jump + punch on head); heard in play
+crystal,crystal/fox-toss.mp3,Fox toss!,throw forward
+crystal,crystal/body-slam.mp3,Body slam!,throw back
+crystal,crystal/shatter.mp3,SHATTER.,heard in play; taunt
+crystal,crystal/crystal-clear.mp3,CRYSTAL CLEAR.,win quote
+crystal,crystal/you-will-shatter.mp3,You will shatter.,VS screen line; rival line vs BARNACLE; rival line vs BEN; rival line vs HOPE; rival line vs IRON WARDEN; rival line vs 
+crystal,crystal/there-s-only-room-for-one-of-us.mp3,There's only room for one of us.,rival line vs CRYSTAL WARDEN
+crystal,crystal/agreed.mp3,Agreed.,rival reply to CRYSTAL WARDEN

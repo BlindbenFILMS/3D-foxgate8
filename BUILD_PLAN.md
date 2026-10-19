@@ -1174,3 +1174,207 @@ NEXT: (1) test on 2 real phones / 2 tabs (?net=local); (2) LOCAL SPLIT-SCREEN wi
 - Oyakata's and Lox's extra width (`def.pb`) now adds to their body width `hw`, so their throw and hit ranges grow with it.
 - The dash and headbutt contact checks (previously a fixed 1.3 / 1.25) now use `pushGap() + 0.15`, so those moves still connect.
 - Tested: forward + PUNCH at contact throws in Ben/Rook, Lox/Oyakata, Warden/Michelle, Oyakata/Ben and Prime/SUDS; the 15 regression fights still land combos.
+
+## s94 — Slagback: lava gloves, a bigger head, a lava mouth
+- Fox Fighters only; creature-kit.js is unchanged.
+- HEAD: 1.6x bigger, raised up and out of the shoulder rocks, tilted so his face looks forward. It gets a crust brow ridge, a heavy jaw, glowing cheek cracks, and a big glowing LAVA MOUTH with rock teeth top and bottom.
+- LAVA GLOVES replace the rock fists: crusted rock with glowing lava spots and a molten cuff.
+- DRIPS: a 20-drop pool of lava that falls from both gloves and the mouth, stretches as it falls and vanishes at the floor.
+- GUARD: his hands drop well below his head when he isn't attacking, so his face is always on show; they come up for the swing.
+
+## s95 — Slagback: LAVA AXE + LAVA THROW (instead of a laser)
+- LAVA AXE: obsidian haft with glowing lava bands, rock blades with molten edges and lava spots. It hangs on his back; he draws it over his shoulder (back-draw now allowed for 'slag') and swings it for every sword move.
+- Hold KICK = LAVA THROW (`lpick`, replaces the laser for him): the near glove digs into his chest (lava sparks), pulls out a glowing glob (`LAVA.blob`), winds up over his shoulder and HURLS it in an arc, reusing the LAVA LOB projectile (10 damage, SIZZLE!). 1.1 s cooldown. With a full bar it's a Super Burst (LAVA HURL!) that throws three.
+
+## s96 — Slagback's lava throw is a FIREBALL; bright red eyes
+- The thrown lava (tossCoin with `fire: true`) is now a pulsing FIREBALL: a hot yellow core, a flickering orange shell and an additive glow, pulsing in size, with an ember trail. It doesn't spin like a coin.
+- It EXPLODES on impact, whether it hits, is blocked or lands on the floor (`fireBoom`): an orange / yellow / white spark burst, a light flash, a ring, a shake, a low boom and a BOOM! word. A deflect still sends it back.
+- Slagback's eyes are BRIGHT RED (1.35x, with a red glow shell) instead of pale white.
+
+## s97 — FIX: select screen blanks + stuck after choosing an opponent
+- s96 added a glow sphere to each of Slagback's eyes INSIDE a traverse, and the new glow matched the same test, so it kept adding forever and building Slagback hung the game. The Slagback and Shadow Ben select boxes stayed empty and the game never got past the opponent select. Fixed by collecting the eyes first, then adding the glows. Slagback vs Shadow Ben now builds in about 0.25 s.
+
+## s98 — CRYSTAL WARDEN replaces Shadow Ben
+- New rig fighter 'crystal' built from the creature workshop's Deep Warden (the crystal golem with the crystal crown and arms), on the same rig path as Slagback (`crk`).
+- Street Fighter tribute kit:
+  - CRYSTAL SHARD (↓↘→ + PUNCH, Hadouken): a purple crystal fireball.
+  - GEM CYCLONE (↓↙← + KICK, Tatsu).
+  - PRISM PUNCHES (5 fast punches, hundred-hand style).
+  - CRYSTAL RISE (anti-air, Shoryuken).
+  - Super: PRISM STORM, three crystal beams.
+  - Eye LASER (hold KICK, purple).
+  - A crystal GREATSWORD on his back, drawn and swung for the sword moves.
+- Deep voice, his own taunt / win line / ending / VS line, and a move-list entry.
+- He takes Shadow Ben's old role too: the arcade SECRET CHALLENGER (achievement renamed CRYSTAL CLEAR). Shadow Ben's data is still in the code but he's off the roster.
+
+## s99 — Crystal Warden polish: CHEST BLAST, contrast, a belt
+- CHEST CORE: a glowing crystal gem in a gold setting in the centre of his chest that pulses and slowly turns. His laser (hold KICK) now fires FROM it (gunTip on the chest) as a CENTER CHEST BLAST: the core flares and grows, with a purple / white burst, a light flash, a small shake and a CHEST BLAST! word.
+- CONTRAST: pale glowing crystal pec plates, dark ab plates, light crystal forearm bracers, and glowing seams down the centre and across the chest.
+- BELT: a gold champion belt with dark-gold trim, side studs and a big buckle with a pink crystal.
+
+## s100 — The full voice cast is in (356 new clips)
+- Ben's FOX_FIGHTERS_FINAL_VOICE pack: all 356 lines from FoxFighters_VO_Script_FINAL, at the exact script paths; every one matched and decodes. The manifest went from 254 to 610 lines.
+- Covered: the announcer (menus, options, tutorial, round calls, trophies, every fighter name / wins / steps in / health), the narrator (every arcade ending) and the fighters (specials, supers, flurries, throws, taunts, wins, VS and rival lines), including the new voices: Oyakata, Barnacle, Jack, Rook, Lox, Iron Warden, Maker Prime, Slagback and the Crystal Warden.
+- VOICE PACK: the published game can only hold 511 files, so the new clips are packed into ONE file, `audio/vo/vo2pack.mp3` (the clips back to back, 4.6 MB). Manifest entries read `pack:vo2pack.mp3#<offset>+<length>`; sword-duel.js `voFetch()` fetches the pack once and slices each clip. Old entries still point at single files. The loose MP3s also live in `audio/vo/<speaker>/` as the source.
+
+## s101 — Fighter INTROS + VICTORY POSES for the whole cast
+- INTROS (the 2 s opening before FIGHT!): every fighter does their own move, blended in at 0.12–0.42 s and back to the guard by 1.9 s (`INTRO_P`, `introPose`, `mixPose`), with one-shot effects (`introFx`):
+  - Ben: fist pump + kiai.
+  - Hope: listens, hand to her ear.
+  - Noble: arms up + wheel spin.
+  - King Might: hands on hips.
+  - Michelle: waves.
+  - Oyakata: sumo shiko (leg up, then STOMP with dust, shake and taiko).
+  - Barnacle: cracks his knuckles (CRACK!).
+  - Jack: tips his hat.
+  - Rook: folds his arms.
+  - Lox: bangs his gloves together (BAM!).
+  - Iron Warden: arms up, INTRUDER!, STOMP.
+  - Maker Prime: drill up, throwing sparks.
+  - SUDS-9: squeegee salute.
+  - Slagback: ROAR! with a lava burst from the head.
+  - Crystal Warden: folds his arms, chest core flare.
+- VICTORY POSES (`winPose`), new for:
+  - Hope: fist up.
+  - Oyakata: sumo stance.
+  - Barnacle and Lox: double-biceps flex.
+  - Jack: hat tip.
+  - Rook and the Crystal Warden: arms folded.
+  - Iron Warden: axe overhead.
+  - Maker Prime and SUDS-9: tool raised.
+  - Slagback: roar.
+
+  Ben keeps the sword raise; King Might, Michelle and Noble keep theirs.
+- Tested: the intro runs into FIGHT normally, CPU fights for all 15 fighters reach KO, and the regression passes. The test list swaps Shadow Ben for the Crystal Warden.
+
+## s102 — HOME STAGES: fight the new fighters on their turf
+- LAVA CAVE · LUXOR DEPTHS (Slagback): basalt floor with glowing lava cracks, a lava river with glow, lava pools, cave rocks, stalactites, rising EMBERS, a red sky and fog.
+- CRYSTAL CAVES · UNDER LUXOR (Crystal Warden): dark stone with glowing veins; pink, purple and ice-blue crystal clusters with glow, hanging crystals, and twinkling SPARKLES.
+- THE FACTORY · NIGHT SHIFT (Maker Prime + Iron Warden): a riveted steel-plate floor, a hazard stripe, girder framework, giant rusty gears, a conveyor belt with crates, smokestacks, warning lights and flying SPARKS.
+- LUXOR RING · TITLE FIGHT (Lox): a blue canvas mat with a gold L logo, red / white / blue ropes, gold corner posts, three spotlight cones, a 5-row crowd (instanced: 3 draws) and camera FLASHES.
+- `HOME_ST` = { slag: lava, crystal: crystal, prime: factory, warden: factory, lox: ring }: arcade rungs and quick 1v1 fights put these fighters on their home stage; everyone else stays random.
+- Each stage has its own breakable wall and barrel theme and rim / fill lighting. The fireflies pool is reused for embers, sparkles, sparks and flashes.
+
+## s103 — Alternate colours + stereo sound
+- ALT COLOURS: on the select screen, PUNCH / Enter / J / 1 = normal colours, KICK (K / 2) = outfit 1, SPIN (L / 3) = outfit 2. A mirror match gives the opponent a different outfit automatically. `altPaint(f, n)` rotates the hue of every saturated colour on that fighter (outfit 1 +180°, outfit 2 +280°); whites, blacks, greys and glows are kept, on per-fighter material copies, and the originals are restored for outfit 0. Engine API `setAlt(n)` applies it at once. The select button reads "· K / L = COLOURS" (not on phones).
+- STEREO: every sound effect goes through a StereoPanner, panned by where it happens (`AUD_PAN`: the acting fighter's x, the defender on a hit, the projectile's x). Fighter VOICE clips pan to where that fighter stands. Narrator and announcer stay centred.
+- Phone vibration on hits was already in (`buzz`).
+
+## s104 — Phone pass
+- Checked 390x844 and 844x390: the portrait select screen, fight HUD and touch buttons fit. Fixed: on landscape phones the "SELECT YOUR FIGHTER" heading was cut off behind the fighter panel; it is now 16 px there (`selHeadFs`), 24 px elsewhere.
+
+## s105 — RIVAL BATTLES in arcade
+- `RIVAL_OF`: every fighter has a rival, always a pair with its own recorded VS exchange: Ben–Rook, Hope–Michelle, Noble–Hope, Might–Oyakata, Michelle–Might, Oyakata–Might, Barnacle–Jack, Jack–Rook, Rook–Lox, Lox–Rook, Warden–Prime, Prime–Warden, SUDS-9–Prime, Slagback–Lox, Crystal Warden–Ben.
+- In arcade the 3rd fox fight (after the bonus stage, before SUDS-9) is your rival when they're unlocked. The VS screen headline reads "RIVAL BATTLE! · STAGE n OF 5", the opponent's tag reads "YOUR RIVAL", and the two trade their recorded rival lines. Rivals also fight on their home stage (Lox in the Ring, etc.).
+
+## s106 — VOICE GALLERY + audio cues for the new moves
+- VOICE GALLERY (main menu, after Trophies): tabs for the Announcer, Narrator and all 15 fighters; each fighter's recorded lines are listed from audio/vo/manifest.json (tidied up for reading). Tap a line or use ↑↓ + Enter to play the real clip (▶ marks it); ←→ / ‹ › switch speaker; Esc / ← MENU goes back. Engine API `voWarm()` starts audio and preloads the clips when the gallery opens. Always available (no unlock).
+- AUDIO-FIRST: the Crystal Warden gets his own special-move cue, a glassy three-note crystal chime (every other fighter already had one since s39). The audio guide's PROJECTILE tell now also covers SUDS-9's water burst, Slagback's lava throw and the coin / crate tosses.
+
+## s107 — Look-over (QA pass)
+- Every mode starts and runs cleanly: Arcade, Survival, Boss Rush, Team, Training, How to Play, Daily, Sword Workshop (incl. Hope and Lox).
+- Full CPU arcade runs (Ben, Crystal Warden, Slagback, Noble) go fight, fight, bonus, RIVAL, secret challenger, SUDS-9 boss, ENDING with no errors; home stages turn up inside the ladders.
+- FIX: playing as the Crystal Warden no longer gives a Crystal-vs-Crystal secret challenger fight (it's skipped for him).
+- FIX: the Voice Gallery's speaker tab strip scrolls the selected speaker into view (it was off-screen on phones).
+
+## s108 — Noble sword rework (2026-10-19)
+- Noble draws from the chair-back sheath and holds the blade low at his side instead of overhead.
+- Standing SWORD: a sideways draw-cut across the opponent's legs, with a flat slash streak at leg height.
+- Crouch SWORD: a rising upward cut from by the hip.
+- After every cut he resheaths quickly (0.26 s instead of 0.42 s).
+- Files: duel-foxes.js (nobleTick), sword-duel.js (weaponTick stow, slashArc for Noble). Backups: backup/*.pre-s108.js
+
+## s109–s111 — Noble low cut, move list refresh, attract demo (2026-10-19)
+- s109 Noble's standing DRAW CUT now hits LOW: block it crouching. A standing block no longer stops it, the hit spark lands at leg height, and the CPU crouch-blocks it.
+- s110 MOVE LIST (pause → MOVE LIST) brought up to date:
+  - Noble: DRAW CUT.
+  - Hope: SWORD SWING.
+  - Lox: 3-PUNCH STRING; he uses the standard sword move.
+  - SUDS-9: WATER BURST and SQUEEGEE SPIN.
+  - Maker Prime: DRILL THRUST.
+  - Iron Warden: AXE SWING and TWIN LASER.
+  - Slagback: LAVA AXE and LAVA THROW.
+  - Crystal Warden: CRYSTAL GREATSWORD and CHEST BLAST.
+  - New SUPER BURST row, marked as tried when you use it.
+  - The 5-hit flurry is listed again.
+  - Shorter header so it fits on phones.
+  - The ★ SPECIAL button is hidden while pause or the move list is open.
+- s111 ATTRACT DEMO:
+  - The title card shows for about 9 s, then the CPU demo fight plays full screen for about 26 s with DEMO PLAY · names · a blinking PRESS START (tap or any key → main menu). It then returns to the title with a fresh match.
+  - Demos now also visit the lava, crystal, factory and ring stages.
+  - The title card now has a colour and taunt for Crystal Warden.
+- Files: sword-duel.js, duel-foxes.js, Kyoto Sword Duel.dc.html, Pearl Roof Duel.html. Backups: backup/*.pre-s109.*
+
+## s112 — Ben's FOX FLURRY needs DOWN (2026-10-19)
+- Ben's FOX FLURRY (player only): you must hold DOWN while tapping PUNCH 5 times. Plain punching never sets it off.
+- Other foxes are unchanged.
+- The move list and the how-to-play card are updated.
+- Files: sword-duel.js, Kyoto Sword Duel.dc.html, Pearl Roof Duel.html. Backups: backup/*.pre-s112.*
+
+## s113 — Deep polish of the four new stages (2026-10-19)
+- Each stage can now have its own `anim(dt, t, hype)`, run from stageFx. S.hype rises on every hit (a K.O. maxes it) and fades over time.
+- LUXOR RING (Lox):
+  - A FOX crowd of about 175 fans over 6 tiers, with ears, snouts, team shirts and arms.
+  - Fans bounce, wave and throw their arms up harder with every hit. Some hold up signs.
+  - The crowd applauds big hits.
+  - Scrolling LED board at ringside.
+  - Lighting truss, a big LOX screen, LUXOR banners, a back wall and two sweeping searchlights.
+  - Red and blue corner pads.
+  - Glow on the floor under the ring.
+  - The crowd is slightly dimmed so the fighters stand out.
+- LAVA CAVE:
+  - The river flows.
+  - Three lava falls on the back wall.
+  - The pools bubble and pop.
+  - Drips fall from the stalactites.
+  - The river erupts every 5–10 s.
+  - The light flickers with the heat.
+- CRYSTAL CAVES:
+  - Crystals pulse with light.
+  - Floating shards drift and turn.
+  - A giant glowing crystal at the back.
+  - Light shafts from the roof.
+  - Glowing floor veins.
+- THE FACTORY:
+  - The gears turn.
+  - Crates ride the conveyor.
+  - A robot arm welds over the line.
+  - Pistons pump and puff steam.
+  - The warning beacons flash.
+  - The work lamps sway.
+  - A lit "MAKER WORKS · LINE 8" factory wall at the back.
+- The arcade's secret challenger (Crystal Warden) now fights in the CRYSTAL CAVES instead of the castle.
+- File: sword-duel.js. Backup: backup/sword-duel.pre-s113.js
+
+## s114 — Lava Cave readability (2026-10-19)
+- Slagback blended into the orange cave, so the cave is now dark, cool basalt: blue-grey rocks, a charcoal floor with thinner and fewer lava cracks, a dark sky and fog, and cooler fill light. The lava river, falls and pools stay bright.
+- A cool blue rim light outlines the fighters on this stage.
+- The heat flicker is softer.
+- File: sword-duel.js. Backup: backup/sword-duel.pre-s114.js
+
+## s115 — Fighter Workshop + full zip (2026-10-19)
+- New artifact, FIGHTER WORKSHOP (https://claude.ai/artifact/J1FoKCXJ6818XdPcJAMPk8):
+  - All 15 fighters exactly as they are built in Fox Fighters (build s114), each in 3 colours (main plus the K / L mirror colours), on a turntable with ink lines.
+  - Each fighter's change log is shown.
+  - "Download this fighter" / "Download all" save a zip of glTF 2.0 models plus fighters.json and a README.
+  - Copy import code (three.js).
+- The 8 Gates Workshops index has a new FIGHTER WORKSHOP row at the top.
+- Export method:
+  - Each fighter was built by the real engine, held in fight stance, with ink hulls and sprites stripped, then exported with three r160 GLTFExporter.
+  - Units: feet at y = 0, facing +Z.
+  - The files are in vendor/three/addons/{exporters,loaders,utils}, rewritten to import ../../three.module.js.
+- FoxFighters_COMPLETE_2026-10-19.zip contains:
+  - FoxFighters/ (the full source plus backups)
+  - FighterWorkshop/ (an offline copy using the .glb files)
+  - docs/ (BUILD_PLAN, the VO scripts)
+
+## s116 — Noble's sword sits higher on the chair (2026-10-19)
+- The sheath on Noble's chair back is raised by 0.18 (NB.Ap y: bh + 0.08 → bh + 0.26), so the hilt shows above the backrest at shoulder height. The draw and resheath follow it automatically.
+- Fighter Workshop: Noble's model still has the old sheath height. It updates on the next model export.
+- File: duel-foxes.js. Backup: backup/duel-foxes.pre-s116.js
+
+## s117 — Alt colours recolour the uniform, not the fur (2026-10-19)
+- altPaint: COLOUR 2 and 3 now recolour only the uniform, gloves and gear. Fur colours stay put: any material matching the fox's look palette (fur, furDark, muzzle, chin, snout, paw, tail, ear, nose, fluff, brow, beard) is skipped. Robots and creatures still hue-shift the whole body.
+- Fighter Workshop viewer: vertex colours are kept when converting to toon materials. The uniforms and tails had been showing white.
+- Colour 2 and 3 models for all 15 fighters are re-exported with the new rule, and Noble is re-exported with the higher sheath (s116).
+- File: sword-duel.js. Backup: backup/sword-duel.pre-s117.js

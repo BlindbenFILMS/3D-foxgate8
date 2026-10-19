@@ -32,7 +32,7 @@ export const FOX_ROSTER = [
   { id: 'prime', name: 'MAKER PRIME', sub: 'ROBOT · THE FACTORY', style: 'Claw, drill and a red laser eye. LASER EYE and the DRILL SPIN.', rig: 'prime', hp: 180, speed: 0.72, dmg: 1.18, stats: [5, 1, 5], mv: { w: 1.25, r: 1.2, reach: 1.16, armor: ['spin', 'high'] }, ai: 'zoner' },
   { id: 'suds', name: 'SUDS-9', sub: 'ROBOT · WINDOW CLEANER', style: 'The roof boss, now yours. RINSE CYCLE from the hose hand and the SPIN CYCLE.', rig: 'suds', vo: 'suds9', hp: 212, speed: 0.9, dmg: 1.27, stats: [4, 2, 4], mv: { w: 1.0, reach: 1.25, armor: ['spin', 'high', 'kick'] }, ai: 'heavy' },
   { id: 'slag', name: 'SLAGBACK', sub: 'LAVA BEAST · LUXOR', style: 'Molten under the crust. LAVA LOB and the MAGMA SLAM. Its crust cracks off as it gets hurt.', rig: 'slag', hp: 200, speed: 0.84, dmg: 1.2, stats: [4, 2, 3], mv: { w: 1.0, reach: 1.12, armor: ['spin', 'high'], crust: true }, ai: 'heavy' },
-  { id: 'shadow', name: 'SHADOW BEN', sub: 'THE DARK TWIN', style: 'Everything Ben can do, darker and faster. The SHADOW BEAM fires in the air too.', cast: 'player', shadow: true, hp: 178, speed: 1.12, dmg: 1.0, stats: [4, 4, 4], mv: { w: 0.92, r: 0.92 }, ai: 'rush', gloves: '#7c3aed' },
+  { id: 'crystal', name: 'CRYSTAL WARDEN', sub: 'GOLEM · THE CRYSTAL CAVES', style: 'A living crystal brawler. CRYSTAL SHARD fireball, GEM CYCLONE, the CRYSTAL RISE uppercut, PRISM PUNCHES and the PRISM STORM.', rig: 'crystal', hp: 190, speed: 0.9, dmg: 1.12, stats: [4, 2, 4], mv: { w: 1.0, r: 1.0, reach: 1.1, armor: ['spin'] }, ai: 'balanced' },   // s98 (Ben): replaces Shadow Ben
 ];
 // s37 (Ben): all 15 are on the select screen now; Shadow Ben still shows up as the arcade's secret challenger.
 export const FOX_SECRET = [];
@@ -268,16 +268,63 @@ const RIGS = {
   prime: { sc: 0.8, H: 2.72, hw: 0.7, hand: 0.85, own: { beam: 'laser', tatsu: 'combo', taunt: 'taunt' }, ownT: { beam: 0.0, tatsu: 0.2 } },
   suds: { sc: 0.9, H: 2.6, hw: 0.6, hand: 0.62, own: { spray: 'spray', tatsu: 'cyclone', taunt: 'taunt', wburst: 'spray' }, ownT: { spray: 0.0, tatsu: 0.0, wburst: 0.3 }, win: 'victory' },
   slag: { sc: 1.12, H: 2.35, hw: 0.55, hand: 0.42 },
+  crystal: { sc: 0.95, H: 2.45, hw: 0.56, hand: 0.62 },   // s98: the Deep Warden crystal golem (creature-kit)
 };
 const ss01 = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
 export function rigFighter({ THREE, M, toon }, def) {
   const RD = RIGS[def.rig], grad = toon('#ffffff').gradientMap, g = new THREE.Group(); g.rotation.order = 'YXZ';
-  let model, R, CRK = null; const slag = def.rig === 'slag';
-  if (slag) { CRK = creatureKit({ THREE, toon, M }); model = CRK.build('Slagback'); const J = model.userData.joints; R = { hips: J.hips, chest: J.torso, head: J.head, arms: J.arms.map(a => ({ up: a.sh, el: a.el, s: a.s })), legs: J.legs.map(l => ({ th: l.p, s: l.s, one: true })) }; }
+  let model, R, CRK = null; const slag = def.rig === 'slag', crk = slag || def.rig === 'crystal';
+  if (crk) { CRK = creatureKit({ THREE, toon, M }); model = CRK.build(slag ? 'Slagback' : 'Deep Warden'); const J = model.userData.joints; R = { hips: J.hips, chest: J.torso, head: J.head, arms: J.arms.map(a => ({ up: a.sh, el: a.el, s: a.s })), legs: J.legs.map(l => ({ th: l.p, s: l.s, one: true })) }; }
   else { model = (def.rig === 'warden' ? ironWarden : def.rig === 'prime' ? makerPrime : suds9)({ THREE, M, toon, grad }); R = model.userData.R; }
   model.scale.setScalar(RD.sc); g.add(model);
   // s85 (Ben): IRON WARDEN gets BIG RED BOXING GLOVES on his rocket fists, EARS like Maker Prime's antenna horns, and a hip LASER (fires with his eye laser)
-  let gunTip2 = null, AXE = null, axBack = null;
+  let gunTip2 = null, AXE = null, axBack = null, LAVA = null, CORE = null;
+  // s94 (Ben): SLAGBACK — a bigger, more defined head (raised above his gloves) with a big glowing LAVA MOUTH and teeth, LAVA GLOVES with glowing cracks,
+  // and lava DRIPPING from both gloves and the mouth
+  if (slag) { const crust = toon('#2a140c'), crust2 = toon('#4a2414'), lavaM = new THREE.MeshBasicMaterial({ color: 0xff5a14 }), lavaH = new THREE.MeshBasicMaterial({ color: 0xffb347 });
+    const hd0 = R.head; hd0.scale.setScalar(1.6); hd0.position.y += 0.42; hd0.position.z += 0.2; const hd = new THREE.Group(); hd.rotation.x = -0.32; [...hd0.children].forEach(c => hd.add(c)); hd0.add(hd);   // up out of the shoulder rocks, face turned forward
+    M(new THREE.DodecahedronGeometry(0.2, 0), crust2, 0, 0.1, -0.04, hd, 0.02, 0.2).scale.set(1.35, 0.7, 1.1);   // heavy brow / skull ridge
+    { const EY = []; hd.traverse(m => { if (m.isMesh && m.geometry.type === 'SphereGeometry' && m.material && m.material.isMeshBasicMaterial) EY.push(m); }); EY.forEach(m => { m.material = new THREE.MeshBasicMaterial({ color: 0xff1010 }); m.scale.setScalar(1.35); m.position.z += 0.012; const gl = new THREE.Mesh(new THREE.SphereGeometry(0.075, 10, 8), new THREE.MeshBasicMaterial({ color: 0xff2a2a, transparent: true, opacity: 0.35, depthWrite: false })); m.add(gl); }); }   // s96 (Ben): BRIGHT RED eyes (were white) — s97: collect the eyes first, THEN add the glows (adding inside traverse looped forever)
+    M(new THREE.BoxGeometry(0.3, 0.1, 0.06), lavaM, 0, -0.09, 0.2, hd, 0); M(new THREE.BoxGeometry(0.22, 0.04, 0.062), lavaH, 0, -0.09, 0.205, hd, 0);   // the big glowing mouth
+    for (let i = 0; i < 4; i++) { const x = -0.105 + i * 0.07; M(new THREE.ConeGeometry(0.022, 0.05, 4), crust, x, -0.05, 0.225, hd, 0).rotation.x = Math.PI; M(new THREE.ConeGeometry(0.02, 0.045, 4), crust, x + 0.035, -0.13, 0.225, hd, 0); }
+    M(new THREE.BoxGeometry(0.34, 0.07, 0.2), crust2, 0, -0.17, 0.09, hd, 0.02);   // heavy jaw
+    for (const sx of [-1, 1]) M(new THREE.BoxGeometry(0.012, 0.1, 0.01), lavaM, sx * 0.15, 0.0, 0.2, hd, 0).rotation.z = sx * 0.5;
+    const J = model.userData.joints; LAVA = { gloves: [], mouth: new THREE.Object3D(), drops: [], t: 0 }; LAVA.mouth.position.set(0, -0.12, 0.22); hd.add(LAVA.mouth);
+    for (const A of J.arms) { A.el.children.forEach(c => { if (c.isMesh && c.geometry.type === 'DodecahedronGeometry') c.visible = false; }); const G2 = new THREE.Group(); G2.position.set(0, -0.37, 0.05); A.el.add(G2);
+      M(new THREE.IcosahedronGeometry(0.34, 1), crust, 0, 0, 0, G2, 0.03, 0.34).scale.set(1, 1.05, 1.12);
+      for (const [x, y, z, r] of [[0.18, 0.08, 0.22, 0.09], [-0.2, -0.05, 0.2, 0.08], [0.05, -0.2, 0.24, 0.1], [-0.08, 0.18, 0.24, 0.07], [0.24, -0.12, 0.05, 0.07], [-0.24, 0.1, -0.05, 0.07]]) M(new THREE.SphereGeometry(r, 8, 6), lavaM, x, y, z, G2, 0);
+      M(new THREE.TorusGeometry(0.24, 0.05, 6, 16), lavaM, 0, 0.27, 0, G2, 0).rotation.x = Math.PI / 2;
+      const tipO = new THREE.Object3D(); tipO.position.set(0, -0.3, 0.05); G2.add(tipO); LAVA.gloves.push(tipO); }
+    const dg = new THREE.SphereGeometry(0.05, 6, 5); for (let i = 0; i < 20; i++) { const m = new THREE.Mesh(dg, i % 3 ? lavaM : lavaH); m.visible = false; LAVA.drops.push({ m, v: new THREE.Vector3(), t: 0 }); }
+    // s95 (Ben): the LAVA GLOB he digs out of his chest (shown in the near glove while he pulls it out and winds up)
+    LAVA.blob = M(new THREE.IcosahedronGeometry(0.17, 1), lavaH, 0, -0.05, 0.3, LAVA.gloves[0].parent, 0); LAVA.blob.visible = false; M(new THREE.IcosahedronGeometry(0.21, 1), new THREE.MeshBasicMaterial({ color: 0xff3a00, transparent: true, opacity: 0.45, depthWrite: false }), 0, 0, 0, LAVA.blob, 0);
+    // s95 (Ben): a LAVA AXE — obsidian haft with glowing lava bands, crust blades with molten edges; on his back, in his fist for the sword moves
+    AXE = new THREE.Group(); const obs = toon('#1a0f0a');
+    M(new THREE.CylinderGeometry(0.05, 0.055, 1.5, 8), obs, 0, 0.42, 0, AXE, 0.012); for (const y of [-0.2, 0.2, 0.6, 0.95]) M(new THREE.CylinderGeometry(0.062, 0.062, 0.05, 8), lavaM, 0, y, 0, AXE, 0);
+    M(new THREE.DodecahedronGeometry(0.11, 0), crust, 0, 1.0, 0, AXE, 0.012); M(new THREE.DodecahedronGeometry(0.08, 0), crust2, 0, -0.33, 0, AXE, 0.01);
+    for (const s2 of [-1, 1]) { const sh = new THREE.Shape(); sh.moveTo(0, 0.12); sh.quadraticCurveTo(0.22, 0.16, 0.4, 0.34); sh.quadraticCurveTo(0.52, 0, 0.4, -0.34); sh.quadraticCurveTo(0.22, -0.16, 0, -0.12); sh.lineTo(0, 0.12);
+      const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.06, bevelEnabled: true, bevelThickness: 0.015, bevelSize: 0.015, bevelSegments: 1 }); bg.translate(0, 0, -0.03); M(bg, crust, 0, 1.0, 0, AXE, 0.012).scale.x = s2;
+      const ed = M(new THREE.TorusGeometry(0.34, 0.025, 4, 16, 1.2), lavaM, s2 * 0.1, 1.0, 0, AXE, 0); ed.rotation.z = s2 > 0 ? -0.6 : Math.PI - 0.6; ed.scale.x = 0.55 * s2;
+      for (const [x, y] of [[0.2, 0.08], [0.28, -0.1], [0.15, -0.05]]) M(new THREE.SphereGeometry(0.03, 6, 4), lavaM, s2 * x, 1.0 + y, 0.04, AXE, 0); }
+    axBack = new THREE.Group(); axBack.position.set(0.05, 0.55, -0.55); axBack.rotation.set(0.1, 0, 0.62); axBack.scale.setScalar(1 / RD.sc); R.chest.add(axBack); axBack.add(AXE); AXE.position.set(0, -0.35, 0); }
+  // s98 (Ben): CRYSTAL WARDEN — a crystal GREATSWORD on his back (same draw / swing system as Warden's axe), purple glowing eyes kept from the golem
+  if (def.rig === 'crystal') { const cr = new THREE.MeshToonMaterial({ color: '#d68cff', emissive: new THREE.Color('#7a3ad6'), emissiveIntensity: 0.55, transparent: true, opacity: 0.92 }), dk = toon('#2a1650'), gl = new THREE.MeshBasicMaterial({ color: 0xf5e6ff });
+    AXE = new THREE.Group(); M(new THREE.CylinderGeometry(0.05, 0.055, 0.42, 8), dk, 0, -0.08, 0, AXE, 0.012); M(new THREE.OctahedronGeometry(0.08, 0), cr, 0, -0.32, 0, AXE, 0.01);
+    const gd = M(new THREE.BoxGeometry(0.42, 0.07, 0.1), dk, 0, 0.15, 0, AXE, 0.012); for (const s2 of [-1, 1]) M(new THREE.OctahedronGeometry(0.07, 0), cr, s2 * 0.24, 0.15, 0, AXE, 0.01);
+    const bl = M(new THREE.OctahedronGeometry(0.5, 0), cr, 0, 0.82, 0, AXE, 0.015); bl.scale.set(0.24, 1.35, 0.07); M(new THREE.BoxGeometry(0.02, 1.05, 0.072), gl, 0, 0.75, 0, AXE, 0);
+    axBack = new THREE.Group(); axBack.position.set(0.05, 1.0, -0.5); axBack.rotation.set(0.1, 0, 0.62); axBack.scale.setScalar(1 / RD.sc); R.chest.add(axBack); axBack.add(AXE); AXE.position.set(0, -0.4, 0);
+    // s99 (Ben): POLISH — contrast in the body (pale crystal pec plates, dark ab plates, light forearm bracers, glowing seams), a gold CHAMPION BELT with a crystal buckle,
+    // and a CHEST CORE (the laser fires out of it: it pulses all the time and flares when he blasts)
+    const pale = new THREE.MeshToonMaterial({ color: '#e9c8ff', emissive: new THREE.Color('#8f4ae0'), emissiveIntensity: 0.25 }), deep = toon('#1d0f3a'), gold = toon('#f5c542'), goldD = toon('#a87412'), seam = new THREE.MeshBasicMaterial({ color: 0xd68cff }), T0 = R.chest;
+    for (const s2 of [-1, 1]) { const pc = M(new THREE.BoxGeometry(0.46, 0.34, 0.06), pale, s2 * 0.27, 0.78, 0.38, T0, 0.015); pc.rotation.set(-0.08, s2 * 0.12, s2 * 0.06); }
+    for (const [x, y] of [[-0.13, 0.4], [0.13, 0.4], [-0.13, 0.24], [0.13, 0.24]]) M(new THREE.BoxGeometry(0.22, 0.13, 0.05), deep, x, y, 0.38, T0, 0.01);
+    M(new THREE.BoxGeometry(0.02, 0.62, 0.04), seam, 0, 0.55, 0.395, T0, 0); M(new THREE.BoxGeometry(0.9, 0.02, 0.04), seam, 0, 0.6, 0.395, T0, 0);
+    for (const A of model.userData.joints.arms) { M(new THREE.BoxGeometry(0.38, 0.22, 0.4), pale, 0, -0.42, 0, A.el, 0.015); M(new THREE.BoxGeometry(0.39, 0.04, 0.41), seam, 0, -0.3, 0, A.el, 0); }
+    M(new THREE.BoxGeometry(1.0, 0.16, 0.68), gold, 0, 0.05, 0, T0, 0.02); M(new THREE.BoxGeometry(1.02, 0.03, 0.7), goldD, 0, 0.12, 0, T0, 0); M(new THREE.BoxGeometry(1.02, 0.03, 0.7), goldD, 0, -0.02, 0, T0, 0);
+    M(new THREE.BoxGeometry(0.34, 0.26, 0.06), gold, 0, 0.05, 0.35, T0, 0.015); M(new THREE.BoxGeometry(0.28, 0.2, 0.065), goldD, 0, 0.05, 0.352, T0, 0); const bk = M(new THREE.OctahedronGeometry(0.1, 0), new THREE.MeshBasicMaterial({ color: 0xff7bd5 }), 0, 0.05, 0.39, T0, 0); bk.scale.set(1, 1, 0.5);
+    for (const s2 of [-1, 1]) M(new THREE.BoxGeometry(0.1, 0.12, 0.05), goldD, s2 * 0.32, 0.05, 0.34, T0, 0);
+    const coreM = new THREE.MeshBasicMaterial({ color: 0xf5e6ff }), coreG = new THREE.MeshBasicMaterial({ color: 0xd68cff, transparent: true, opacity: 0.5, depthWrite: false });
+    M(new THREE.TorusGeometry(0.17, 0.035, 6, 6), goldD, 0, 0.62, 0.4, T0, 0); CORE = M(new THREE.OctahedronGeometry(0.13, 0), coreM, 0, 0.62, 0.42, T0, 0); CORE.scale.z = 0.6; CORE.userData.halo = M(new THREE.SphereGeometry(0.2, 12, 10), coreG, 0, 0, 0, CORE, 0); }
   if (def.rig === 'warden') { const red = toon('#dc2626'), cuffM = toon('#f7f1e6'), lace = toon('#141312'), steel = toon('#c4beb6'), org = toon('#ff7a1a'), irn = toon('#1c1a19');
     for (const A of R.arms) { const fi = A.fi || (A.wr && A.wr.children.find(c => c.isGroup)); if (!fi) continue; fi.children.forEach(m => { if (m.isMesh) m.visible = false; });
       const G2 = new THREE.Group(); G2.position.set(0, -0.16, 0.02); fi.add(G2);
@@ -305,7 +352,7 @@ export function rigFighter({ THREE, M, toon }, def) {
   const armLen = arms[0].a + arms[0].b, legLen = legs[0].one ? legs[0].a : legs[0].a + legs[0].b, kA = armLen / 0.5, kL = (legs[0].sh0.y - 0.02) / 0.72;
   // the duel holds a 'sword' in the far paw: robots have none, so it's an empty holder at that hand (its tip = the reach point)
   const sw = new THREE.Object3D(); g.add(sw); const tip = new THREE.Object3D(); tip.position.y = 0.35; sw.add(tip); sw.userData.tip = tip;
-  const gunTip = new THREE.Object3D(); if (def.rig === 'suds' && R.arms[0].noz) R.arms[0].noz.add(gunTip); else { R.head.add(gunTip); gunTip.position.set(0, 0.1, 0.4); }   // SUDS-9 fires from his hose hand
+  const gunTip = new THREE.Object3D(); if (def.rig === 'crystal') { R.chest.add(gunTip); gunTip.position.set(0, 0.62, 0.55); } else if (def.rig === 'suds' && R.arms[0].noz) R.arms[0].noz.add(gunTip); else {   /* s99: the Crystal Warden fires from the CORE in his chest */ R.head.add(gunTip); gunTip.position.set(0, 0.1, 0.4); }   // SUDS-9 fires from his hose hand
   const R0 = { hip: [0, 0, 0], lean: 0, twist: 0, side: 0, yaw: 0, pitch: 0, hL: [0.42, 0.8, 0.1], hR: [-0.42, 0.8, 0.1], eL: [1, 1, 0], eR: [-1, 1, 0], fL: [0.14, 0.05, 0], fR: [-0.14, 0.05, 0], kL: [0.5, 0.4, 1], kR: [-0.5, 0.4, 1], fYawL: 0, fYawR: 0, blade: 0.95, mood: 'determined', mouth: 0, vis: 'a', gun: 0 };
   const _a = V(), _b = V(), _c = V(), _d = V(), _h = V(), _u = V(), _e2 = V(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _qp = new THREE.Quaternion(), _qg = new THREE.Quaternion();
   // aim a bone group so its local −y points along dir (world) with its local x on hinge (world)
@@ -319,12 +366,12 @@ export function rigFighter({ THREE, M, toon }, def) {
   function setPose(p, pt) { const U = model.userData; if (U.pose !== p) { U.pose = p; U.pt = pt || 0; } }
   function upd(P, dt, f) { t += dt; const U = model.userData, a = f && f.act, ak = a && a.kind;
     // which pose the model plays itself: a signature move, taunt, hurt, stunned, the win
-    let own = null; if (a && RD.own && RD.own[ak] && !slag) { own = RD.own[ak]; if (a !== lastAct) { lastAct = a; U.pose = own; U.pt = (RD.ownT && RD.ownT[ak]) || 0; } }
+    let own = null; if (a && RD.own && RD.own[ak] && !crk) { own = RD.own[ak]; if (a !== lastAct) { lastAct = a; U.pose = own; U.pt = (RD.ownT && RD.ownT[ak]) || 0; } }
     else lastAct = null;
-    if (!slag) { if (own) {} else if (f && (f.daze > 0 || (f.stun > 0.3 && !a))) setPose('stunned'); else if (f && f.hitT != null && (f.hitAge ?? 9) < 0.35 && !a) { if (f.hitT !== lastHit) { lastHit = f.hitT; U.pose = 'hurt'; U.pt = 0; } }
+    if (!crk) { if (own) {} else if (f && (f.daze > 0 || (f.stun > 0.3 && !a))) setPose('stunned'); else if (f && f.hitT != null && (f.hitAge ?? 9) < 0.35 && !a) { if (f.hitT !== lastHit) { lastHit = f.hitT; U.pose = 'hurt'; U.pt = 0; } }
       else if (RD.win && P.mood === 'happy' && f && f.winOn) setPose(RD.win); else setPose('stance'); U.idle(t, dt); }
     else { const st = a && (ak === 'quake') ? (a.fired ? 'attack' : 'windup') : f && f.daze > 0 ? 'stagger' : 'idle'; if (st !== pose0) { pose0 = st; U.st0 = t; } CRK.animate(model, st, t - (U.st0 || 0), dt); U.events.length = 0;
-      const want = f && f.hpMax ? (f.hp < f.hpMax * 0.34 ? 2 : f.hp < f.hpMax * 0.67 ? 1 : 0) : 0; if (f && f.hp >= f.hpMax) { U.crustLvl = 0; crust = 0; } while (crust < want) { crust++; CRK.enter(model, 'armorBreak'); U.events.length = 0; } }
+      if (slag) { const want = f && f.hpMax ? (f.hp < f.hpMax * 0.34 ? 2 : f.hp < f.hpMax * 0.67 ? 1 : 0) : 0; if (f && f.hp >= f.hpMax) { U.crustLvl = 0; crust = 0; } while (crust < want) { crust++; CRK.enter(model, 'armorBreak'); U.events.length = 0; } } }
     if (own) { applyCart(f); return; }
     // body: hips (crouch), chest lean / twist, head look
     const hip = P.hip || [0, 0, 0]; R.hips.position.set(hip0.x + hip[0] * kL / RD.sc, hip0.y + hip[1] * kL / RD.sc, hip0.z + hip[2] * kL / RD.sc);
@@ -341,7 +388,11 @@ export function rigFighter({ THREE, M, toon }, def) {
     const atk = !!(a && (a.d || ak === 'laser' || ak === 'wburst') && !(ak === 'draw' || ak === 'stow')); gK += ((atk ? 1 : 0.5) - gK) * Math.min(1, dt * (atk ? 22 : 8));
     // s84 (Ben): SUDS-9 holds the squeegee up across his front (his BLOCK look) as the default, so you can see what it is; full swings still use the move pose
     if (def.rig === 'suds' && !thr) { const wI = Math.max(0, Math.min(1, (1 - gK) / 0.5)), BK = [-0.06, 1.19 + 0.025 * Math.sin(t * 3), 0.63]; if (wI > 0) thr = [P.hR[0] + (BK[0] - P.hR[0]) * wI, P.hR[1] + (BK[1] - P.hR[1]) * wI, P.hR[2] + (BK[2] - P.hR[2]) * wI]; }
-    for (const A of arms) { const src = A.s > 0 ? (thr || P.hR) : P.hL, sF = SH_F(A.s), kz = slag ? 1 : gK; T.set(A.sh0.x + (-src[0] - sF[0]) * kA * (0.6 + 0.4 * kz), A.sh0.y + (src[1] - sF[1]) * kA, A.sh0.z + (src[2] - sF[2]) * kA * kz); g.localToWorld(T); ik2(A.up, A.el, A.a, A.b, T, hingeArm, false); }
+    let thrL = null; if (slag && ak === 'lpick') { const u = a.t, C0 = [0.02, 1.02, 0.3], DG = [0.0, 0.98 + 0.03 * Math.sin(u * 60), 0.22], WB = [0.38, 1.6, -0.22], TH = [0.04, 1.32, 0.85], H0 = P.hL, L3s = (p, q, k) => [p[0] + (q[0] - p[0]) * k, p[1] + (q[1] - p[1]) * k, p[2] + (q[2] - p[2]) * k];
+      thrL = u < 0.22 ? L3s(H0, C0, ss01(u / 0.22)) : u < 0.38 ? L3s(C0, DG, ss01((u - 0.22) / 0.06)) : u < 0.5 ? L3s(DG, WB, ss01((u - 0.38) / 0.12)) : u < 0.6 ? L3s(WB, TH, ss01((u - 0.5) / 0.08)) : L3s(TH, H0, ss01((u - 0.6) / 0.2)); }   /* s95: dig into the chest, pull the lava out, wind up over the shoulder, HURL */
+    if (CORE) { const fire = ak === 'laser' ? Math.max(0, 1 - Math.abs(a.t - 0.2) * 5) : 0; CORE.scale.set(1 + 0.12 * Math.sin(t * 5) + fire * 0.9, 1 + 0.12 * Math.sin(t * 5) + fire * 0.9, 0.6); CORE.rotation.z += dt * 1.2; CORE.userData.halo.material.opacity = 0.35 + 0.15 * Math.sin(t * 5) + fire * 0.5; CORE.userData.halo.scale.setScalar(1 + fire * 1.4); }   /* s99: chest core pulse + flare on the blast */
+    if (LAVA && LAVA.blob) LAVA.blob.visible = !!(ak === 'lpick' && a.t > 0.3 && a.t < 0.56);
+    for (const A of arms) { const src = A.s > 0 ? (thr || P.hR) : (thrL || P.hL), sF = SH_F(A.s), kz = slag ? 1 : gK, dS = slag ? (1 - gK) * 1.7 : 0; T.set(A.sh0.x + (-src[0] - sF[0]) * kA * (0.6 + 0.4 * kz), A.sh0.y + (src[1] - sF[1] - dS) * kA, A.sh0.z + (src[2] - sF[2]) * kA * kz); g.localToWorld(T); ik2(A.up, A.el, A.a, A.b, T, hingeArm, false); }
     for (const Lg of legs) { const src = Lg.s < 0 ? P.fR : P.fL, hF = HIP_F(Lg.s); T.set(Lg.sh0.x + (src[0] - hF[0]) * kL, Math.max(0.02, Lg.sh0.y + (src[1] - hF[1]) * kL), Lg.sh0.z + (src[2] - hF[2]) * kL); g.localToWorld(T);
       if (Lg.one) { const S0 = wp(Lg.th); _a.copy(T).sub(S0); const d = _a.length(); orient(Lg.th, _a.normalize(), hingeLeg); Lg.th.scale.y = clamp(d / Lg.a, 0.75, 1.2); }
       else { ik2(Lg.th, Lg.kn, Lg.a, Lg.b, T, hingeLeg, true); g.getWorldQuaternion(_qg); Lg.kn.updateMatrixWorld(true); Lg.kn.getWorldQuaternion(_qp); Lg.ft.quaternion.copy(_qp.invert().multiply(_qg)); if (Lg.rod) Lg.rod.scale.y = 1 + Lg.kn.rotation.x * 0.25; } }
@@ -350,6 +401,8 @@ export function rigFighter({ THREE, M, toon }, def) {
     if (def.rig === 'suds' && R.arms[1] && R.arms[1].hand) { const hd = R.arms[1].hand; U.sqSpin = swK > 0 ? (U.sqSpin || 0) + dt * 30 * Math.min(1, swK * 1.6) : 0; hd.rotation.y = U.sqSpin; }
     g.updateMatrixWorld(true); const fa = arms.find(A => A.s > 0); fa.el.localToWorld(_b.set(0, -RD.hand, 0)); g.worldToLocal(_b); sw.position.copy(_b); sw.rotation.set(P.blade ?? 0.95, 0, 0);
     if (AXE) { const inH = !!(f && (f.swordOut || (ak === 'draw' && a.dur && a.t > a.dur * 0.5) || ak === 'high' || ak === 'low')); const want = inH ? sw : axBack; if (AXE.parent !== want) { want.add(AXE); AXE.position.set(0, inH ? -0.12 : -0.35, 0); AXE.rotation.set(0, inH ? Math.PI / 2 : 0, 0); } }
+    if (LAVA) { const par = g.parent; if (par) { LAVA.t -= dt; if (LAVA.t <= 0) { LAVA.t = 0.07 + Math.random() * 0.08; const d = LAVA.drops.find(q => !q.m.visible); if (d) { if (d.m.parent !== par) par.add(d.m); const src = Math.random() < 0.35 ? LAVA.mouth : LAVA.gloves[Math.random() < 0.5 ? 0 : 1]; src.getWorldPosition(d.m.position); d.v.set((Math.random() - 0.5) * 0.4, -0.3 - Math.random() * 0.4, (Math.random() - 0.5) * 0.3); d.t = 0.55 + Math.random() * 0.3; d.m.visible = true; d.m.scale.set(1, 1.6, 1); } }
+      for (const d of LAVA.drops) { if (!d.m.visible) continue; d.t -= dt; d.v.y -= 9 * dt; d.m.position.addScaledVector(d.v, dt); if (d.t <= 0 || d.m.position.y < 0.02) { d.m.visible = false; continue; } d.m.scale.set(1, 1.6 + Math.min(1.2, -d.v.y * 0.25), 1).multiplyScalar(Math.min(1, d.t * 3)); } } }
     applyCart(f); }
   function applyCart(f) { const C = f && f.cart; model.scale.setScalar(RD.sc); if (!C) return; g.position.y += C.hop * 0.7; g.rotation.y += C.spinY; g.rotation.z += C.spinZ * 0.6; const q = clamp(C.sq, -0.6, 0.7) * 0.6; model.scale.set(RD.sc * (1 + q * 0.2), RD.sc * (1 - q * 0.3), RD.sc * (1 + q * 0.2)); }
   const _l = V();
@@ -561,6 +614,7 @@ export const FOX_LINES = {
   prime: { taunt: 'YOU WILL BE REBUILT.', win: 'PRODUCTION COMPLETE.', end: ['Maker Prime lifted SUDS-9 in its claw and carried it home to the factory.', 'Three days later a new window cleaner rolled out. It was very polite.', 'The Pearl Sail has never been cleaner. Or more nervous.'] },
   suds: { taunt: 'PLEASE HOLD STILL FOR CLEANING.', win: 'SURFACE CLEAN. HAVE A NICE DAY.', end: ['SUDS-9 cleaned the helipad until it shone like a mirror.', 'Then he cleaned the gondola. Then the moon, as far as his pole would reach.', 'The Pearl Sail gave him a raise: one extra bucket.'] },
   slag: { taunt: 'BURN.', win: 'MELT.', end: ['Slagback stood on the helipad, glowing in the dark like a sunset that never ended.', 'Where it walked, the roof tiles turned to glass.', 'Meru calls the Pearl Sail the Lava Tower now. Nobody argues.'] },
+  crystal: { taunt: 'SHATTER.', win: 'CRYSTAL CLEAR.', end: ['The Crystal Warden stood on the helipad and the moonlight broke into a thousand colours across Meru.', 'Every window on the Pearl Sail hummed one clear note.', 'The caves under Luxor glow a little brighter now. It is waiting for the next challenger.'] },
   shadow: { taunt: 'YOU CANNOT BEAT YOURSELF.', win: 'I AM YOUR SHADOW.', end: ['Shadow Ben stood alone on the roof.', 'Below, the city lights went out one by one.', 'Somewhere, the real Ben woke up and decided to train harder.'] },
 };
 
@@ -617,7 +671,7 @@ export function makeBonusCar({ THREE, M, toon, glowTex, canvasTex }) {
 }
 
 // ---------------- s36m: rival banter on the VS screen ----------------
-export const FOX_VS = { ben: "Let's do this!", hope: 'I heard you coming.', noble: 'Wheels up!', might: 'Kneel, or fight.', michelle: 'Try to keep up.', sumo: 'Step into my ring.', barnacle: 'I lift heavier things than you.', jack: 'Hope you like it hot.', rook: 'Nowhere to hide up here.', lox: 'Gloves up.', warden: 'Halt. You will not pass.', prime: 'Scanning. Weak. Rebuild.', suds: 'PLEASE HOLD STILL FOR CLEANING.', slag: 'Hssssss.', shadow: '...', suds9: 'PLEASE HOLD STILL FOR CLEANING.' };
+export const FOX_VS = { ben: "Let's do this!", hope: 'I heard you coming.', noble: 'Wheels up!', might: 'Kneel, or fight.', michelle: 'Try to keep up.', sumo: 'Step into my ring.', barnacle: 'I lift heavier things than you.', jack: 'Hope you like it hot.', rook: 'Nowhere to hide up here.', lox: 'Gloves up.', warden: 'Halt. You will not pass.', prime: 'Scanning. Weak. Rebuild.', suds: 'PLEASE HOLD STILL FOR CLEANING.', slag: 'Hssssss.', crystal: 'You will shatter.', shadow: '...', suds9: 'PLEASE HOLD STILL FOR CLEANING.' };
 const RIVAL = { 'michelle|might': ["Don't go easy on me, Dad.", 'I never do.'], 'ben|noble': ['Ready, partner?', "Wheels are warm. Let's go!"], 'ben|hope': ['No holding back, Hope.', 'I can hear you smiling.'], 'hope|noble': ['I hear your wheels squeak.', "That's my warning honk!"], 'ben|might': ['Your Majesty.', 'Bow after I win.'], 'ben|shadow': ['Who... are you?', "I'm everything you're not."], 'hope|michelle': ['Your feet are so quiet.', "Then you'll never hear me coming."],
   'barnacle|jack': ['You owe me a forklift, Jack.', 'Put it on my tab.'], 'barnacle|rook': ['The Salt crew stays out of your cave.', 'And my crew stays off your roof.'], 'jack|rook': ['Bet I draw faster.', 'Bet you miss.'], 'lox|rook': ['Luxor does not take orders from a cave bandit.', 'Then Luxor can take a laser.'], 'lox|slag': ['Back to the lava with you.', 'Hssss... home.'], 'lox|sumo': ['Gloves against palms. Let us see.', 'Come, little boxer.'], 'might|sumo': ['Old friend.', 'Old king. The ring remembers you.'], 'prime|warden': ['Unit Warden. Report for upgrade.', 'Negative. I guard the arena.'], 'prime|suds': ['You are a defective unit.', 'I PREFER THE TERM SPARKLING.'], 'suds|warden': ['YOUR ARMOUR IS FILTHY.', 'Halt.'], 'ben|lox': ['Luxor is a long way from home.', 'So is your luck.'], 'ben|rook': ['Let Prince Max go, Rook.', 'Beat me first.'], 'jack|michelle': ['Pretty quick for a princess.', 'Pretty slow for a bandit.'], 'ben|slag': ['Is it... smiling?', 'Hsssss.'], 'barnacle|sumo': ['I lift crates bigger than you.', 'Crates do not push back.'] };
 export function rivalLines(a, b) { if (a === b) return ["There's only room for one of us.", 'Agreed.']; const k = [a, b].sort().join('|'), L = RIVAL[k]; if (L) return [a, b].sort()[0] === a ? L : [L[1], L[0]]; return [FOX_VS[a] || '', FOX_VS[b] || '']; }
