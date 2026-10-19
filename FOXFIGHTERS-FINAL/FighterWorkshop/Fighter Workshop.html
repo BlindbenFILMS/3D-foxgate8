@@ -1,0 +1,225 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}body{margin:0}[hidden]{display:none!important}</style></head><body>
+<title>Fighter Workshop</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500;62..125,700;62..125,900&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: arcade cabinet bench. Roster rail left (chips on phones), turntable stage right, spec sheet + export bar under the stage. Same black/gold/red as the 8 Gates Workshops. */
+:root{
+  --bg:#0a0908; --panel:#000000; --rule:#3a3836; --rule2:#22201f; --fg:#f3f2f2; --muted:#b8b2aa; --dim:#8a847e;
+  --gold:#ffd23a; --red:#ec3013; --blue:#38bdf8;
+  --display:'Archivo',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;background:var(--bg);color:var(--fg)}
+body{font:500 14px/1.45 var(--display)}
+button{font:inherit;color:inherit}
+button:focus-visible,a:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.app{display:grid;grid-template-rows:auto minmax(0,1fr);height:100%}
+header{display:flex;align-items:stretch;border-bottom:2px solid var(--rule);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px);min-width:0}
+.brand{padding:12px 18px;display:flex;flex-direction:column;gap:2px;border-right:2px solid var(--rule)}
+.kick{font-weight:800;font-size:11px;letter-spacing:.14em;color:var(--gold);white-space:nowrap}
+.brand h1{margin:0;font-weight:900;font-stretch:112%;font-size:22px;line-height:1;letter-spacing:.01em}
+.hdr-note{flex:1;min-width:0;padding:10px 16px;display:flex;align-items:center;color:var(--muted);font-size:13px}
+.hdr-note b{color:var(--fg)}
+.back{display:flex;align-items:center;padding:0 16px;border-left:2px solid var(--rule);color:var(--fg);text-decoration:none;font-weight:800;font-size:12px;letter-spacing:.1em;white-space:nowrap}
+.back:hover{background:#1a1918}
+.main{display:grid;grid-template-columns:300px minmax(0,1fr);min-height:0}
+.rail{border-right:2px solid var(--rule);overflow-y:auto;min-height:0;padding-left:env(safe-area-inset-left,0px)}
+.grp{position:sticky;top:0;z-index:1;display:flex;justify-content:space-between;padding:10px 16px 8px;background:#141312;border-bottom:2px solid var(--rule);font-weight:800;font-size:12px;letter-spacing:.1em;color:var(--gold)}
+.grp span:last-child{color:var(--dim);font-variant-numeric:tabular-nums}
+.f{display:grid;grid-template-columns:12px minmax(0,1fr);gap:4px 12px;align-items:center;width:100%;padding:10px 16px;border:0;border-bottom:2px solid var(--rule2);background:var(--panel);text-align:left;cursor:pointer}
+.f:hover{background:#1d1b1a}
+.f[aria-pressed="true"]{background:#1d1b1a}
+.f[aria-pressed="true"] .fn{color:var(--gold)}
+.sw{grid-row:span 2;width:12px;height:36px}
+.fn{font-weight:900;font-size:14px;letter-spacing:.03em;line-height:1.2}
+.fs{font-size:11px;color:var(--dim);line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.stagecol{display:grid;grid-template-rows:minmax(0,1fr) auto;min-height:0;min-width:0}
+.stage{position:relative;min-height:0;background:radial-gradient(90% 80% at 50% 40%,#23262e 0%,#0e0f12 70%)}
+#cv{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.load{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font:700 12px var(--mono);letter-spacing:.08em;color:var(--muted);background:#0a0908;border:2px solid var(--rule);padding:10px 14px}
+.ctl{position:absolute;left:12px;right:12px;bottom:12px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;pointer-events:none}
+.ctl>div{display:flex;flex-wrap:wrap;gap:6px;pointer-events:auto}
+.chip{height:34px;padding:0 12px;display:flex;align-items:center;gap:8px;white-space:nowrap;border:2px solid var(--gold);background:#0a0908;color:var(--gold);font-weight:800;font-size:12px;letter-spacing:.06em;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--gold);color:#000}
+.chip.g{border-color:var(--rule);color:var(--fg)}
+.chip.g[aria-pressed="true"]{background:var(--fg);color:#000;border-color:var(--fg)}
+.dot{width:10px;height:10px;display:block}
+.sheet{border-top:2px solid var(--rule);display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);max-height:42vh;overflow-y:auto;padding-right:env(safe-area-inset-right,0px)}
+.who{padding:14px 18px;display:flex;flex-direction:column;gap:8px;border-right:2px solid var(--rule);min-width:0}
+.who h2{margin:0;font-weight:900;font-stretch:118%;font-size:30px;line-height:1;letter-spacing:.01em;text-wrap:balance}
+.who .sub{font-weight:800;font-size:11px;letter-spacing:.14em;color:var(--gold)}
+.who p{margin:0;color:var(--muted);max-width:62ch}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:420px}
+.st{display:flex;flex-direction:column;gap:4px}
+.st span{font-weight:800;font-size:10px;letter-spacing:.12em;color:var(--dim)}
+.bars{display:flex;gap:3px}.bars i{flex:1;height:8px;background:#2a2826}.bars i.on{background:var(--gold)}
+.chg{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;border-top:2px solid var(--rule2)}
+.chg li{display:grid;grid-template-columns:62px minmax(0,1fr);gap:10px;padding:7px 0;border-bottom:2px solid var(--rule2);font-size:13px;line-height:1.4}
+.chg li b{font:700 11px var(--mono);color:var(--red);padding-top:2px}
+.out{padding:14px 18px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.facts{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;font:500 12px var(--mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.facts dt{color:var(--dim)}
+.facts dd{margin:0;color:var(--fg);overflow-wrap:anywhere}
+.btn{min-height:46px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;border:0;background:var(--gold);color:#000;font-weight:900;font-size:14px;letter-spacing:.06em;cursor:pointer;text-align:left}
+.btn:hover{background:#ffe066}
+.btn.sec{background:#0a0908;color:var(--fg);border:2px solid var(--rule)}
+.btn.sec:hover{background:#1a1918}
+.btn small{font:700 11px var(--mono);letter-spacing:0;opacity:.75}
+.btn[disabled]{opacity:.5;cursor:default}
+.msg{min-height:18px;font:700 12px var(--mono);color:var(--blue)}
+pre{margin:0;padding:10px 12px;background:#141312;border:2px solid var(--rule2);font:500 11.5px/1.5 var(--mono);color:#e7e3de;overflow-x:auto;white-space:pre}
+@media (max-width:860px){
+  .main{grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr)}
+  .rail{border-right:0;border-bottom:2px solid var(--rule);display:flex;overflow-x:auto;overflow-y:hidden;padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+  .grp{display:none}
+  .f{width:auto;flex:none;border-bottom:0;border-right:2px solid var(--rule2);grid-template-columns:8px auto;padding:8px 12px}
+  .sw{width:8px;height:30px}.fs{display:none}
+  .sheet{grid-template-columns:minmax(0,1fr);max-height:none}
+  .stagecol{grid-template-rows:auto auto;overflow-y:auto}
+  .stage{display:flex;flex-direction:column;height:auto}
+  #cv{position:relative;height:min(52vh,420px);min-height:280px}
+  .ctl{position:static;padding:8px max(8px,env(safe-area-inset-left,0px));background:#0a0908;border-top:2px solid var(--rule)}
+  .chip{height:32px;padding:0 10px;font-size:11px}
+  .who{border-right:0;border-bottom:2px solid var(--rule)}
+  .hdr-note{display:none}
+  .who,.out{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="app">
+  <header>
+    <div class="brand"><span class="kick">8 GATES · FOX FIGHTERS CAST</span><h1>Fighter Workshop</h1></div>
+    <div class="hdr-note"><span>All 15 fighters exactly as they stand in <b>Fox Fighters</b>, with every change from the polish sessions. Each one downloads as a <b>glTF</b> model you can drop into another game.</span></div>
+    <a class="back" href="https://claude.ai/artifact/SPmgFx3PnjTE23biQ8XsBA" target="_top">← WORKSHOPS</a>
+  </header>
+  <div class="main">
+    <nav class="rail" id="rail" aria-label="Fighters"></nav>
+    <div class="stagecol">
+      <div class="stage">
+        <canvas id="cv" aria-label="3D view of the selected fighter. Drag to turn it."></canvas>
+        <div class="load" id="load">LOADING MODEL…</div>
+        <div class="ctl">
+          <div id="alts" role="group" aria-label="Colour"></div>
+          <div role="group" aria-label="View">
+            <button class="chip g" data-v="front" type="button">FRONT</button>
+            <button class="chip g" data-v="side" type="button">SIDE</button>
+            <button class="chip g" data-v="back" type="button">BACK</button>
+            <button class="chip g" id="spin" type="button" aria-pressed="true">SPIN</button>
+            <button class="chip g" id="ink" type="button" aria-pressed="true">INK LINES</button>
+          </div>
+        </div>
+      </div>
+      <div class="sheet">
+        <section class="who" aria-live="polite">
+          <span class="sub" id="sub"></span>
+          <h2 id="name"></h2>
+          <p id="style"></p>
+          <div class="stats" id="stats"></div>
+          <ul class="chg" id="chg"></ul>
+        </section>
+        <section class="out">
+          <span class="kick">IMPORT INTO ANOTHER GAME</span>
+          <dl class="facts" id="facts"></dl>
+          <button class="btn" id="dl1" type="button"><span>DOWNLOAD THIS FIGHTER</span><small id="dl1s">.zip</small></button>
+          <button class="btn sec" id="dlAll" type="button"><span>DOWNLOAD ALL 15 FIGHTERS</span><small id="dlAlls">.zip</small></button>
+          <button class="btn sec" id="copy" type="button"><span>COPY IMPORT CODE</span><small>three.js</small></button>
+          <div class="msg" id="msg" role="status"></div>
+          <pre id="code"></pre>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script type="module">
+import * as THREE from './vendor/three/three.module.js';
+import { GLTFLoader } from './vendor/three/addons/loaders/GLTFLoader.js';
+
+const $ = id => document.getElementById(id);
+const MAN = await fetch('fighters/fighters.json').then(r => r.json());
+const F = MAN.fighters;
+let cur = F[0], alt = 0, spin = true, ink = true;
+try { const s = JSON.parse(localStorage.getItem('fw.sel') || '{}'); const f = F.find(q => q.id === s.id); if (f) { cur = f; alt = s.alt | 0; } } catch (e) {}
+if (/^#[a-z]+$/.test(location.hash)) { const f = F.find(q => q.id === location.hash.slice(1)); if (f) { cur = f; alt = 0; } }
+
+// ---- roster rail ----
+const rail = $('rail'); const groups = [['FOXES', F.filter(f => f.group === 'fox')], ['BOSSES & ROBOTS', F.filter(f => f.group !== 'fox')]];
+for (const [g, list] of groups) { const h = document.createElement('div'); h.className = 'grp'; h.innerHTML = `<span>${g}</span><span>${list.length}</span>`; rail.appendChild(h);
+  for (const f of list) { const b = document.createElement('button'); b.type = 'button'; b.className = 'f'; b.dataset.id = f.id; b.innerHTML = `<span class="sw" style="background:${f.colour}"></span><span class="fn"></span><span class="fs"></span>`; b.querySelector('.fn').textContent = f.name; b.querySelector('.fs').textContent = f.sub; b.onclick = () => pick(f, 0); rail.appendChild(b); } }
+
+// ---- 3D stage ----
+const cv = $('cv'), renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(30, 1, 0.05, 100);
+scene.add(new THREE.HemisphereLight(0xffffff, 0x4a4440, 1.5)); const key = new THREE.DirectionalLight(0xfff4e6, 2.2); key.position.set(3, 6, 5); scene.add(key); const rim = new THREE.DirectionalLight(0x9fd8ff, 1.2); rim.position.set(-4, 3, -4); scene.add(rim);
+const grad = (() => { const d = new Uint8Array([90, 170, 255]); const t = new THREE.DataTexture(d, 3, 1, THREE.RedFormat); t.minFilter = t.magFilter = THREE.NearestFilter; t.needsUpdate = true; return t; })();
+const ped = new THREE.Mesh(new THREE.CylinderGeometry(1.4, 1.4, 0.08, 64), new THREE.MeshToonMaterial({ color: 0x1b1a19, gradientMap: grad })); ped.position.y = -0.04; scene.add(ped);
+const ring = new THREE.Mesh(new THREE.TorusGeometry(1.42, 0.025, 8, 80), new THREE.MeshBasicMaterial({ color: 0xffd23a })); ring.rotation.x = Math.PI / 2; scene.add(ring);
+const inkMat = new THREE.MeshBasicMaterial({ color: 0x1a1626, side: THREE.BackSide });
+const loader = new GLTFLoader(), cache = new Map(); let model = null, yaw = 0.5, pitch = 0.08, dist = 7, tgtY = 1.1;
+function toonify(root) { const outs = []; root.traverse(o => { if (!o.isMesh) return; const m = o.material; const P = { color: m.color, map: m.map, vertexColors: !!(m.vertexColors || (o.geometry && o.geometry.attributes.color)), transparent: m.transparent, opacity: m.opacity, alphaTest: m.alphaTest, side: m.side, gradientMap: grad }; if (m.emissive) Object.assign(P, { emissive: m.emissive, emissiveMap: m.emissiveMap, emissiveIntensity: m.emissiveIntensity }); o.material = m.isMeshBasicMaterial ? m : new THREE.MeshToonMaterial(P);
+  if (!m.transparent && o.geometry) { o.geometry.computeBoundingBox(); const s = new THREE.Vector3(); o.geometry.boundingBox.getSize(s); const c = new THREE.Vector3(); o.geometry.boundingBox.getCenter(c); const t = 0.012, h = new THREE.Mesh(o.geometry, inkMat); h.scale.set(1 + 2 * t / Math.max(s.x, 0.02), 1 + 2 * t / Math.max(s.y, 0.02), 1 + 2 * t / Math.max(s.z, 0.02)); h.position.copy(c).multiply(new THREE.Vector3(1 - h.scale.x, 1 - h.scale.y, 1 - h.scale.z)); h.userData.ink = 1; outs.push([o, h]); } });
+  for (const [o, h] of outs) o.add(h); }
+// The page may not fetch data: URLs, so the embedded glTF buffer is unpacked here and handed to the loader as an in-memory .glb
+async function glbFrom(url) { const js = await fetch(url).then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }); const uri = js.buffers[0].uri; delete js.buffers[0].uri;
+  const raw = atob(uri.slice(uri.indexOf(',') + 1)), bin = new Uint8Array(raw.length); for (let i = 0; i < raw.length; i++) bin[i] = raw.charCodeAt(i);
+  let jb = new TextEncoder().encode(JSON.stringify(js)); const jp = (4 - jb.length % 4) % 4, bp = (4 - bin.length % 4) % 4, jl = jb.length + jp, bl = bin.length + bp, out = new Uint8Array(12 + 8 + jl + 8 + bl), dv = new DataView(out.buffer);
+  dv.setUint32(0, 0x46546C67, true); dv.setUint32(4, 2, true); dv.setUint32(8, out.length, true); dv.setUint32(12, jl, true); dv.setUint32(16, 0x4E4F534A, true); out.set(jb, 20); out.fill(0x20, 20 + jb.length, 20 + jl);
+  dv.setUint32(20 + jl, bl, true); dv.setUint32(24 + jl, 0x004E4942, true); out.set(bin, 28 + jl); return out.buffer; }
+function setInk(v) { if (model) model.traverse(o => { if (o.userData.ink) o.visible = v; }); }
+async function show() { const file = cur.files[alt] || cur.files[0]; $('load').hidden = false; $('load').textContent = 'LOADING ' + cur.name + '…';
+  let g = cache.get(file.glb); if (!g) { g = await loader.parseAsync(await fetch('fighters/' + file.glb).then(r => r.arrayBuffer()), ''); toonify(g.scene); cache.set(file.glb, g); }
+  if (model) scene.remove(model); model = g.scene; const box = new THREE.Box3().setFromObject(model); model.position.y = -box.min.y; scene.add(model); setInk(ink);
+  const h = box.max.y - box.min.y; tgtY = h * 0.4; dist = Math.max(4.6, h * 2.55); $('load').hidden = true; }
+function size() { const r = cv.getBoundingClientRect(); renderer.setSize(r.width, r.height, false); camera.aspect = r.width / Math.max(1, r.height); camera.updateProjectionMatrix(); }
+new ResizeObserver(size).observe(cv); size();
+let drag = null; cv.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY }; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; });
+cv.addEventListener('pointermove', e => { if (!drag) return; yaw -= (e.clientX - drag.x) * 0.008; pitch = Math.max(-0.2, Math.min(0.9, pitch + (e.clientY - drag.y) * 0.005)); drag = { x: e.clientX, y: e.clientY }; });
+const up = () => { drag = null; cv.style.cursor = 'grab'; }; cv.addEventListener('pointerup', up); cv.addEventListener('pointercancel', up);
+cv.addEventListener('wheel', e => { dist = Math.max(2.5, Math.min(14, dist + e.deltaY * 0.005)); e.preventDefault(); }, { passive: false });
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; if (reduce) { spin = false; $('spin').setAttribute('aria-pressed', 'false'); }
+let last = performance.now(); (function loop(now) { requestAnimationFrame(loop); const dt = Math.min(0.05, (now - last) / 1000); last = now; if (spin && !drag) yaw += dt * 0.45;
+  camera.position.set(Math.sin(yaw) * Math.cos(pitch) * dist, tgtY + Math.sin(pitch) * dist, Math.cos(yaw) * Math.cos(pitch) * dist); camera.lookAt(0, tgtY, 0); renderer.render(scene, camera); })(last);
+document.querySelectorAll('[data-v]').forEach(b => b.onclick = () => { yaw = { front: 0, side: Math.PI / 2, back: Math.PI }[b.dataset.v]; spin = false; $('spin').setAttribute('aria-pressed', 'false'); });
+$('spin').onclick = () => { spin = !spin; $('spin').setAttribute('aria-pressed', String(spin)); };
+$('ink').onclick = () => { ink = !ink; $('ink').setAttribute('aria-pressed', String(ink)); setInk(ink); };
+
+// ---- sheet ----
+const kb = n => (n / 1024 > 1024 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB');
+function code() { const file = cur.files[alt] || cur.files[0]; return `import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';\n\n// ${cur.name}${alt ? ' (colour ' + (alt + 1) + ')' : ''} · ${file.height.toFixed(2)} units tall, feet at y = 0, faces +Z\nconst gltf = await new GLTFLoader().loadAsync('${file.gltf}');\nconst fighter = gltf.scene;\nfighter.traverse(o => { if (o.isMesh) o.castShadow = true; });\nscene.add(fighter);`; }
+function render() {
+  document.querySelectorAll('.f').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.id === cur.id)));
+  $('name').textContent = cur.name; $('sub').textContent = cur.sub; $('style').textContent = cur.style;
+  $('stats').innerHTML = ''; [['POWER', cur.stats[0]], ['SPEED', cur.stats[1]], ['RANGE', cur.stats[2]]].forEach(([k, v]) => { const d = document.createElement('div'); d.className = 'st'; d.innerHTML = `<span>${k}</span><div class="bars">${[1, 2, 3, 4, 5].map(i => `<i class="${i <= v ? 'on' : ''}"></i>`).join('')}</div>`; $('stats').appendChild(d); });
+  $('chg').innerHTML = ''; cur.changes.forEach(([s, t]) => { const li = document.createElement('li'); li.innerHTML = '<b></b><span></span>'; li.querySelector('b').textContent = s; li.querySelector('span').textContent = t; $('chg').appendChild(li); });
+  $('alts').innerHTML = ''; cur.files.forEach((f, i) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.setAttribute('aria-pressed', String(i === alt)); b.innerHTML = `<span class="dot" style="background:${f.swatch}"></span>${i ? 'COLOUR ' + (i + 1) : 'MAIN COLOUR'}`; b.onclick = () => pick(cur, i); $('alts').appendChild(b); });
+  const file = cur.files[alt] || cur.files[0];
+  $('facts').innerHTML = ''; [['FILE', file.gltf + ' (glTF 2.0)'], ['SIZE', kb(file.gltfBytes)], ['HEIGHT', file.height.toFixed(2) + ' units (feet at y = 0)'], ['FACING', '+Z (front)'], ['PARTS', file.meshes + ' meshes, named groups kept'], ['POSE', 'fight stance, as on the select screen']].forEach(([k, v]) => { const dt = document.createElement('dt'); dt.textContent = k; const dd = document.createElement('dd'); dd.textContent = v; $('facts').append(dt, dd); });
+  $('dl1s').textContent = cur.id + '.zip · ' + kb(cur.files.reduce((a, f) => a + f.gltfBytes, 0) * 0.6); $('code').textContent = code();
+}
+async function pick(f, a) { cur = f; alt = a; try { localStorage.setItem('fw.sel', JSON.stringify({ id: f.id, alt: a })); } catch (e) {} render(); try { await show(); } catch (e) { console.error(e); $('load').hidden = false; $('load').textContent = 'COULD NOT LOAD ' + f.name + '. RELOAD THE PAGE.'; } }
+$('dlAlls').textContent = 'all-fighters.zip · ' + kb(F.reduce((a, f) => a + f.files.reduce((b, q) => b + q.gltfBytes, 0), 0) * 0.6);
+
+// ---- downloads (the viewer confirms each save) ----
+const msg = t => { $('msg').textContent = t; };
+let dlp = null; const dlNS = () => dlp || (dlp = (window.claude && window.claude.use ? window.claude.use('downloads') : Promise.resolve(null)).catch(() => null));
+const README = list => `FOX FIGHTERS · FIGHTER MODELS\n\n${list.map(f => '- ' + f.name + ': ' + f.files.map(q => q.gltf).join(', ')).join('\n')}\n\nEach .gltf (glTF 2.0, everything embedded in the one file) is the fighter exactly as built in Fox Fighters, in its fight stance.\n- Units: game units (Ben is about 2.7 tall). Feet stand at y = 0. The fighter faces +Z.\n- Materials are plain colours and small textures (eyes, crests, decals). In the game they are drawn with a toon shader and black ink outlines; to match, swap each material for MeshToonMaterial with the same colour and map, and add an inverted-hull outline (a BackSide copy scaled up slightly).\n- Parts stay as separate named groups (arms, legs, head, gear), so another game can move them.\n- COLOUR 2 and COLOUR 3 are the mirror-match colours from the select screen (K / L).\n\nthree.js:\n  import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';\n  const fighter = (await new GLTFLoader().loadAsync('ben.gltf')).scene;\n  scene.add(fighter);\n\nfighters.json lists every fighter with name, moves, stats, height and the change log.\n`;
+async function zipSave(list, name, btn) { const dl = await dlNS(); if (!dl) { msg('Downloads are not available in this view. Open the Workshops page in claude.ai to save files.'); return; }
+  if (typeof JSZip === 'undefined') { msg('The zip tool did not load. Check the connection and reload the page.'); return; }
+  btn.disabled = true; try { const z = new JSZip(); let n = 0, tot = list.reduce((a, f) => a + f.files.length, 0);
+    for (const f of list) for (const q of f.files) { msg('Packing ' + (++n) + ' of ' + tot + '…'); z.file(q.glb, await fetch('fighters/' + q.glb).then(r => r.arrayBuffer())); }
+    z.file('fighters.json', JSON.stringify({ ...MAN, fighters: list.map(f => ({ ...f, files: f.files.map(({ web, glb, bytes, ...q }) => q) })) }, null, 2)); z.file('README.txt', README(list));
+    const blob = await z.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 6 } }); msg('Waiting for you to confirm the save…');
+    await dl.save({ filename: name, data: blob }); msg('Saved ' + name + '.');
+  } catch (e) { msg(e && e.code === 'declined' ? 'Save cancelled.' : e && e.code === 'rate_limited' ? 'Another save is still open. Finish it, then try again.' : 'Could not save the file' + (e && e.message ? ': ' + e.message : '.')); }
+  finally { btn.disabled = false; } }
+$('dl1').onclick = () => zipSave([cur], cur.id + '.zip', $('dl1'));
+$('dlAll').onclick = () => zipSave(F, 'fox-fighters-models.zip', $('dlAll'));
+$('copy').onclick = () => { const t = code(); const ok = () => msg('Import code copied.'); (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(ok).catch(() => { const r = document.createRange(); r.selectNodeContents($('code')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); msg('Selected. Press copy on your keyboard.'); }); };
+render(); show();
+</script>
+</body></html>

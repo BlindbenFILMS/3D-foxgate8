@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/modernist-ae67aa6b-5da8-44ce-9255-829f1d75925f/styles.css">
+<script src="_ds/modernist-ae67aa6b-5da8-44ce-9255-829f1d75925f/_ds_bundle.js"></script>
+<style>html,body{margin:0;height:100%;overflow:hidden;background:#000}a{color:#ffd23a}a:hover{color:var(--color-accent)}button:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}</style>
+</helmet>
+<div style="position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;background:#000;color:#fff;font-family:var(--font-body);user-select:none;-webkit-user-select:none;touch-action:none" data-screen-label="Pearl Sail 3D Floor">
+  <div ref="{{ stageRef }}" style="position:absolute;left:0;right:0;top:{{ stageTop }};bottom:0;overflow:hidden"></div>
+  <div style="position:absolute;left:0;right:0;top:{{ stageTop }};bottom:0;pointer-events:none;background:radial-gradient(ellipse at 50% 55%, rgba(0,0,0,0) 55%, rgba(10,14,22,0.38) 100%);z-index:1"></div>
+  <div style="position:absolute;inset:0;pointer-events:none;box-shadow:inset 0 0 120px 30px #ec3013;opacity:{{ hurtOp }};z-index:1"></div>
+  <div data-hud-host="1" style="position:absolute;left:0;right:0;top:0;bottom:0;pointer-events:none"><dc-import name="Game HUD" game="{{ engine }}" hud="{{ stdHud }}" started="{{ started }}" busy="{{ hudBusy }}" on-hud="{{ onHud }}" world="Meru" keys="{{ keysList }}" skip-keys="{{ skipKeys }}" hint-size="100%,100%" style="position:absolute;inset:0;pointer-events:none"></dc-import></div>
+  <sc-if value="{{ showCard }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));top:{{ cardTop }};width:{{ colW }};background:#000;border:2px solid #ffd23a;display:flex;flex-direction:column;pointer-events:none;z-index:2">
+      <div style="padding:6px 10px;display:flex;flex-direction:column;gap:2px;border-bottom:2px solid #3a3836">
+        <span style="font:700 10px var(--font-heading);letter-spacing:0.12em;color:#ffd23a;white-space:nowrap">PEARL SAIL · 3D</span>
+        <span style="font:800 {{ titleSize }} var(--font-heading);line-height:1.05">{{ floorTxt }}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr))">
+        <div style="padding:4px 10px;display:flex;flex-direction:column;border-right:2px solid #3a3836"><span style="font:700 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">BOTS</span><span style="font:800 15px var(--font-heading);font-variant-numeric:tabular-nums">{{ leftTxt }}</span></div>
+        <div style="padding:4px 10px;display:flex;flex-direction:column;border-right:2px solid #3a3836"><span style="font:700 10px var(--font-heading);letter-spacing:0.1em;color:{{ gateCol }}">GATES</span><span style="font:800 15px var(--font-heading);font-variant-numeric:tabular-nums;color:{{ gateCol }}">{{ gateTxt }}</span></div>
+        <div style="padding:4px 10px;display:flex;flex-direction:column"><span style="font:700 10px var(--font-heading);letter-spacing:0.1em;color:#cfcac4">TIME</span><span style="font:800 15px var(--font-heading);font-variant-numeric:tabular-nums">{{ timeTxt }}</span></div>
+      </div>
+      <sc-if value="{{ hasPower }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:center;gap:8px;padding:5px 10px;border-top:2px solid #3a3836"><span style="width:10px;height:10px;background:{{ powerCol }};display:block"></span><span style="font:800 12px var(--font-heading);letter-spacing:0.08em;color:{{ powerCol }}">{{ powerTxt }}</span></div></sc-if>
+      <sc-if value="{{ hasBill }}" hint-placeholder-val="{{ false }}"><div style="display:flex;align-items:baseline;gap:8px;padding:5px 10px;border-top:2px solid #3a3836"><span style="font:700 10px var(--font-heading);letter-spacing:0.1em;color:#ff9b2a">DAMAGES</span><span style="font:800 13px var(--font-heading);font-variant-numeric:tabular-nums;color:#ff9b2a">{{ billTxt }}</span></div></sc-if>
+    </div>
+  </sc-if>
+  <div style="position:absolute;left:0;right:0;top:{{ stageTop }};bottom:0;pointer-events:none;z-index:3">
+    <sc-for list="{{ marks }}" as="g" hint-placeholder-count="0">
+      <div style="position:absolute;left:{{ g.l }};top:{{ g.t }};transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center">
+        <div style="width:40px;height:40px;box-sizing:border-box;background:#000;border:2px solid #ec3013;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" style="transform:rotate({{ g.r }})"><path d="M4 12h13M12 5l7 7-7 7" fill="none" stroke="#ff6b5a" stroke-width="3" stroke-linecap="square"></path></svg></div>
+        <div style="background:#ec3013;border:2px solid #000;border-top:0;padding:1px 6px;font:800 10px var(--font-heading);letter-spacing:0.08em;color:#fff;white-space:nowrap">GATE {{ g.d }} M</div>
+      </div>
+    </sc-for>
+  </div>
+  <div style="position:absolute;inset:0;background:#000;opacity:{{ fadeOp }};pointer-events:none;z-index:4"></div>
+  <sc-if value="{{ hasBanner }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:0;right:0;top:{{ bannerTop }};display:flex;padding:0 max(16px, env(safe-area-inset-left));pointer-events:none;z-index:3"><div style="background:#ec3013;color:#fff;padding:8px 16px;font:900 clamp(18px,5vw,34px) var(--font-heading);line-height:1.05;border:2px solid #000">{{ banner }}</div></div>
+  </sc-if>
+  <sc-if value="{{ wcOn }}" hint-placeholder-val="{{ true }}">
+    <div style="position:absolute;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));z-index:10;width:min(420px, calc(100% - 24px));max-height:calc(100% - 24px);display:flex;pointer-events:none"><dc-import name="Welcome Card" kicker="MERU · PEARL SAIL · 3D" title="The Pearl Sail" text="Follow the red runner through the overrun offices. Find and destroy every GATE spawner off the path to unlock the stairs." rows="{{ wcRows }}" play-label="ENTER THE TOWER" on-play="{{ wcGo }}" on-tutorial="{{ wcTut }}" hint-size="100%,340px" style="width:100%"></dc-import></div>
+  </sc-if>
+  <sc-if value="{{ duelOn }}" hint-placeholder-val="{{ false }}">
+    <iframe src="{{ duelSrc }}" title="Pearl Sail roof duel" onLoad="{{ duelLoad }}" allow="autoplay; fullscreen" style="position:absolute;inset:0;width:100%;height:100%;border:0;z-index:30;background:#000;display:block"></iframe>
+  </sc-if>
+  <sc-if value="{{ doneOn }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:11;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:flex-start;padding:12px;box-sizing:border-box;overflow:auto">
+      <div style="background:#000;border:2px solid #3a3836;width:min(460px,100%);display:flex;flex-direction:column">
+        <div style="padding:12px 16px;display:flex;flex-direction:column;gap:2px;border-bottom:2px solid #3a3836"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#ffd23a">PEARL SAIL · 3D · CLEARED</span><span style="font:900 26px var(--font-heading);line-height:1.05">{{ doneTitle }}</span></div>
+        <div style="padding:10px 16px;display:flex;flex-direction:column;gap:2px;border-bottom:2px solid #3a3836"><span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#cfcac4">REPUTATION · PEARL SAIL HOLDINGS</span><span style="font:900 28px var(--font-heading);line-height:1.05;color:{{ repCol }}">{{ repTxt }}</span></div>
+        <sc-for list="{{ rows }}" as="r" hint-placeholder-count="4">
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:8px 16px;border-bottom:2px solid #2a2826;font:700 14px var(--font-body)"><span>{{ r.k }}</span><span style="font-family:var(--font-heading);font-weight:800;font-variant-numeric:tabular-nums;color:{{ r.c }};text-align:right">{{ r.v }}</span></div>
+        </sc-for>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr))">
+          <button onClick="{{ again }}" style="min-height:52px;padding:0 18px;border-radius:0;border:0;border-right:2px solid #3a3836;background:#000;color:#fff;font:900 15px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#2a2826">PLAY AGAIN</button>
+          <a href="Pearl Sail Tower.dc.html" style="min-height:52px;padding:0 18px;display:flex;align-items:center;background:#ec3013;color:#fff;font:900 15px var(--font-heading);letter-spacing:0.1em;text-decoration:none" style-hover="background:#c82a10">SIDE-ON VERSION</a>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { vw: 1200, vh: 800, hud: { state: 'ready', hp: 100, en: 100, left: 0, pct: 0, time: 0, banner: '' }, hi: { pad: false, menu: false, split: false, bar: 0 } };
+  stageRef = React.createRef();
+  onHud = hi => this.setState({ hi });
+  // s36 ROOF DUEL: the ROOF door → the Kyoto duel engine in Pearl mode, full screen in a panel; it posts { type: '8gates:pearl-duel', won } back
+  onMsg = e => { const d = e && e.data; if (!d || d.type !== '8gates:pearl-duel' || !this.state.duel) return; this.skipDuel = true; this.setState({ duel: false }); this.lab && this.lab.finishDuel(!!d.won); };
+  componentDidUpdate() { const h = this.state.hud; if (h && !h.duel) this.skipDuel = false; if (h && h.duel && !this.state.duel && this.lab && !this.skipDuel) { this.lab.duelOpen(); this.setState({ duel: true }); } }
+  async componentDidMount() {
+    addEventListener('resize', this.onRs); this.onRs(); addEventListener('message', this.onMsg);
+    import(new URL('worlds/meru-shops.js', document.baseURI).href).then(m => { this.labels = m.ITEM_LABELS; this.forceUpdate(); }).catch(() => {});
+    try { const mod = await import(new URL('worlds/pearl-floor3d.js', document.baseURI).href);
+      this.lab = await mod.createPearlFloor3D({ container: this.stageRef.current, onState: hud => this.setState({ hud }) });
+      this.engine = this.lab; window.__pearl3d = this.lab; this.forceUpdate(); const fm = /[?&]floor=(\d)/.exec(location.search); if (fm) { this.setState({ startFloor: Math.max(0, Math.min(2, +fm[1] - 1)) }); this.lab._dbg.loadFloor(this.state.startFloor ?? 0); this.lab.start(); } else if (/[?&]autostart=1/.test(location.search)) this.lab.start(); if (/[?&]duel=1/.test(location.search)) { this.setState({ startFloor: 2 }); this.lab.goDuel(); }
+    } catch (e) { console.warn('pearl 3d failed: ' + (e && e.stack || String(e))); }
+  }
+  componentWillUnmount() { this.lab && this.lab.destroy(); removeEventListener('resize', this.onRs); removeEventListener('message', this.onMsg); }
+  onRs = () => this.setState({ vw: innerWidth, vh: innerHeight });
+  renderVals() {
+    const S = this.state, h = S.hud, { vw, vh } = S, phone = Math.min(vw, vh) < 520, land = phone && vw > vh, pad = !!S.hi.pad, bar = S.hi.bar || 0, play = h.state === 'run', nf = n => Number(n || 0).toLocaleString('en-US'), mm = s => Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'), w = h.won;
+    const stdHud = { hp: h.hp, hpMax: 100, en: h.en, gold: h.gold || 0, hour: 12, day: 1, items: (h.items || []).map(i => ({ ...i, label: (this.labels && this.labels[i.id]) || i.id })), place: h.place || 'Pearl Sail · Floor 2', quest: h.quest || { text: 'Follow the yellow strip' }, prompt: null, toast: null, muted: true, weather: 'Clear', inCave: true, weapons: [], dialog: null };
+    return {
+      stageRef: this.stageRef, engine: this.engine, stdHud, started: !!this.lab && h.state !== 'ready', hudBusy: !play, onHud: this.onHud,
+      stageTop: S.hi.split ? 'calc(' + bar + 'px + (100% - ' + bar + 'px) / 2)' : bar + 'px',
+      keysList: [['WASD', 'move'], ['Space', 'jump · again = double'], ['1 / J', 'slash'], ['2 / K', 'laser (auto-aim)'], ['I', 'menu'], ['Wheel', 'zoom']], skipKeys: ['KeyJ', 'KeyK', 'KeyT', 'KeyN', 'KeyV', 'KeyC', 'KeyO', 'KeyH'],
+      showCard: play && !S.hi.menu && !(pad && land), cardTop: (bar + 40) + 'px', colW: phone ? (land ? '220px' : 'min(240px, calc(100% - 24px))') : '270px', titleSize: phone ? '15px' : '19px',
+      leftTxt: String(h.left), gateTxt: (h.gatesT || 0) - (h.gates || 0) + '/' + (h.gatesT || 0), gateCol: h.gates ? '#ff6b5a' : '#7cff9b', timeTxt: mm(h.time || 0), floorTxt: (h.floorNo || 1) + ' · ' + (h.floorName || 'OPEN OFFICE'),
+      hasBill: !!h.bill, billTxt: nf(h.bill) + ' CR · ' + (h.broke || 0) + ' BROKEN', hasPower: !!h.power || !!h.shield, powerTxt: [h.power ? h.power.kind + ' · ' + h.power.t + 'S' : '', h.shield ? 'SHIELD · ' + h.shield : ''].filter(Boolean).join('  ·  '), powerCol: h.power ? h.power.col : '#38bdf8', fadeOp: h.fade || 0, marks: play && !S.hi.menu ? (h.marks || []).map(m => ({ l: Math.min(Math.max(m.x, 8), 92) + '%', t: Math.min(Math.max(m.y, 34), 72) + '%', r: m.a + 'deg', d: m.d })) : [],
+      hasBanner: !!h.banner && !S.hi.menu, banner: h.banner, bannerTop: 'calc(' + bar + 'px + 30%)', hurtOp: h.hp < 30 && play ? 0.35 : h.ko ? 0.7 : 0,
+      wcOn: h.state === 'ready', wcRows: [...[['1', 'Open office'], ['2', 'Server room'], ['3', 'Atrium climb · floors 3–5']].map(([n, nm], i) => ({ k: 'Start on floor ' + n, v: nm, c: (S.startFloor || 0) === i ? '#ffd23a' : '#cfcac4', sel: (S.startFloor || 0) === i, go: () => { this.setState({ startFloor: i }); this.lab && this.lab._dbg.loadFloor(i); } })), { k: 'Gates', v: 'bot spawners off the runner · destroy all to open the stairs', c: '#ffd23a' }, { k: 'The roof', v: 'through the ROOF door: duel SUDS-9 for the Pearl of the Sail', c: '#ec3013' }, { k: 'Power-ups', v: 'speed boots · triple laser · power sword · shield', c: '#ffd23a' }, { k: 'Props', v: 'desks, glass, racks all break · Pearl Sail Holdings bills big messes', c: '#ff9b2a' }, { k: 'Tip', v: 'jump over the cubicle walls · double jump up the atrium platforms', c: '#cfcac4' }],
+      wcGo: () => this.lab && this.lab.start(),
+      wcTut: () => this.lab && this.lab.start(true),
+      doneOn: h.state === 'won', repTxt: w ? w.rep : '', repCol: w ? w.repCol : '#fff',
+      rows: w ? [['Floors', String(w.floors)], ['Time', mm(w.time)], ['Bots wrecked', String(w.kills)], ['Knocked out', String(w.kos)], ['Credits', '+' + w.gold + ' CR'], ['Clean bonus', (w.bonus ? '+' + w.bonus + ' CR · ' : '') + (w.grades || []).join(' · '), w.bonus ? '#7cff9b' : '#cfcac4'], ['Props broken', w.broke + ' / ' + w.props + ' · ' + w.pct + ' %'],
+        ...(w.roof ? [['Roof boss · SUDS-9', 'BEATEN', '#7cff9b'], ['Relic', 'PEARL OF THE SAIL', '#ffd23a']] : []),
+        ...(w.bill ? [['Damages bill', nf(w.bill) + ' CR', '#ff9b2a'], ['Insurance covers', '−' + nf(w.cover) + ' CR'], ['Charged by Pearl Sail Holdings', w.charged ? '−' + nf(w.charged) + ' CR' : 'nothing', w.charged ? '#ff6b5a' : '#7cff9b']] : [])].map(([k, v, c]) => ({ k, v, c: c || '#fff' })) : [],
+      again: () => location.reload(), doneTitle: w && w.roof ? 'The Pearl Sail is clear' : 'Up to the roof',
+      duelOn: !!S.duel, duelSrc: 'Kyoto Sword Duel.dc.html?pearl=1&embed=1&fox=ben', duelLoad: e => { try { e.currentTarget.focus(); e.currentTarget.contentWindow.focus(); } catch (er) {} },
+    };
+  }
+}
+</script>
+</body>
+</html>
