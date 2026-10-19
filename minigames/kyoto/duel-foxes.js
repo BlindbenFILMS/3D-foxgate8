@@ -16,17 +16,17 @@ import { creatureKit } from '../../engine/creature-kit.js';
 // Cast foxes come from engine/cast.js (never restyled); the royals use the same configs as their Meru NPCs (worlds/meru-interiors.js, meru-game.js) + a sword.
 export const FOX_ROSTER = [
   // row 1
-  { id: 'ben', name: 'BEN', sub: 'THE HERO · FOX BEAM', style: 'The all-rounder. FOX BEAM, WHIRLWIND KICK and the RISING FOX.', cast: 'player', hp: 170, speed: 1, dmg: 1.12, stats: [3, 3, 3], mv: { w: 0.95 }, ai: 'balanced', gloves: '#dc2626' },
-  { id: 'hope', name: 'HOPE', sub: 'THE CANE · POLE VAULT', style: 'Her cane is a vaulting pole. VAULT DIVE from above and the CANE FLIP. Nobody trips her.', cast: 'hope', cane: true, hp: 178, speed: 1.1, dmg: 1.15, stats: [3, 5, 3], mv: { w: 0.9, r: 0.92, reach: 1.08, high: { reach: 1.18 } }, ai: 'rush', gloves: '#38bdf8' },
-  { id: 'noble', name: 'NOBLE', sub: 'THE CHAIR · THUNDER WHEELS', style: 'Electric wheels. The ROLLING CHAIR charge, WHEELIE KICKS and the SHOEMERANG.', cast: 'noble', hp: 160, speed: 0.88, dmg: 1.0, stats: [4, 3, 4], mv: { reach: 1.05 }, ai: 'balanced', gloves: '#2563eb' },
+  { id: 'ben', name: 'BEN', sub: 'THE HERO · FOX BEAM', style: 'The all-rounder. FOX BEAM, WHIRLWIND KICK and the RISING FOX.', cast: 'player', hp: 172, speed: 1, dmg: 1.16, stats: [3, 3, 3], mv: { w: 0.95 }, ai: 'balanced', gloves: '#dc2626' },
+  { id: 'hope', name: 'HOPE', sub: 'THE CANE · POLE VAULT', style: 'Her cane is a vaulting pole. VAULT DIVE from above and the CANE FLIP. Nobody trips her.', cast: 'hope', cane: true, hp: 178, speed: 1.1, dmg: 1.15, stats: [3, 5, 3], mv: { w: 0.9, r: 0.92, reach: 1.08, high: { reach: 1.18 } }, ai: 'rush', gloves: '#dc2626' },
+  { id: 'noble', name: 'NOBLE', sub: 'THE CHAIR · THUNDER WHEELS', style: 'Electric wheels. The ROLLING CHAIR charge, WHEELIE KICKS and the SHOEMERANG.', cast: 'noble', hp: 158, speed: 0.88, dmg: 0.98, stats: [4, 3, 4], mv: { reach: 1.05 }, ai: 'balanced', gloves: '#dc2626' },
   { id: 'might', name: 'KING MIGHT', sub: 'THE KING OF MERU', style: 'The old master. ROYAL CRUSHER flies at you, KNEE PRESS, and the CROWN STOMP from above.', boss: 'king', hp: 175, speed: 0.95, dmg: 1.08, stats: [5, 3, 4], mv: { w: 1.05, reach: 1.06, armor: ['spin'] }, ai: 'heavy', gloves: '#e6b45a' },
   { id: 'michelle', name: 'MICHELLE', sub: 'THE PRINCESS OF MERU', style: 'The fastest feet on the roof. Long, quick kicks, the SPINNING CRANE KICK and the PALM BLAST.', boss: 'michelle', hp: 162, speed: 1.2, dmg: 0.98, stats: [2, 5, 3], mv: { w: 0.85, r: 0.88, reach: 0.94, kick: { reach: 1.14, w: 0.78 }, sweep: { reach: 1.1 }, akick: { reach: 1.12 } }, ai: 'rush', gloves: '#3b82f6', kickFlurry: true },
   // row 2
-  { id: 'sumo', name: 'OYAKATA', sub: 'THE SUMO · KYOTO', style: 'Huge and hard to move. The SUMO TORPEDO and the BELLY SPLASH.', boss: 'sumo', hp: 180, speed: 0.8, dmg: 1.11, stats: [5, 1, 3], mv: { w: 1.2, r: 1.12, reach: 1.1, punch: { reach: 1.18, dmg: 1.15 }, armor: ['spin', 'high'] }, ai: 'grappler' },
+  { id: 'sumo', name: 'OYAKATA', sub: 'THE SUMO · KYOTO', style: 'Huge and hard to move. The SUMO TORPEDO and the BELLY SPLASH.', boss: 'sumo', pb: 0.22, hp: 180, speed: 0.8, dmg: 1.11, stats: [5, 1, 3], mv: { w: 1.2, r: 1.12, reach: 1.1, punch: { reach: 1.18, dmg: 1.15 }, armor: ['spin', 'high'] }, ai: 'grappler' },
   { id: 'barnacle', name: 'BARNACLE', sub: 'BANDIT · SALT BUILDING', style: 'Forklift muscle. The FORKLIFT SLAM grab and the CRATE TOSS.', boss: 'barnacle', hp: 176, speed: 0.86, dmg: 1.12, stats: [5, 2, 3], mv: { w: 1.16, r: 1.1, reach: 1.06, armor: ['spin'] }, ai: 'grappler', gloves: '#1f2937' },
   { id: 'jack', name: 'JALAPEÑO JACK', sub: 'BANDIT · PEPPER BUILDING', style: 'Sits back and waits. The PEPPER BOOM projectile and the CHILLI FLIP kick.', boss: 'jack', hp: 160, speed: 1.02, dmg: 1.12, stats: [3, 3, 5], mv: { w: 0.86, r: 0.9, reach: 0.98, akick: { reach: 1.12, dmg: 1.1 } }, ai: 'zoner', gloves: '#16a34a' },
-  { id: 'rook', name: 'ROOK', sub: 'BANDIT BOSS · RUINS CAVE', style: 'Long-range trouble. The SNIPER BEAM and the DUSTER DASH.', boss: 'rook', hp: 168, speed: 1.0, dmg: 1.14, stats: [3, 3, 5], mv: { reach: 1.04, kick: { reach: 1.08 } }, ai: 'zoner', gloves: '#92400e' },
-  { id: 'lox', name: 'LOX', sub: 'LEADER OF LUXOR · BOXER', style: 'A heavyweight boxer: every button is a punch. DASH STRAIGHT, DASH UPPER and the TURN PUNCH.', boss: 'lox', hp: 174, speed: 0.98, dmg: 1.14, stats: [5, 3, 2], mv: { w: 0.95, punch: { w: 0.7, r: 0.8, reach: 1.06 }, kick: { w: 0.85 }, armor: ['spin'] }, ai: 'rush', noSword: true, boxer: true },
+  { id: 'rook', name: 'ROOK', sub: 'BANDIT BOSS · RUINS CAVE', style: 'Long-range trouble. The SNIPER BEAM and the DUSTER DASH.', boss: 'rook', hp: 170, speed: 1.0, dmg: 1.17, stats: [3, 3, 5], mv: { reach: 1.04, kick: { reach: 1.08 } }, ai: 'zoner', gloves: '#92400e' },
+  { id: 'lox', name: 'LOX', sub: 'LEADER OF LUXOR · BOXER', style: 'A heavyweight boxer. KICK throws a 3-punch combo: BODY BLOW, CROSS, HAYMAKER. DASH STRAIGHT, DASH UPPER and the TURN PUNCH.', boss: 'lox', pb: 0.1, hp: 170, speed: 0.98, dmg: 1.07, stats: [5, 3, 2], mv: { w: 0.95, punch: { w: 0.7, r: 0.8, reach: 1.06 }, kick: { w: 0.85 }, armor: ['spin'] }, ai: 'rush', boxer: true },
   // row 3
   { id: 'warden', name: 'IRON WARDEN', sub: 'ROBOT · MERU ARENA', style: 'A walking fortress. ROCKET PUNCH and the STOMP shockwave.', rig: 'warden', hp: 192, speed: 0.78, dmg: 1.16, stats: [5, 1, 4], mv: { w: 1.2, r: 1.15, reach: 1.14, armor: ['spin', 'high'] }, ai: 'heavy' },
   { id: 'prime', name: 'MAKER PRIME', sub: 'ROBOT · THE FACTORY', style: 'Claw, drill and a red laser eye. LASER EYE and the DRILL SPIN.', rig: 'prime', hp: 180, speed: 0.72, dmg: 1.18, stats: [5, 1, 5], mv: { w: 1.25, r: 1.2, reach: 1.16, armor: ['spin', 'high'] }, ai: 'zoner' },
@@ -39,6 +39,14 @@ export const FOX_SECRET = [];
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v)), ss = t => t * t * (3 - 2 * t), lerp = (a, b, t) => a + (b - a) * t;
 // a fake "human L" whose numbers land the duel's pose targets on the fox's joints (fox ≈ 2.0 m to the ear tips, shoulders 1.37 m, hips 0.75 m)
+// s66 SWORD WORKSHOP: per-fighter fine-tuning of the sword on the back, on top of the built-in placement. BAKED = the tuned values in the game;
+// the workshop saves to this device (localStorage 'ff.swordFit') and every fighter re-reads it live (SWORD_FIT.v bumps on each change).
+// dx = across the back (+ = far shoulder) · dy = up · out = further off the back · tilt = lean across the back · lean = top tips away from the back · twist = turn round the blade (degrees)
+const BEN_FIT = { dx: 0, dy: -0.34, out: -0.08, tilt: -16, lean: 4, twist: 70 };   // s68: Ben's own tuning in the Sword Workshop (18 Oct)
+export const SWORD_FIT_BAKED = { ben: BEN_FIT, shadow: BEN_FIT, might: BEN_FIT, michelle: BEN_FIT, barnacle: BEN_FIT, jack: BEN_FIT, rook: BEN_FIT, hope: BEN_FIT, lox: BEN_FIT, sumo: { dx: 0, dy: -0.12, out: 0.14, tilt: -12, lean: 6, twist: 70 } };   // s72: Oyakata's back is much rounder: higher and further off it
+export const SWORD_FIT = (() => { let d = {}; try { d = JSON.parse(localStorage.getItem('ff.swordFit2') || '{}') || {}; } catch (e) {} return { v: 1, d: { ...SWORD_FIT_BAKED, ...d },
+  get(id) { return { dx: 0, dy: 0, out: 0, tilt: 0, lean: 0, twist: 0, ...(this.d[id] || {}) }; },
+  set(id, fit) { if (fit) this.d[id] = { ...fit }; else if (SWORD_FIT_BAKED[id]) this.d[id] = { ...SWORD_FIT_BAKED[id] }; else delete this.d[id]; this.v++; try { localStorage.setItem('ff.swordFit2', JSON.stringify(this.d)); } catch (e) {} } }; })();
 export const FOX_L0 = { H: 2.0, hipY: 0.75, torsoL: 0.667, footH: 0.05, shW: 0.42, uaL: 0.28, faL: 0.26, thL: 0.35, snL: 0.35 };
 // s46 (Ben: longer arms and legs so punches and kicks read): the foxes stand 0.16 taller on longer legs; the robots keep FOX_L0 (their rigs map to it)
 export const LEG_UP = 0.16, FOX_L = { ...FOX_L0, H: FOX_L0.H + LEG_UP, hipY: FOX_L0.hipY + LEG_UP };
@@ -47,7 +55,7 @@ const FOX_MOOD = { angry: 'stern', happy: 'excited', sad: 'sad', surprised: 'sur
 export function foxFighter({ THREE, kit, M, toon }, key = 'player', def = null) {
   const CK = castKit({ THREE, M, toon, makeFox: kit.makeFox }); let g, sc = 1;
   if (def && def.boss) { const BF = BOSS_FOX[def.boss]; g = kit.makeFox({ ...BF, gear: 'both' }); bossExtras(def.boss, g, { THREE, M, toon }); sc = BF.scale || 1; }
-  else g = def && def.cfg ? kit.makeFox(def.cfg) : CK.make(key, key === 'noble' ? {} : { gear: 'both' });
+  else g = def && def.cfg ? kit.makeFox(def.cfg) : CK.make(key, key === 'noble' ? {} : key === 'hope' ? { gear: 'both', caneArm: 1 } : { gear: 'both' })   /* s91 (Ben): Hope's cane in the hand AWAY from the camera, the near hand is free for the laser */;
   g.rotation.order = 'YXZ'; if (sc !== 1) g.scale.setScalar(sc);
   const chair = key === 'noble' && !(def && def.cfg), NWK = chair ? nobleWeaponKit({ THREE, M, toon }) : null;
   if (def && def.shadow) { const pc = new THREE.Color(0x3a1050), tint = c => { c = c.clone(); if (c.color) c.color.multiplyScalar(0.3).lerp(pc, 0.3); if (c.emissive) c.emissive.setHex(0x1a0628); return c; }; g.traverse(m => { if (!m.material || !(m.isMesh || m.isSprite)) return; m.material = Array.isArray(m.material) ? m.material.map(tint) : tint(m.material); }); }
@@ -63,30 +71,58 @@ export function foxFighter({ THREE, kit, M, toon }, key = 'player', def = null) 
   // s41 (Ben): small BOXING GLOVES on the foxes (about half the size of Lox's), in each fox's colour. Not on Lox (his own), Oyakata, the robots or
   // Slagback. Hope wears one on her free paw only (her cane paw stays as it is). The fist inside the paw is hidden; the laser pistol still appears for LASER.
   if (def && def.gloves) { const gm = toon(def.gloves), cuff = toon('#f7f1e6'), lace = toon('#141312');
-    FP.arms.forEach((A, i) => { if (def.cane && i === 0) return; const paw = A.children.find(c => c.isGroup && c !== FP.gun && c.position.y <= -0.33 && c.children.some(m => m.isMesh)); if (!paw) return;
+    FP.arms.forEach((A, i) => { const paw = A.children.find(c => c.isGroup && c !== FP.gun && c.position.y <= -0.33 && c.children.some(m => m.isMesh)); if (!paw) return;
       paw.children.forEach(m => { if (m.isMesh) m.visible = false; }); const G = new THREE.Group(); G.position.set(0, -0.02, 0.02); paw.add(G);
       M(new THREE.SphereGeometry(0.105, 16, 12), gm, 0, -0.01, 0.01, G, 0.016, 0.105).scale.set(1, 1.08, 1.2);
       M(new THREE.SphereGeometry(0.045, 10, 8), gm, (A.position.x > 0 ? -1 : 1) * 0.08, 0.0, 0.05, G, 0.01, 0.045);
       M(new THREE.CylinderGeometry(0.075, 0.075, 0.06, 14), cuff, 0, 0.085, 0, G, 0.008, 0.075);
       M(new THREE.TorusGeometry(0.072, 0.008, 5, 14), lace, 0, 0.085, 0, G, 0).rotation.x = Math.PI / 2; }); }
   // the fox sword comes off the arm: the duel places it in the paw every frame (like the katana in the human fighters)
-  let sw; const NW = chair ? NWK.attach(g) : null;
+  let sw, CANEW = null, SWK = null, caneUse = false, caneSet = false; const NW = chair ? NWK.attach(g) : null;
   if (chair) { sw = new THREE.Object3D(); sw.position.set(0, 1.05, 0.55); g.add(sw); const tp = new THREE.Object3D(); tp.position.set(0, 0, 0.45); sw.add(tp); sw.userData.tip = tp; }   // Noble: no sword, the 'blade tip' is the front of his chair
   else { sw = FP.sword; sw.parent.remove(sw); g.add(sw); sw.scale.setScalar(1.0); const tip = new THREE.Object3D(); tip.position.y = def && def.cane ? 1.2 : 1.3; sw.add(tip); sw.userData.tip = tip;
-    if (def && def.cane) { sw.visible = false; sw.children.forEach(c => { if (c !== tip) c.visible = false; }); const wh = toon('#f8fafc'), rd = toon('#dc2626'), bk = toon('#1f2937'); M(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 10), bk, 0, 0.0, 0, sw, 0.01); M(new THREE.CylinderGeometry(0.022, 0.022, 0.86, 10), wh, 0, 0.53, 0, sw, 0.01); M(new THREE.CylinderGeometry(0.023, 0.023, 0.2, 10), rd, 0, 1.06, 0, sw, 0.01); M(new THREE.SphereGeometry(0.04, 10, 8), toon('#e5e7eb'), 0, 1.18, 0, sw, 0.01); }
+    if (def && def.cane) { SWK = sw.children.filter(c => c !== tip); SWK.forEach(c => { c.visible = false; });   /* s81: Hope has the real sword too (SWK); the weapon cane (CANEW) is only for the cane moves */ const wh = toon('#f8fafc'), rd = toon('#dc2626'), bk = toon('#1f2937'); CANEW = [M(new THREE.CylinderGeometry(0.03, 0.03, 0.2, 10), bk, 0, 0.0, 0, sw, 0.01), M(new THREE.CylinderGeometry(0.022, 0.022, 0.86, 10), wh, 0, 0.53, 0, sw, 0.01), M(new THREE.CylinderGeometry(0.023, 0.023, 0.1, 10), rd, 0, 1.06, 0, sw, 0.01), M(new THREE.SphereGeometry(0.066, 12, 10), toon('#e5e7eb'), 0, 1.17, 0, sw, 0.01)]; }   /* s75: short red strip + roller ball tip */
     if (def && def.shadow) sw.traverse(m => { if (m.isMesh && m.material && !Array.isArray(m.material)) { m.material = m.material.clone(); if (m.material.color) m.material.color.setHex(0x8b5cf6); if (m.material.emissive) m.material.emissive.setHex(0x5b21b6); } }); }
   // s36b (Ben): no laser in this duel: the gun is hidden and the near paw is a free fist again (punches)
   if (FP.gun) { FP.gun.visible = false; FP.arms[0].children.forEach(c => { if (c.isMesh && c.geometry.type === 'SphereGeometry' && Math.abs(c.position.y + 0.4) < 0.02) c.scale.setScalar(1); }); }
   const gunTip = new THREE.Object3D(); if (FP.tipGlow) FP.tipGlow.parent.add(gunTip), gunTip.position.copy(FP.tipGlow.position);
   // s47 (Ben): the SWORD lives on the fox's BACK in a scabbard (hilt over the far shoulder) and the LASER in a HOLSTER on the near hip. They are drawn
   // only while a hold is charging (sword: reach over the shoulder; gun: down to the hip) and put back after. Not on Noble (chair), Hope (cane) or Lox.
-  const TAIL_SIDE = 1, TAIL_B = 0.22, hasBack = !chair && !(def && (def.cane || def.noSword)), hasHol = !chair && !!FP.gun && !(def && def.noSword);
+  const TAIL_SIDE = 1, TAIL_B = 0.22, hasBack = !chair && !(def && def.noSword), hasHol = !chair && !!FP.gun && !(def && def.noSword);
   // s49 (Ben: the tail was sweeping through the sword): the scabbard runs down the FAR side of the back, angled out and away from the tail, and while
   // the sword is sheathed the tail curls to the NEAR side with a narrower swing (see the end of upd), so the two never brush. Drawn = tail free again.
-  const SUMO = def && def.boss === 'sumo', BA = new THREE.Object3D(); BA.position.set(SUMO ? 0.4 : 0.22, SUMO ? 1.78 : 1.84, SUMO ? -0.46 : -0.4); BA.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(SUMO ? 0.42 : 0.17, -1.17, SUMO ? -0.24 : -0.46).normalize()); FP.body.add(BA);
-  if (hasBack) { const lea = toon(def && def.shadow ? '#2a0f3d' : '#3b2416'), brass = toon('#d4a73a'); M(new THREE.CylinderGeometry(0.06, 0.045, 1.12, 10), lea, 0, 0.72, 0, BA, 0.012);
-    M(new THREE.CylinderGeometry(0.068, 0.068, 0.07, 10), brass, 0, 0.18, 0, BA, 0.008); M(new THREE.CylinderGeometry(0.05, 0.05, 0.05, 10), brass, 0, 1.27, 0, BA, 0.008); }
-  const HA = new THREE.Object3D(); if (def && def.boss === 'sumo') HA.position.set(-0.62, 1.0, 0.1); else HA.position.set(-0.36, 0.66, 0.05); HA.rotation.set(Math.PI / 2, 0, 0.12); FP.body.add(HA); let HG = null;
+  const SUMO = def && def.boss === 'sumo', BA = new THREE.Object3D(); FP.body.add(BA);
+  // s67 (Ben: handle toward the camera, tilted so the tail can swing under it): the HILT now sits over the shoulder NEAREST THE CAMERA and the scabbard
+  // runs diagonally across the back, ending high on the far side above the tail. The whole thing mirrors when the fighter turns round (hiltS), so the
+  // handle always shows. Canonical frame = hilt on −x (the camera side when facing right).
+  const BASE = SUMO ? { p: [-0.4, 1.92, -0.52], d: [0.77, -0.64, -0.14] } : { p: [-0.26, 1.98, -0.42], d: [0.77, -0.64, -0.1] };   // ~50° from upright
+  const fitId = (def && def.id) || key; let fitV = -1, fitS = 0;
+  const fitApply = sgn => { const F = SWORD_FIT.get(fitId), D2R = Math.PI / 180; BA.position.set(BASE.p[0] + F.dx, BASE.p[1] + F.dy, BASE.p[2] - F.out); BA.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), new THREE.Vector3(...BASE.d).normalize()).premultiply(new THREE.Quaternion().setFromEuler(new THREE.Euler(-F.lean * D2R, 0, F.tilt * D2R))).multiply(new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), F.twist * D2R));
+    if (sgn > 0) { BA.position.x = -BA.position.x; const q = BA.quaternion; q.set(q.x, -q.y, -q.z, q.w); }   // mirror to the other shoulder
+    if (STRAP) STRAP.rotation.set(0, 0, (sgn > 0 ? 1 : -1) * STRAP.userData.A);   // high on the hilt shoulder, low at the far hip
+    fitV = SWORD_FIT.v; fitS = sgn; g.userData.hiltS = sgn; };
+  // s68 (Ben: "make it look more like it's in a sheath on his back"): a real SHEATH shaped to the fox sword's wide blade (flat, tapered, rounded tip),
+  // lacquer with gold fittings that match the hilt (throat, two bands, chape), the blade hidden while sheathed (only grip + guard show over the shoulder),
+  // and a STRAP across the chest from the hilt shoulder to the far hip that follows the sheath's angle.
+  let STRAP = null, BLD = [];
+  if (hasBack) { const SH = def && def.shadow, lac = toon(SH ? '#24123a' : '#1f2a44'), brass = toon('#d4a73a'), lea = toon(SH ? '#1a0b2a' : '#4a2a17');
+    const w0 = 0.085, w1 = 0.07, y0 = 0.14, y1 = 1.36, sh = new THREE.Shape(); sh.moveTo(-w0, y0); sh.lineTo(w0, y0); sh.lineTo(w1, y1 - 0.08); sh.quadraticCurveTo(w1, y1 + 0.02, 0, y1 + 0.04); sh.quadraticCurveTo(-w1, y1 + 0.02, -w1, y1 - 0.08); sh.closePath();
+    const sg = new THREE.ExtrudeGeometry(sh, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.014, bevelSize: 0.012, bevelSegments: 2, curveSegments: 6 }); sg.translate(0, 0, -0.02);
+    M(sg, lac, 0, 0, 0, BA, 0.012).rotation.y = Math.PI / 2;   // width along the blade's width (local z), thickness along x — same frame as the blade
+    M(new THREE.BoxGeometry(0.09, 0.12, 0.2), brass, 0, 0.19, 0, BA, 0.008);              // throat (koiguchi) right under the guard
+    for (const yy of [0.52, 0.9]) M(new THREE.BoxGeometry(0.084, 0.035, 0.18), brass, 0, yy, 0, BA, 0.005);   // bands
+    const ch = M(new THREE.SphereGeometry(0.08, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), brass, 0, 1.33, 0, BA, 0.006); ch.rotation.x = Math.PI; ch.scale.set(0.62, 0.9, 0.95);   // rounded chape on the tip
+    // strap: a band round the torso, tilted to run along the sheath across the back (angle + height set in fitApply)
+    { const tb = new THREE.Box3(), tmp = new THREE.Box3(); for (const c of FP.body.children) { if (!c.isMesh || !c.geometry || c.userData.crest) continue; c.geometry.computeBoundingBox(); tmp.copy(c.geometry.boundingBox).applyMatrix4(c.matrix); if (tmp.max.y - tmp.min.y > 0.3 && tmp.max.y < 1.8 && tmp.max.y > 1.2) tb.union(tmp); }   /* torso pieces only (not skirts / capes / heads) */
+      const CAP = SUMO ? 9 : 0.4, W = Math.min(CAP, Math.max(Math.abs(tb.min.x), Math.abs(tb.max.x))), zc = Math.max(-0.1, Math.min(0.12, (tb.min.z + tb.max.z) / 2)), Dz = Math.min(CAP, (tb.max.z - tb.min.z) / 2), A = 0.7;   // A = strap angle (~40°)
+      // s69 (Ben: the 8 crest up above the strap): the crest medallion sits ON TOP of the strap, pinned over it (moved just in front of the band, a touch bigger)
+      const strapFront = zc + Dz + 0.018 + 0.03; for (const c of FP.body.children) if (c.userData && c.userData.crest) { c.geometry.computeBoundingBox(); const zf = c.geometry.boundingBox.max.z + c.position.z; c.position.z += Math.max(0, strapFront + 0.012 - zf); c.renderOrder = 2; }
+      STRAP = new THREE.Group(); STRAP.position.set(0, Math.min(tb.max.y, SUMO ? 9 : 1.56) - 0.26 * (W / 0.36), zc); FP.body.add(STRAP); STRAP.userData.A = A;
+      const R0 = 0.335, ring = M(new THREE.TorusGeometry(R0, 0.022, 6, 40), lea, 0, 0, 0, STRAP, 0.008); ring.rotation.x = Math.PI / 2; ring.scale.set((W + 0.035) / Math.cos(A) / R0, (Dz + 0.018) / R0, 2.3);
+      for (const t of [0.42, -0.42]) { const bk = M(new THREE.BoxGeometry(0.075, 0.09, 0.025), brass, (W + 0.035) / Math.cos(A) * Math.cos(Math.PI / 2 + t), 0, (Dz + 0.03) * Math.sin(Math.PI / 2 + t), STRAP, 0.005); bk.rotation.y = -t; bk.userData.buckle = true; } }
+    // the parts of the sword that are the BLADE (hidden in the sheath): the blade itself (+ its outline child) and the fuller strip
+    BLD = sw.children.filter(c => c.isMesh && (c.material === FP.bladeMat || (c.geometry && c.geometry.parameters && Math.abs((c.geometry.parameters.height || 0) - 0.85) < 1e-3))); }
+  const HA = new THREE.Object3D(); if (def && def.boss === 'sumo') HA.position.set(-0.62, 1.0, 0.1); else HA.position.set(-0.375, 0.9, 0.06); HA.rotation.set(Math.PI / 2, 0, 0.1); HA.scale.setScalar(SUMO ? 0.86 : 0.76); FP.body.add(HA);   /* s71 (Ben): the laser a bit smaller, hanging from the gold waist band (was down on the thigh) */ let HG = null;
   if (hasHol) { HG = FP.gun.clone(true); HG.visible = true; HG.position.set(0, 0, 0); HG.quaternion.identity(); HG.scale.copy(FP.gun.scale); HA.add(HG);
     M(new THREE.BoxGeometry(0.13, 0.1, 0.26), toon(def && def.shadow ? '#2a0f3d' : '#3b2416'), 0, -0.02, -0.02, HA, 0.01); M(new THREE.BoxGeometry(0.42, 0.04, 0.06), toon('#2b1a10'), 0.18, 0.02, 0.1, HA, 0.006); }
   // s53 (Ben: a Street Fighter breathing guard, like the workshop robots): the fox arms get ELBOWS. Each one-piece kit arm is split at its elbow band
@@ -100,11 +136,13 @@ export function foxFighter({ THREE, kit, M, toon }, key = 'player', def = null) 
     else { const cap = A.children.find(c => c.isMesh && c.geometry.type === 'CapsuleGeometry'); if (cap) { cap.visible = false; const mat = cap.material; M(new THREE.CapsuleGeometry(0.07, 0.05, 4, 10), mat, 0, -0.115, 0, A, 0.012); M(new THREE.CapsuleGeometry(0.066, 0.07, 4, 10), mat, 0, -0.07, 0, F, 0.012); } }
     return { A, F, ELB, PAWY, side: Math.sign(A.position.x) || (i ? 1 : -1) }; });
   ARMS.forEach(R => { const Fo = FORE.find(q => q.A === R.A); R.Fo = Fo; R.paws = Fo.F.children.filter(c => c.position.y <= -0.33 + Fo.ELB).map(c => ({ c, y: c.scale.y })); });
+  if (def && def.boss === 'sumo') ARMS.forEach(R => R.paws.forEach(p => { if (p.c.isMesh && p.c.geometry.type === 'SphereGeometry') { p.c.scale.multiplyScalar(1.5); p.c.scale.y *= 0.7; p.y = p.c.scale.y; p.c.material = toon('#1d4ed8'); }   /* s87: blue like his mawashi, shorter */ }));   // s85 (Ben): Oyakata's big mitts bigger
+  if (def && def.boxer) ARMS.forEach(R => R.paws.forEach(p => { if (p.c.isMesh && p.c.geometry.type === 'SphereGeometry') { p.c.scale.multiplyScalar(0.68); p.y = p.c.scale.y; } }));   // s89 (Ben): Lox's gloves smaller so you can SEE his huge chest
   // s54 (Ben: legs that move when they walk): KNEES. Each kit leg is split at the boot top into the thigh (the kit leg group, rotates at the hip) and
   // a SHIN group (sibling on the body, placed at the knee) carrying the boot, cuff and foot. Two-bone IK puts the foot on its target with the knee
   // bending forward; a target past full length straightens and stretches the leg (high kicks, as before). Legs are a fixed length now (SY0) so
   // the stance has a little knee bend, and walking really steps.
-  const SHIN = (FP.legs || []).map((Lg, i) => { const big = Lg.children.some(c => c.isMesh && c.geometry.type === 'SphereGeometry' && Math.abs(c.position.y + 0.32) < 0.01), KN = big ? 0.21 : 0.17, Sg = new THREE.Group(); Lg.parent.add(Sg);
+  const SHIN = (chair ? [] : FP.legs || []).map((Lg, i) => {   /* s74: not on Noble — his seated legs belong to the chair rig (this had been dropping his shins + boots under the floor since s54) */ const big = Lg.children.some(c => c.isMesh && c.geometry.type === 'SphereGeometry' && Math.abs(c.position.y + 0.32) < 0.01), KN = big ? 0.21 : 0.17, Sg = new THREE.Group(); Lg.parent.add(Sg);
     [...Lg.children].forEach(c => { if (c.isMesh && c.geometry.type === 'CapsuleGeometry') return; if (c.position.y < -KN - 0.005) { Sg.add(c); c.position.y += KN; } });
     const cap = Lg.children.find(c => c.isMesh && c.geometry.type === 'CapsuleGeometry'); if (cap) { cap.visible = false; M(new THREE.CapsuleGeometry(0.095, 0.04, 4, 10), cap.material, 0, -0.09, 0, Lg, 0.012); M(new THREE.CapsuleGeometry(0.088, 0.1, 4, 10), cap.material, 0, -0.11, 0, Sg, 0.012); }
     const R = LEGS.find(r => r.Lg === Lg); R.Sg = Sg; R.KN = KN; R.sy0 = 1.62 * (big ? 1.02 : 1.035); R.feet = Sg.children.filter(c => c.position.y <= -0.38 + KN).map(c => ({ c, y: c.scale.y })); R.side = Math.sign(Lg.position.x) || (i ? 1 : -1); return R; });
@@ -127,9 +165,74 @@ export function foxFighter({ THREE, kit, M, toon }, key = 'player', def = null) 
     else { const ca = clamp((a1 * a1 + d * d - b1 * b1) / (2 * a1 * d), -1, 1), sa = Math.sqrt(1 - ca * ca); _pl.set(R.side * 0.2, 0, 1); _pl.addScaledVector(_s, -_pl.dot(_s)); if (_pl.lengthSq() < 1e-5) _pl.set(0, 0, 1); _pl.normalize();
       _K.copy(leg.position).addScaledVector(_s, a1 * ca).addScaledVector(_pl, a1 * sa); _u.copy(_K).sub(leg.position).normalize(); leg.quaternion.setFromUnitVectors(DOWN, _u); _u.copy(_t).sub(_K).normalize(); Sg.quaternion.setFromUnitVectors(DOWN, _u); }
     Sg.position.copy(_K); leg.scale.y = R.sy0 * st; Sg.scale.set(leg.scale.x, R.sy0 * st, leg.scale.z); R.feet.forEach(p => { p.c.scale.y = p.y * 1.31 / (R.sy0 * st); }); }
+  // ---------- s74 NOBLE (Ben): big boots, he TAKES THE SHOE OFF to throw it, PUNCHES leaning forward in the chair, and a SWORD hangs on the back of the
+  // wheelchair (hold PUNCH draws it over his shoulder and swings). All of it drives the chair rig's arms through rig.armOv (engine/chair.js).
+  const NB = { on: false, lean: 0, w: [0, 0], T: [null, null] }, _a = new THREE.Vector3(), _b = new THREE.Vector3(), _c = new THREE.Vector3(), _Y = new THREE.Vector3(0, 1, 0), smo = x => x * x * (3 - 2 * x), cl01 = x => Math.max(0, Math.min(1, x));
+  function nobleSword() { const S = new THREE.Group(), navy = toon('#1e2a4a'), gold = toon('#e6b45a'), acc = toon('#38bdf8'), blade = [];
+    M(new THREE.CylinderGeometry(0.035, 0.04, 0.24, 10), navy, 0, -0.02, 0, S, 0.012, 0.04); for (let q = 0; q < 4; q++) M(new THREE.TorusGeometry(0.04, 0.009, 4, 12), gold, 0, -0.11 + q * 0.06, 0, S, 0).rotation.x = Math.PI / 2;
+    M(new THREE.SphereGeometry(0.055, 12, 8), gold, 0, -0.17, 0, S, 0.012, 0.055); M(new THREE.BoxGeometry(0.09, 0.06, 0.42), gold, 0, 0.13, 0, S, 0.014); for (const sx of [-1, 1]) M(new THREE.SphereGeometry(0.04, 8, 6), gold, 0, 0.13, sx * 0.22, S, 0.01, 0.04);
+    M(new THREE.OctahedronGeometry(0.05, 0), acc, 0.05, 0.13, 0, S, 0.008).scale.set(0.6, 1.3, 1);
+    const bl = new THREE.Shape(); bl.moveTo(-0.045, 0); bl.lineTo(0.045, 0); bl.lineTo(0.045, 1.0); bl.lineTo(0, 1.16); bl.lineTo(-0.045, 1.0); bl.closePath(); const bg = new THREE.ExtrudeGeometry(bl, { depth: 0.022, bevelEnabled: true, bevelThickness: 0.008, bevelSize: 0.006, bevelSegments: 1 }); bg.translate(0, 0, -0.011);
+    const bm = new THREE.MeshToonMaterial({ color: 0xe0faff, gradientMap: toon('#fff').gradientMap, emissive: 0x38bdf8, emissiveIntensity: 1.1 }), b = M(bg, bm, 0, 0.16, 0, S, 0.01); b.rotation.y = Math.PI / 2; blade.push(b); blade.push(M(new THREE.BoxGeometry(0.035, 0.85, 0.014), acc, 0, 0.62, 0, S, 0));
+    S.userData.blade = blade; return S; }
+  function nobleSetup(rig) { NB.on = true; rig.set({ boot: 1.6, armReach: 1.32, armThick: 1.45, bicep: true });   /* s78 (Ben): longer, more muscular arms — major upper-body strength */   // bigger boots, so pulling one off reads
+    NB.leg = rig.knees[0]; NB.leg0 = NB.leg.leg.rotation.x; NB.knee0 = NB.leg.knee.rotation.x;
+    NB.held = rig.boots[0].clone(true); NB.held.visible = false; rig.body.add(NB.held);
+    // the sheath on the back of the chair: hilt up by the top corner of the backrest, hanging diagonally down behind it
+    const bk = rig.back, bh = rig.backH || 0.6; NB.A = new THREE.Object3D(); bk.add(NB.A); NB.Ap = [0.17, bh + 0.08, -0.1]; NB.Ad = [-0.5, -1, -0.04];
+    const lac = toon('#1f2a44'), brass = toon('#d4a73a'), w0 = 0.085, w1 = 0.07, y0 = 0.14, y1 = 1.36, sh = new THREE.Shape(); sh.moveTo(-w0, y0); sh.lineTo(w0, y0); sh.lineTo(w1, y1 - 0.08); sh.quadraticCurveTo(w1, y1 + 0.02, 0, y1 + 0.04); sh.quadraticCurveTo(-w1, y1 + 0.02, -w1, y1 - 0.08); sh.closePath();
+    const sg = new THREE.ExtrudeGeometry(sh, { depth: 0.04, bevelEnabled: true, bevelThickness: 0.014, bevelSize: 0.012, bevelSegments: 2, curveSegments: 6 }); sg.translate(0, 0, -0.02); M(sg, lac, 0, 0, 0, NB.A, 0.012).rotation.y = Math.PI / 2;
+    M(new THREE.BoxGeometry(0.09, 0.12, 0.2), brass, 0, 0.19, 0, NB.A, 0.008); for (const yy of [0.52, 0.9]) M(new THREE.BoxGeometry(0.084, 0.035, 0.18), brass, 0, yy, 0, NB.A, 0.005); const ch = M(new THREE.SphereGeometry(0.08, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2), brass, 0, 1.33, 0, NB.A, 0.006); ch.rotation.x = Math.PI; ch.scale.set(0.62, 0.9, 0.95);
+    for (const yy of [0.3, 0.75]) M(new THREE.BoxGeometry(0.03, 0.05, 0.24), toon('#4a2a17'), 0.03, yy, 0, NB.A, 0.004);   // two leather loops tying it to the chair
+    NB.sw = nobleSword(); rig.body.add(NB.sw); NB.side = 0;
+    // s77 (Ben): RED gloves like Ben's on the chair rig's hands (his kit arms are hidden by the chair)
+    if (def && def.gloves) { const gm = toon(def.gloves), cuff = toon('#f7f1e6'), lace = toon('#141312'); rig.arms.forEach(A => { A.hd.children.forEach(m => { if (m.isMesh) m.visible = false; }); const G = new THREE.Group(); A.hd.add(G);
+      M(new THREE.SphereGeometry(0.105, 16, 12), gm, 0, -0.01, 0.01, G, 0.016, 0.105).scale.set(1, 1.08, 1.2); M(new THREE.SphereGeometry(0.045, 10, 8), gm, -A.side * 0.08, 0.0, 0.05, G, 0.01, 0.045);
+      M(new THREE.CylinderGeometry(0.075, 0.075, 0.06, 14), cuff, 0, 0.085, 0, G, 0.008, 0.075); M(new THREE.BoxGeometry(0.012, 0.05, 0.012), lace, 0, 0.06, 0.1, G, 0); }); } }
+  function nobleTick(rig, dt, f) { if (!NB.on) nobleSetup(rig); const a = f && f.act, ak = a && a.kind, u = a && a.dur ? cl01(a.t / a.dur) : 0, A = rig.arms;
+    const sgn = f && (f.fc || (f.side < 0 ? 1 : -1)) > 0 ? -1 : 1;   // the camera side (like the foxes' sword): −x when facing right
+    if (sgn !== NB.side) { NB.side = sgn; NB.A.position.set(sgn * NB.Ap[0], NB.Ap[1], NB.Ap[2]); NB.A.quaternion.setFromUnitVectors(_Y, _a.set(sgn * NB.Ad[0], NB.Ad[1], NB.Ad[2]).normalize()); }
+    const sa = sgn < 0 ? 0 : 1, pa = 1 - sa;   // sword arm on the hilt side; the other arm
+    const body = rig.body, hilt = NB.A.getWorldPosition(_a), hiltB = body.worldToLocal(hilt.clone()), S0 = A[sa].S, k2 = A[sa].side;
+    const W = [0, 0], T = [_b.set(0, 0, 0).clone(), _c.set(0, 0, 0).clone()]; let lean = 0, raise = 0, held = false;
+    const set = (i, x, y, z, w = 1) => { T[i].set(x, y, z); W[i] = w; };
+    // --- the SHOE: lift the foot, lean in, pull the boot off, wind up, throw (shoe act: throw at 0.5 s of 0.72) ---
+    if (ak === 'shoe') { const t = a.t, bootW = rig.boots[0].getWorldPosition(new THREE.Vector3()), bootB = body.worldToLocal(bootW), arm = A[0].side < 0 ? 0 : 1, sd = A[arm].side;
+      if (t < 0.28) { const q = smo(cl01(t / 0.25)); raise = 0.95 * q; lean = 0.22 * q; set(arm, bootB.x, bootB.y + 0.08, bootB.z + 0.02, q); }
+      else if (t < 0.5) { const q = smo(cl01((t - 0.28) / 0.2)); raise = 0.95 * (1 - q); lean = 0.22 * (1 - q) - 0.06 * q; set(arm, bootB.x + (sd * 0.3 - bootB.x) * q, bootB.y + (A[arm].S.y + 0.4 - bootB.y) * q, bootB.z + (-0.18 - bootB.z) * q); held = true; }
+      else if (t < 0.62) { const q = smo(cl01((t - 0.5) / 0.1)); lean = 0.12 * q; set(arm, sd * 0.25, A[arm].S.y + 0.4 - 0.2 * q, -0.18 + 0.9 * q); }
+      else { const q = cl01((t - 0.62) / 0.1); set(arm, sd * 0.25, A[arm].S.y + 0.2, 0.72, 1 - q); } }
+    // --- PUNCH: lean into it, the fist shoots straight out (jab / cross alternate arms, the 3rd is an uppercut) ---
+    if (ak === 'punch' && a.d) { const n = a.n || 1, arm = n === 2 ? 1 : 0, sd = A[arm].side, w = a.d.w * (a.slow || 1), at = a.d.a, ph = a.ph, up = n === 3;
+      const ext = ph === 'w' ? 0 : ph === 'a' ? smo(cl01((a.t - w) / Math.max(0.03, at * 0.7))) : 1 - 0.7 * cl01((a.t - w - at) / Math.max(0.05, a.d.r || 0.2)), Sy = A[arm].S.y;
+      lean = (up ? 0.14 : 0.26) * Math.max(ext, ph === 'w' ? 0.3 : 0); NB.snap = true;   // cocked fist by the shoulder → straight out (or up for the uppercut)
+      set(arm, sd * (0.24 - (up ? 0.14 : 0.12) * ext), Sy - 0.04 + (up ? 0.62 : 0.08) * ext, 0.08 + (up ? 0.48 : 1.0) * ext); }   /* s78: punches reach right out with the longer arms */
+    // --- the SWORD: draw over the shoulder from the chair back, swing, stow ---
+    const UP = [k2 * 0.16, S0.y + 0.5, 0.0];
+    if (ak === 'draw' && a.w === 'sword') { if (u < 0.4) { const q = smo(u / 0.4); set(sa, hiltB.x, hiltB.y, hiltB.z, q); } else { const q = smo((u - 0.4) / 0.6); set(sa, hiltB.x + (UP[0] - hiltB.x) * q, hiltB.y + (UP[1] - hiltB.y) * q, hiltB.z + (UP[2] - hiltB.z) * q); } lean = -0.04 * u; }
+    else if (ak === 'stow' && a.w === 'sword') { if (u < 0.6) { const q = smo(u / 0.6); set(sa, UP[0] + (hiltB.x - UP[0]) * q, UP[1] + (hiltB.y - UP[1]) * q, UP[2] + (hiltB.z - UP[2]) * q); } else set(sa, hiltB.x, hiltB.y, hiltB.z, 1 - smo((u - 0.6) / 0.4)); }
+    else if ((ak === 'high' || ak === 'low') && a.d) { const w = a.d.w * (a.slow || 1), at = a.d.a, lo = ak === 'low', FW = [k2 * 0.08, S0.y + (lo ? -0.42 : -0.02), lo ? 0.6 : 0.72];
+      if (a.ph === 'w') { const q = smo(cl01(a.t / w)); set(sa, UP[0], UP[1] + 0.06 * q, UP[2] - 0.12 * q); lean = -0.05 * q; }
+      else if (a.ph === 'a') { const q = smo(cl01((a.t - w) / Math.max(0.03, at))); set(sa, UP[0] + (FW[0] - UP[0]) * q, UP[1] + (FW[1] - UP[1]) * q, UP[2] - 0.12 + (FW[2] - UP[2] + 0.12) * q); lean = 0.2 * q; }
+      else { const q = cl01((a.t - w - at) / Math.max(0.05, a.d.r || 0.3)); set(sa, FW[0], FW[1] + 0.3 * q, FW[2] - 0.3 * q); lean = 0.2 * (1 - q); } }
+    else if (f && f.swordOut && !a) set(sa, k2 * 0.18, S0.y + 0.08, 0.42);   // sword held ready
+    // blend the overrides in / out smoothly
+    const snap = NB.snap; NB.snap = false; for (let i = 0; i < 2; i++) { NB.w[i] += (W[i] - NB.w[i]) * Math.min(1, dt * (W[i] > NB.w[i] ? (snap ? 90 : 30) : 12)); if (!NB.T[i]) NB.T[i] = new THREE.Vector3(); if (W[i] > 0) NB.T[i].copy(T[i]); rig.armOv[i] = { T: NB.T[i], w: NB.w[i] }; }
+    NB.lean += (lean - NB.lean) * Math.min(1, dt * 30);
+    // foot lift (the boot comes up to meet the hand)
+    NB.raise = (NB.raise || 0) + (raise - (NB.raise || 0)) * Math.min(1, dt * 20); NB.leg.leg.rotation.x = NB.leg0 - NB.raise; NB.leg.knee.rotation.x = NB.knee0 - NB.raise * 0.6;
+    // boots: off the foot while it's in his hand or flying
+    rig.boots[0].visible = !(f && (f.shoeOut || (ak === 'shoe' && a.t >= 0.28))); NB.held.visible = held; if (held) { const H = A[A[0].side < 0 ? 0 : 1].H; NB.held.position.copy(H); }
+    // the sword: in the hand when drawn, else in the sheath on the chair back (blade hidden)
+    const out = !!(f && f.swordOut), Sw = NB.sw; Sw.userData.blade.forEach(m => m.visible = out);
+    if (out) { const As = A[sa]; Sw.position.copy(As.H); const dir = _a.subVectors(As.H, As.E).normalize(); Sw.quaternion.setFromUnitVectors(_Y, dir); }
+    else { NB.A.getWorldPosition(_a); Sw.position.copy(body.worldToLocal(_a)); NB.A.getWorldQuaternion(_q); body.getWorldQuaternion(_bq); Sw.quaternion.copy(_bq.invert().multiply(_q)); } }
   function upd(P, dt, f) { // P = a duel pose (human IK targets), already blended by the engine; f.cart = the cartoon layer (foxCartoonOf)
     const ak = f && f.act && f.act.kind, swOut = !!f && (f.swordOut || ak === 'high' || ak === 'low' || ak === 'power' || (ak === 'shoe' && !f.shoe)), gOut = !!f && (f.gunOut || ak === 'laser');
-    if (!chair && !(def && def.cane)) sw.visible = hasBack; if (FP.gun) FP.gun.visible = hasHol && gOut; if (HG) HG.visible = !gOut;
+    if (CANEW) { const rig = u.rig, CK = ['vault', 'dive', 'echo', 'rise', 'spin', 'spinR', 'lspin'], use = !!(f && !swOut && ak && CK.includes(ak));   /* s81: sword swings use the SWORD now (cane stays in her other paw); only the cane moves swap to the weapon cane */   // s75 (Ben): ONE cane — the walking cane, swapped for the weapon cane only while she swings / vaults with it
+      for (const m of CANEW) m.visible = use; if (SWK) for (const m of SWK) m.visible = !use; caneUse = use; if (rig && rig.armParts) { for (const q of rig.armParts) q.visible = false; if (rig.arm) rig.arm.visible = true; }   /* s76: one right arm — her own */
+      if (rig && rig.cane) { rig.cane.visible = !use && !swOut;   /* s91: the far hand holds the sword when it's out, so the walking cane is put away */ if (!caneSet && rig.set) { caneSet = true; rig.set({ length: 140, arc: 20, grip: 74, steps: 3.2, top: 13, zMin: 0.52, zMax: 0.85, camBoost: 1.4, band: 9, bandGap: 5, ball: 1.7 }); } rig.camSide = f && (f.fc || (f.side < 0 ? 1 : -1)) < 0 ? -1 : 1; g.updateMatrixWorld(true); { const gw = g.getWorldPosition(new THREE.Vector3()), B = FP.body, p0 = B.worldToLocal(gw.clone()), px = B.worldToLocal(gw.clone().add(new THREE.Vector3(1, 0, 0))).sub(p0), pz = B.worldToLocal(gw.clone().add(new THREE.Vector3(0, 0, 1))).sub(p0), n = new THREE.Vector3().crossVectors(px, pz); rig.groundY = p0.y; rig.groundAt = Math.abs(n.y) > 1e-4 ? (x, z) => p0.y - (n.x * (x - p0.x) + n.z * (z - p0.z)) / n.y : null; } } }   /* s75: the floor under her feet, in body space (after the duel's crouch) */   /* s75: wider sweep (more toward the camera), lower + further-forward grip so the cane reaches out ahead */
+    if (!chair) sw.visible = hasBack; if (FP.gun) FP.gun.visible = hasHol && gOut; if (HG) HG.visible = !gOut;
     const x = g.position.x, sp = lastX == null ? 0 : Math.abs(x - lastX) / Math.max(dt, 1e-3); lastX = x;
     u.mood = FOX_MOOD[P.mood] || 'determined'; if ((P.mouth || 0) > (u.mouth || 0)) u.mouth = P.mouth;
     kit.animFox(g, dt, sp > 0.3 ? sp : 0, false);   // tail, ears, blink, face, sword glow (arms / legs / body are overwritten below)
@@ -137,19 +240,22 @@ export function foxFighter({ THREE, kit, M, toon }, key = 'player', def = null) 
     B.rotation.set(lean, tw * 0.5, -(P.side || 0) * 0.6); _hp.set(0, HY, 0).applyEuler(B.rotation);   // lean pivots at the hips, not the feet
     B.position.set(hip[0] - _hp.x, hip[1] + HY - _hp.y + LU, hip[2] - _hp.z); B.updateMatrix(); _m.copy(B.matrix).invert();
     // sword paw = arms[1] (far side), gun paw = arms[0] (near the camera); targets mirrored in x so each arm keeps its own side
-    if (!chair) { aimArm(FP.arms[1], [-P.hR[0], P.hR[1], P.hR[2]]); aimArm(FP.arms[0], [-P.hL[0], P.hL[1], P.hL[2]]); aimLeg(FP.legs[0], P.fR); aimLeg(FP.legs[1], P.fL); }
+    if (!chair) { aimArm(FP.arms[0], [-P.hL[0], P.hL[1], P.hL[2]]); { const rg = CANEW && u.rig; if (rg && rg.cane && rg.cane.visible && rg.hand) { const hp = rg.hand.position.clone().applyMatrix4(B.matrix); aimArm(FP.arms[1], [hp.x, hp.y, hp.z]); } else aimArm(FP.arms[1], [-P.hR[0], P.hR[1], P.hR[2]]); }   /* s91: the cane is in her FAR hand (arms[1]); the near hand (arms[0]) is free */   /* s76: Hope's OWN right arm holds the walking cane (the rig's grey stand-in arm is hidden) */ aimLeg(FP.legs[0], P.fR); aimLeg(FP.legs[1], P.fL); }
     FP.head.rotation.x = (P.pitch || 0) * 0.8 - lean * 0.4; FP.head.rotation.y = (P.yaw || 0) - tw * 0.5;
     if (FP.gun) { FP.gun.quaternion.copy(FORE[0] ? FORE[0].F.quaternion : FP.arms[0].quaternion).invert(); if (P.gun) FP.gun.quaternion.multiply(_q.setFromEuler(_e.set(-P.gun, 0, 0))); }
-    if (!chair) { g.updateMatrixWorld(true); if (swOut || !hasBack) { const paw = _t.copy(pawOf(1)); g.worldToLocal(paw); sw.position.copy(paw); sw.rotation.set(P.blade ?? 0.95, 0, 0); }
+    if (BLD.length) { const vis = swOut; for (const m of BLD) m.visible = vis; }   // s68: blade hidden while it's in the sheath
+    if (hasBack) { const sn = Math.sin(g.rotation.y), fcv = f && (f.fc || (f.side < 0 ? 1 : f.side > 0 ? -1 : 0)), sgn = fcv ? (fcv > 0 ? -1 : 1) : Math.abs(sn) > 0.15 ? (sn > 0 ? -1 : 1) : (fitS || -1);   /* s70: the side follows which way the fighter FACES, not the spin of the body (no flip-flopping during spins) */ if (fitV !== SWORD_FIT.v || sgn !== fitS) fitApply(sgn); }   // s67: hilt on the camera side
+    if (!chair) { g.updateMatrixWorld(true); if (swOut || caneUse || !hasBack) { const paw = _t.copy(pawOf(1)); g.worldToLocal(paw); sw.position.copy(paw); sw.rotation.set(P.blade ?? 0.95, 0, 0);
+        const A = f && f.act; if (hasBack && A && A.w === 'sword' && (A.kind === 'draw' || A.kind === 'stow') && A.dur) { const u = A.t / A.dur, k = A.kind === 'draw' ? 1 - Math.min(1, Math.max(0, (u - 0.4) / 0.25)) : Math.min(1, Math.max(0, (u - 0.35) / 0.25)); if (k > 0) { BA.getWorldQuaternion(_bq); g.getWorldQuaternion(_gq); sw.quaternion.slerp(_gq.invert().multiply(_bq), k * k * (3 - 2 * k)); } } }   /* s67: the blade leaves / enters along the diagonal scabbard instead of snapping to straight down */
       else { BA.getWorldPosition(_t); g.worldToLocal(sw.position.copy(_t)); BA.getWorldQuaternion(_bq); g.getWorldQuaternion(_gq); sw.quaternion.copy(_gq.invert().multiply(_bq)); } }
-    if (chair) { const rig = u.rig; if (rig) { if (rig.throwT > 0) rig.throwT = Math.max(0, rig.throwT - dt); const bt = rig.boots && rig.boots[0]; if (bt) bt.visible = !(f && f.shoeOut); } NW.hover(f && f.y > 0.05 ? 1 : 0); const NP = NW.update(dt, sp); g.rotation.y += NP.yaw; g.rotation.x += NP.tilt; g.position.y += NP.lift; }
+    if (chair) { const rig = u.rig; if (rig) { if (rig.throwT > 0) rig.throwT = Math.max(0, rig.throwT - dt); nobleTick(rig, dt, f); } NW.hover(f && f.y > 0.05 ? 1 : 0); const NP = NW.update(dt, sp); g.rotation.y += NP.yaw; g.rotation.x += NP.tilt + (NB.lean || 0); g.position.y += NP.lift; }
     // CARTOON LAYER (s36c): hops, spins, squash + stretch, ear / tail flop — un-blended so it stays snappy
     const C = f && f.cart; if (C) { g.position.y += C.hop; g.rotation.y += C.spinY; g.rotation.z += C.spinZ; const q = clamp(C.sq, -0.6, 0.7);
       B.scale.set(1 + q * 0.2, 1 - q * 0.3, 1 + q * 0.2); FP.tail.rotation.y += C.tail; FP.tail.rotation.x -= C.hop * 0.5; FP.ears.forEach(e => { e.rotation.x += C.ear; }); FP.head.scale.setScalar(1 + Math.max(0, -q) * 0.06); }
-    if (hasBack && !swOut && FP.tail) { const ry = FP.tail.rotation.y; FP.tail.rotation.y = TAIL_SIDE * (TAIL_B + Math.abs(ry) * 0.3) + ry * 0.25; } }
+    if (false && hasBack && !swOut && FP.tail) {   /* s67: the scabbard now ends high on the far side, so the tail swings freely underneath (was: tail pushed to the near side) */ const ry = FP.tail.rotation.y; FP.tail.rotation.y = TAIL_SIDE * (TAIL_B + Math.abs(ry) * 0.3) + ry * 0.25; } }
   const _l = new THREE.Vector3();
   function limb(kind, n) { if (chair) return sw.userData.tip.getWorldPosition(new THREE.Vector3()); if (kind === 'punch' || kind === 'slaps') return pawOf(n === 2 ? 1 : 0).clone(); const li = kind === 'kick' && n === 2 ? 1 : 0, Rl = LEGS[li]; if (Rl && Rl.Sg) return Rl.Sg.localToWorld(_l.set(0, -(0.42 - Rl.KN), 0.06)).clone(); return FP.legs[li].localToWorld(_l.set(0, -0.42, 0.06)).clone(); }
-  return { g, U: { J: { heavy: false, head: FP.head } }, L: { ...FOX_L0, H: (FOX_L0.H + LU) * sc, hipY: FOX_L0.hipY + LU }, k: 1.0, R0, P: R0, sw, upd, fox: true, hw: (chair ? 0.48 : 0.34) * sc, gunTip, parts: FP, limb, noble: chair, nw: NW, makeShoe: chair ? () => NWK.makeShoe('shoe') : null, head: FP.head };
+  return { g, U: { J: { heavy: false, head: FP.head } }, L: { ...FOX_L0, H: (FOX_L0.H + LU) * sc, hipY: FOX_L0.hipY + LU }, k: 1.0, R0, P: R0, sw, upd, fox: true, hw: (chair ? 0.48 : 0.34) * sc + ((def && def.pb) || 0), gunTip, parts: FP, limb, noble: chair, nw: NW, makeShoe: chair ? () => NWK.makeShoe('shoe') : null, head: FP.head };
 }
 
 // ---------------- s37: RIG FIGHTERS · Iron Warden, Maker Prime, SUDS-9 (engine/bosses.js) + Slagback (engine/creature-kit.js) ----------------
@@ -160,15 +266,37 @@ export function foxFighter({ THREE, kit, M, toon }, key = 'player', def = null) 
 const RIGS = {
   warden: { sc: 0.84, H: 2.6, hw: 0.62, hand: 0.62, own: { beam: 'rocket', quake: 'stomp', taunt: 'taunt' }, ownT: { beam: 0.12, quake: 0.45 } },
   prime: { sc: 0.8, H: 2.72, hw: 0.7, hand: 0.85, own: { beam: 'laser', tatsu: 'combo', taunt: 'taunt' }, ownT: { beam: 0.0, tatsu: 0.2 } },
-  suds: { sc: 0.9, H: 2.6, hw: 0.6, hand: 0.62, own: { spray: 'spray', tatsu: 'cyclone', taunt: 'taunt' }, ownT: { spray: 0.0, tatsu: 0.0 }, win: 'victory' },
+  suds: { sc: 0.9, H: 2.6, hw: 0.6, hand: 0.62, own: { spray: 'spray', tatsu: 'cyclone', taunt: 'taunt', wburst: 'spray' }, ownT: { spray: 0.0, tatsu: 0.0, wburst: 0.3 }, win: 'victory' },
   slag: { sc: 1.12, H: 2.35, hw: 0.55, hand: 0.42 },
 };
+const ss01 = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
 export function rigFighter({ THREE, M, toon }, def) {
   const RD = RIGS[def.rig], grad = toon('#ffffff').gradientMap, g = new THREE.Group(); g.rotation.order = 'YXZ';
   let model, R, CRK = null; const slag = def.rig === 'slag';
   if (slag) { CRK = creatureKit({ THREE, toon, M }); model = CRK.build('Slagback'); const J = model.userData.joints; R = { hips: J.hips, chest: J.torso, head: J.head, arms: J.arms.map(a => ({ up: a.sh, el: a.el, s: a.s })), legs: J.legs.map(l => ({ th: l.p, s: l.s, one: true })) }; }
   else { model = (def.rig === 'warden' ? ironWarden : def.rig === 'prime' ? makerPrime : suds9)({ THREE, M, toon, grad }); R = model.userData.R; }
-  model.scale.setScalar(RD.sc); g.add(model); model.updateMatrixWorld(true);
+  model.scale.setScalar(RD.sc); g.add(model);
+  // s85 (Ben): IRON WARDEN gets BIG RED BOXING GLOVES on his rocket fists, EARS like Maker Prime's antenna horns, and a hip LASER (fires with his eye laser)
+  let gunTip2 = null, AXE = null, axBack = null;
+  if (def.rig === 'warden') { const red = toon('#dc2626'), cuffM = toon('#f7f1e6'), lace = toon('#141312'), steel = toon('#c4beb6'), org = toon('#ff7a1a'), irn = toon('#1c1a19');
+    for (const A of R.arms) { const fi = A.fi || (A.wr && A.wr.children.find(c => c.isGroup)); if (!fi) continue; fi.children.forEach(m => { if (m.isMesh) m.visible = false; });
+      const G2 = new THREE.Group(); G2.position.set(0, -0.16, 0.02); fi.add(G2);
+      M(new THREE.SphereGeometry(0.27, 18, 14), red, 0, -0.04, 0.03, G2, 0.02, 0.27).scale.set(1, 1.08, 1.18);
+      M(new THREE.SphereGeometry(0.11, 12, 10), red, A.s * 0.2, 0.0, 0.12, G2, 0.014, 0.11).scale.set(0.8, 1.3, 0.9);
+      M(new THREE.CylinderGeometry(0.2, 0.21, 0.16, 18), cuffM, 0, 0.2, 0, G2, 0.014, 0.21);
+      M(new THREE.BoxGeometry(0.02, 0.12, 0.2), lace, 0, 0.21, 0.18, G2, 0); }
+    for (const s of [-1, 1]) { const e = M(new THREE.BoxGeometry(0.07, 0.3, 0.07), steel, s * 0.2, 0.42, 0.02, R.head, 0.01); e.rotation.z = -s * 0.38; M(new THREE.BoxGeometry(0.075, 0.06, 0.075), org, 0, 0.15, 0, e, 0); }
+    const hg = new THREE.Group(); hg.position.set(-0.42, -0.02, 0.06); R.hips.add(hg); M(new THREE.BoxGeometry(0.13, 0.15, 0.3), irn, 0, 0, 0, hg, 0.014); const bar = M(new THREE.CylinderGeometry(0.045, 0.055, 0.32, 12), steel, 0, 0.02, 0.26, hg, 0.01); bar.rotation.x = Math.PI / 2;
+    M(new THREE.TorusGeometry(0.05, 0.014, 6, 14), org, 0, 0.02, 0.42, hg, 0); gunTip2 = new THREE.Object3D(); gunTip2.position.set(0, 0.02, 0.46); hg.add(gunTip2);
+    // s86 (Ben): a DOUBLE-SIDED AXE instead of a sword: on his back, in his fist for every sword move
+    AXE = new THREE.Group(); const wood = toon('#3b2414'), axS = toon('#d6d3cf'), axD = toon('#57534e');
+    M(new THREE.CylinderGeometry(0.045, 0.05, 1.45, 10), wood, 0, 0.42, 0, AXE, 0.012); for (const y of [-0.22, -0.12, 0.95]) M(new THREE.CylinderGeometry(0.058, 0.058, 0.05, 10), org, 0, y, 0, AXE, 0.006);
+    M(new THREE.SphereGeometry(0.075, 10, 8), axD, 0, -0.31, 0, AXE, 0.01); M(new THREE.CylinderGeometry(0.085, 0.085, 0.26, 12), axD, 0, 0.98, 0, AXE, 0.012); M(new THREE.ConeGeometry(0.05, 0.16, 8), axS, 0, 1.18, 0, AXE, 0.008);
+    for (const s of [-1, 1]) { const sh = new THREE.Shape(); sh.moveTo(0, 0.11); sh.quadraticCurveTo(0.2, 0.14, 0.36, 0.3); sh.quadraticCurveTo(0.46, 0, 0.36, -0.3); sh.quadraticCurveTo(0.2, -0.14, 0, -0.11); sh.lineTo(0, 0.11);
+      const bg = new THREE.ExtrudeGeometry(sh, { depth: 0.045, bevelEnabled: true, bevelThickness: 0.012, bevelSize: 0.012, bevelSegments: 1 }); bg.translate(0, 0, -0.0225); const bl = M(bg, axS, 0, 0.98, 0, AXE, 0.012); bl.scale.x = s;
+      const eg = new THREE.TorusGeometry(0.3, 0.012, 4, 16, 1.1); const ed = M(eg, org, s * 0.08, 0.98, 0, AXE, 0); ed.rotation.z = s > 0 ? -0.55 : Math.PI - 0.55; ed.scale.x = 0.55 * s; }
+    axBack = new THREE.Group(); axBack.position.set(0.05, 0.05, -0.42); axBack.rotation.set(0.12, 0, 0.62); axBack.scale.setScalar(1 / RD.sc); R.chest.add(axBack); axBack.add(AXE); AXE.position.set(0, -0.35, 0); }
+  model.updateMatrixWorld(true);
   const V = () => new THREE.Vector3(), wp = o => o.getWorldPosition(V());
   // rest measurements (g-space = world while g sits at the origin)
   const hip0 = R.hips.position.clone(), chest0 = R.chest.rotation.clone();
@@ -186,7 +314,7 @@ export function rigFighter({ THREE, M, toon }, def) {
     const al = Math.acos(clamp((a * a + d * d - b * b) / (2 * a * d), -1, 1)), ga = Math.acos(clamp((a * a + b * b - d * d) / (2 * a * b), -1, 1)), bend = Math.PI - ga;
     const h = _c.copy(hinge).addScaledVector(e1, -hinge.dot(e1)).normalize(), e2 = _b.crossVectors(h, e1), u = _u.copy(e1).multiplyScalar(Math.cos(al)).addScaledVector(e2, (leg ? -1 : 1) * Math.sin(al));
     orient(up, u, h); el.rotation.set(leg ? bend : -bend, 0, 0); }
-  const hingeArm = V(), hingeLeg = V(), T = V(); let lastX = null, t = 0, pose0 = null, lastAct = null, lastHit = -9, crust = 0;
+  const hingeArm = V(), hingeLeg = V(), T = V(); let gK = 0.5, lastX = null, t = 0, pose0 = null, lastAct = null, lastHit = -9, crust = 0;
   const SH_F = s => [s * 0.21, 1.37, 0.0], HIP_F = s => [s * 0.14, 0.75, 0];
   function setPose(p, pt) { const U = model.userData; if (U.pose !== p) { U.pose = p; U.pt = pt || 0; } }
   function upd(P, dt, f) { t += dt; const U = model.userData, a = f && f.act, ak = a && a.kind;
@@ -204,18 +332,30 @@ export function rigFighter({ THREE, M, toon }, def) {
     g.updateMatrixWorld(true);
     hingeArm.set(1, 0, 0).transformDirection(R.chest.matrixWorld); hingeLeg.set(1, 0, 0).transformDirection(R.hips.matrixWorld);
     // arms: +x arm gets the (mirrored) far-paw target hR, −x arm the near-paw target hL (same rule as the fox)
-    for (const A of arms) { const src = A.s > 0 ? P.hR : P.hL, sF = SH_F(A.s); T.set(A.sh0.x + (-src[0] - sF[0]) * kA, A.sh0.y + (src[1] - sF[1]) * kA, A.sh0.z + (src[2] - sF[2]) * kA); g.localToWorld(T); ik2(A.up, A.el, A.a, A.b, T, hingeArm, false); }
+    // s83 (Ben): SWORD on the robots. Maker Prime THRUSTS the drill (no swipe) while it spins up and pulses; SUDS-9's squeegee spins round the arm.
+    const swd = a && a.d && (ak === 'high' || ak === 'low'); let thr = null, swK = 0;
+    if (swd) { const W = a.d.w * (a.slow || 1), Aa = a.d.a, Rr = a.d.r * (a.slow || 1), tt = a.t; swK = tt < W ? tt / W : tt < W + Aa ? 1 : Math.max(0, 1 - (tt - W - Aa) / Rr);
+      if (def.rig === 'prime') { const lo = ak === 'low', k = tt < W ? -ss01(tt / W) * 0.7 : tt < W + Aa ? ss01((tt - W) / (Aa * 0.6)) : 1 - ss01((tt - W - Aa) / Rr), B0 = [0.32, 1.05, 0.18], EX = [0.06, lo ? 0.62 : 1.28, 0.62], WD = [0.36, lo ? 0.85 : 1.15, -0.12], Q = k >= 0 ? EX : WD, m = Math.abs(k); thr = [B0[0] + (Q[0] - B0[0]) * m, B0[1] + (Q[1] - B0[1]) * m, B0[2] + (Q[2] - B0[2]) * m]; } }
+    // s83 (Ben: robot hands in idle): the long robot arms reached full stretch in the guard, so a punch had nowhere to go. Out of an attack the
+    // hands pull in toward the chest (elbows bent); during a move they reach out at full scale again.
+    const atk = !!(a && (a.d || ak === 'laser' || ak === 'wburst') && !(ak === 'draw' || ak === 'stow')); gK += ((atk ? 1 : 0.5) - gK) * Math.min(1, dt * (atk ? 22 : 8));
+    // s84 (Ben): SUDS-9 holds the squeegee up across his front (his BLOCK look) as the default, so you can see what it is; full swings still use the move pose
+    if (def.rig === 'suds' && !thr) { const wI = Math.max(0, Math.min(1, (1 - gK) / 0.5)), BK = [-0.06, 1.19 + 0.025 * Math.sin(t * 3), 0.63]; if (wI > 0) thr = [P.hR[0] + (BK[0] - P.hR[0]) * wI, P.hR[1] + (BK[1] - P.hR[1]) * wI, P.hR[2] + (BK[2] - P.hR[2]) * wI]; }
+    for (const A of arms) { const src = A.s > 0 ? (thr || P.hR) : P.hL, sF = SH_F(A.s), kz = slag ? 1 : gK; T.set(A.sh0.x + (-src[0] - sF[0]) * kA * (0.6 + 0.4 * kz), A.sh0.y + (src[1] - sF[1]) * kA, A.sh0.z + (src[2] - sF[2]) * kA * kz); g.localToWorld(T); ik2(A.up, A.el, A.a, A.b, T, hingeArm, false); }
     for (const Lg of legs) { const src = Lg.s < 0 ? P.fR : P.fL, hF = HIP_F(Lg.s); T.set(Lg.sh0.x + (src[0] - hF[0]) * kL, Math.max(0.02, Lg.sh0.y + (src[1] - hF[1]) * kL), Lg.sh0.z + (src[2] - hF[2]) * kL); g.localToWorld(T);
       if (Lg.one) { const S0 = wp(Lg.th); _a.copy(T).sub(S0); const d = _a.length(); orient(Lg.th, _a.normalize(), hingeLeg); Lg.th.scale.y = clamp(d / Lg.a, 0.75, 1.2); }
       else { ik2(Lg.th, Lg.kn, Lg.a, Lg.b, T, hingeLeg, true); g.getWorldQuaternion(_qg); Lg.kn.updateMatrixWorld(true); Lg.kn.getWorldQuaternion(_qp); Lg.ft.quaternion.copy(_qp.invert().multiply(_qg)); if (Lg.rod) Lg.rod.scale.y = 1 + Lg.kn.rotation.x * 0.25; } }
     // the holder 'sword' sits in the far (+x) hand
+    if (def.rig === 'prime' && R.arms[1] && R.arms[1].bit) { const bt = R.arms[1].bit; bt.rotation.y += dt * 75 * swK; bt.scale.setScalar(1 + swK * (0.12 + 0.12 * Math.sin(t * 46))); }
+    if (def.rig === 'suds' && R.arms[1] && R.arms[1].hand) { const hd = R.arms[1].hand; U.sqSpin = swK > 0 ? (U.sqSpin || 0) + dt * 30 * Math.min(1, swK * 1.6) : 0; hd.rotation.y = U.sqSpin; }
     g.updateMatrixWorld(true); const fa = arms.find(A => A.s > 0); fa.el.localToWorld(_b.set(0, -RD.hand, 0)); g.worldToLocal(_b); sw.position.copy(_b); sw.rotation.set(P.blade ?? 0.95, 0, 0);
+    if (AXE) { const inH = !!(f && (f.swordOut || (ak === 'draw' && a.dur && a.t > a.dur * 0.5) || ak === 'high' || ak === 'low')); const want = inH ? sw : axBack; if (AXE.parent !== want) { want.add(AXE); AXE.position.set(0, inH ? -0.12 : -0.35, 0); AXE.rotation.set(0, inH ? Math.PI / 2 : 0, 0); } }
     applyCart(f); }
   function applyCart(f) { const C = f && f.cart; model.scale.setScalar(RD.sc); if (!C) return; g.position.y += C.hop * 0.7; g.rotation.y += C.spinY; g.rotation.z += C.spinZ * 0.6; const q = clamp(C.sq, -0.6, 0.7) * 0.6; model.scale.set(RD.sc * (1 + q * 0.2), RD.sc * (1 - q * 0.3), RD.sc * (1 + q * 0.2)); }
   const _l = V();
   function limb(kind) { const A = arms.find(x => x.s < 0), Lg = legs[0]; if (kind === 'punch' || kind === 'slaps') return A.el.localToWorld(_l.set(0, -RD.hand, 0)).clone(); return Lg.one ? Lg.th.localToWorld(_l.set(0, -0.8, 0)).clone() : Lg.ft.getWorldPosition(_l).clone(); }
   model.traverse(m => { if (m.isMesh) m.castShadow = true; });
-  return { g, U: { J: { heavy: true, head: R.head } }, L: { ...FOX_L0, H: RD.H }, k: 1.0, R0, P: R0, sw, upd, fox: true, rig: def.rig, hw: RD.hw, gunTip, nozTip: gunTip, parts: null, limb, head: R.head, model, R };
+  return { g, U: { J: { heavy: true, head: R.head } }, L: { ...FOX_L0, H: RD.H }, k: 1.0, R0, P: R0, sw, upd, fox: true, rig: def.rig, hw: RD.hw, gunTip, gunTip2, nozTip: gunTip, parts: null, limb, head: R.head, model, R };
 }
 
 // ---------------- SUDS-9 · THE WINDOW CLEANER ----------------
@@ -390,10 +530,10 @@ export function foxCartoonOf(f, S) {
     else { const r = clamp((a.t - 0.6) / 0.24, 0, 1), s2 = clamp((a.t - 0.84) / 0.1, 0, 1); o.hop = Math.sin(r * Math.PI * 0.5) * 1.1 * (1 - s2); o.spinY = -ss(r) * TAU; o.sq = s2 > 0 ? 0.6 * Math.sin(s2 * Math.PI) : -0.3 * r; } o.ear = o.hop * 0.8; return o; }
   if (a && a.d) { const d = a.d, w = d.w * (a.slow || 1), tot = w + d.a + d.r * (a.slow || 1), u = a.t, pr = clamp(u / Math.max(w, 0.01), 0, 1), after = u - w, strike = u >= w;
     if (a.kind === 'punch') { const n = a.n || 1, H = [0.03, 0.05, 0.7][n - 1]; o.hop = n === 3 ? (strike ? Math.sin(clamp((u - w) / (tot - w), 0, 1) * Math.PI) * H : 0) : Math.sin(clamp(u / tot, 0, 1) * Math.PI) * H; o.sq = strike ? (n === 3 ? -0.5 : -0.18) : 0.22 * pr; if (n === 3) o.spinZ = 0; }   // s46: jab / cross stay planted (the arm does the work); the uppercut still launches
-    else if (a.kind === 'kick' && a.n === 3) { o.spinY = -ss(clamp(u / (w + d.a * 0.6), 0, 1)) * TAU; o.hop = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 0.12; o.sq = strike ? -0.15 : 0.2 * pr; o.tail = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 1.4; o.ear = 0.3; }   // s48 spinning ROUNDHOUSE
+    else if (a.kind === 'kick' && a.n === 3 && !(f.def && f.def.boxer)) { o.spinY = -ss(clamp(u / (w + d.a * 0.6), 0, 1)) * TAU; o.hop = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 0.12; o.sq = strike ? -0.15 : 0.2 * pr; o.tail = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 1.4; o.ear = 0.3; }   // s48 spinning ROUNDHOUSE
     else if (a.kind === 'kick') { o.hop = Math.sin(clamp(u / tot, 0, 1) * Math.PI) * 0.04; o.sq = strike ? -0.12 : 0.15 * pr; o.tail = Math.sin(clamp(after / 0.3, 0, 1) * Math.PI) * 1.0; }   // s46: no spin, so the side kick reads in profile
     else if (a.kind === 'sweep') { o.spinY = -ss(clamp((u - w * 0.3) / (d.a + 0.15), 0, 1)) * TAU; o.sq = 0.45; o.tail = 0.9 * Math.sin(clamp(after / 0.3, 0, 1) * Math.PI); }
-    else if (a.kind === 'akick') { if (a.ph === 'a') o.spinZ = after * 26; o.sq = -0.35; }
+    else if (a.kind === 'akick') { const st = a.style || 'drill'; if (st === 'drill' && a.ph === 'a') o.spinZ = after * 26; o.sq = st === 'splash' ? 0.3 : st === 'stomp' ? -0.2 : -0.1; }   // s61: only Noble's drill spins
     else if (a.kind === 'spin' || a.kind === 'spinR') { const k2 = strike ? ss(clamp(after / (d.a + 0.12), 0, 1)) : 0; o.spinY = strike ? lerp(TAU * 0.12, -TAU, k2) : TAU * 0.12 * pr; o.hop = strike ? Math.max(0, 0.3 - after) * (a.kind === 'spin' ? 1.4 : 1) : 0; o.sq = strike ? -0.25 : 0.35 * pr; o.tail = strike ? 0.9 * (1 - k2) : 0; o.ear = o.hop; }
     else if (a.kind === 'lspin') { o.spinY = strike ? -ss(clamp(after / 0.3, 0, 1)) * TAU : 0; o.sq = 0.45; }
     else if (a.kind === 'high' || a.kind === 'power') { const big = a.kind === 'power' ? 1.35 : 1; o.hop = (strike ? Math.max(0, 1 - after / (d.a * 0.7)) : Math.sin(pr * Math.PI * 0.5)) * 0.8 * big; o.spinY = -ss(pr) * TAU * (a.kind === 'power' ? 2 : 1); o.sq = strike ? (after < d.a ? -0.4 : 0.6 * Math.max(0, 1 - (after - d.a) / 0.2)) : 0.35 * (1 - pr) - 0.2 * pr; o.ear = o.hop; }

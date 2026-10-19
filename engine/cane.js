@@ -19,7 +19,7 @@ export function caneKit({ THREE, M, toon }) {
   const cl = (v, a, b) => Math.max(a, Math.min(b, v));
   function attach(fox, cfg0 = {}) {
     const u = fox.userData, P = u.P, body = P.body;
-    const arm = P.arms[0];                       // her RIGHT arm (she faces +z, so her right is -x)
+    const arm = P.arms[cfg0.arm ?? 0];          // s91: cfg.arm picks the arm (0 = her RIGHT arm, the default) (she faces +z, so her right is -x)
     const side = Math.sign(arm.position.x) || -1;
     const meshes = arm.children.filter(c => c.isMesh);
     const sleeveMat = meshes[0] ? meshes[0].material : toon('#e7edf4');
@@ -42,13 +42,13 @@ export function caneKit({ THREE, M, toon }) {
     const legU = 0.42 * (P.legs[0].scale.y || 1), legCm = legU / k;
     const waistCm = (S.y - 0.48) / k, shoulderHalfU = Math.abs(S.x) + 0.1 * AS;
     const boots = P.legs.map(p => p.children.filter(c => c.isMesh && c.geometry.type === 'SphereGeometry').pop() || p);
-    const R = { cfg: { ...CANE_DEFAULTS, ...cfg0 }, g: 0, amt: 0, strikeT: 0, tipW: new THREE.Vector3(), info: {}, onStep: null, onTap: null, lat: 0, k, cane, hand };
+    const R = { cfg: { ...CANE_DEFAULTS, ...cfg0 }, g: 0, amt: 0, strikeT: 0, tipW: new THREE.Vector3(), info: {}, onStep: null, onTap: null, lat: 0, k, cane, hand, armParts: [upper, fore, hand], arm };   // armParts: a host can hide this arm and pose the fox's own arm onto R.hand instead
     const v1 = new THREE.Vector3(), v2 = new THREE.Vector3(), v3 = new THREE.Vector3(), Hg = new THREE.Vector3(), E = new THREE.Vector3(), T = new THREE.Vector3(), pole = new THREE.Vector3();
     function layout() {
-      const c = R.cfg, L = c.length * k, top = 7 * k, gl = 22 * k, bl = 18 * k, Lb = L - top;
+      const c = R.cfg, L = c.length * k, top = (c.top ?? 7) * k, gl = 22 * k, bl = (c.band ?? 18) * k, Lb = L - top, bg = (c.bandGap ?? 0) * k;
       grip.scale.set(1, gl, 1); grip.position.y = top - gl / 2;
       const sl = Lb - bl - (gl - top); shaft.scale.set(1, sl, 1); shaft.position.y = -(gl - top) - sl / 2;
-      band.scale.set(1, bl, 1); band.position.y = -Lb + bl / 2; tip.position.y = -Lb;
+      band.scale.set(1, bl, 1); band.position.y = -Lb + bg + bl / 2; tip.position.y = -Lb; tip.scale.setScalar(c.ball ?? 1);   /* optional: a shorter red strip a little above a bigger roller ball */
       finger.position.set(0, -0.06, 0.045); finger.rotation.set(0, 0, 0);
       R.Lb = Lb;
     }
@@ -103,14 +103,16 @@ export function caneKit({ THREE, M, toon }) {
       lat *= a; lift *= a;
       if (R.strikeT > 0) { R.strikeT -= dt; const p = 1 - Math.max(0, R.strikeT) / 0.34; lat = 1.7 - 3.4 * Math.sin(p * Math.PI / 2); lift = 0.18; }
       R.lat = lat;
-      const halfW = shoulderHalfU + c.arc * k, gy = -body.position.y;
+      const halfW = shoulderHalfU + c.arc * k, gy = R.groundY ?? -body.position.y;   /* a host that moves the body after this (a fighting crouch) can say where the floor is */
       const handY = c.grip * k, Lb = R.Lb, ahead = Math.sqrt(Math.max(0.01, Lb * Lb - (handY - gy) * (handY - gy) - (c.handOffset * k) ** 2));
-      const tipTarget = c.steps * stepU, zMin = 0.4, zMax = 0.62;
+      const tipTarget = c.steps * stepU, zMin = c.zMin ?? 0.4, zMax = c.zMax ?? 0.62;
       const handZ = cl(tipTarget - ahead, zMin, zMax);
       const HT = T.set(side * (c.handOffset + 4.5 * lat) * k, handY + (1 - Math.abs(lat)) * 1.5 * k * a, handZ + Math.abs(lat) * 2 * k).clone();
       let reachOk = solveArm(HT);   // the hand follows the sweep a little; the wrist does the rest
       // tip: on the arc at the cane's length from the hand
-      const tx = side * lat * halfW, ty = gy + lift, dx = tx - Hg.x, dy = ty - Hg.y, tz = Hg.z + Math.sqrt(Math.max(0, Lb * Lb - dx * dx - dy * dy));
+      const tx = side * lat * halfW * (R.camSide && Math.sign(lat) === R.camSide ? (c.camBoost ?? 1) : 1), up0 = lift + (c.ball ? 0.04 * c.ball : 0), dx = tx - Hg.x;   /* a bigger roller ball rests ON the floor */
+      let ty = gy + up0, dy = ty - Hg.y, tz = Hg.z + Math.sqrt(Math.max(0, Lb * Lb - dx * dx - dy * dy));
+      if (R.groundAt) for (let it = 0; it < 2; it++) { ty = R.groundAt(tx, tz) + up0; dy = ty - Hg.y; tz = Hg.z + Math.sqrt(Math.max(0, Lb * Lb - dx * dx - dy * dy)); }   // a host can give the real floor plane (she leans in a fighting stance)
       T.set(tx, ty, tz); cane.position.copy(Hg); cane.quaternion.setFromUnitVectors(DOWN, v3.subVectors(T, Hg).normalize());
       hand.quaternion.copy(cane.quaternion);
       if (R.swT >= 0) {

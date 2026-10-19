@@ -1000,3 +1000,177 @@ NEXT: (1) test on 2 real phones / 2 tabs (?net=local); (2) LOCAL SPLIT-SCREEN wi
 
 ## s59 — FOX POP!
 - Bens rising uppercut is FOX POP! (SIG.ben.aa) and he shouts "Fox pop!" (SIG.ben.aaSay → shout). Other fighters keep their names. No recording yet: browser voice at Bens pitch until a ben "fox pop" clip is added to audio/vo/manifest.json.
+
+## s60 — Button timing grace (all fighters, all specials + supers)
+- EARLY button: the motion is re-checked when a tapped PUNCH/KICK is released, and for MOT_BUF = 0.18 s after a tap punch/kick a motion that completes turns the not-yet-landed punch/kick into the special (motBufTick in holdTick).
+- LATE button: the last direction counts 0.45 s after it is let go (was 0.35); the uppercuts → may be 0.9 s old (was 0.75).
+- SUPER: the other attack button within 0.2 s (was 0.15, both had to be held) unless that press became a special or a draw; a tap punch/kick it overlaps is cancelled into the super.
+- Test t/s60.js: ben/michelle/sumo/warden × keys/touch: early kick, kick before the ←, late kick 0.4 s, early punch, super 0.17 s apart — all OK. s58 false triggers unchanged (touch clean), s37f2 15/15.
+
+## s61 — Jump-ins and per-fighter air attacks
+- DIAGONAL JUMPS: up-forward / up-back = a committed arc (f.jx: 3.4 m/s × √speed, ≈2.4 m; back 0.85×), front flip going forward; straight jump has no drift. Cleared on landing.
+- AIR ATTACKS (all overheads — crouch-block cant stop them): any button in the air. PUNCH = CHOP (Lox: OVERHAND). KICK = the fighters own (AIRK): JUMP KICK (Ryu roundhouse: ben, shadow, rook, warden, prime) · STOMP (michelle: bounces up to 3×, light push) · FLYING KNEE (jack, might) · SUMO SPLASH (sumo, slag, barnacle, suds: drops fast, quake on landing) · CANE DIVE (hope: diagonal dive) · drill (noble, the old dive kick).
+- airStep(): hit when within reach and at head height; AIRD data per style; poses per style; cartoon spin only for the drill.
+- CPU uses jump-ins when it jumps near you (and will anti-air yours).
+- Tests t/s61.js (all fighters land both air attacks, overhead vs crouch 13 dmg, standing block 2), t/stomp.js (3 stomps, 16 dmg). s37f2 15/15.
+
+## s62 — Higher jumps, scaled to the fighters
+- jumpV(f): a jump peaks at 70% of the TALLER fighters height, clamped 1.45–2.0 m (foxes ≈1.6 m, vs robots/Oyakata ≈1.7 m; was ~1.0 m for everyone). CPU hops use it too (×0.97). Forward arc speed 2.9 m/s × √speed (distance ≈2.5 m).
+- Balance after air attacks (2 round-robins, noisy): noble 158/0.98, lox 170/1.07, ben 172/1.16, rook 170/1.17.
+- Note: the CPU stands to block an incoming jump-in (correct vs overheads), so test crouch-overheads with a non-CPU dummy. s37f2 15/15.
+
+## s63 — Side switching and cross-ups
+- Each fighter now has its own facing (f.fc). A fighter turns to face the opponent only once grounded, and not mid-attack, while held or while tossed, so you can jump over and land on the far side. Turning is a smooth 18/s yaw (f.ryS).
+- The stick, rolls and blade lock are all read relative to facing (readK x × face), so motion specials work from either side and "back" means away from the opponent.
+- Body collision lets you pass over when either fighter is above 0.5 m (Pearl fight only; props and soap are excluded).
+- Cross-up: a jump kick that lands behind the defender has to be blocked toward the NEW back (t/s63b: old back takes 14, new back takes 2 chip). The CPU turns and keeps fighting after crosses (t/s63c). s37f2 15/15; s56/s58/s61 unchanged.
+
+## s64 — Combos, TRAINING, throws, hit weight, PERFECT, move preview, adaptive CPU
+- TRAINING (new menu item under HOW TO PLAY): pick your fox, then a sparring partner; you fight on the Yard with no timer and infinite health/meter.
+  - Panel: 3 COMBO TRIALS per fox (JUMP-IN · SPECIAL CANCEL · FULL COMBO), each step lights green as it lands; ‹ › to switch trials; cleared trials are saved (ffTrial.<fox>.<n>).
+  - Dummy modes: STAND · BLOCK GAPS (blocks the instant hit-stun ends, so it shows dropped combos) · BLOCK · CROUCH BLOCK · JUMP · ATTACK · CPU. RESET puts both back in place.
+  - Input display (toggle): vertical on the right in portrait, a strip under the panel in landscape; arrows are relative to facing; buttons merge with the direction (→ + P).
+  - Per-fox trial finishers: TRIAL_CFG (hope/might/barnacle/warden/slag finish on the rising uppercut, suds cancels into SPIN CYCLE, michelle jumps in with a punch, since her stomp bounces too long to link). All 15 foxes clear all 3 trials scripted (t/s64b).
+- Combo counter now shows damage ("26 DMG") under HITS.
+- Jump-in fixes:
+  - you only pass over someone near the top of a jump (y > 55% of their height), so mid-range jump-ins land in front and point-blank jumps cross up;
+  - an air attack that connects from the front kills the forward drift;
+  - downward dive attacks (drill/dive/stomp/splash) never pass over (Noble's drill was flying past);
+  - an air button + a ground button no longer reads as the two-button super.
+- The rising uppercut (→↓↘ + P) can now special-cancel out of punches/kicks.
+- Cross-up: turning round no longer counts as a fresh back-press (no free PARRY).
+- THROW works again for players (forward/back + PUNCH up close; it had been left on the old pre-s45 input path) and is back in the move list. No throwing someone still reeling from a hit (SF rule — keeps walk-up punch strings working).
+- HIT WEIGHT tiers: light · medium · heavy (finishers, jump-ins) · special · super scale freeze, shake, sparks, flash, recoil, plus a low thump on heavy+.
+- PERFECT! call (game-time, 1 s after the K.O.) when the winner takes no damage.
+- Select screen: move preview (3 specials + super, with inputs) under the stats (portrait/desktop).
+- ADAPTIVE CPU: a lopsided round loss eases the CPU (−0.05, floor −0.15), a comfortable win sharpens it (+0.03, cap +0.12), plus a small mercy when you're down big.
+- Voice script: ann3-01..03 (Perfect! · Training. Choose your fox! · Trial clear!).
+## s65 — SPIN is a second throw button
+- A SPIN **tap** + forward / back up close = throw (forward = toss, back = body slam), same as PUNCH. HOLDING SPIN still blocks (and spins on release), even with a direction held. Too far to grab → the normal spin. Move list: "forward or back + PUNCH or SPIN, up close" (keys 1 or 3). t/s65.
+## s66 — SWORD WORKSHOP (Fox Fighters menu → SWORD WORKSHOP · also #shop)
+- The real fighter bodies (long limbs, elbows/knees, sword on the back, laser holster) on a turntable in the Yard, breathing in their idle guard. The 8 foxes that carry the back sword: Ben, King Might, Michelle, Oyakata, Barnacle, Jack, Rook, Shadow Ben.
+- Views FRONT / SIDE / ¾ BACK / BACK / SPIN, zoom − +. Six nudges (−− − + ++): UP·DOWN, ACROSS THE BACK, OFF THE BACK (1 cm / 5 cm), TILT ACROSS, LEAN AWAY, TWIST (1° / 5°). RESET FOX · USE ON ALL · COPY FOR CLAUDE (JSON of every fox's fit).
+- duel-foxes.js: SWORD_FIT (= SWORD_FIT_BAKED + this device's localStorage 'ff.swordFit') applied on top of the built-in scabbard anchor (BA), re-read live by every body (version bump), so a fit shows in fights straight away. To make Ben's fits permanent: paste his COPY FOR CLAUDE JSON into SWORD_FIT_BAKED.
+- Camera frames the whole fighter in the free part of the screen (portrait: top half above the panel; landscape: left of the side panel).
+- 8 Gates Workshops page: new SWORD WORKSHOP row linking to Fox Fighters.
+## s67 — Sword on the back: handle toward the camera, tail swings under it
+- New built-in scabbard placement (duel-foxes.js BASE): the HILT sits over the shoulder NEAREST THE CAMERA and the scabbard runs ~50° across the back, ending high on the far side above the tail (sumo has its own wider base). It mirrors to the other shoulder whenever the fighter faces the other way (g.userData.hiltS from the body's yaw), so the handle always shows — including after side switches.
+- The tail is free again while sheathed (the s49 near-side tail bias is off): it swings underneath the scabbard.
+- Draw: the reach goes to whichever shoulder the hilt is on (G uses hiltS), and the blade slides out / back in along the diagonal (slerp from the scabbard angle over u 0.4–0.65 on draw, 0.35–0.6 on stow) instead of snapping to straight down.
+- Workshop nudges are now relative to the new base and saved under a fresh key ('ff.swordFit2') so old tweaks don't skew it. s37f2 15/15.
+## s68 — A real sheath on the back (Ben's workshop placement, polished)
+- Ben's Sword Workshop tuning for BEN (down 34 cm, 8 cm closer to the back, tilt −16°, lean +4°, twist +70°) is baked as the starting fit for every sword fox (SWORD_FIT_BAKED; RESET FOX returns to it).
+- The thin tube scabbard is replaced by a SHEATH shaped to the fox sword's wide blade: flat, tapered, rounded tip, navy lacquer (Shadow Ben: deep purple) with gold fittings matching the hilt (throat under the guard, two bands, a rounded chape).
+- The BLADE (and its outline + fuller strip) is hidden while sheathed, so only the grip, rings, pommel and gold guard show over the shoulder; it reappears as it's drawn.
+- A leather STRAP (bandolier) runs from the hilt shoulder across the chest to the far hip (~40°), with two small gold buckles. It's sized from each fighter's own torso (skirts / capes / heads ignored, capped for slim bodies) and mirrors with the hilt.
+- Checked all 8 sword foxes from side / ¾ back / back, the draw / stow sequence, s37f2 15/15.
+## s69 — The crest sits on top of the strap
+- The chest crest (Ben's 8, Michelle's M, …) is now pinned OVER the strap like a medallion: the crest decal + rim move just in front of the band (only as far as needed, per fighter) and draw after it; the strap hugs the chest a little closer in front (crest pieces are no longer counted when sizing the strap).
+## s70 — Sword stays on one side through spins · wider, higher guard
+- The sword + strap pick their shoulder from which way the fighter FACES (f.fc), not from the body's rotation that frame — so they no longer flip back and forth during spins (or on the workshop turntable); they only swap when the fighter really turns round.
+- Fox guard (Ben: "arms sucked into the body"): lead fist 0.30k out / up to the face / 0.52k in front (was 0.17 / chin / 0.30); rear fist 0.24k out, in front of the face (0.36k, was 0.04 / 0.12). s37f2 15/15.
+## s71 — Laser holster on the gold waist band
+- The holstered laser is ~25% smaller (HA scale 0.76) and hangs from the gold waist band (HA y 0.66 → 0.90, a touch further out and forward), instead of down on the thigh. The laser-draw reach (H) goes to the new spot. Oyakata keeps his own mawashi placement.
+## s72 — The new gear style on everyone who carries it
+- Checked all fighters (side / ¾ / back): Ben, King Might, Michelle, Barnacle, Jack, Rook and Shadow Ben wear the sheath + strap + belt holster well with Ben's fit.
+- OYAKATA gets his own fit (his back is much rounder, the sheath was buried): dy −0.12, out +0.14, tilt −12°, lean 6°, twist 70° → sheath across his back, strap across his chest, handle over the shoulder; his laser 0.86 on the rope belt.
+- Not given a sword/sheath on purpose: Hope (her cane is her weapon; her laser already sits at the belt), Lox (boxer), Noble (chair), the robots and Slagback.
+- Workshop camera can show any fighter (shopStart accepts any roster id; the ‹ › list is still the sword foxes). s37f2 15/15.
+## s73 — Noble: SHOEMERANG on hold KICK + two kinds of electricity
+- Hold KICK = SHOEMERANG (replaces the laser he never carried; cancels out of a landed horn / wheelie). ↓↘→+P still throws it too.
+- Mash PUNCH (4 quick taps) = THUNDER SURGE: a crackling electric bubble round the chair (aura + bolts + sparks), CLOSE only (~1.9 m all round), 7 shocks of 3.5 + a 12 'power' KRA-KOOM finisher with a long stun (~25 on its own). Blocked = small chip. Cooldown 2.4 s.
+- Mash KICK (4 quick taps) = THUNDER ARC: zig-zag lightning bolts straight ahead up to ~4.3 m with sparks along the bolt, 6 zaps of 2 (~12), light stun. Blocked = tiny chip. Cooldown 2.0 s.
+- The CPU Noble uses SURGE up close and ARC from mid range. Move list: SHOEMERANG (hold KICK), THUNDER SURGE (mash PUNCH), THUNDER ARC (mash KICK). Voice script: special-ts / special-ta. t/s73 · s37f2 15/15.
+## s74 — Noble: big boots, takes the shoe off to throw it, leaning punches, a sword on the back of the chair
+- FIX (since s54): the knee-split code was taking Noble's seated knees/shins/boots off his legs and leaving them under the floor; the chair's legs are excluded now (duel-foxes SHIN skips the chair), so his legs and boots show on the footrest again.
+- Bigger boots in idle (chair cfg boot ×1.6).
+- SHOEMERANG (hold KICK, or ↓↘→+P): he lifts his foot, leans in and pulls the boot off (it leaves the foot and is in his hand), winds up behind his shoulder and throws at 0.5 s (act 0.74 s); the boot is back on the foot when the shoemerang returns.
+- PUNCH: a real punch now — he rocks forward in the chair and the fist shoots straight out (jab / cross alternate arms, the 3rd is an uppercut). ↓+PUNCH = AUDIO HORN.
+- SWORD: a fox sword in a navy/gold sheath hangs diagonally on the back of the wheelchair (hilt up by the backrest corner on the camera side, two leather loops). Hold PUNCH: reaches back over the shoulder, draws it, swings overhead (↓ = low swing), then puts it back on the chair. The blade only shows when it's out.
+- engine/chair.js: R.armOv (per-arm target override + weight), R.arms / R.body / R.back / R.backH exposed for hosts. THUNDER SURGE can cancel out of a punch. Move list updated (PUNCH, AUDIO HORN ↓+P, CHAIR SWORD hold P, RAM = tap SPIN). s37f2 15/15, t/s73 + t/s74.
+## s75 — Hope: ONE cane, a better walking cane, a roller-ball tip
+- One cane only: the second (weapon) cane that pointed up from her other paw is hidden; it appears only while she swings / vaults / spins with it, and then the walking cane hides — never two at once.
+- Walking cane (Fox Fighters settings on the shared rig, the other games keep their defaults): longer (140 Hope-cm), lower grip (74) held further down the cane (13 cm above the fist) and further forward (hand z 0.52–0.85), tip ~3.2 steps ahead → it reaches out ahead at ~55° instead of hanging straight down; wider sweep (arc 20) that reaches 1.4× further on the CAMERA side (rig.camSide follows her facing).
+- Tip: a bigger roller ball (×1.7) resting ON the floor, with a short red strip (9 cm) 5 cm above it (same on the weapon cane).
+- FIX: the cane tip had been ~16–19 cm under the floor in fights (the duel's crouch + lean move her body after the cane rig runs); Fox Fighters now gives the rig the real floor plane in body space (rig.groundAt) and the tip is solved onto it.
+- engine/cane.js: optional cfg top / band / bandGap / ball / zMin / zMax / camBoost, R.camSide, R.groundY, R.groundAt — all default to the old behaviour.
+## s76 — Hope holds the cane with her OWN arm
+- The cane rig builds its own stand-in right arm (grey), and the duel's IK was still posing her real right arm on top → two arms. Now the rig's arm is hidden (R.armParts, exposed by engine/cane.js) and her real right arm (white sleeve, orange glove) is aimed at the rig's cane-hand point (R.hand, converted to pose space through the body matrix), so the cane sits in her own glove. When she fights with the cane (swing/vault/spin) the arm goes back to the normal fight poses.
+## s77 — Red gloves for Hope and Noble (like Ben)
+- Hope: gloves '#dc2626' on BOTH paws now (her own arm holds the cane since s76, so the cane paw gets one too; it used to be skipped).
+- Noble: gloves '#dc2626', built onto the chair rig's hands (his kit arms are hidden by the chair, so his blue gloves never showed) — same glove as everyone else (ball, thumb, cream cuff, lace).
+
+## s78 — Noble: longer, more muscular arms and a further punch
+- chair.js: new optional cfg `armThick` (scales upper and forearm capsules plus the hands) and `bicep` (adds a bicep and forearm bulge in the sleeve colour).
+- Noble: armReach 1.32, armThick 1.45, bicep on. His punch now drives the fist out about 1.0 forward (it was about 0.55) and an uppercut reaches higher.
+
+## s79 — King Might: lower guard so the whiskers show
+- sword-duel.js: Might's idle kamae gloves sit 0.1 lower, 0.1 further out from the face and slightly wider apart.
+
+## s80 — Every fox's guard checked so the face shows
+- Front shots of all fox fighters' idle guard. Ben, Hope, Michelle, Oyakata, Barnacle, Shadow Ben, Noble and King Might already show their faces.
+- sword-duel.js: new `GUARD_DROP` table (per fighter: [wider, lower, further out]) replaces the King Might-only tweak. Jack [0.05, 0.16, 0.08], Rook [0.04, 0.14, 0.08], Lox [0.07, 0.24, 0.1], Might [0.03, 0.1, 0.1].
+- The gloves may still brush the chin at the top of the idle bob, as Ben asked.
+
+## s81 — Hope gets the sword too
+- Hope now wears a sheathed sword on her back like the other foxes (same sheath, strap and 8 crest; fit = BEN_FIT, adjustable in the Sword Workshop, where she is now listed).
+- Sword moves (high, low, power, draw, stow, held sword) use the real sword in her free paw, and the walking cane stays in her other paw.
+- Cane moves (VAULT, DIVE, ECHO, RISE and the spins) still swap the sword hand to the weapon cane (the sword's parts hide, CANEW shows).
+- duel-foxes.js: `hasBack` no longer skips cane fighters; `SWK` / `caneUse` swap the sword and the weapon cane. sword-duel.js: the draw-from-back animation and the workshop list include Hope.
+
+## s82 — SUPER BURST: a full bar powers up your NEXT move
+- With a full bar, the next special (fireball, whirlwind, vault, shoemerang, thunder zaps, flurry...), SWORD or LASER comes out as a super: the bar empties, slow-mo gold flash, "SUPER <MOVE>" call, hits x1.5 for a moment. `superBurst(f, name)` in sword-duel.js.
+- Super SWORD (hold PUNCH): a three-slash combo (high, low, high) with 1.6x reach and a lunge; hits x1.3. `f.supSwN` chains the slashes in the move tick and is cleared if the combo is interrupted.
+- Super LASER (hold KICK): a TRIPLE BURST, three bolts 0.19 s apart.
+- Specials also get 1.25x speed, 1.5x size and one extra shot or hit. The CPU uses it too.
+- The old full super (★ / Q / 4 / PUNCH + KICK) still works.
+- Your own super's hits no longer refill the bar.
+- HUD (Kyoto Sword Duel.dc.html): the SUPER bar is taller (9 px), labelled, and fills smoothly (blue to gold). When full it becomes a gold "SUPER BURST CHARGED" bar that pulses (ffSup). Both fighters have one. The bottom hint now reads "SPECIAL · SWORD · LASER = SUPER!".
+
+## s83 — Robot moves and robot hands
+- SUDS-9 KICK = a WATER BURST: three quick water shots (0x9fe8ff) from the hose hand, with splash bursts, a SPLASH! word and the model's own spray pose. Act `wburst` in sword-duel.js, 0.6 s cooldown. The CPU uses it too.
+- SUDS-9 SWORD (hold PUNCH): the squeegee hand spins round the forearm like a propeller (`U.sqSpin`) and throws water sparks. No slash arc; the hit shows a splash ring instead.
+- MAKER PRIME SWORD: no swipe. The drill arm pulls back and THRUSTS forward (low version for crouch) while the bit spins at about 75 rad/s and pulses in size, throwing gold sparks. The hit shows a spark ring, not a slash.
+- All rig fighters (Warden, Prime, SUDS-9): the idle guard pulls the hands in to the chest with the elbows bent (`gK` = 0.5 out of a move, 1 during one). Their long arms used to sit at full stretch, so punches had nowhere to go; now the punch visibly shoots out. Slagback is unchanged.
+
+## s84–s86 — SUDS squeegee, Iron Warden makeover, Oyakata mitts
+- s84 SUDS-9: out of a move he holds the squeegee up across his front (his BLOCK look) so it reads clearly; swings still use the move pose.
+- s85 IRON WARDEN (Fox Fighters only; bosses.js is unchanged):
+  - BIG RED BOXING GLOVES on both rocket fists (they fly with the rocket punch).
+  - Steel EARS with orange tips, like Maker Prime's antenna horns.
+  - A LASER cannon on his near hip. His laser (hold KICK) now fires from his EYES and the HIP cannon together, at 65% damage each (`fireLz` / `gunTip2`); the super triple burst does the same.
+- s85 OYAKATA: his mitts are 1.5x bigger (sphere paws on the s54 forearm).
+- s86 IRON WARDEN: a DOUBLE-SIDED AXE instead of the sword. It hangs diagonally on his back between the cape plates; he draws it over his shoulder and swings it for every sword move, then puts it back.
+
+## s87 — Oyakata mitts blue and shorter
+- His mitts are now the blue of his mawashi (#1d4ed8) and 30% shorter top to bottom (still 1.5x wide).
+
+## s88 — The FLURRY is back on the buttons
+- 5 fast PUNCH taps within about 1.1 s = the fighter's FLURRY again (it was removed in the s45 button reset, but the move list still advertised it): Oyakata HUNDRED PALM, Ben FOX FLURRY, etc. Michelle uses 5 fast KICKs (kickFlurry). Noble keeps his mash = THUNDER SURGE / ARC. A full bar turns it into a Super Burst flurry.
+
+## s89 — Lox: smaller gloves to show his HUGE chest
+- Lox's glove spheres are 0.68x, so his big chest and the L emblem show between them (def.boxer, on the s54 forearm paws).
+
+## s90 — Lox polish: sword, laser and a 3-punch KICK string
+- Lox loses `noSword`: he gets the sheathed sword on his back (hold PUNCH swing, draw / stow, Super Sword) and the laser on his hip (hold KICK). He now appears in the Sword Workshop.
+- KICK (all punches for the boxer) is now a 3-hit string like the other foxes' kicks: 1 BODY BLOW (lead hook to the body), 2 CROSS (rear straight to the head), 3 HAYMAKER (a big rising overhand that knocks them back). Each has its own pose and hit word; Lox doesn't do the roundhouse spin. Crouch KICK (low body blow) and air KICK (overhand) are unchanged.
+- His roster text now names the combo.
+
+## s91 — Hope's cane in the far hand; Lox sword fit
+- Hope holds her walking cane in the hand AWAY from the camera, so her near hand is free: she draws the laser pistol and fires with it, in full view.
+  - cane.js: `attach()` takes `cfg.arm` (0 = right, the default; 1 = left).
+  - cast.js: `make('hope', { caneArm })`. The duel uses `caneArm: 1`.
+  - The far hand also holds the sword, so the walking cane is put away while the sword is out. The cane moves (vault / dive / spins) still use the weapon cane in that hand.
+  - Her old kamae override (cane hand low and forward) is gone; her near hand now holds a normal guard.
+- Lox: SWORD_FIT_BAKED gets `lox: BEN_FIT`, so his back sword sits like Ben's.
+
+## s92 — Street Fighter push boxes (no more overlapping faces)
+- The push box between the two fighters was only about 0.78 apart (body centres), so heads, snouts and bodies overlapped when they walked into each other.
+- New: gap = max(1.5, hw + hw + 0.75) plus a per-fighter `pb` extra (Oyakata 0.22 for the belly, Lox 0.1). Walking in shoves the other fighter along at about half speed, and they stop face to face (gloves may cross, as in SF). Jumps can still cross over near the top.
+- Every move's reach (about 1.95 and up) is still longer than the gap, so point-blank hits still land; the 15 regression fights still land combos.
+
+## s93 — Push box = the closest attack's range
+- Ben: "they can't go any closer than what is needed for the closest attack". The push box is now set by the shortest attack, the THROW: `pushGap()` = hw + hw + 0.97 (about 1.65 for two foxes, wider for big bodies), so they stop exactly where a throw still grabs and every other attack still reaches.
+- Oyakata's and Lox's extra width (`def.pb`) now adds to their body width `hw`, so their throw and hit ranges grow with it.
+- The dash and headbutt contact checks (previously a fixed 1.3 / 1.25) now use `pushGap() + 0.15`, so those moves still connect.
+- Tested: forward + PUNCH at contact throws in Ben/Rook, Lox/Oyakata, Warden/Michelle, Oyakata/Ben and Prime/SUDS; the 15 regression fights still land combos.

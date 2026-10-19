@@ -72,7 +72,7 @@ export function chairKit({ THREE, M, toon }) {
       M(new THREE.BoxGeometry(hw * 2 - 0.06, 0.035, sd - 0.06), trim, 0, seatY + 0.005, (z0 + z1) / 2 + 0.01, chair, 0);
       M(new THREE.BoxGeometry(hw * 2 + 0.05, 0.022, 0.03), lit, 0, seatY - 0.06, z1 + 0.025, chair, 0);
       // backrest: curved shell
-      const bk = new THREE.Group(); bk.position.set(0, seatY, z0 - 0.02); bk.rotation.x = -bt; chair.add(bk);
+      const bk = new THREE.Group(); bk.position.set(0, seatY, z0 - 0.02); bk.rotation.x = -bt; chair.add(bk); R.back = bk; R.backH = bh;
       const bs = new THREE.CylinderGeometry(hw + 0.06, hw + 0.06, bh, 24, 1, true, Math.PI * 0.62, Math.PI * 0.76); const bm = M(bs, shell, 0, bh / 2, hw * 0.62, bk, 0.016); bm.material = shell; bm.children.forEach(o => o.material.side = THREE.BackSide);
       shell.side = THREE.DoubleSide;
       M(new THREE.BoxGeometry(hw * 1.2, bh * 0.7, 0.03), trim, 0, bh * 0.5, -0.02, bk, 0);
@@ -152,8 +152,13 @@ export function chairKit({ THREE, M, toon }) {
       R.dy = c.seat * k - SIT + 0.02;
       arms.forEach(A => { A.UA = 0.27 * c.armReach; A.FA = 0.26 * c.armReach;
         if (A.uM) A.up.remove(A.uM); if (A.fM) A.fo.remove(A.fM);
-        A.uM = M(new THREE.CapsuleGeometry(0.085, Math.max(0.02, A.UA - 0.1), 4, 10), A.sleeve, 0, -A.UA / 2, 0, A.up, 0.02, 0.085);
-        A.fM = M(new THREE.CapsuleGeometry(0.075, Math.max(0.02, A.FA - 0.12), 4, 10), A.sleeve, 0, -A.FA / 2 + 0.02, 0, A.fo, 0.02, 0.075); A.cM.position.y = -A.FA + 0.07; });
+        const th = c.armThick ?? 1;   // optional: thicker, more muscular arms (a host's setting; 1 = as tuned)
+        A.uM = M(new THREE.CapsuleGeometry(0.085 * th, Math.max(0.02, A.UA - 0.1), 4, 10), A.sleeve, 0, -A.UA / 2, 0, A.up, 0.02, 0.085 * th);
+        A.fM = M(new THREE.CapsuleGeometry(0.075 * th, Math.max(0.02, A.FA - 0.12), 4, 10), A.sleeve, 0, -A.FA / 2 + 0.02, 0, A.fo, 0.02, 0.075 * th); A.cM.position.y = -A.FA + 0.07;
+        if (A.bM) { A.up.remove(A.bM); A.bM = null; } if (A.fbM) { A.fo.remove(A.fbM); A.fbM = null; }
+        if (c.bicep) { A.bM = M(new THREE.SphereGeometry(0.1 * th, 14, 10), A.sleeve, 0, -A.UA * 0.42, 0.035 * th, A.up, 0.02, 0.1 * th); A.bM.scale.set(1, 1.25, 1.05);   // bicep
+          A.fbM = M(new THREE.SphereGeometry(0.085 * th, 12, 10), A.sleeve, 0, -A.FA * 0.28, 0, A.fo, 0.02, 0.085 * th); A.fbM.scale.set(1, 1.3, 1); }   // forearm bulge
+        A.cM.scale.setScalar(th > 1 ? 0.5 + 0.5 * th : 1); });
       const thighU = 0.36, shinU = c.shin * k;
       P.legs.forEach((p, i) => { const s = i ? 1 : -1, K = R.knees[i]; p.position.set(s * c.legSpread * k / 2, SIT + 0.08, -0.04); p.rotation.x = -c.thigh * D2R;
         if (K.thighM) p.remove(K.thighM); if (K.shinM) K.knee.remove(K.shinM);
@@ -162,7 +167,7 @@ export function chairKit({ THREE, M, toon }) {
         K.knee.position.set(0, -thighU, 0); K.knee.rotation.x = c.knee * D2R;
         if (K.boot) { K.boot.position.set(0, -shinU - 0.02, 0.05); K.boot.scale.copy(K.bs).multiplyScalar(c.boot); } });
     }
-    R.set = cfg => { Object.assign(R.cfg, cfg); layout(); };
+    R.set = cfg => { Object.assign(R.cfg, cfg); layout(); }; R.arms = arms; R.body = body; R.armOv = [null, null];
     R.update = (dt, speed) => {
       const c = R.cfg, bs = fox.scale.x || 1, sp = speed / bs, G = R.geo, moving = sp > 0.05;
       body.position.y += R.dy; R.t = (R.t || 0) + dt; if (R.glowMat) R.glowMat.emissiveIntensity = 1.3 + Math.sin(R.t * 3) * 0.35 + (moving ? 0.4 : 0);
@@ -179,6 +184,7 @@ export function chairKit({ THREE, M, toon }) {
         const wx = A.side * (G.wx + 0.05 + out), y = G.Rw + Math.cos(ang) * rr - body.position.y, z = G.wz + Math.sin(ang) * rr;
         const T = v1.set(wx, y, z);
         if (i === 1 && R.throwT > 0) T.set(A.side * 0.3, A.S.y + 0.45, 0.35 + (0.25 - R.throwT) * 1.6);
+        { const ov = R.armOv && R.armOv[i]; if (ov && ov.w > 0) T.lerp(ov.T, Math.min(1, ov.w)); }   // a host (Fox Fighters) can pose a hand: punches, the shoe grab, the sword
         if (!solve(A, T.clone())) reach = false;
       });
       R.info = { seatCm: c.seat, reachOk: reach, pushes: Math.round((moving ? cl(0.35 + vm * 0.55, 0.35, 1.8) : 0) * 60), wheelCm: c.wheel };

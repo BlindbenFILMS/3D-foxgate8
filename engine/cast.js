@@ -20,7 +20,7 @@ export function castKit({ THREE, M, toon, makeFox }, rigs = {}) {
   const CK = caneKit({ THREE, M, toon }), HK = chairKit({ THREE, M, toon });
   function make(key, o = {}) {
     const f = makeFox({ ...CAST[key], ...o });
-    if (key === 'hope') f.userData.rig = CK.attach(f, rigs.cane || CANE_DEFAULTS);
+    if (key === 'hope') f.userData.rig = CK.attach(f, { ...(rigs.cane || CANE_DEFAULTS), ...(o.caneArm != null ? { arm: o.caneArm } : {}) });   // s91: o.caneArm = which hand holds the cane
     if (key === 'noble') f.userData.rig = HK.attach(f, rigs.chair || CHAIR_DEFAULTS);
     return f;
   }
