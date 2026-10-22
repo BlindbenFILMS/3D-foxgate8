@@ -785,7 +785,7 @@ export async function createStud({ container, load, onState = () => {}, embed = 
     G.net = { st: 'room', code, status: 'connecting', name: netName(), j: Date.now(), ready: false, fill: false, peers: {}, msg: '', via: '' }; emit();
     let N; try { N = await netConnect(code, { onJoin: id => netHello(id), onLeave: id => netGone(id), onMsg: (t, d, id) => netMsg(t, d, id), onStatus: s => { if (G.net) { G.net.status = s; emit(); } } }); }
     catch (e) { G.net = { ...G.net, status: 'offline', msg: 'Online play could not load here. Some school or work Wi-Fi blocks it.' }; emit(); return; }
-    G.netConn = N; G.net.via = N.via; G.net.status = 'connected'; try { const u = new URL(location.href); u.searchParams.set('room', code); history.replaceState(null, '', u.href); } catch (e) {} emit();
+    G.netConn = N; G.net.via = N.via; G.net.status = 'connected'; netHello(); try { const u = new URL(location.href); u.searchParams.set('room', code); history.replaceState(null, '', u.href); } catch (e) {} emit();
   }
   function netCreate(name) { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += A[rnd(A.length)]; return netJoin(c, name); }
   function netHello(id) { const n = G.net; if (!n || !G.netConn) return; G.netConn.send('hi', { j: n.j, name: n.name, ready: n.ready, fill: n.fill, playing: G.mode === 'play' && G.kind === 'net' }, id); }

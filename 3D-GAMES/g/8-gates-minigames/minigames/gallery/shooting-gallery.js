@@ -1,8 +1,8 @@
 // 8 GATES — SHOOTING GALLERY [shootingGallery]. Minigame #30. A carnival cork-rifle booth that fits inside any building on any world.
 // Phone first: TAP A TARGET TO SHOOT IT (mouse: aim + click). 8 corks a clip, RELOAD button (or R), four moving rows + pop-up crows.
 // Green FOX CARDS are friends: don't shoot them. Hit streaks raise the multiplier (x2 at 5, x3 at 10). Centre hits = BULLSEYE +5.
-// Modes: CLASSIC 45 s · RAPID FIRE 30 s · PASS & PLAY (2-5 players, one phone, everyone gets the SAME gallery) ·
-//        ONLINE (2-5 players, peer to peer through engine/duel-net.js, game 'shootingGallery': everyone shoots the same targets, first hit wins it).
+// Modes: CLASSIC 45 s · RAPID FIRE 30 s · PASS & PLAY (2-4 players, one phone, everyone gets the SAME gallery) ·
+//        ONLINE (2-4 players, peer to peer through engine/duel-net.js, game 'shootingGallery': everyone shoots the same targets, first hit wins it).
 // Every target's path is computed from a shared seed (no position sync needed). The host (lowest id) only rules who hit a target first.
 // Rows are laid out in SCREEN space, so portrait and landscape both get big, tappable targets; the booth re-frames on every resize.
 // Themes: ?world=meru|gaya|jidda|kufa|luxor|nebo|ur|zion|home|earth|station|kyoto re-skins the awning, wall and sign.
@@ -34,7 +34,7 @@ export const KEEPER = { name: 'DOT', role: 'Booth keeper (DRAFT)', lines: {
   intro: ['Step right up! Eight corks a clip. Tap a target to shoot it.', 'Ducks, cans, stars, birds. The gold bell is worth the most!', "Green fox cards are my friends. Please don't shoot them."],
   good: ['What a shot!', 'You could run this booth.', 'Pick a prize, sharpshooter!'], ok: ['Not bad at all!', 'Have another go?'], low: ['Warm-up round. Again?', 'Aim for the big ducks first.'] } };
 export const COLORS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PURPLE', '#a78bfa']];
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 export const THEMES = {
   default: { label: '8 GATES', wall: '#4a1426', star: '#ffd23a', a: '#ec3013', b: '#f6f3ee', trim: '#ffd23a', wood: '#8a5a32', water: '#2f8fd8' },
   meru: { label: 'MERU', wall: '#151b3d', star: '#e6b45a', a: '#c42d3c', b: '#f6f3ee', trim: '#e6b45a', wood: '#7a4a2a', water: '#2f8fd8' },
@@ -409,7 +409,7 @@ export async function createShootingGallery({ container, onState = () => {}, wor
       board: board.map(b => ({ name: b.name + (b.me ? ' · YOU' : '') + (b.gone ? ' · LEFT' : ''), col: b.col, score: b.score, sub: '' })), rows, mode: R.mode };
     st.phase = 'done'; sfx.fanfare(); if (st.net) { st.net.st = 'room'; st.net.ready = false; netSend('ev', { k: 'playing', on: false }); } emit(true); }
 
-  // ---------------- ONLINE: up to 5, through engine/duel-net.js (same contract as the Skate Park). Fallback: BroadcastChannel (two tabs) ----------------
+  // ---------------- ONLINE: up to 4, through engine/duel-net.js (same contract as the Skate Park). Fallback: BroadcastChannel (two tabs) ----------------
   function localDuel({ game, code, onJoin, onLeave, onMsg, onStatus }) {
     const id = Math.random().toString(36).slice(2, 8), known = new Set(); let bc; try { bc = new BroadcastChannel('8g-' + game + '-' + code); } catch (e) { onStatus && onStatus('offline'); return { id, send() {}, leave() {} }; }
     bc.onmessage = ({ data: m }) => { if (!m || m.from === id || (m.to && m.to !== id)) return; if (m.t === '__bye') { if (known.delete(m.from)) onLeave(m.from); return; }

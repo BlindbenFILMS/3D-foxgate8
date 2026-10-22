@@ -2,8 +2,8 @@
 // Ben stands at the counter of a striped booth; a cork board of balloons hangs at the back. DRAG to aim (the ring sits just above your finger and
 // wobbles like a real arm, more the longer you hold), LET GO to throw. Gold = 50, the pink star = 100, black BLAST pops its neighbours,
 // the pale ICE balloon stops the wobble, the white PLUS gives a dart (or time). Hits in a row: x2, then x3.
-// MODES: CLASSIC (6 darts, 2 gold, win tickets) · BLITZ (45 s, the rows slide, balloons grow back) · PARTY (pass the phone, 2-5 players)
-//        · ONLINE RACE (2-5 phones, peer to peer, one shared board, first dart to a balloon gets it; host decides) · DEMO.
+// MODES: CLASSIC (6 darts, 2 gold, win tickets) · BLITZ (45 s, the rows slide, balloons grow back) · PARTY (pass the phone, 2-4 players)
+//        · ONLINE RACE (2-4 phones, peer to peer, one shared board, first dart to a balloon gets it; host decides) · DEMO.
 // Tickets buy prizes off the shelf (items in the shared save). Assist (accessibility): aim magnet, a tone for every balloon under the ring, half wobble.
 // MERGE: createBalloonPop({ container, onState, opts }) stands alone. buildBooth(ctx) builds just the stall (no room) from a Meru-style ctx
 // ({ THREE, M, toon, scene, theme }) so a world can drop the booth into one of its own interiors.
@@ -18,7 +18,7 @@ import { canvasTex, crestTex, FONT } from '../../engine/textures.js';
 export const BALLOON_POP = { num: 47, name: 'BALLOON POP', room: 'carnivalBalloonPop', key: 'balloonPop' };
 export const SAVE = { best: 'balloonPop.best', bestBlitz: 'balloonPop.bestBlitz', tickets: 'balloonPop.tickets', rounds: 'balloonPop.rounds', pops: 'balloonPop.pops', wins: 'balloonPop.wins', assist: 'balloonPop.assist', muted: 'balloonPop.muted', jackpots: 'balloonPop.jackpots' };
 export const COST = 2;
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PURPLE', '#a78bfa']];
 export const BARKER = 'ZIGGY';   // DRAFT name for the stall barker
 export const PRIZES = [   // DRAFT prices (tickets)
@@ -53,7 +53,7 @@ export const THEMES = {
   earth: { a: '#1e5bd6', b: '#f3f2f2', trim: '#ec3013', wall: '#1d1f2a', floor: '#6a5a4a', label: 'EARTH' },
   station: { a: '#38bdf8', b: '#e6ecf4', trim: '#a78bfa', wall: '#0f1424', floor: '#3a4256', label: 'DEEP SPACE FOX' } };
 const LINES = {   // DRAFT barker lines
-  intro: ['Step right up! Pop a balloon, win a prize!', 'Six darts, two gold! Every pop wins tickets!', 'Gold pays fifty! The pink star pays a hundred!', 'Bring your friends! Up to five can play!'],
+  intro: ['Step right up! Pop a balloon, win a prize!', 'Six darts, two gold! Every pop wins tickets!', 'Gold pays fifty! The pink star pays a hundred!', 'Bring your friends! Up to four can play!'],
   start: ['Nice and easy. Aim, then let go.', 'Show me that throwing arm!', 'The ring wobbles. Do not wait too long!'],
   hit: ['POP! Nice one!', 'Right on the button!', 'The crowd likes that!', 'Pop goes the balloon!'],
   streak: ['You are on fire!', 'In a row! Bigger points!', 'Somebody stop this fox!'],
@@ -354,7 +354,7 @@ export async function createBalloonPop({ container, onState = () => {}, opts = {
     slotXY(D.tgt, S.gt, false, _p); S.aiming = true; ret.visible = true; S.aimX = damp(S.aimX, _p.x + 0.02, 5, dt); S.aimY = damp(S.aimY, _p.y - 0.02, 5, dt);
     if (D.ai > 1.25 && S.cool <= 0 && S.darts > 0) { throwDart(); D.n++; D.cap = DEMO_CAPS[Math.min(D.n, DEMO_CAPS.length - 1)]; D.tgt = -1; D.ai = 0; dirty = true; } }
 
-  // ---------- online race (2-5 phones; first dart to a balloon gets it; the host decides) ----------
+  // ---------- online race (2-4 phones; first dart to a balloon gets it; the host decides) ----------
   function netSet(p) { if (S.net) Object.assign(S.net, p); dirty = true; }
   function netOpen() { S.net = { st: 'menu', code: '', status: '', peers: {}, ready: false, j: 0, msg: '', ping: null, me: null, players: [], mySlot: 0, queue: [], scores: {}, ended: false }; S.party = null; S.demo = null; dirty = true; }
   function members() { const N = S.net; if (!N || !NET) return []; const all = [{ id: NET.id, j: N.j, ready: N.ready, playing: N.st === 'play', me: true }, ...Object.entries(N.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, MAX_PLAYERS); }

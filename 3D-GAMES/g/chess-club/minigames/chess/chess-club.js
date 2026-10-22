@@ -1,5 +1,5 @@
 // 8 GATES — CHESS CLUB [chessClub]. A small club room (any building, any world): one table, a 3D board, foxes at the table.
-// Modes: VS FOX (Pip · ROOKIE, Hope · CLUB, Noble · MASTER), PASS & PLAY (two on one phone), ONLINE (room of up to 5: 2 play, 3 watch and
+// Modes: VS FOX (Pip · ROOKIE, Hope · CLUB, Noble · MASTER), PASS & PLAY (two on one phone), ONLINE (room of up to 4: 2 play, 2 watch and
 // take the next game, winner stays on). Tap a piece, tap a square (or drag). Rules + CPU live in ./chess-rules.js (CPU runs in a Worker).
 // MERGE: createChessClub({ container, onState }) stands alone. buildParlor(ctx) builds just the room + table into any scene/origin so a world's
 // building can reuse the interior. Save keys: everything under 'chessClub.*' (stats in engine/save.js; resume + prefs in localStorage).
@@ -11,7 +11,7 @@ import { save } from '../../engine/save.js';
 import { Chess, think, LEVELS, sqName, sqIndex, colorOf, PIECE_NAMES } from './chess-rules.js';
 import { createChessAudio } from './chess-audio.js';
 
-export const CHESS = { key: 'chessClub', name: 'CHESS CLUB', room: 'chessClub', maxRoom: 5 };
+export const CHESS = { key: 'chessClub', name: 'CHESS CLUB', room: 'chessClub', maxRoom: 4 };
 const RESUME_KEY = 'chessClub.resume', PREFS_KEY = 'chessClub.prefs';
 // Opponents + rewards + lines: DRAFT for Ben (no chess in the 2D game files).
 export const OPPONENTS = [
@@ -432,7 +432,7 @@ export async function createChessClub({ container, onState = () => {}, opts = {}
   }
   function toMenu() { cpuTok++; cpuBusy = false; demo = null; demoTok++; NET.leave(); phase = 'menu'; topple = null; audio.mood('menu'); over = null; promoAsk = null; clearSel(); hint = null; say = null; mode = 'cpu'; seated = { w: null, b: ['pip', 'hope', 'noble'][prefs.level] || 'hope' }; standing = []; chess = new Chess(); syncPieces(); placeFoxes(); drawBoard(); emit(); }
 
-  // ================= ONLINE (room of up to 5 · host-authoritative · engine/duel-net.js, else a same-device test channel) =================
+  // ================= ONLINE (room of up to 4 · host-authoritative · engine/duel-net.js, else a same-device test channel) =================
   const NET = (() => {
     const N = { room: null, me: null, tr: null, members: {}, state: null, msg: '', status: '', copied: false, tok: 0, timer: 0, lastSeen: {}, reacts: [] };
     const now = () => performance.now();
@@ -465,7 +465,7 @@ export async function createChessClub({ container, onState = () => {}, opts = {}
       if (t === 'hi') { N.members[id] = { j: +d.j || Date.now() };
         if (!N.settled && N.members[id].j >= N.j) { N.j = N.members[id].j + 1; N.members[N.me].j = N.j; send('hi', { v: 1, j: N.j }); }   /* a joiner always sorts after the people already here (phone clocks differ) */ if (!known) setTimeout(() => hello(id), 0); if (N.isHost()) { trim(); send('st', N.state, id); } emit(); return; }
       if (!N.members[id]) N.members[id] = { j: Date.now() };
-      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq) { N.state = d; N.rx = now(); sync(); } return; }
+      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq || N.stFrom !== id) { N.stFrom = id; /* a new host's table always wins, even with a lower seq (seats taken before the link came up) */ N.state = d; N.rx = now(); sync(); } return; }
       if (t === 'rq') { if (N.isHost()) handle(d, id); return; }
       if (t === 'rx') { react(id, d.w); return; }
       if (t === 'bye') gone(id);

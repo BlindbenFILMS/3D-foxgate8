@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bumper Cars World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.wt-btn{font-family:Archivo,Arial,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;min-height:44px;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;text-align:left;border:2px solid #3a3836;background:#000;color:#fff;border-radius:0;cursor:pointer;pointer-events:auto}
+.wt-btn:focus-visible{outline:3px solid #ffd23a;outline-offset:2px}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #000000; color: #ffffff; font-family: Archivo, Arial, sans-serif">
+<div ref="{{ stageRef }}" style="position: absolute; inset: 0"></div>
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="BumperCars" world="{{ world }}" hint-size="100%,100%"></dc-import>
+</div>
+<sc-if value="{{ outside }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; pointer-events: none">
+<div style="background: #000000; border: 2px solid #3a3836; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; max-width: 420px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #ffd23a">WORLD MODE TEST · TOWN</div>
+<div style="font-size: 14px; line-height: 1.4">You are on the street. Taps on the town count below; taps on the rink while playing should not.</div>
+<div style="font-size: 14px; font-weight: 800">TOWN TAPS: {{ taps }}</div>
+</div>
+<button class="wt-btn" type="button" onClick="{{ enter }}" style="background: #ec3013; border-color: #ec3013">ENTER BUMPER CARS</button>
+</div>
+</sc-if>
+<sc-if value="{{ inside }}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; right: 8px; bottom: 8px; background: #000000; border: 2px solid #3a3836; padding: 4px 8px; font-size: 12px; font-weight: 800; letter-spacing: .08em; pointer-events: none">TOWN TAPS: {{ taps }}</div>
+</sc-if>
+<sc-if value="{{ showErr }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; top: 12px; background: #000000; border: 2px solid #ec3013; padding: 12px; font-size: 15px; font-weight: 800">{{ err }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { inside: false, taps: 0, err: '' };
+    this.stage = null; this.api = null; this.T = null; this.mod = null;
+    this.stageRef = el => { this.stage = el; };
+    const self = this;
+    this.world = {
+      _bumperCars: {
+        g: () => self.api,
+        end: () => self.leave()
+      }
+    };
+    this.onKey = e => { if (this.api) this.api.key(e); };
+    this.onTownTap = () => this.setState({ taps: this.state.taps + 1 });
+  }
+  async componentDidMount() {
+    const base = document.baseURI;
+    try {
+      this.T = await import(new URL('vendor/three/three.module.js', base).href);
+      this.mod = await import(new URL('minigames/bumper-cars/bumper-cars.js', base).href);
+    } catch (e) { console.error(e); this.setState({ err: 'Could not load three.js or the game module.' }); return; }
+    if (!this.stage || this.dead) return;
+    const T = this.T;
+    let renderer;
+    try { renderer = new T.WebGLRenderer({ antialias: true }); } catch (e) { this.setState({ err: '3D is not available here.' }); return; }
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+    this.stage.appendChild(renderer.domElement);
+    this.renderer = renderer;
+    const town = new T.Scene();
+    town.background = new T.Color('#9fd3ff');
+    town.add(new T.HemisphereLight(0xffffff, 0x557744, 1.3));
+    const sun = new T.DirectionalLight(0xffffff, 2); sun.position.set(-20, 40, 20); town.add(sun);
+    const ground = new T.Mesh(new T.PlaneGeometry(400, 400), new T.MeshLambertMaterial({ color: '#7fb65a' }));
+    ground.rotation.x = -Math.PI / 2; town.add(ground);
+    const road = new T.Mesh(new T.PlaneGeometry(12, 400), new T.MeshLambertMaterial({ color: '#5b5866' }));
+    road.rotation.x = -Math.PI / 2; road.position.set(-4, 0.01, 0); town.add(road);
+    const houseCols = ['#e9d8b4', '#d98b6a', '#9ab7d3', '#c7b2de'];
+    for (let i = 0; i < 10; i++) {
+      const h = new T.Mesh(new T.BoxGeometry(6, 5 + (i % 3) * 2, 6), new T.MeshLambertMaterial({ color: houseCols[i % 4] }));
+      h.position.set(i % 2 ? -18 : 10 - 34, 2.5 + (i % 3), -60 + i * 12); town.add(h);
+      const roof = new T.Mesh(new T.ConeGeometry(5, 3, 4), new T.MeshLambertMaterial({ color: '#7a2e22' }));
+      roof.position.set(h.position.x, h.position.y + 2.5 + (i % 3) + 1.5, h.position.z); roof.rotation.y = Math.PI / 4; town.add(roof);
+    }
+    /* the rink's spot in town: offset + rotated, as the brief asks */
+    const parent = new T.Group();
+    parent.position.set(20, 0, -15); parent.rotation.y = 0.9;
+    town.add(parent);
+    const pad = new T.Mesh(new T.CircleGeometry(19, 40), new T.MeshLambertMaterial({ color: '#c9c2b0' }));
+    pad.rotation.x = -Math.PI / 2; pad.position.y = 0.03; parent.add(pad);
+    this.town = town; this.parent = parent;
+    const cam = new T.PerspectiveCamera(50, 1, 0.1, 600);
+    this.streetPos = new T.Vector3(-4, 14, 40); this.streetLook = new T.Vector3(10, 0, -12);
+    cam.position.copy(this.streetPos); cam.lookAt(this.streetLook);
+    this.streetQuat = cam.quaternion.clone();
+    this.cam = cam;
+    renderer.domElement.addEventListener('pointerdown', this.onTownTap);
+    window.addEventListener('keydown', this.onKey);
+    window.addEventListener('keyup', this.onKey);
+    let last = performance.now();
+    const loop = now => {
+      if (this.dead) return;
+      this.raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const w = this.stage.clientWidth || 1, h = this.stage.clientHeight || 1;
+      const c = renderer.domElement;
+      if (c.width !== Math.round(w * renderer.getPixelRatio()) || c.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
+      const k = 1 - Math.exp(-4 * dt);
+      if (this.api) {
+        const g = this.api.camera;
+        cam.position.lerp(g.position, k); cam.quaternion.slerp(g.quaternion, k);
+        cam.fov = cam.fov + (g.fov - cam.fov) * k;
+      } else {
+        cam.position.lerp(this.streetPos, k); cam.quaternion.slerp(this.streetQuat, k);
+      }
+      cam.aspect = w / h; cam.updateProjectionMatrix();
+      renderer.render(town, cam);
+    };
+    this.raf = requestAnimationFrame(loop);
+    this.enter();
+  }
+  async enter() {
+    if (this.api || !this.mod || !this.renderer) return;
+    const onState = h => window.dispatchEvent(new CustomEvent('8g:bumperCars', { detail: h }));
+    try {
+      this.api = await this.mod.createBumperCars({
+        container: this.stage, onState,
+        opts: { roundTime: /quick/.test(location.hash) ? 15 : undefined, world: { renderer: this.renderer, camera: this.cam, parent: this.parent } }
+      });
+      onState(this.api.hud());
+      this.setState({ inside: true });
+    } catch (e) { console.error(e); this.setState({ err: 'World mode failed: ' + (e && e.message) }); }
+  }
+  leave() {
+    if (!this.api) return;
+    this.api.destroy(); this.api = null;
+    window.dispatchEvent(new CustomEvent('8g:bumperCars', { detail: null }));
+    this.setState({ inside: false });
+  }
+  componentWillUnmount() {
+    this.dead = true; cancelAnimationFrame(this.raf);
+    window.removeEventListener('keydown', this.onKey); window.removeEventListener('keyup', this.onKey);
+    if (this.api) this.api.destroy();
+    if (this.renderer) { this.renderer.domElement.removeEventListener('pointerdown', this.onTownTap); this.renderer.dispose(); }
+  }
+  renderVals() {
+    return {
+      stageRef: this.stageRef, world: this.world,
+      outside: !this.state.inside && !this.state.err, inside: this.state.inside,
+      taps: this.state.taps, enter: () => this.enter(),
+      showErr: !!this.state.err, err: this.state.err
+    };
+  }
+}
+</script>
+</body>
+</html>

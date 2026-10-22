@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Car Wash</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div ref="{{setRoot}}" style="position: absolute; inset: 0; overflow: hidden; background: {{rootBg}}; pointer-events: {{rootPE}}; font-family: Archivo, 'Helvetica Neue', sans-serif; color: #ffffff; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent">
+<sc-if value="{{standalone}}" hint-placeholder-val="{{ true }}">
+<div ref="{{setStage}}" aria-label="Car wash play area. Drag across the car to clean it." style="position: absolute; inset: 0"></div>
+</sc-if>
+
+<sc-if value="{{open}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; padding: 8px; box-sizing: border-box; gap: 8px">
+
+<div data-safe="top" style="pointer-events: auto; display: flex; flex-wrap: wrap; gap: 6px; width: 100%">
+<div style="flex: 1 1 300px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{openMenu}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">MENU</button>
+<button onClick="{{openInvite}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">INVITE FRIEND</button>
+<button onClick="{{goBack}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">BACK</button>
+</div>
+<div style="flex: 1 1 320px; display: flex; background: #000000; border: 2px solid #3a3836">
+<div style="flex: 0 0 auto; padding: 6px 12px; border-right: 2px solid #3a3836; display: flex; flex-direction: column; gap: 2px; min-width: 62px">
+<span style="font-size: 12px; font-weight: 600; color: #a8a29e; letter-spacing: 0.08em">TIME</span>
+<span style="font-size: 22px; font-weight: 800; line-height: 1; color: {{timeColor}}">{{timeText}}</span>
+</div>
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="2">
+<div style="flex: 1 1 0; min-width: 0; padding: 6px 10px; border-right: 2px solid #3a3836; display: flex; flex-direction: column; gap: 2px">
+<span style="font-size: 12px; font-weight: 800; color: {{r.nameColor}}; letter-spacing: 0.08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+<span style="font-size: 22px; font-weight: 800; line-height: 1; color: #ffffff">{{r.score}}</span>
+<span style="font-size: 12px; color: #a8a29e; white-space: nowrap">{{r.cars}}</span>
+</div>
+</sc-for>
+</div>
+<div role="progressbar" aria-label="This car is clean" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{carPct}}" style="flex: 1 1 100%; height: 12px; background: #000000; border: 2px solid #3a3836">
+<div style="height: 100%; width: {{carPctW}}; background: #ffd23a"></div>
+</div>
+</div>
+
+<div data-safe="bottom" style="pointer-events: auto; display: flex; flex-wrap: wrap; gap: 6px; width: 100%">
+<div style="flex: 1 1 320px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="3">
+<div style="min-height: 44px; padding: 0 12px; display: flex; align-items: center; gap: 8px; background: {{s.bg}}; color: {{s.fg}}; border: 2px solid {{s.border}}; box-sizing: border-box">
+<span style="font-size: 12px; font-weight: 800">{{s.num}}</span>
+<span style="font-size: 15px; font-weight: 800; letter-spacing: 0.06em">{{s.label}}</span>
+</div>
+</sc-for>
+</div>
+<div aria-live="polite" style="flex: 1 1 280px; display: flex; align-items: center; min-height: 44px; padding: 8px 12px; box-sizing: border-box; background: #000000; border: 2px solid #3a3836; font-size: 15px; font-weight: 600; line-height: 1.25">{{line}}</div>
+</div>
+</div>
+
+<sc-if value="{{hasHint}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" style="position: absolute; left: {{hintX}}px; top: {{hintY}}px; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; transform: translate(-6px, 6px)">
+<svg width="44" height="44" viewBox="0 0 24 24" fill="#ffffff" stroke="#1a1626" stroke-width="1.4" stroke-linejoin="round"><path d="M9 3.5c0-.8.7-1.5 1.5-1.5S12 2.7 12 3.5V10l1-.2V8.5c0-.8.7-1.5 1.5-1.5s1.5.7 1.5 1.5V10l.5-.1c.8-.1 1.5.5 1.5 1.3V11c.8-.1 1.5.5 1.5 1.3v3.2c0 3.6-2.6 6.5-6.2 6.5h-1.1c-1.9 0-3.6-1-4.6-2.6L4.6 14c-.5-.7-.3-1.6.4-2.1.6-.4 1.5-.3 2 .3L9 14.5z"/></svg>
+<span style="background: #000000; color: #ffd23a; border: 2px solid #ffd23a; padding: 4px 8px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em">DRAG HERE</span>
+</div>
+</sc-if>
+
+<sc-if value="{{showTurn}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; background: rgba(0, 0, 0, 0.55); pointer-events: auto">
+<div role="dialog" aria-label="Pass the phone" style="width: 100%; max-width: 360px; background: #000000; border: 2px solid #3a3836; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.1em">PASS AND PLAY</span>
+<span style="font-size: 28px; font-weight: 800; line-height: 1.05">PASS TO {{nextName}}</span>
+<span style="font-size: 15px; color: #d6d3d1">{{turnLine}}</span>
+<button onClick="{{ready}}" style="min-height: 48px; padding: 0 14px; text-align: left; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; border-radius: 0; font: 800 15px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">{{nextName}} READY</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showResult}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; background: rgba(0, 0, 0, 0.55); pointer-events: auto">
+<div role="dialog" aria-label="Results" style="width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.1em">RESULTS</span>
+<span style="font-size: 32px; font-weight: 800; line-height: 1">{{res.title}}</span>
+<div style="display: flex; gap: 6px" role="img" aria-label="{{res.starLabel}}">
+<sc-for list="{{res.stars}}" as="st" hint-placeholder-count="3">
+<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l2.9 6.2 6.6.7-4.9 4.5 1.4 6.6L12 17.2l-6 3.3 1.4-6.6-4.9-4.5 6.6-.7z" fill="{{st.fill}}" stroke="#ffd23a" stroke-width="1.6" stroke-linejoin="round"/></svg>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; border-top: 2px solid #3a3836">
+<sc-for list="{{res.rows}}" as="rr" hint-placeholder-count="2">
+<div style="display: flex; gap: 10px; align-items: baseline; padding: 8px 0; border-bottom: 2px solid #3a3836">
+<span style="flex: 1 1 auto; font-size: 15px; font-weight: 800; color: {{rr.color}}">{{rr.name}}</span>
+<span style="font-size: 13px; color: #a8a29e">{{rr.cars}}</span>
+<span style="font-size: 18px; font-weight: 800; min-width: 52px">{{rr.score}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<div style="border: 2px solid #3a3836; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 600; color: #a8a29e">SCORE</span><span style="font-size: 22px; font-weight: 800">{{res.score}}</span></div>
+<div style="border: 2px solid #3a3836; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 600; color: #a8a29e">{{res.bestLabel}}</span><span style="font-size: 22px; font-weight: 800; color: {{res.bestColor}}">{{res.best}}</span></div>
+<div style="border: 2px solid #3a3836; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 600; color: #a8a29e">GOLD WON</span><span style="font-size: 22px; font-weight: 800; color: #ffd23a">{{res.gold}}</span></div>
+<div style="border: 2px solid #3a3836; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px"><span style="font-size: 12px; font-weight: 600; color: #a8a29e">XP</span><span style="font-size: 22px; font-weight: 800">{{res.xp}}</span></div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{playAgain}}" style="min-height: 48px; padding: 0 12px; text-align: left; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; border-radius: 0; font: 800 14px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">PLAY AGAIN</button>
+<button onClick="{{goBack}}" style="min-height: 48px; padding: 0 12px; text-align: left; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; border-radius: 0; font: 800 14px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">BACK</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; background: rgba(0, 0, 0, 0.55); pointer-events: auto">
+<div role="dialog" aria-label="Menu" style="width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px">
+<span style="flex: 1 1 auto; font-size: 28px; font-weight: 800">MENU</span>
+<button onClick="{{closeCards}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">CLOSE</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<span style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.1em">HOW TO PLAY</span>
+<span style="font-size: 14px; line-height: 1.4; color: #e7e5e4">Drag across the car. SOAP the mud, RINSE the foam, DRY the drops. A car drives off when it shines. Fast cars earn bigger tips.</span>
+<span style="font-size: 13px; line-height: 1.4; color: #a8a29e">Keys: arrows aim, N jumps to the next dirty spot, SPACE sprays.</span>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.1em">MODE</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+<button onClick="{{m.pick}}" aria-pressed="{{m.on}}" style="min-height: 44px; padding: 0 10px; text-align: left; background: {{m.bg}}; color: {{m.fg}}; border: 2px solid {{m.border}}; border-radius: 0; font: 800 12px Archivo, sans-serif; letter-spacing: 0.04em; cursor: pointer">{{m.label}}</button>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{showLevels}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.1em">OPPONENT</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{levels}}" as="l" hint-placeholder-count="3">
+<button onClick="{{l.pick}}" aria-pressed="{{l.on}}" style="min-height: 52px; padding: 4px 10px; text-align: left; background: {{l.bg}}; color: {{l.fg}}; border: 2px solid {{l.border}}; border-radius: 0; font: 800 14px Archivo, sans-serif; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px"><span>{{l.label}}</span><span style="font-size: 12px; font-weight: 600">{{l.tag}}</span></button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showPlayers}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.1em">PLAYERS</span>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{playerOpts}}" as="pl" hint-placeholder-count="3">
+<button onClick="{{pl.pick}}" aria-pressed="{{pl.on}}" style="min-height: 44px; padding: 0 10px; text-align: left; background: {{pl.bg}}; color: {{pl.fg}}; border: 2px solid {{pl.border}}; border-radius: 0; font: 800 13px Archivo, sans-serif; cursor: pointer">{{pl.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{toggleSound}}" aria-pressed="{{soundOn}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">{{soundLabel}}</button>
+<button onClick="{{toggleMusic}}" aria-pressed="{{musicOn}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">{{musicLabel}}</button>
+<button onClick="{{restart}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">RESTART</button>
+<button onClick="{{goBack}}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">LEAVE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{inviteOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; background: rgba(0, 0, 0, 0.55); pointer-events: auto">
+<div role="dialog" aria-label="Invite friend" style="width: 100%; max-width: 360px; background: #000000; border: 2px solid #3a3836; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<span style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.1em">COMING SOON</span>
+<span style="font-size: 28px; font-weight: 800; line-height: 1.05">INVITE FRIEND</span>
+<span style="font-size: 15px; line-height: 1.4; color: #d6d3d1">Online wash rooms are on the way. For now, share one phone with PASS AND PLAY.</span>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{playLocal}}" style="min-height: 48px; padding: 0 12px; text-align: left; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.04em; cursor: pointer">PASS AND PLAY</button>
+<button onClick="{{closeCards}}" style="min-height: 48px; padding: 0 12px; text-align: left; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-radius: 0; font: 800 13px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">CLOSE</button>
+</div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 8px; right: 8px; top: 8px; padding: 12px; background: #000000; border: 2px solid #3a3836; font-size: 15px; font-weight: 800; letter-spacing: 0.06em">LOADING CAR WASH</div>
+</sc-if>
+<sc-if value="{{hasError}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="position: absolute; left: 8px; right: 8px; top: 8px; padding: 12px; background: #000000; border: 2px solid #ec3013; display: flex; flex-direction: column; gap: 6px">
+<span style="font-size: 15px; font-weight: 800; color: #ec3013">THE GAME DID NOT LOAD</span>
+<span style="font-size: 13px; color: #d6d3d1; word-break: break-word">{{errText}}</span>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"tsType":"object"},"onBack":{"editor":null,"tsType":"function"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { hud: null, menu: false, invite: false, err: null };
+    this.api = null;
+    this.lastSafe = '';
+    this.setRoot = (el) => { this.root = el; };
+    this.setStage = (el) => { this.stage = el; };
+  }
+  componentDidMount() {
+    this.alive = true;
+    if (this.props.world) {
+      this.onEvt = (e) => { if (this.alive) this.setState({ hud: e.detail || null }); };
+      window.addEventListener('8g:carWash', this.onEvt);
+      const g = this.getApi();
+      if (g && g.hud) this.setState({ hud: g.hud() });
+    } else {
+      const url = new URL('./minigames/carwash/carwash.js', document.baseURI).href;
+      import(url).then((m) => {
+        if (!this.alive || !this.stage) return null;
+        return m.createCarWash({ container: this.stage, onState: (h) => { if (this.alive) this.setState({ hud: h }); } });
+      }).then((api) => {
+        if (!api) return;
+        if (!this.alive) { api.destroy(); return; }
+        this.api = api;
+        this.measure();
+      }).catch((e) => { if (this.alive) this.setState({ err: String((e && e.message) || e) }); });
+    }
+    if (typeof ResizeObserver !== 'undefined' && this.root) {
+      this.ro = new ResizeObserver(() => this.measure());
+      this.ro.observe(this.root);
+    }
+  }
+  componentDidUpdate() { this.measure(); }
+  componentWillUnmount() {
+    this.alive = false;
+    if (this.onEvt) window.removeEventListener('8g:carWash', this.onEvt);
+    if (this.ro) this.ro.disconnect();
+    if (this.api) { this.api.destroy(); this.api = null; }
+  }
+  getApi() {
+    const w = this.props.world;
+    if (w) { const k = w._carWash; return k && typeof k.g === 'function' ? k.g() : null; }
+    return this.api;
+  }
+  measure() {
+    const api = this.getApi();
+    if (!api || !this.root) return;
+    const rr = this.root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    this.root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const k = el.getAttribute('data-safe');
+      if (k === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      if (k === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      if (k === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      if (k === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    const key = [s.top, s.bottom, s.left, s.right].map(Math.round).join(',');
+    if (key !== this.lastSafe) { this.lastSafe = key; api.setSafe(s); }
+  }
+  call(name, ...a) { const api = this.getApi(); if (api && typeof api[name] === 'function') return api[name](...a); return undefined; }
+  cards(menu, invite) {
+    this.setState({ menu, invite });
+    this.call('pause', menu || invite);
+  }
+  back() {
+    this.cards(false, false);
+    const w = this.props.world;
+    if (w && w._carWash && typeof w._carWash.end === 'function') { w._carWash.end(); return; }
+    if (typeof this.props.onBack === 'function') { this.props.onBack(); return; }
+    this.call('start', 'demo');
+  }
+  renderVals() {
+    const st = this.state || {};
+    const h = st.hud;
+    const overlay = !!this.props.world;
+    const mode = h ? h.mode : 'cpu';
+    const t = h ? h.time : 60;
+    const timeText = Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
+    const rows = (h ? h.rows : []).map((r) => ({
+      name: r.name,
+      score: String(r.score),
+      cars: r.cars + (r.cars === 1 ? ' CAR' : ' CARS'),
+      nameColor: r.active ? '#ffd23a' : '#a8a29e'
+    }));
+    const ti = h ? h.toolIdx : 0;
+    const steps = ['SOAP', 'RINSE', 'DRY'].map((label, i) => {
+      const on = i === ti, done = i < ti;
+      return { num: done ? 'OK' : String(i + 1), label, bg: on ? '#ffd23a' : '#000000', fg: on ? '#000000' : done ? '#78716c' : '#ffffff', border: on ? '#ffd23a' : '#3a3836' };
+    });
+    const pick = (on) => ({ bg: on ? '#ffd23a' : '#000000', fg: on ? '#000000' : '#ffffff', border: on ? '#ffd23a' : '#3a3836', on: on ? 'true' : 'false' });
+    const modes = [['cpu', 'VS CPU'], ['local', 'PASS AND PLAY'], ['demo', 'DEMO']].map(([k, label]) => Object.assign({ label, pick: () => { this.cards(false, false); this.call('start', k); } }, pick(mode === k)));
+    const levels = [['easy', 'PIP', 'ROOKIE'], ['medium', 'HOPE', 'CLUB'], ['hard', 'NOBLE', 'MASTER']].map(([k, label, tag]) => Object.assign({ label, tag, pick: () => { this.cards(false, false); this.call('setLevel', k); } }, pick(h && h.level === k)));
+    const playerOpts = [2, 3, 4].map((n) => Object.assign({ label: n + ' PLAYERS', pick: () => { this.cards(false, false); this.call('setPlayers', n); } }, pick(h && h.players === n)));
+    const r = h && h.result;
+    const res = r ? {
+      title: r.title,
+      stars: [0, 1, 2].map((i) => ({ fill: i < r.stars ? '#ffd23a' : 'none' })),
+      starLabel: r.stars + ' of 3 stars',
+      rows: r.rows.map((x) => ({ name: x.name, score: String(x.score), cars: x.cars + (x.cars === 1 ? ' CAR' : ' CARS'), color: x.win ? '#ffd23a' : '#ffffff' })),
+      score: String(r.score), best: String(r.best), bestLabel: r.newBest ? 'NEW BEST' : 'BEST', bestColor: r.newBest ? '#ffd23a' : '#ffffff',
+      gold: '+' + r.gold, xp: '+' + r.xp
+    } : { title: '', stars: [], starLabel: '', rows: [], score: '', best: '', bestLabel: '', bestColor: '#ffffff', gold: '', xp: '' };
+    const prev = h && h.rows && h.rows[h.turn];
+    return {
+      setRoot: this.setRoot, setStage: this.setStage,
+      standalone: !overlay,
+      rootBg: overlay ? 'transparent' : '#0b0b0b',
+      rootPE: overlay ? 'none' : 'auto',
+      open: !!h,
+      loading: !overlay && !h && !st.err,
+      hasError: !!st.err, errText: st.err || '',
+      timeText, timeColor: t <= 5 && h && h.phase === 'play' ? '#ec3013' : '#ffffff',
+      rows, steps,
+      carPct: h ? h.carPct : 0, carPctW: (h ? h.carPct : 0) + '%',
+      line: h ? (h.mode === 'demo' && h.caption ? h.caption : h.msg) : '',
+      hasHint: !!(h && h.hint) && !st.menu && !st.invite,
+      hintX: h && h.hint ? h.hint.x : 0, hintY: h && h.hint ? h.hint.y : 0,
+      showTurn: !!h && h.phase === 'turn' && !st.menu && !st.invite,
+      nextName: h ? h.nextName : '',
+      turnLine: prev ? prev.name + ' scored ' + prev.score + '. Hand the phone over.' : '',
+      showResult: !!r && h.phase === 'result' && !st.menu && !st.invite,
+      res,
+      menuOpen: !!st.menu, inviteOpen: !!st.invite,
+      modes, levels, playerOpts,
+      showLevels: mode !== 'local', showPlayers: mode === 'local',
+      soundOn: h && h.sound ? 'true' : 'false', musicOn: h && h.music ? 'true' : 'false',
+      soundLabel: h && h.sound ? 'SOUND ON' : 'SOUND OFF',
+      musicLabel: h && h.music ? 'MUSIC ON' : 'MUSIC OFF',
+      openMenu: () => this.cards(true, false),
+      openInvite: () => this.cards(false, true),
+      closeCards: () => this.cards(false, false),
+      goBack: () => this.back(),
+      ready: () => this.call('ready'),
+      playAgain: () => this.call('playAgain'),
+      restart: () => { this.cards(false, false); this.call('restart'); },
+      playLocal: () => { this.cards(false, false); this.call('start', 'local'); },
+      toggleSound: () => this.call('toggleSound'),
+      toggleMusic: () => this.call('toggleMusic')
+    };
+  }
+}
+</script>
+</body>
+</html>

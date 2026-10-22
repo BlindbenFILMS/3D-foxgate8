@@ -1,7 +1,7 @@
 // 8 GATES · minigame #46 · COCONUT SHY / TIN CAN ALLEY
 // A carnival stall interior that fits inside any building on any world. First-person: swipe up to throw.
 // Three rounds: Tin Can Alley (can pyramids), Coconut Shy (coconuts in cups), The Runaway Shelf (moving pyramid + high coconuts).
-// Play: solo · pass & play (2-5 on one phone) · online (2-5, engine/duel-net.js peer to peer, same seed, live scoreboard).
+// Play: solo · pass & play (2-4 on one phone) · online (2-4, engine/duel-net.js peer to peer, same seed, live scoreboard).
 // Self-contained on purpose (PARALLEL RULES): the toon helpers it needs are copied in here, not imported from shared files.
 // Save keys (engine/save.js): stats coconutShy.best, coconutShy.plays, coconutShy.wins · flags coconutShy.played, coconutShy.giantPlush
 // Items: coconutShyPinwheel, coconutShyCoconut, coconutShyGiantPlush
@@ -12,7 +12,7 @@ import { save } from '../../engine/save.js';
 import { crestTex, canvasTex } from '../../engine/textures.js';
 
 export const GAME = 'coconutShy';
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PINK', '#f472b6']];
 export const ROUNDS = [
   { id: 'cans', name: 'TIN CAN ALLEY', line: 'Three pyramids of cans. Knock them all off the shelf.', balls: 6 },
@@ -370,7 +370,7 @@ export async function createCoconutShy({ container, onState, opts = {} }) {
     if (D0.t > 1.6 && !D0.thrown) { D0.thrown = true; S.aim = null; S.cool = 0; throwBall(pl.yaw, pl.p); }
     if (D0.t > 3.4) { D0.plan = null; D0.thrown = false; D0.t = 0; D0.show = false; if (D0.i >= D0.of || allDown()) { setTimeout(() => S.demo && api.demoStop(), 600); } } }
 
-  // ---------- ONLINE (2-5): every phone plays its own stall on the same seed; scores stream live ----------
+  // ---------- ONLINE (2-4): every phone plays its own stall on the same seed; scores stream live ----------
   const NT = { on: false, net: null, st: null, code: '', codeIn: '', peers: {}, j: 0, ready: false, status: '', msg: '', ping: null, ids: null, mid: 0, tok: 0, lastSeen: {}, fin: false, snaps: {}, timer: 0, copied: false };
   api.netOpen = () => { if (S.demo) api.demoStop(true); Object.assign(NT, { st: 'menu', msg: '', codeIn: '' }); changed(); };
   api.netClose = () => { netLeave(); NT.st = null; changed(); };
@@ -418,7 +418,7 @@ export async function createCoconutShy({ container, onState, opts = {} }) {
   let dirty = true; function changed() { dirty = true; }
   function hud() { const P = player(), R = ROUNDS[S.round], m = members(), host = hostId();
     const total = P.scores ? P.scores.reduce((a, b, i) => a + (i === S.round && (S.phase === 'play' || S.phase === 'demo') ? 0 : (b || 0)), 0) + ((S.phase === 'play' || S.phase === 'demo') ? S.score : 0) : 0;
-    const net = NT.st ? { st: NT.st, code: NT.code, codeIn: NT.codeIn, status: NT.status, msg: NT.msg, ping: NT.ping, ready: NT.ready, copied: NT.copied, members: m.map(x => { const pl = playerList(m.map(y => y.id)).find(q => q.id === x.id); return { name: pl ? pl.name : '?', col: pl ? pl.col : '#fff', me: x.me, host: x.id === host, ready: !!x.ready, playing: !!x.playing && !x.me }; }), live: NT.on || (S.mode === 'online' && S.phase !== 'intro') ? netStandings() : null } : null;
+    const net = NT.st ? { st: NT.st, full: NT.st !== 'menu' && !!NT.net && m.length === MAX_PLAYERS && !m.some(x => x.me), code: NT.code, codeIn: NT.codeIn, status: NT.status, msg: NT.msg, ping: NT.ping, ready: NT.ready, copied: NT.copied, members: m.map(x => { const pl = playerList(m.map(y => y.id)).find(q => q.id === x.id); return { name: pl ? pl.name : '?', col: pl ? pl.col : '#fff', me: x.me, host: x.id === host, ready: !!x.ready, playing: !!x.playing && !x.me }; }), live: NT.on || (S.mode === 'online' && S.phase !== 'intro') ? netStandings() : null } : null;
     return { phase: S.phase, mode: S.mode, round: S.round, rounds: ROUNDS.length, roundName: R.name, roundLine: R.line, score: S.score, total, balls: S.balls, ballsMax: R.balls, mult: S.lastTh && !S.lastTh.res ? S.lastTh.mult : 1 + 0.5 * Math.min(S.streak, 2), streak: S.streak, player: { name: P.name, col: P.col }, nPlayers: S.players.length, flash: S.flashT > 0 ? S.flash : null, say: S.sayT > 0 ? S.say : '', hint: S.phase === 'play' && S.hintN < 2 && !S.aim, aiming: !!S.aim, power: S.aim ? S.aim.p : 0, count: S.phase === 'count' ? Math.max(0, Math.ceil((S.t0 - Date.now()) / 1000)) : null, roundCard: S.roundCard, done: S.done, demo: S.demo ? { cap: S.demo.cap, n: S.demo.n, of: S.demo.of, fx: S.demo.fx, fy: S.demo.fy, show: S.demo.show } : null, aimHelp: S.aimHelp, sound: audio.on, best: bestScore(), net, turnOf: S.phase === 'turn' ? { name: P.name, col: P.col, round: R.name, line: R.line, n: S.round + 1 } : null, auto: S.phase === 'round' && S.autoT > 0 ? Math.ceil(S.autoT) : 0, targetsLeft: cans.filter(c => !c.knocked).length + cocos.filter(k => !k.knocked).length }; }
   api.hud = hud;
 

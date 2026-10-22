@@ -243,7 +243,7 @@ class Component extends DCLogic {
     if (scr === 'menu') {
       v.pKick = 'ZION · RODEO ROOM'; v.pTitle = 'Mechanical Bull'; v.pText = 'Lean to stay on. When the bull bucks, tap on the third beat. Ride 8 seconds to qualify.';
       v.statsOn = true; v.stats = [{ k: 'BEST', v: h.best || '—', c: Y }, { k: 'LONGEST', v: +h.longest ? h.longest + 's' : '—', c: '#fff' }, { k: 'BUCKLE', v: h.buckle ? 'GOLD' : '1500', c: h.buckle ? Y : '#8a847e' }];
-      v.btns = [B('SOLO RIDE', P.easy ? 'EASY RIDE ON' : 'SCORE + GOLD', this.act(x => x.solo()), primary), B('PASS & PLAY', '2–5 · ONE PHONE', this.act(x => x.setup())), B('ONLINE', 'UP TO 5 FRIENDS', this.act(x => x.netOpen())), B('WATCH THE DEMO', '20 S · SEE EVERY MOVE', this.act(x => x.demo()), { bd: Y, bg: '#000', fg: Y, h: land ? '44px' : '50px' }), B('PRACTICE', 'CAN’T FALL OFF', this.act(x => x.practice()), { h: land ? '44px' : '50px' }), B('HOW TO PLAY', '3 STEPS', this.act(x => x.how()), { h: land ? '44px' : '50px' }), ...backBtn];
+      v.btns = [B('SOLO RIDE', P.easy ? 'EASY RIDE ON' : 'SCORE + GOLD', this.act(x => x.solo()), primary), B('PASS & PLAY', '2–4 · ONE PHONE', this.act(x => x.setup())), B('ONLINE', 'UP TO 4 FRIENDS', this.act(x => x.netOpen())), B('WATCH THE DEMO', '20 S · SEE EVERY MOVE', this.act(x => x.demo()), { bd: Y, bg: '#000', fg: Y, h: land ? '44px' : '50px' }), B('PRACTICE', 'CAN’T FALL OFF', this.act(x => x.practice()), { h: land ? '44px' : '50px' }), B('HOW TO PLAY', '3 STEPS', this.act(x => x.how()), { h: land ? '44px' : '50px' }), ...backBtn];
       if (land) { v.btns[1].h = '44px'; v.btns[2].h = '44px'; }
       v.togOn = true; const T = (k, on, a, b, key) => ({ k, v: on ? a : b, c: on ? Y : '#8a847e', on: on ? 'true' : 'false', go: this.act(x => x.toggle(key)) });
       v.togs = [T('SOUND GUIDE', P.guide, 'ON · HEAR YOUR LEAN', 'OFF', 'guide'), T('EASY RIDE', P.easy, 'ON · SLOWER', 'OFF', 'easy'), T('CONTROLS', P.buttons, 'BUTTONS', 'DRAG + TAP', 'buttons'), T('SOUND', P.sound, P.music ? 'ON · MUSIC' : 'ON', 'OFF', 'sound')];
@@ -259,7 +259,7 @@ class Component extends DCLogic {
       v.pKick = 'PASS & PLAY'; v.pTitle = 'Who is riding?'; v.pText = 'Everyone gets the same bull. Pass the phone between rides.';
       const n = S.nPass, rd = S.rounds;
       v.togOn = true; v.togMt = '0'; if (!land) v.pAreas = "'a' 't' 'b'";
-      v.togs = [2, 3, 4, 5].map(k => ({ k: 'RIDERS', v: k + (k === n ? ' · SELECTED' : ''), c: k === n ? Y : '#fff', on: k === n ? 'true' : 'false', go: () => this.setState({ nPass: k }) }))
+      v.togs = [2, 3, 4].map(k => ({ k: 'RIDERS', v: k + (k === n ? ' · SELECTED' : ''), c: k === n ? Y : '#fff', on: k === n ? 'true' : 'false', go: () => this.setState({ nPass: k }) }))
         .concat([1, 3].map(k => ({ k: 'ROUNDS', v: k + (k === rd ? ' · SELECTED' : k === 3 ? ' · TOTALLED' : ''), c: k === rd ? Y : '#fff', on: k === rd ? 'true' : 'false', go: () => this.setState({ rounds: k }) })));
       v.btns = [B('START', `${n} RIDERS · ${rd} ROUND${rd > 1 ? 'S' : ''}`, this.act(x => x.pass(n, rd)), primary), B('BACK', '', this.act(x => x.menu()))];
       v.statsOn = true; v.stats = Array.from({ length: n }, (_, i) => ({ k: ['RED', 'BLUE', 'GOLD', 'GREEN', 'PINK'][i], v: 'RIDER ' + (i + 1), c: ['#ec3013', '#38bdf8', '#ffd23a', '#22c55e', '#f472b6'][i] }));
@@ -270,14 +270,14 @@ class Component extends DCLogic {
       v.btns = [B('RIDE', t.name, this.act(x => x.rideTurn()), { ...primary, bd: t.col, bg: t.col, fg: t.col === '#ffd23a' ? '#000' : '#fff' }), B('MENU', 'END THE GAME', this.act(x => x.menu()))];
     } else if (scr === 'net') {
       const n = h.net || { st: 'menu' }; v.n = n; v.pKick = 'ONLINE RODEO'; v.pTitle = n.st === 'room' ? 'Waiting for riders' : 'Ride with friends';
-      v.pText = n.st === 'room' ? 'Up to 5 riders. Everyone gets the same bull at the same time. Last fox on wins the points.' : 'Make a room and share the code, or type a friend’s code.';
+      v.pText = n.st === 'room' ? 'Up to 4 riders. Everyone gets the same bull at the same time. Last fox on wins the points.' : 'Make a room and share the code, or type a friend’s code.';
       if (n.st === 'room') {
         v.codeOn = true; v.shareTxt = S.copied ? 'COPIED' : 'SHARE LINK';
         v.share = () => { const link = g ? g.shareLink() : ''; try { if (navigator.share) { navigator.share({ title: 'Mechanical Bull · 8 GATES', text: 'Ride the bull with me! Room ' + n.code, url: link }).catch(() => {}); } else if (navigator.clipboard) navigator.clipboard.writeText(link).then(() => { this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 1500); }).catch(() => {}); } catch (e) {} };
         v.rowsOn = true; v.rows = (n.members || []).map((m, i) => ({ rank: i + 1, col: m.col, name: m.me ? 'YOU' : m.name + ' RIDER', sub: (m.host ? 'HOST · ' : '') + (m.playing ? 'RIDING' : ''), v: m.ready ? 'READY' : 'WAITING', vc: m.ready ? '#22c55e' : '#8a847e', bg: m.me ? '#2a2826' : '#000' }));
         const st = n.status === 'connecting' ? 'CONNECTING…' : n.local ? 'TEST MODE · THIS DEVICE' : n.status === 'offline' ? 'OFFLINE' : 'ONLINE';
         v.msgOn = true; v.msg = n.msg || (n.count < 2 ? 'Waiting for at least one friend to join this code.' : 'When everyone is READY, the host’s bull starts for all.'); v.msgCol = '#e8e4de';
-        v.btns = [B(n.meReady ? 'READY ✓' : 'I’M READY', n.meReady ? 'TAP TO UNREADY' : `${n.count} OF 5 IN ROOM`, this.act(x => x.netReady()), n.meReady ? { ...yel, h: '56px', fs: '17px' } : primary), B('STATUS', st, null, { h: '44px' }), B('LEAVE ROOM', '', this.act(x => x.netBack()))];
+        v.btns = [B(n.meReady ? 'READY ✓' : 'I’M READY', n.meReady ? 'TAP TO UNREADY' : `${n.count} OF 4 IN ROOM`, this.act(x => x.netReady()), n.meReady ? { ...yel, h: '56px', fs: '17px' } : primary), B('STATUS', st, null, { h: '44px' }), B('LEAVE ROOM', '', this.act(x => x.netBack()))];
       } else {
         v.joinOn = true; v.codeIn = S.codeIn; v.codeType = e => this.setState({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) }); v.join = this.act(x => x.netJoin(this.state.codeIn));
         if (n.msg) { v.msgOn = true; v.msg = n.msg; v.msgCol = '#ffb4a8'; }

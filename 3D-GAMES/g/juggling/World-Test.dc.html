@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Juggling World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#fff}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #8fc7ff; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; color: #ffffff">
+<div ref="{{ hostRef }}" data-wt-host="1" style="position: absolute; inset: 0"></div>
+<sc-if value="{{ hasWorld }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Juggling" world="{{ world }}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{ outside }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; bottom: 12px; right: 12px; max-width: 420px; background: #000000; border: 2px solid #3a3836; display: flex; flex-direction: column">
+<div style="padding: 14px 14px 6px; font-weight: 900; font-size: 22px; letter-spacing: 0.02em">WORLD TEST TOWN</div>
+<div style="padding: 0 14px 14px; font-weight: 600; font-size: 14px; line-height: 1.4; color: #cfcac2">The stage stands at (20, 0, -15), turned 0.9 rad. You left the game, so the town camera is free again.</div>
+<button type="button" onClick="{{ enter }}" style="appearance: none; border: 0; border-radius: 0; background: #ffd23a; color: #000000; font-family: Archivo, 'Helvetica Neue', Arial, sans-serif; font-weight: 800; font-size: 15px; letter-spacing: 0.06em; text-transform: uppercase; min-height: 52px; padding: 0 14px; display: flex; align-items: center; justify-content: flex-start; text-align: left; cursor: pointer">Step onto the stage</button>
+</div>
+</sc-if>
+<sc-if value="{{ errOn }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; top: 40%; background: #000000; border: 2px solid #ec3013; padding: 12px; font-weight: 600; font-size: 14px">{{ err }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._dead = false;
+    this.setState({ world: null, inGame: false, err: null });
+    const base = document.baseURI;
+    Promise.all([
+      import(new URL('vendor/three/three.module.js', base).href),
+      import(new URL('minigames/juggling/juggling.js', base).href)
+    ]).then(([THREE, M]) => { if (!this._dead) this.boot(THREE, M); })
+      .catch((e) => this.setState({ err: 'World test failed: ' + ((e && e.message) || e) }));
+  }
+  componentWillUnmount() {
+    this._dead = true;
+    cancelAnimationFrame(this._raf);
+    if (this._onKey) window.removeEventListener('keydown', this._onKey);
+    if (this._ro) this._ro.disconnect();
+    if (this.api) { this.api.destroy(); this.api = null; }
+    if (this.T) { this.T.renderer.dispose(); }
+  }
+  boot(THREE, M) {
+    const host = this._host || document.querySelector('[data-wt-host]');
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+    host.appendChild(renderer.domElement);
+
+    /* a simple town: ground, sky colour, light, a few houses */
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color('#8fc7ff');
+    scene.fog = new THREE.Fog('#8fc7ff', 60, 160);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x4a7a3a, 1.4));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(30, 50, 20); scene.add(sun);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshLambertMaterial({ color: '#6fbf5a' }));
+    ground.rotation.x = -Math.PI / 2; scene.add(ground);
+    const plaza = new THREE.Mesh(new THREE.CircleGeometry(9, 40), new THREE.MeshLambertMaterial({ color: '#d8c7a0' }));
+    plaza.rotation.x = -Math.PI / 2; plaza.position.set(20, 0.01, -15); scene.add(plaza);
+    const houseCols = ['#ec3013', '#3a6ff7', '#ffd23a', '#f4f1ea', '#ff7a1a'];
+    for (let i = 0; i < 12; i++) {
+      const a = i / 12 * Math.PI * 2, r = 22 + (i % 3) * 5;
+      const g = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.BoxGeometry(5, 4, 5), new THREE.MeshLambertMaterial({ color: houseCols[i % 5] }));
+      body.position.y = 2; g.add(body);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.2, 2.6, 4), new THREE.MeshLambertMaterial({ color: '#4b3b78' }));
+      roof.position.y = 5.3; roof.rotation.y = Math.PI / 4; g.add(roof);
+      g.position.set(20 + Math.cos(a) * r, 0, -15 + Math.sin(a) * r);
+      g.lookAt(20, 0, -15);
+      scene.add(g);
+    }
+    /* the parent group where the game's play area stands */
+    const parent = new THREE.Group();
+    parent.position.set(20, 0, -15);
+    parent.rotation.y = 0.9;
+    scene.add(parent);
+
+    const townCam = new THREE.PerspectiveCamera(50, 1, 0.1, 500);
+    townCam.position.set(-10, 30, 40);
+    townCam.lookAt(20, 0, -15);
+
+    const resize = () => {
+      const w = host.clientWidth || 1, h = host.clientHeight || 1;
+      renderer.setSize(w, h, false);
+      townCam.aspect = w / h; townCam.updateProjectionMatrix();
+    };
+    this._ro = new ResizeObserver(resize); this._ro.observe(host); resize();
+
+    /* the fake walker the overlay page talks to */
+    const self = this;
+    const world = {
+      name: 'world-test',
+      _jugglingStage: {
+        g() { return self.api; },
+        end() { self.leave(); }
+      }
+    };
+    this.T = { THREE, M, renderer, scene, parent, townCam, world };
+
+    /* keys go to the game through api.key, the way the world forwards them */
+    this._onKey = (e) => { if (this.api && this.api.key(e)) e.preventDefault(); };
+    window.addEventListener('keydown', this._onKey);
+
+    let last = performance.now(), t = 0;
+    const loop = (now) => {
+      if (this._dead) return;
+      this._raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.1, (now - last) / 1000); last = now; t += dt;
+      const w = host.clientWidth || 1, h = host.clientHeight || 1;
+      if (this.api) {
+        const c = this.api.camera;
+        const k = 1 - Math.exp(-dt * 2.5);
+        townCam.position.lerp(c.position, k);
+        townCam.quaternion.slerp(c.quaternion, k);
+        townCam.fov += (c.fov - townCam.fov) * k;
+      } else {
+        const a = t * 0.15;
+        const goal = new THREE.Vector3(20 + Math.cos(a) * 34, 22, -15 + Math.sin(a) * 34);
+        townCam.position.lerp(goal, 1 - Math.exp(-dt * 1.2));
+        const q = townCam.quaternion.clone();
+        townCam.lookAt(20, 1, -15);
+        const goalQ = townCam.quaternion.clone();
+        townCam.quaternion.copy(q).slerp(goalQ, 1 - Math.exp(-dt * 2));
+      }
+      townCam.aspect = w / h;
+      townCam.updateProjectionMatrix();
+      renderer.render(scene, townCam);
+    };
+    this._raf = requestAnimationFrame(loop);
+    this.setState({ world });
+    this.enterGame();
+  }
+  enterGame() {
+    if (this.api || !this.T) return;
+    const { M, renderer, townCam, parent } = this.T;
+    M.createJuggling({
+      container: null,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:jugglingStage', { detail: h })),
+      opts: { world: { renderer, camera: townCam, parent } }
+    }).then((api) => {
+      if (this._dead) { api.destroy(); return; }
+      this.api = api;
+      window.dispatchEvent(new CustomEvent('8g:jugglingStage', { detail: api.hud() }));
+      this.setState({ inGame: true });
+    }).catch((e) => this.setState({ err: 'Game failed: ' + ((e && e.message) || e) }));
+  }
+  leave() {
+    if (!this.api) return;
+    this.api.destroy();
+    this.api = null;
+    window.dispatchEvent(new CustomEvent('8g:jugglingStage', { detail: null }));
+    this.setState({ inGame: false });
+  }
+  renderVals() {
+    const st = this.state || {};
+    if (!this._rr) this._rr = (el) => { this._root = el; };
+    if (!this._hr) this._hr = (el) => { this._host = el; };
+    return {
+      rootRef: this._rr,
+      hostRef: this._hr,
+      world: st.world,
+      hasWorld: !!st.world,
+      outside: !!st.world && !st.inGame,
+      enter: () => this.enterGame(),
+      errOn: !!st.err,
+      err: st.err || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

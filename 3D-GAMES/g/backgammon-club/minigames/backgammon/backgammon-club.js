@@ -1,5 +1,5 @@
 // 8 GATES — BACKGAMMON CLUB [backgammonClub]. A café corner (any building, any world): one table, a 3D backgammon board, dice, foxes at the table.
-// Modes: VS FOX (Pip · ROOKIE, Hope · CLUB, Noble · MASTER), PASS & PLAY (two on one phone), ONLINE (room of up to 5: 2 play, 3 watch and
+// Modes: VS FOX (Pip · ROOKIE, Hope · CLUB, Noble · MASTER), PASS & PLAY (two on one phone), ONLINE (room of up to 4: 2 play, 2 watch and
 // take the next game, winner stays on), WATCH THE DEMO. Roll, tap a checker, tap where it goes (or drag). Rules + CPU: ./backgammon-rules.js (CPU in a Worker).
 // Built from the Checkers Club (minigame #2) code, copied so the games share no files.
 // MERGE: createBackgammonClub({ container, onState }) stands alone. buildParlor(ctx) builds just the room + table into any scene/origin.
@@ -12,7 +12,7 @@ import { save } from '../../engine/save.js';
 import { Backgammon, think, BAR, OFF, COLOR_WORD, pointNum } from './backgammon-rules.js';
 import { createBackgammonAudio } from './backgammon-audio.js';
 
-export const GAME = { key: 'backgammonClub', name: 'BACKGAMMON CLUB', room: 'backgammonClub', maxRoom: 5 };
+export const GAME = { key: 'backgammonClub', name: 'BACKGAMMON CLUB', room: 'backgammonClub', maxRoom: 4 };
 const RESUME_KEY = 'backgammonClub.resume', PREFS_KEY = 'backgammonClub.prefs';
 // Opponents + rewards + lines: DRAFT for Ben (no backgammon in the 2D game files). Gold is per point won (gammon ×2, backgammon ×3).
 export const OPPONENTS = [
@@ -515,7 +515,7 @@ export async function createBackgammonClub({ container, onState = () => {}, opts
   }
   function toMenu() { cpuTok++; cpuBusy = false; demo = null; demoTok++; NET.leave(); phase = 'menu'; topple = null; audio.mood('menu'); over = null; promoAsk = null; clearSel(); hint = null; say = null; mode = 'cpu'; seated = { w: null, b: ['pip', 'hope', 'noble'][prefs.level] || 'hope' }; standing = []; prefix = []; turnPlays = []; rolling = false; opening = null; dice3.forEach(g => g.visible = false); game = new Backgammon(); syncPieces(); placeFoxes(); drawBoard(); emit(); }
 
-  // ================= ONLINE (room of up to 5 · host-authoritative · engine/duel-net.js, else a same-device test channel) =================
+  // ================= ONLINE (room of up to 4 · host-authoritative · engine/duel-net.js, else a same-device test channel) =================
   const NET = (() => {
     const N = { room: null, me: null, tr: null, members: {}, state: null, msg: '', status: '', copied: false, tok: 0, timer: 0, lastSeen: {}, reacts: [] };
     const now = () => performance.now();
@@ -548,7 +548,7 @@ export async function createBackgammonClub({ container, onState = () => {}, opts
       if (t === 'hi') { N.members[id] = { j: +d.j || Date.now() };
         if (!N.settled && N.members[id].j >= N.j) { N.j = N.members[id].j + 1; N.members[N.me].j = N.j; send('hi', { v: 1, j: N.j }); }   /* a joiner always sorts after the people already here (phone clocks differ) */ if (!known) setTimeout(() => hello(id), 0); if (N.isHost()) { trim(); send('st', N.state, id); } emit(); return; }
       if (!N.members[id]) N.members[id] = { j: Date.now() };
-      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq) { N.state = d; N.rx = now(); sync(); } return; }
+      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq || N.stFrom !== id) { N.stFrom = id; /* a new host's table always wins, even with a lower seq (seats taken before the link came up) */ N.state = d; N.rx = now(); sync(); } return; }
       if (t === 'rq') { if (N.isHost()) handle(d, id); return; }
       if (t === 'rx') { react(id, d.w); return; }
       if (t === 'bye') gone(id);

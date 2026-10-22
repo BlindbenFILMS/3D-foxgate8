@@ -5,7 +5,7 @@
 // Indoor rules: hit the back net on the full = 6, after a bounce = 4; far side net = 2, near side net = 1;
 // out (bowled, caught, caught behind) = −5 runs and you keep batting. Wide = +1 and the ball is bowled again.
 // Hope bats with the BELL BALL (blind cricket): bowled underarm along the ground, a rattle you can hear move left/right.
-// ONLINE: 2–5 friends (engine/duel-net.js, game 'cricket'); each friend bats one innings while the others take turns
+// ONLINE: 2–4 friends (engine/duel-net.js, game 'cricket'); each friend bats one innings while the others take turns
 // bowling at them. If duel-net.js is missing, the room works between tabs on one device (TEST · TABS).
 // Self-contained on purpose: only vendor/three, fox-kit.js, engine/cast.js, engine/save.js and engine/textures.js.
 import * as THREE from '../../vendor/three/three.module.js';
@@ -18,13 +18,13 @@ export const GAME_KEY = 'cricketNets';
 export const TROPHY_ID = 'cricketNetsTrophy';
 export const ITEM_LABELS = { cricketNetsTrophy: 'Cricket Nets Trophy' };
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['VIOLET', '#c4b5fd']];
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 // DRAFT names for Ben: COACH BAILS (bowls to you), SKIPPER RUSTY (bats when you bowl)
 export const MODES = [
   { id: 'nets', name: 'THE NETS', sub: '2 OVERS · COACH BAILS BOWLS · LEARN THE SHOTS', overs: 2 },
   { id: 'chase', name: 'RUN CHASE', sub: '3 OVERS · BEAT THE TARGET · TROPHY', overs: 3 },
   { id: 'bowl', name: 'BOWL', sub: '2 OVERS · KEEP SKIPPER RUSTY UNDER 16', overs: 2 },
-  { id: 'pass', name: 'PASS & PLAY', sub: '2–5 PLAYERS · ONE PHONE · 1 OVER EACH', overs: 1 },
+  { id: 'pass', name: 'PASS & PLAY', sub: '2–4 PLAYERS · ONE PHONE · 1 OVER EACH', overs: 1 },
 ];
 
 // ---------- small helpers (copied, so this file needs nothing outside the kit) ----------
@@ -464,8 +464,8 @@ export async function createCricket({ container, onState }) {
 
   function fieldHome() { fielders.forEach(f => { f.position.copy(f.userData.home); f.userData.dive = 0; }); keeper.position.set(KEEPER.x, 0, KEEPER.z); }
 
-  // ---------- ONLINE ROOM (2–5) ----------
-  // Room = the 5 earliest joiners; host = lowest id. Host starts the match; each player bats one innings,
+  // ---------- ONLINE ROOM (2–4) ----------
+  // Room = the 4 earliest joiners; host = lowest id. Host starts the match; each player bats one innings,
   // the others take turns bowling to them. The batter's phone judges the shot and sends the result.
   let net = { id: null, room: null };
   const N = { st: null, code: '', peers: {}, ready: false, j: 0, status: '', msg: '', ping: null, overs: prefs.onlineOvers || 1, lastSeen: {} };

@@ -1,8 +1,8 @@
 // 8 GATES — ARCADE · CLAW CRANE [arcadeClaw]  (minigame #38)
 // An arcade interior that drops into any building on any world: a row of five claw cabinets, carpet, neon.
 // Win prizes for your shelf: MONSTER TRUCK MINIS, PLUSH CREATURES and PLUSH FOX HEROES (Ben, Hope, Noble, King Might).
-// Modes: PLAY (tries bought with gold, prizes kept) · PRACTICE (free, nothing kept) · PARTY (2–5 pass one phone)
-//        ONLINE PRIZE RACE (2–5 friends, peer to peer through engine/duel-net.js, each on their own cabinet, 90 s).
+// Modes: PLAY (tries bought with gold, prizes kept) · PRACTICE (free, nothing kept) · PARTY (2–4 pass one phone)
+//        ONLINE PRIZE RACE (2–4 friends, peer to peer through engine/duel-net.js, each on their own cabinet, 90 s).
 // Accessibility: AUDIO AIM sonar (beeps faster + higher when the claw is right over a prize), a landing ring that turns
 // green on a good grab, haptics, and every result also goes to an aria-live line in the page.
 // MERGE: createClawCrane({ container, onState, opts }) stands alone. Only imports kit files (vendor/three, fox-kit,
@@ -13,7 +13,7 @@ import { castKit, loadCastRigs } from '../../engine/cast.js';
 import { crestTex } from '../../engine/textures.js';
 import { save } from '../../engine/save.js';
 
-export const CLAW = { key: 'arcadeClaw', name: 'CLAW CRANE', room: 'arcadeClaw', tryCost: 2, packTries: 5, packCost: 8, giftTries: 3, aimTime: 15, raceTime: 90, partyTries: 3, maxPlayers: 5, powerAfter: 7, keepRacePrizes: true };   // prices DRAFT for Ben
+export const CLAW = { key: 'arcadeClaw', name: 'CLAW CRANE', room: 'arcadeClaw', tryCost: 2, packTries: 5, packCost: 8, giftTries: 3, aimTime: 15, raceTime: 90, partyTries: 3, maxPlayers: 4, powerAfter: 7, keepRacePrizes: true };   // prices DRAFT for Ben
 export const KINDS = {
   creature: { label: 'PLUSH CREATURE', pts: 1, weight: 0.85, col: '#7dd3fc', rarity: 'COMMON' },
   truck: { label: 'MONSTER TRUCK MINI', pts: 2, weight: 1.15, col: '#ffd23a', rarity: 'COLLECTABLE' },
@@ -636,7 +636,7 @@ export async function createClawCrane({ container, onState, opts = {} }) {
     return { phase, mode, view, credits, gold: save.data.gold, score, tries, aimLeft: Math.ceil(aimLeft), aimFrac: aimLeft / CLAW.aimTime, lucky: Math.min(1, dry / CLAW.powerAfter), power, flash: flashT > 0 ? flash : null, say: sayT > 0 ? say : '', reveal, done, demo, sound: snd.on, music: snd.music, audioAim, foxKey, live,
       party: party ? { players: party.players.map((p, i) => ({ ...p, cur: i === party.cur })), cur: party.cur, name: party.players[party.cur].name, col: party.players[party.cur].col, left: party.players[party.cur].left } : null,
       race: race ? { left: Math.ceil(rl), count: cnt, players: race.players.map(p => ({ name: p.name, col: p.col, score: p.me ? score : p.score, me: p.me })).sort((a, b) => b.score - a.score) } : null,
-      net: N.st === 'off' ? null : { st: N.st, code: N.code, status: N.status, msg: N.msg, ready: N.ready, members: m.map((x, i) => ({ name: x.me ? 'YOU' : NET_COLS[[...m].map(q => q.id).sort().indexOf(x.id)][0], col: NET_COLS[[...m].map(q => q.id).sort().indexOf(x.id)][1], me: x.me, ready: x.ready, host: x.id === host, playing: x.playing })), connected: !!net },
+      net: N.st === 'off' ? null : { st: N.st, code: N.code, status: N.status, msg: N.msg, ready: N.ready, members: m.map((x, i) => ({ name: x.me ? 'YOU' : NET_COLS[[...m].map(q => q.id).sort().indexOf(x.id)][0], col: NET_COLS[[...m].map(q => q.id).sort().indexOf(x.id)][1], me: x.me, ready: x.ready, host: x.id === host, playing: x.playing })), full: !!net && m.length >= CLAW.maxPlayers && !m.some(x => x.me), connected: !!net },
       shelf, found: shelf.filter(s => s.n > 0).length, total: PRIZES.length, packCost: CLAW.packCost, packTries: CLAW.packTries, cost: CLAW.tryCost };
   }
   function emit(now) { if (!onState || !ready) return; const t = performance.now(); if (!now && t - emitT < 90) return; emitT = t; onState(hud()); }

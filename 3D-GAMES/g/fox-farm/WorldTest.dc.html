@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Fox Farm World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+</style>
+</helmet>
+<div data-wt-root="1" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #bfe3ff; font-family: Archivo, 'Arial Narrow', sans-serif; color: #ffffff">
+<div data-wt-stage="1" ref="{{ stageRef }}" style="position: absolute; inset: 0"></div>
+<sc-if value="{{ hasGame }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Main" world="{{ world }}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{ closed }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; bottom: 16px; max-width: 340px; background: #000000; border: 2px solid #3a3836; display: flex; flex-direction: column; gap: 10px; padding: 14px">
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; color: #bdb8b2">WORLD TEST</span>
+<p style="margin: 0; font-size: 15px; line-height: 1.4">The farm closed and only its group left the town. Walk back in to play again.</p>
+<button type="button" onClick="{{ reopen }}" style="min-height: 44px; padding: 0 12px; text-align: left; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; border-radius: 0; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; cursor: pointer">OPEN FOX FARM</button>
+</div>
+</sc-if>
+<sc-if value="{{ failed }}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="position: absolute; left: 16px; top: 16px; max-width: 340px; background: #000000; border: 2px solid #ec3013; padding: 14px; font-size: 14px">{{ errorText }}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { world: null, closed: false, err: null };
+    this.stageEl = null; this.dead = false; this.api = null;
+    this.stageRef = (el) => { if (el) this.stageEl = el; };
+  }
+  componentDidMount() {
+    if (!this.stageEl) this.stageEl = document.querySelector('[data-wt-stage]');
+    const base = document.baseURI;
+    Promise.all([
+      import(new URL('vendor/three/three.module.js', base).href),
+      import(new URL('minigames/farm/farm.js', base).href),
+    ]).then(([THREE, farm]) => { if (!this.dead) this.boot(THREE, farm); })
+      .catch((e) => this.setState({ err: String((e && e.message) || e) }));
+  }
+  boot(THREE, farm) {
+    this.THREE = THREE; this.farm = farm;
+    const el = this.stageEl;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.domElement.style.display = 'block';
+    renderer.domElement.style.touchAction = 'none';
+    el.appendChild(renderer.domElement);
+    /* a simple town: ground, sky colour, light, a few blocks */
+    const town = new THREE.Scene();
+    town.background = new THREE.Color(0xbfe3ff);
+    town.add(new THREE.HemisphereLight(0xffffff, 0x6a8a4a, 1.5));
+    const sun = new THREE.DirectionalLight(0xfff1d6, 2.0); sun.position.set(-10, 20, 8); town.add(sun);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0x9ccf6e }));
+    town.add(ground);
+    const road = new THREE.Mesh(new THREE.PlaneGeometry(6, 200).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0x8c8a86 }));
+    road.position.set(0, 0.01, 0); town.add(road);
+    [[-12, -10, 0xec3013], [-12, 8, 0xffd23a], [12, 20, 0x5b9bff], [-14, 30, 0xffffff]].forEach(([x, z, c]) => {
+      const b = new THREE.Mesh(new THREE.BoxGeometry(8, 7, 8).translate(0, 3.5, 0), new THREE.MeshLambertMaterial({ color: c }));
+      b.position.set(x, 0, z); town.add(b);
+    });
+    const parent = new THREE.Group();
+    parent.position.set(20, 0, -15); parent.rotation.y = 0.9; town.add(parent);
+    const townCam = new THREE.PerspectiveCamera(50, 1, 0.1, 600);
+    townCam.position.set(0, 30, 50); townCam.lookAt(10, 0, -10);
+    this.three = { renderer, town, parent, townCam };
+    const resize = () => {
+      const w = el.clientWidth || 1, h = el.clientHeight || 1;
+      renderer.setSize(w, h); townCam.aspect = w / h; townCam.updateProjectionMatrix();
+    };
+    this.ro = new ResizeObserver(resize); this.ro.observe(el); resize();
+    const loop = () => {
+      if (this.dead) return;
+      this.raf = requestAnimationFrame(loop);
+      if (this.api) {
+        const c = this.api.camera;
+        townCam.position.lerp(c.position, 0.15); townCam.quaternion.slerp(c.quaternion, 0.15);
+        townCam.fov = c.fov; townCam.updateProjectionMatrix();
+      }
+      renderer.render(town, townCam);
+    };
+    loop();
+    this.open();
+  }
+  open() {
+    const { renderer, parent, townCam } = this.three;
+    const fire = (h) => window.dispatchEvent(new CustomEvent('8g:farmField', { detail: h }));
+    this.farm.createFarm({ container: null, onState: fire, opts: { world: { renderer, camera: townCam, parent } } }).then((api) => {
+      if (this.dead) { api.destroy(); return; }
+      this.api = api;
+      const world = {
+        _farmField: {
+          g: () => this.api,
+          end: () => {
+            if (this.api) { this.api.destroy(); this.api = null; }
+            fire(null);
+            townCam.position.set(0, 30, 50); townCam.lookAt(10, 0, -10);
+            this.setState({ world: null, closed: true });
+          },
+        },
+      };
+      this.setState({ world, closed: false });
+      fire(api.hud());
+    }).catch((e) => this.setState({ err: String((e && e.message) || e) }));
+  }
+  componentWillUnmount() {
+    this.dead = true;
+    cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    if (this.api) this.api.destroy();
+    if (this.three) { this.three.renderer.dispose(); const d = this.three.renderer.domElement; if (d.parentNode) d.parentNode.removeChild(d); }
+  }
+  renderVals() {
+    return {
+      stageRef: this.stageRef,
+      hasGame: !!this.state.world, world: this.state.world,
+      closed: this.state.closed && !this.state.world,
+      reopen: () => { if (this.three && !this.api) this.open(); },
+      failed: !!this.state.err, errorText: 'World test could not load: ' + (this.state.err || ''),
+    };
+  }
+}
+</script>
+</body>
+</html>

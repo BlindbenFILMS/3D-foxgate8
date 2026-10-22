@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playground World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+.wt-btn{min-height:52px;border:2px solid #ffd23a;background:#ffd23a;color:#000;font-family:'Archivo',system-ui,sans-serif;font-weight:900;font-size:16px;letter-spacing:.06em;text-align:left;padding:0 16px;border-radius:0;cursor:pointer}
+.wt-btn:focus-visible{outline:3px solid #fff;outline-offset:2px}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #bfe3ff; font-family: 'Archivo', system-ui, sans-serif; color: #fff">
+<div data-wt-stage="1" ref="{{setStage}}" style="position: absolute; inset: 0"></div>
+<sc-if value="{{inGame}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Playground" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{outside}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 10px; max-width: 360px; background: #000; border: 2px solid #3a3836; padding: 14px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .14em; color: #ffd23a">WORLD MODE TEST</div>
+<div style="font-size: 14px; line-height: 1.4">A fake town with the playground placed at (20, 0, -15), turned 0.9. {{status}}</div>
+<button class="wt-btn" type="button" onClick="{{enter}}">ENTER PLAYGROUND</button>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { inGame: false, status: 'Loading town...', world: null, ready: false };
+    this.stage = null; this.game = null; this.dead = false;
+    this.setStage = (el) => { if (el) this.stage = el; };
+    this.world = {
+      _playground: {
+        g: () => this.game,
+        end: () => this.exit(),
+      },
+    };
+  }
+  componentDidMount() { setTimeout(() => this.boot(), 0); }
+  async boot() {
+    try {
+      const base = document.baseURI;
+      const THREE = await import(new URL('./vendor/three/three.module.js', base).href);
+      this.mod = await import(new URL('./minigames/playground/playground.js', base).href);
+      if (this.dead) return;
+      const el = this.stage || document.querySelector('[data-wt-stage]');
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+      el.appendChild(renderer.domElement);
+      const town = new THREE.Scene();
+      town.background = new THREE.Color('#bfe3ff');
+      town.add(new THREE.HemisphereLight('#ffffff', '#6b7f4f', 1.8));
+      const sun = new THREE.DirectionalLight('#fff1d6', 2.2); sun.position.set(30, 40, 10); town.add(sun);
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshLambertMaterial({ color: '#8fbf6a' }));
+      ground.rotation.x = -Math.PI / 2; ground.position.y = -0.01; town.add(ground);
+      const houseMat = new THREE.MeshLambertMaterial({ color: '#d9c7a7' }), roofMat = new THREE.MeshLambertMaterial({ color: '#b5452f' });
+      for (let k = 0; k < 10; k++) {
+        const a = k / 10 * Math.PI * 2, r = 42;
+        const h = new THREE.Mesh(new THREE.BoxGeometry(7, 5, 7), houseMat); h.position.set(20 + Math.cos(a) * r, 2.5, -15 + Math.sin(a) * r); town.add(h);
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(5.6, 3, 4), roofMat); roof.position.set(h.position.x, 6.5, h.position.z); roof.rotation.y = Math.PI / 4; town.add(roof);
+      }
+      const parent = new THREE.Group(); parent.position.set(20, 0, -15); parent.rotation.y = 0.9; town.add(parent);
+      const townCam = new THREE.PerspectiveCamera(55, 1, 0.1, 600);
+      const home = { pos: new THREE.Vector3(20 + 34, 30, -15 + 40), look: new THREE.Vector3(20, 0, -15) };
+      townCam.position.copy(home.pos); townCam.lookAt(home.look);
+      Object.assign(this, { THREE, renderer, town, parent, townCam, home, el });
+      const resize = () => { const w = Math.max(1, el.clientWidth), h = Math.max(1, el.clientHeight); renderer.setSize(w, h, false); townCam.aspect = w / h; townCam.updateProjectionMatrix(); };
+      resize(); this.ro = new ResizeObserver(resize); this.ro.observe(el);
+      const q = new THREE.Quaternion(), m = new THREE.Matrix4();
+      let last = performance.now();
+      const loop = () => {
+        if (this.dead) return;
+        this.raf = requestAnimationFrame(loop);
+        const t = performance.now(), dt = Math.min(0.05, (t - last) / 1000); last = t;
+        const k = 1 - Math.exp(-4 * dt);
+        if (this.game) {
+          const c = this.game.camera;
+          townCam.position.lerp(c.position, k); townCam.quaternion.slerp(c.quaternion, k);
+          townCam.fov += (c.fov - townCam.fov) * k;
+        } else {
+          townCam.position.lerp(home.pos, k);
+          m.lookAt(townCam.position, home.look, new THREE.Vector3(0, 1, 0)); q.setFromRotationMatrix(m);
+          townCam.quaternion.slerp(q, k); townCam.fov += (55 - townCam.fov) * k;
+        }
+        townCam.aspect = Math.max(1, el.clientWidth) / Math.max(1, el.clientHeight);
+        townCam.updateProjectionMatrix();
+        renderer.render(town, townCam);
+      };
+      loop();
+      this.setState({ ready: true, status: 'Tap ENTER to play inside the town.' });
+      this.enter();
+    } catch (e) {
+      this.setState({ status: 'Could not start: ' + String((e && e.message) || e) });
+    }
+  }
+  async enter() {
+    if (!this.state.ready && !this.renderer) return;
+    if (this.game) return;
+    const g = await this.mod.createPlayground({
+      container: this.el,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:playground', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.townCam, parent: this.parent } },
+    });
+    if (this.dead) { g.destroy(); return; }
+    this.game = g;
+    this.setState({ inGame: true, world: this.world });
+    window.dispatchEvent(new CustomEvent('8g:playground', { detail: g.hud() }));
+  }
+  exit() {
+    if (!this.game) return;
+    this.game.destroy(); this.game = null;
+    window.dispatchEvent(new CustomEvent('8g:playground', { detail: null }));
+    this.setState({ inGame: false, status: 'You left. The town keeps running.' });
+  }
+  componentWillUnmount() {
+    this.dead = true;
+    cancelAnimationFrame(this.raf);
+    if (this.game) this.game.destroy();
+    if (this.ro) this.ro.disconnect();
+    if (this.renderer) { this.renderer.dispose(); if (this.renderer.domElement.parentNode) this.renderer.domElement.parentNode.removeChild(this.renderer.domElement); }
+  }
+  renderVals() {
+    return {
+      setStage: this.setStage,
+      inGame: this.state.inGame && !!this.state.world,
+      outside: !this.state.inGame,
+      world: this.state.world,
+      status: this.state.status,
+      enter: () => this.enter(),
+    };
+  }
+}
+</script>
+</body>
+</html>

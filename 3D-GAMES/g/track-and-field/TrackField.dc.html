@@ -1,0 +1,506 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Track and Field</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.tf button{font-family:Archivo,Arial,sans-serif;border-radius:0;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent;text-align:left}
+.tf button:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
+.tf .pad{touch-action:none}
+@keyframes tfhand{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-4px,10px) scale(0.88)}}
+@keyframes tfpop{0%{transform:scale(0.92);opacity:0}100%{transform:scale(1);opacity:1}}
+.tf .hand{animation:tfhand 0.7s ease-in-out infinite}
+.tf .pop{animation:tfpop 0.18s ease-out}
+</style>
+</helmet>
+<div class="tf" ref="{{setRoot}}" style="position: {{rootPos}}; left: 0; top: 0; width: 100%; height: {{rootH}}; overflow: hidden; font-family: Archivo, Arial, sans-serif; color: #ffffff; background: {{rootBg}}; pointer-events: {{rootPe}}; -webkit-user-select: none; user-select: none">
+
+<div ref="{{setStage}}" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; pointer-events: {{stagePe}}"></div>
+
+<sc-if value="{{showErr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; top: 40%; background: #000000; border: 2px solid #ec3013; padding: 16px; pointer-events: auto">
+<div style="font-size: 20px; font-weight: 900">THE GAME DID NOT LOAD</div>
+<div style="font-size: 13px; color: #d8d0c0; margin-top: 6px">{{err}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showLeft}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: #000000; display: flex; flex-direction: column; justify-content: center; gap: 16px; padding: 24px; pointer-events: auto">
+<div style="font-size: 32px; font-weight: 900; line-height: 1">YOU LEFT THE TRACK</div>
+<div style="font-size: 14px; color: #d8d0c0">In 8 GATES this returns you to town.</div>
+<button onClick="{{replay}}" style="min-height: 52px; padding: 0 16px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 16px; font-weight: 900; max-width: 280px">PLAY AGAIN</button>
+</div>
+</sc-if>
+
+<sc-if value="{{playing}}" hint-placeholder-val="{{ true }}">
+
+<sc-if value="{{tall}}" hint-placeholder-val="{{ true }}">
+<div data-safe="top" style="position: absolute; left: 0; right: 0; top: 0; background: #000000; border-bottom: 2px solid #3a3836; padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 8px; pointer-events: auto">
+<div style="display: flex; gap: 8px">
+<button onClick="{{openMenu}}" style="min-height: 44px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; font-weight: 800">MENU</button>
+<button onClick="{{openInvite}}" style="min-height: 44px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; font-weight: 800">INVITE FRIEND</button>
+<div style="flex: 1"></div>
+<button onClick="{{goBack}}" style="min-height: 44px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 800">BACK</button>
+</div>
+<div style="display: flex; align-items: flex-end; gap: 12px">
+<div style="flex: 1; min-width: 0">
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.06em">{{eventTag}}</div>
+<div style="font-size: 28px; font-weight: 900; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{eventName}}</div>
+<div style="font-size: 12px; color: #d8d0c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{sub}}</div>
+</div>
+<div style="min-width: 96px">
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a">{{readLabel}}</div>
+<div style="font-size: 28px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums">{{readout}}</div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{athletes}}" as="a" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 6px; padding: 4px 8px; border: 2px solid {{a.border}}; font-size: 12px; font-weight: 800">
+<span style="width: 10px; height: 10px; background: {{a.color}}; display: inline-block"></span>
+<span>{{a.name}}</span>
+<span style="color: #ffd23a">{{a.pts}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{compact}}" hint-placeholder-val="{{ false }}">
+<div data-safe="top" style="position: absolute; left: 0; right: 0; top: 0; background: #000000; border-bottom: 2px solid #3a3836; padding: 6px 10px; display: flex; align-items: center; gap: 8px; pointer-events: auto">
+<button onClick="{{openMenu}}" style="min-height: 44px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; font-weight: 800">MENU</button>
+<button onClick="{{openInvite}}" style="min-height: 44px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; font-weight: 800">INVITE FRIEND</button>
+<div style="flex: 1; min-width: 0; padding-left: 4px">
+<div style="font-size: 18px; font-weight: 900; line-height: 1.05; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{eventName}}</div>
+<div style="font-size: 12px; color: #d8d0c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{eventTag}}, {{sub}}</div>
+</div>
+<div style="min-width: 84px">
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a">{{readLabel}}</div>
+<div style="font-size: 20px; font-weight: 900; line-height: 1.05; font-variant-numeric: tabular-nums">{{readout}}</div>
+</div>
+<button onClick="{{goBack}}" style="min-height: 44px; padding: 0 12px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 13px; font-weight: 800">BACK</button>
+</div>
+</sc-if>
+
+<sc-if value="{{showBanner}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; top: {{bannerTop}}px; display: flex; justify-content: center; pointer-events: none">
+<div class="pop" style="background: #000000; border: 2px solid {{bannerColor}}; padding: 8px 16px 10px; max-width: 100%">
+<div style="font-size: {{bannerSize}}px; font-weight: 900; line-height: 1; color: {{bannerColor}}; white-space: nowrap">{{bannerText}}</div>
+<sc-if value="{{bannerHasSub}}" hint-placeholder-val="{{ false }}"><div style="font-size: 13px; font-weight: 800; color: #ffffff; margin-top: 4px">{{bannerSub}}</div></sc-if>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showCaption}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; bottom: {{captionBottom}}px; display: flex; pointer-events: none">
+<div style="background: #000000; border: 2px solid #3a3836; border-left: 2px solid #ffd23a; padding: 8px 12px; font-size: 14px; font-weight: 600; max-width: 420px">{{caption}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{tall}}" hint-placeholder-val="{{ true }}">
+<div data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; background: #000000; border-top: 2px solid #3a3836; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px; pointer-events: auto">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="font-size: 12px; font-weight: 800; width: 48px">SPEED</div>
+<div style="flex: 1; height: 14px; border: 2px solid #3a3836; position: relative">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{speedPct}}; background: #ec3013"></div>
+</div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; min-width: 112px">{{infoText}}</div>
+</div>
+<div style="display: flex; gap: 8px">
+<sc-if value="{{hasAction}}" hint-placeholder-val="{{ true }}">
+<button class="pad" onPointerDown="{{actDown}}" onPointerUp="{{actUp}}" onPointerCancel="{{actUp}}" onPointerLeave="{{actUp}}" onContextMenu="{{noMenu}}" style="position: relative; flex: 2; min-height: 92px; padding: 10px 12px; background: {{actBg}}; color: {{actFg}}; border: 2px solid #ffd23a; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start">
+<span style="font-size: 26px; font-weight: 900; line-height: 1">{{actionLabel}}</span>
+<span style="font-size: 12px; font-weight: 800">{{actionSub}}</span>
+<sc-if value="{{hintAct}}" hint-placeholder-val="{{ false }}">
+<span class="hand" style="position: absolute; right: 8px; top: 16px; pointer-events: none"><svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10h.5V8.5a1.5 1.5 0 0 1 3 0V10.5h.5a1.5 1.5 0 0 1 3 0V16a5 5 0 0 1-5 5h-2a5 5 0 0 1-4.2-2.3l-3-4.4a1.5 1.5 0 0 1 2.4-1.8L9 14.5z" fill="#ffffff" stroke="#000000" stroke-width="1.4" stroke-linejoin="round"></path></svg></span>
+</sc-if>
+</button>
+</sc-if>
+<button class="pad" onPointerDown="{{runDown}}" onContextMenu="{{noMenu}}" style="position: relative; flex: 3; min-height: 92px; padding: 10px 12px; background: {{runBg}}; color: #ffffff; border: 2px solid {{runBg}}; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start">
+<span style="font-size: 30px; font-weight: 900; line-height: 1">{{runLabel}}</span>
+<span style="font-size: 12px; font-weight: 800">{{runSub}}</span>
+<sc-if value="{{hintRun}}" hint-placeholder-val="{{ false }}">
+<span class="hand" style="position: absolute; right: 12px; top: 18px; pointer-events: none"><svg width="48" height="48" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10h.5V8.5a1.5 1.5 0 0 1 3 0V10.5h.5a1.5 1.5 0 0 1 3 0V16a5 5 0 0 1-5 5h-2a5 5 0 0 1-4.2-2.3l-3-4.4a1.5 1.5 0 0 1 2.4-1.8L9 14.5z" fill="#ffd23a" stroke="#000000" stroke-width="1.4" stroke-linejoin="round"></path></svg></span>
+</sc-if>
+</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{compact}}" hint-placeholder-val="{{ false }}">
+<div data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; background: #000000; border-top: 2px solid #3a3836; padding: 8px 10px; display: flex; align-items: stretch; gap: 10px; pointer-events: auto">
+<sc-if value="{{hasAction}}" hint-placeholder-val="{{ true }}">
+<button class="pad" onPointerDown="{{actDown}}" onPointerUp="{{actUp}}" onPointerCancel="{{actUp}}" onPointerLeave="{{actUp}}" onContextMenu="{{noMenu}}" style="position: relative; width: 170px; min-height: 68px; padding: 8px 10px; background: {{actBg}}; color: {{actFg}}; border: 2px solid #ffd23a; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start">
+<span style="font-size: 22px; font-weight: 900; line-height: 1">{{actionLabel}}</span>
+<span style="font-size: 12px; font-weight: 800">{{actionSub}}</span>
+<sc-if value="{{hintAct}}" hint-placeholder-val="{{ false }}">
+<span class="hand" style="position: absolute; right: 6px; top: 8px; pointer-events: none"><svg width="40" height="40" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10h.5V8.5a1.5 1.5 0 0 1 3 0V10.5h.5a1.5 1.5 0 0 1 3 0V16a5 5 0 0 1-5 5h-2a5 5 0 0 1-4.2-2.3l-3-4.4a1.5 1.5 0 0 1 2.4-1.8L9 14.5z" fill="#ffffff" stroke="#000000" stroke-width="1.4" stroke-linejoin="round"></path></svg></span>
+</sc-if>
+</button>
+</sc-if>
+<div style="flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 6px">
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="font-size: 12px; font-weight: 800">SPEED</div>
+<div style="flex: 1; height: 12px; border: 2px solid #3a3836; position: relative">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{speedPct}}; background: #ec3013"></div>
+</div>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px; align-items: center">
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; margin-right: 4px">{{infoText}}</div>
+<sc-for list="{{athletes}}" as="a" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 4px; padding: 2px 6px; border: 2px solid {{a.border}}; font-size: 12px; font-weight: 800">
+<span style="width: 8px; height: 8px; background: {{a.color}}; display: inline-block"></span>
+<span>{{a.name}}</span>
+<span style="color: #ffd23a">{{a.pts}}</span>
+</div>
+</sc-for>
+</div>
+</div>
+<button class="pad" onPointerDown="{{runDown}}" onContextMenu="{{noMenu}}" style="position: relative; width: 200px; min-height: 68px; padding: 8px 10px; background: {{runBg}}; color: #ffffff; border: 2px solid {{runBg}}; display: flex; flex-direction: column; justify-content: space-between; align-items: flex-start">
+<span style="font-size: 26px; font-weight: 900; line-height: 1">{{runLabel}}</span>
+<span style="font-size: 12px; font-weight: 800">{{runSub}}</span>
+<sc-if value="{{hintRun}}" hint-placeholder-val="{{ false }}">
+<span class="hand" style="position: absolute; right: 10px; top: 8px; pointer-events: none"><svg width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10h.5V8.5a1.5 1.5 0 0 1 3 0V10.5h.5a1.5 1.5 0 0 1 3 0V16a5 5 0 0 1-5 5h-2a5 5 0 0 1-4.2-2.3l-3-4.4a1.5 1.5 0 0 1 2.4-1.8L9 14.5z" fill="#ffd23a" stroke="#000000" stroke-width="1.4" stroke-linejoin="round"></path></svg></span>
+</sc-if>
+</button>
+</div>
+</sc-if>
+
+<sc-if value="{{showCard}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: auto">
+<div class="pop" style="width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 18px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box">
+<div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.06em">{{cardKicker}}</div>
+<div style="font-size: 28px; font-weight: 900; line-height: 1.05">{{cardTitle}}</div>
+<div style="font-size: 13px; color: #d8d0c0; margin-top: 4px">{{cardSub}}</div>
+</div>
+<sc-if value="{{cardHasRows}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; border-top: 2px solid #3a3836">
+<sc-for list="{{cardRows}}" as="r" hint-placeholder-count="4">
+<div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 2px solid #3a3836; font-size: 14px; font-weight: 800">
+<span style="width: 36px; color: {{r.placeColor}}">{{r.place}}</span>
+<span style="width: 10px; height: 10px; background: {{r.color}}; display: inline-block"></span>
+<span style="flex: 1; min-width: 0">{{r.name}} <span style="color: #ffd23a; font-size: 12px">{{r.tag}}</span></span>
+<span style="font-variant-numeric: tabular-nums">{{r.mark}}</span>
+<span style="width: 56px; color: #ffd23a">{{r.pts}}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{cardIsMeet}}" hint-placeholder-val="{{ false }}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<div style="border: 2px solid #3a3836; padding: 8px"><div style="font-size: 12px; color: #d8d0c0; font-weight: 800">SCORE</div><div style="font-size: 22px; font-weight: 900">{{cardScore}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 8px"><div style="font-size: 12px; color: #d8d0c0; font-weight: 800">{{cardBestLabel}}</div><div style="font-size: 22px; font-weight: 900">{{cardBest}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 8px"><div style="font-size: 12px; color: #d8d0c0; font-weight: 800">GOLD</div><div style="font-size: 22px; font-weight: 900; color: #ffd23a">{{cardGold}}</div></div>
+</div>
+<div style="display: flex; gap: 6px; align-items: center">
+<sc-for list="{{cardStars}}" as="s" hint-placeholder-count="3">
+<svg width="26" height="26" viewBox="0 0 24 24" role="img" aria-label="{{s.label}}"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z" fill="{{s.fill}}" stroke="#ffd23a" stroke-width="2" stroke-linejoin="miter"></path></svg>
+</sc-for>
+</div>
+</sc-if>
+<div style="display: flex; gap: 8px">
+<button onClick="{{cardNext}}" style="flex: 1; min-height: 52px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 16px; font-weight: 900">{{cardNextLabel}}</button>
+<sc-if value="{{cardIsMeet}}" hint-placeholder-val="{{ false }}">
+<button onClick="{{goBack}}" style="min-height: 52px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 16px; font-weight: 900">BACK</button>
+</sc-if>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showMenu}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 12px; pointer-events: auto">
+<div class="pop" style="width: 100%; max-width: 480px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 16px; display: flex; flex-direction: column; gap: 14px; box-sizing: border-box">
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="flex: 1; font-size: 28px; font-weight: 900">MENU</div>
+<button onClick="{{closeMenu}}" style="min-height: 44px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 14px; font-weight: 900">RESUME</button>
+</div>
+<div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; margin-bottom: 6px">MODE</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+<button onClick="{{m.pick}}" style="min-height: 44px; padding: 0 12px; background: #000000; color: {{m.fg}}; border: 2px solid {{m.border}}; font-size: 13px; font-weight: 800">{{m.label}}</button>
+</sc-for>
+</div>
+</div>
+<div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; margin-bottom: 6px">DIFFICULTY, VS CPU</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{levels}}" as="l" hint-placeholder-count="3">
+<button onClick="{{l.pick}}" style="min-height: 44px; padding: 6px 12px; background: #000000; color: {{l.fg}}; border: 2px solid {{l.border}}; display: flex; flex-direction: column; align-items: flex-start; justify-content: center">
+<span style="font-size: 14px; font-weight: 900">{{l.label}}</span>
+<span style="font-size: 12px; font-weight: 600; color: #d8d0c0">{{l.sub}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+<div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; margin-bottom: 6px">PLAYERS, PASS AND PLAY</div>
+<div style="display: flex; gap: 6px">
+<sc-for list="{{playerOpts}}" as="p" hint-placeholder-count="3">
+<button onClick="{{p.pick}}" style="min-height: 44px; min-width: 64px; padding: 0 12px; background: #000000; color: {{p.fg}}; border: 2px solid {{p.border}}; font-size: 14px; font-weight: 900">{{p.label}}</button>
+</sc-for>
+</div>
+</div>
+<div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; margin-bottom: 6px">EVENTS</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{eventOpts}}" as="e" hint-placeholder-count="5">
+<button onClick="{{e.pick}}" style="min-height: 44px; padding: 0 12px; background: #000000; color: {{e.fg}}; border: 2px solid {{e.border}}; font-size: 13px; font-weight: 800">{{e.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; gap: 6px">
+<button onClick="{{toggleSound}}" style="flex: 1; min-height: 44px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; font-weight: 800">{{soundLabel}}</button>
+<button onClick="{{toggleMusic}}" style="flex: 1; min-height: 44px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; font-weight: 800">{{musicLabel}}</button>
+</div>
+<div style="border-top: 2px solid #3a3836; padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.4; color: #d8d0c0">
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a">RULES</div>
+<div><span style="color: #ffffff; font-weight: 800">100M DASH.</span> Wait for the gun, then tap RUN fast. Two false starts and you are out.</div>
+<div><span style="color: #ffffff; font-weight: 800">LONG JUMP.</span> Build speed, hold JUMP before the white board, release near 34 degrees.</div>
+<div><span style="color: #ffffff; font-weight: 800">JAVELIN.</span> Hold THROW a few steps early so you can stop before the line. Aim near 38 degrees.</div>
+<div><span style="color: #ffffff; font-weight: 800">110M HURDLES.</span> Tap JUMP about two steps before each hurdle. A hit costs speed.</div>
+<div>Places score 5, 3, 2 and 1 points. Most points after the meet wins. Keys: arrows or A and D to run, Space to jump or throw.</div>
+</div>
+<div style="display: flex; gap: 8px">
+<button onClick="{{restart}}" style="flex: 1; min-height: 48px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #ffffff; font-size: 14px; font-weight: 900">RESTART</button>
+<button onClick="{{goBack}}" style="flex: 1; min-height: 48px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 900">LEAVE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showInvite}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; top: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: auto">
+<div class="pop" style="width: 100%; max-width: 400px; background: #000000; border: 2px solid #3a3836; padding: 18px; display: flex; flex-direction: column; gap: 12px; box-sizing: border-box">
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a">INVITE FRIEND</div>
+<div style="font-size: 26px; font-weight: 900; line-height: 1.05">ONLINE ROOMS ARE COMING SOON</div>
+<div style="font-size: 14px; color: #d8d0c0; line-height: 1.4">Play together now on one phone. Open MENU and pick PASS AND PLAY for up to four foxes.</div>
+<div style="display: flex; gap: 8px">
+<button onClick="{{inviteLocal}}" style="flex: 1; min-height: 48px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 14px; font-weight: 900">PASS AND PLAY</button>
+<button onClick="{{closeInvite}}" style="min-height: 48px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; font-weight: 900">CLOSE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"default":null},"onBack":{"editor":null,"default":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._alive = true;
+    this._safe = { top: 0, bottom: 0, left: 0, right: 0 };
+    this._onResize = () => { this.layout(); this.measure(); };
+    window.addEventListener('resize', this._onResize);
+    this.layout();
+    if (this.props.world) {
+      this._onWorld = (e) => {
+        const w = this.props.world;
+        if (!this.api && w && w._trackField && w._trackField.g) this.api = w._trackField.g();
+        const h = e && e.detail ? e.detail : null;
+        if (!h) this.api = null;
+        this.setState({ h: h });
+      };
+      window.addEventListener('8g:trackField', this._onWorld);
+      const w = this.props.world;
+      if (w && w._trackField && w._trackField.g) {
+        this.api = w._trackField.g();
+        if (this.api) this.setState({ h: this.api.hud() });
+      }
+    } else {
+      this.boot();
+    }
+    this._mt = setInterval(() => this.measure(), 400);
+  }
+  componentWillUnmount() {
+    this._alive = false;
+    window.removeEventListener('resize', this._onResize);
+    if (this._onWorld) window.removeEventListener('8g:trackField', this._onWorld);
+    clearInterval(this._mt);
+    if (!this.props.world && this.api) { try { this.api.destroy(); } catch (e) {} }
+    this.api = null;
+  }
+  async boot() {
+    this.setState({ left: false, err: '' });
+    const tries = [];
+    try { tries.push(new URL('./minigames/trackfield/trackfield.js', document.baseURI).href); } catch (e) {}
+    try { tries.push(new URL('./minigames/trackfield/trackfield.js', location.href).href); } catch (e) {}
+    let mod = null, lastErr = '';
+    for (const u of tries) {
+      try { mod = await import(u); break; } catch (e) { lastErr = String(e && e.message ? e.message : e); }
+    }
+    if (!mod || !this._alive) { if (this._alive) this.setState({ err: lastErr || 'Module not found' }); return; }
+    try {
+      this.api = await mod.createTrackField({ container: this._stage, onState: (h) => { if (this._alive) this.setState({ h: h }); }, opts: {} });
+      this._lastSafe = '';
+      this.measure();
+    } catch (e) {
+      this.setState({ err: String(e && e.message ? e.message : e) });
+    }
+  }
+  layout() {
+    const w = window.innerWidth, h = window.innerHeight;
+    const compact = w > h && h < 520;
+    if (!this.state || this.state.compact !== compact) this.setState({ compact: compact });
+  }
+  measure() {
+    const root = this._root;
+    if (!root) return;
+    const rr = root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      if (side === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      if (side === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      if (side === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    s.top = Math.round(s.top); s.bottom = Math.round(s.bottom); s.left = Math.round(s.left); s.right = Math.round(s.right);
+    const k = JSON.stringify(s) + rr.height;
+    if (k !== this._lastSafe) {
+      this._lastSafe = k;
+      this._safe = s;
+      if (this.api && this.api.setSafe) this.api.setSafe(s);
+      this.setState({ safe: s, rootH: rr.height });
+    }
+  }
+  call(name, arg) {
+    const a = this.api;
+    if (a && typeof a[name] === 'function') return a[name](arg);
+    return null;
+  }
+  renderVals() {
+    const st = this.state || {};
+    const h = st.h || null;
+    const overlay = !!this.props.world;
+    const compact = !!st.compact;
+    const safe = st.safe || { top: 0, bottom: 0 };
+    const H = st.rootH || window.innerHeight || 800;
+    const c = (h && h.controls) || {};
+    const card = h ? h.card : null;
+    const menu = !!st.menu && !!h, invite = !!st.invite && !!h;
+    const tone = { red: '#ec3013', yellow: '#ffd23a', white: '#ffffff' };
+    const b = h && h.banner;
+    const bannerText = b ? b.text : '';
+    const freeTop = safe.top || 0, freeBot = H - (safe.bottom || 0);
+    const self = this;
+    const closeMenu = () => { self.setState({ menu: false }); self.call('pause', false); };
+    const pickClose = (fn) => () => { fn(); self.setState({ menu: false }); self.call('pause', false); };
+    const sel = (on) => ({ border: on ? '#ffd23a' : '#3a3836', fg: on ? '#ffd23a' : '#ffffff' });
+    const angleBit = h && h.angle != null ? 'ANGLE ' + h.angle + '°' : (h && h.angleBest ? 'AIM ' + h.angleBest + '°' : '');
+    let lineBit = '';
+    if (h && h.toLine != null) lineBit = h.toLine >= 0 ? h.lineName + ' ' + h.toLine.toFixed(1) + ' M' : 'PAST THE ' + h.lineName;
+    if (h && h.toHurdle != null) lineBit = 'HURDLE ' + h.toHurdle.toFixed(1) + ' M';
+    const infoText = [lineBit, angleBit].filter(Boolean).join(', ');
+    const holding = !!c.hold;
+    const kick = card ? (card.kind === 'handoff' ? 'PASS AND PLAY' : card.kind === 'meet' ? 'FINAL RESULTS' : 'EVENT RESULT') : '';
+    const rows = card && card.rows ? card.rows.map((r) => ({
+      place: r.place, name: r.name, color: r.color, mark: r.mark, pts: r.pts,
+      tag: [r.medal, r.pb].filter(Boolean).join(' '),
+      placeColor: r.medal === 'GOLD' ? '#ffd23a' : '#ffffff',
+    })) : [];
+    const stars = card && card.kind === 'meet' ? [0, 1, 2].map((i) => ({ fill: i < (card.stars || 0) ? '#ffd23a' : 'none', label: i < (card.stars || 0) ? 'Star earned' : 'Star not earned' })) : [];
+    return {
+      setRoot: (el) => { self._root = el; },
+      setStage: (el) => { self._stage = el; },
+      rootPos: overlay ? 'absolute' : 'relative',
+      rootH: overlay ? '100%' : '100vh',
+      rootBg: overlay ? 'transparent' : '#000000',
+      rootPe: overlay ? 'none' : 'auto',
+      stagePe: overlay ? 'none' : 'auto',
+      showErr: !!st.err && !overlay,
+      err: st.err || '',
+      showLeft: !!st.left && !overlay,
+      replay: () => { self.boot(); },
+      playing: !!h && !st.left,
+      tall: !compact, compact: compact,
+      openMenu: () => { self.setState({ menu: true, invite: false }); self.call('pause', true); },
+      closeMenu: closeMenu,
+      openInvite: () => { self.setState({ invite: true, menu: false }); },
+      closeInvite: () => { self.setState({ invite: false }); },
+      inviteLocal: () => { self.setState({ invite: false }); self.call('setPlayers', 2); },
+      goBack: () => {
+        self.setState({ menu: false, invite: false });
+        const w = self.props.world;
+        if (w && w._trackField && w._trackField.end) { w._trackField.end(); return; }
+        if (typeof self.props.onBack === 'function') { self.props.onBack(); return; }
+        if (self.api) { try { self.api.destroy(); } catch (e) {} self.api = null; }
+        self.setState({ left: true, h: null });
+      },
+      eventTag: h ? (h.eventCount > 1 ? 'EVENT ' + h.eventNo + ' OF ' + h.eventCount : 'SINGLE EVENT') + (h.mode === 'cpu' ? ', ' + h.levelName : h.mode === 'local' ? ', PASS AND PLAY' : ', DEMO') : '',
+      eventName: h ? h.eventName : '',
+      sub: h ? h.sub : '',
+      readLabel: h ? h.readLabel : '',
+      readout: h ? h.readout : '',
+      athletes: h ? h.athletes.map((a) => ({ name: a.name, color: a.color, pts: a.pts, border: a.active ? '#ffd23a' : '#3a3836' })) : [],
+      showBanner: !!b && !card && !menu,
+      bannerText: bannerText,
+      bannerSub: b ? b.sub : '',
+      bannerHasSub: !!(b && b.sub),
+      bannerColor: b ? tone[b.tone] || '#ffffff' : '#ffffff',
+      bannerSize: bannerText.length > 12 ? (compact ? 26 : 30) : (compact ? 36 : 44),
+      bannerTop: Math.round(freeTop + (freeBot - freeTop) * 0.18),
+      showCaption: !!(h && h.caption) && !card && !menu,
+      caption: h ? h.caption || '' : '',
+      captionBottom: Math.round((safe.bottom || 0) + 10),
+      speedPct: Math.round(((h && h.speed) || 0) * 100) + '%',
+      infoText: infoText,
+      hasAction: !!c.action,
+      actionLabel: c.action || 'JUMP',
+      actionSub: holding ? 'RELEASE TO ' + (c.action === 'THROW' ? 'THROW' : 'JUMP') : (h && h.eventKey === 'hurdles' ? 'TAP AT EACH HURDLE' : 'HOLD, THEN RELEASE'),
+      actBg: holding ? '#ffd23a' : '#000000',
+      actFg: holding ? '#000000' : '#ffd23a',
+      runLabel: c.run ? 'RUN' : 'SKIP',
+      runSub: c.run ? 'TAP FAST' : 'FAST FORWARD',
+      runBg: c.run ? '#ec3013' : '#3a3836',
+      hintRun: !!h && h.hint === 'run' && !card && !menu,
+      hintAct: !!h && h.hint === 'action' && !card && !menu,
+      runDown: (e) => { if (e && e.preventDefault) e.preventDefault(); self.call('run'); },
+      actDown: (e) => { if (e && e.preventDefault) e.preventDefault(); if (e && e.currentTarget && e.currentTarget.setPointerCapture && e.pointerId != null) { try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} } self.call('actionDown'); },
+      actUp: (e) => { self.call('actionUp'); },
+      noMenu: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      showCard: !!card && !menu,
+      cardKicker: kick,
+      cardTitle: card ? card.title : '',
+      cardSub: card ? card.sub || '' : '',
+      cardHasRows: rows.length > 0,
+      cardRows: rows,
+      cardIsMeet: !!card && card.kind === 'meet',
+      cardScore: card && card.score != null ? card.score + ' PTS' : '',
+      cardBest: card && card.best != null ? String(card.best) : '',
+      cardBestLabel: card && card.newBest ? 'NEW BEST' : 'BEST',
+      cardGold: card && card.gold != null ? '+' + card.gold : '',
+      cardStars: stars,
+      cardNext: () => { self.call('next'); },
+      cardNextLabel: card ? card.next : '',
+      showMenu: menu,
+      showInvite: invite,
+      modes: [['cpu', 'VS CPU'], ['local', 'PASS AND PLAY'], ['demo', 'DEMO']].map(([id, label]) => Object.assign({ label: label, pick: pickClose(() => self.call('start', id)) }, sel(h && h.mode === id))),
+      levels: [[0, 'EASY', 'VS PIP, THE ROOKIE'], [1, 'MEDIUM', 'VS PIP AND HOPE, CLUB LEVEL'], [2, 'HARD', 'VS PIP, HOPE AND NOBLE, THE MASTER']].map(([n, label, sub]) => Object.assign({ label: label, sub: sub, pick: pickClose(() => self.call('setLevel', n)) }, sel(h && h.mode === 'cpu' && h.level === n))),
+      playerOpts: [2, 3, 4].map((n) => Object.assign({ label: n + ' FOXES', pick: pickClose(() => self.call('setPlayers', n)) }, sel(h && h.mode === 'local' && h.players === n))),
+      eventOpts: [['meet', 'FULL MEET'], ['dash', '100M'], ['long', 'LONG JUMP'], ['jav', 'JAVELIN'], ['hurdles', 'HURDLES']].map(([k, label]) => Object.assign({ label: label, pick: pickClose(() => self.call('setEvent', k)) }, sel(h && h.eventSel === k))),
+      soundLabel: h && h.sound ? 'SOUND ON' : 'SOUND OFF',
+      musicLabel: h && h.music ? 'MUSIC ON' : 'MUSIC OFF',
+      toggleSound: () => { self.call('setSound', !(h && h.sound)); },
+      toggleMusic: () => { self.call('setMusic', !(h && h.music)); },
+      restart: pickClose(() => self.call('restart')),
+    };
+  }
+}
+</script>
+</body>
+</html>

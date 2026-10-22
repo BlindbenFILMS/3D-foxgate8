@@ -2,8 +2,8 @@
 // A carnival booth INTERIOR that drops into any building on any world: ?world=gaya (jidda, kufa, luxor, nebo, ur, zion, home, earth, station) re-themes it.
 // Throw balls at the target: BULLSEYE drops whoever sits on the seat into the tank; ring hits fill the DUNK METER (full = dunk).
 //   SOLO   3 rounds × 5 balls: STILL target → SLIDING target → SLIDE + BOB + WIND. Meru townsfolk take the seat.
-//   PARTY  2–5 players pass one phone. The LEADER sits on the seat.
-//   ONLINE 2–5 players, peer to peer (engine/duel-net.js, room code). The LEADER sits on the seat and can tap TAUNTS.
+//   PARTY  2–4 players pass one phone. The LEADER sits on the seat.
+//   ONLINE 2–4 players, peer to peer (engine/duel-net.js, room code). The LEADER sits on the seat and can tap TAUNTS.
 // Phone first: one finger drags the aim (arc preview), letting go throws. AIM SOUND: a tone that climbs and speeds up as the throw lines up
 // with the bullseye, panned left/right, so the game can be played by ear.
 // Saves (engine/save.js only): stats dunkTank.best · dunkTank.dunks · dunkTank.played · dunkTank.onlineWins, flag dunkTank.trophy, item dunkTankTrophy, gold + XP.
@@ -250,7 +250,7 @@ export async function createDunkTank({ container, onState = () => {}, world = 'm
   // ---------------- flow ----------------
   function startSolo() { unlock(); S.mode = 'solo'; S.round = 0; S.seed = (Math.random() * 1e9) | 0; S.players = [{ id: 'me', name: 'YOU', col: '#ffd23a', fox: player, me: true, score: 0, hits: 0, bulls: 0, dunks: 0, streak: 0, left: DUNK.balls, aim: { ax: 0.3, ay: 0.3 }, rs: 0 }]; S.n = 0; S.done = null; beginRound(); }
   function beginRound() { const R = SOLO_ROUNDS[S.round]; S.lvl = LEVELS[R.lv]; const p = S.players[0]; p.left = DUNK.balls; p.rs = 0; p.rh = 0; p.rb = 0; p.rd = 0; S.meter = 0; S.cur = 0; S.seat = pickSeat(); S.roundCard = null; S.phase = 'count'; S.count = 3; S.countT = 0.7; layout(); flash('ROUND ' + (S.round + 1) + ' · ' + R.title, '#ffd23a', 1.6); beginTurn(true); S.phase = 'count'; }
-  function startParty() { unlock(); const n = clamp(S.setup.n, 2, 5); S.mode = 'party'; S.lvl = LEVELS[S.setup.level]; S.seed = (Math.random() * 1e9) | 0; S.players = Array.from({ length: n }, (_, i) => ({ id: 'p' + i, name: NET_COLS[i][0], col: NET_COLS[i][1], fox: colFox[i], me: false, score: 0, hits: 0, bulls: 0, dunks: 0, streak: 0, left: S.setup.balls, aim: { ax: 0.3, ay: 0.3 } })); S.n = 0; S.cur = 0; S.meter = 0; S.done = null; S.seat = pickSeat(); layout(); S.phase = 'pass'; S.dirty = true; }
+  function startParty() { unlock(); const n = clamp(S.setup.n, 2, 4); S.mode = 'party'; S.lvl = LEVELS[S.setup.level]; S.seed = (Math.random() * 1e9) | 0; S.players = Array.from({ length: n }, (_, i) => ({ id: 'p' + i, name: NET_COLS[i][0], col: NET_COLS[i][1], fox: colFox[i], me: false, score: 0, hits: 0, bulls: 0, dunks: 0, streak: 0, left: S.setup.balls, aim: { ax: 0.3, ay: 0.3 } })); S.n = 0; S.cur = 0; S.meter = 0; S.done = null; S.seat = pickSeat(); layout(); S.phase = 'pass'; S.dirty = true; }
   function beginTurn(silent) { const p = curP(); if (!p) return; const ns = pickSeat(); if (!S.seat || !ns || ns.fox !== S.seat.fox) { if (S.seat && ns && S.mode !== 'solo') { S.meter = 0; flash(ns.name + ' TAKES THE SEAT', ns.col, 1.4); } S.seat = ns; }
     aim.ax = p.aim.ax; aim.ay = p.aim.ay; aim.drag = null; aim.cock = 0; S.wind = windFor(S.n); S.timer = S.mode === 'online' ? 25 : 0; S.lastTick = 0; layout(); bucketShow(p.left);
     if (!silent) S.phase = 'play'; if (S.seat && Math.random() < 0.55) setTimeout(() => { if (S.phase === 'play' && !S.flight && S.seat && !S.seat.me) sayLine(pick(TAUNTS)); }, 500); S.dirty = true; }
@@ -388,10 +388,10 @@ export async function createDunkTank({ container, onState = () => {}, world = 'm
   const hv = V3();
   function headScreen(f) { if (!f) return null; f.userData.P.head.getWorldPosition(hv); hv.y += 0.55; hv.project(camera); if (hv.z > 1) return null; return { x: (hv.x + 1) / 2 * CW(), y: (1 - hv.y) / 2 * CH() }; }
 
-  // ---------------- online (2–5 players) over engine/duel-net.js ----------------
+  // ---------------- online (2–4 players) over engine/duel-net.js ----------------
   const NET = { api: null, id: null, st: 'off', code: '', codeIn: '', peers: {}, ready: false, j: 0, status: '', msg: '', ping: null, lastSeen: {}, tok: 0, timer: 0, copied: false, set: { level: 'swing', balls: 5 }, matchIds: null, mid: 0 };
   const netSend = (t, d, to) => { if (NET.api) try { NET.api.send(t, d, to); } catch (e) {} };
-  function members() { if (!NET.api) return []; const playing = S.mode === 'online' && !/intro|done|lobby/.test(S.phase); const all = [{ id: NET.id, j: NET.j, ready: NET.ready, playing, me: true }, ...Object.entries(NET.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
+  function members() { if (!NET.api) return []; const playing = S.mode === 'online' && !/intro|done|lobby/.test(S.phase); const all = [{ id: NET.id, j: NET.j, ready: NET.ready, playing, me: true }, ...Object.entries(NET.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 4); }
   const hostId = () => { const m = members(); return m.length ? m.reduce((a, b) => a.id < b.id ? a : b).id : NET.id; };
   const isHost = () => !!NET.api && hostId() === NET.id;
   function netOpen() { unlock(); if (S.mode === 'online' && NET.api) return; S.mode = 'online'; S.phase = 'lobby'; Object.assign(NET, { st: 'menu', code: '', codeIn: NET.codeIn || '', peers: {}, ready: false, msg: '', ping: null, copied: false }); S.dirty = true; }
@@ -428,7 +428,7 @@ export async function createDunkTank({ container, onState = () => {}, world = 'm
   function nMaybeStart() { if (!NET.api || S.phase !== 'lobby' || NET.st !== 'room' || !isHost()) return; const m = members(); if (m.length < 2 || !m.every(x => x.ready && !x.playing)) return;
     NET.mid++; const d = { k: 'start', t0: Date.now() + 3200, level: NET.set.level, balls: NET.set.balls, ids: m.map(x => x.id), seed: (Math.random() * 1e9) | 0, mid: NET.mid }; netSend('ev', d); nStart(d); }
   function nStart(d) { if (!NET.api || !Array.isArray(d.ids)) return; if (!d.ids.includes(NET.id)) { NET.msg = 'A game started without you. You join the next one.'; S.dirty = true; return; }
-    NET.matchIds = d.ids.slice(0, 5); S.mode = 'online'; S.lvl = LEVELS[d.level] || LEVELS.swing; S.seed = d.seed | 0; S.n = 0; S.cur = 0; S.meter = 0; S.queue = []; S.done = null; S.flight = null; S.dunk = null; NET.ready = false; Object.values(NET.peers).forEach(p => p.ready = false);
+    NET.matchIds = d.ids.slice(0, 4); S.mode = 'online'; S.lvl = LEVELS[d.level] || LEVELS.swing; S.seed = d.seed | 0; S.n = 0; S.cur = 0; S.meter = 0; S.queue = []; S.done = null; S.flight = null; S.dunk = null; NET.ready = false; Object.values(NET.peers).forEach(p => p.ready = false);
     S.players = NET.matchIds.map((id, i) => ({ id, name: NET_COLS[i][0], col: NET_COLS[i][1], fox: colFox[i], me: id === NET.id, score: 0, hits: 0, bulls: 0, dunks: 0, streak: 0, left: [3, 5, 8].includes(+d.balls) ? +d.balls : 5, aim: { ax: 0.3, ay: 0.3 } }));
     S.seat = pickSeat(); layout(); beginTurn(true); let w = (+d.t0 || 0) - Date.now(); if (!(w >= 0 && w <= 6000)) w = 3000; S.phase = 'count'; S.count = 3; S.countT = Math.max(0.3, w / 1000 - 1.8); netSend('ev', { k: 'playing', on: true }); S.dirty = true; }
   function netReadyToggle(force) { if (!NET.api) return; NET.ready = force ? true : !NET.ready; if (S.phase === 'done') { S.phase = 'lobby'; S.done = null; } netSend('ev', { k: 'ready', on: NET.ready }); S.dirty = true; setTimeout(nMaybeStart, 0); }
@@ -441,7 +441,7 @@ export async function createDunkTank({ container, onState = () => {}, world = 'm
   // ---------------- HUD state for the DC page ----------------
   function hud() {
     const p = curP(), mine = me(), seat = seatInfo(), W = CW(), H = CH();
-    const m = NET.api ? members() : [], host = NET.api ? hostId() : null, full = !!NET.api && m.length === 5 && !m.some(x => x.me);
+    const m = NET.api ? members() : [], host = NET.api ? hostId() : null, full = !!NET.api && m.length === 4 && !m.some(x => x.me);
     const bubble = S.say && seat ? headScreen(seat.fox) : null;
     const turnName = p ? p.name : '', myTurn = canThrow(), onSeat = S.mode === 'online' && !!mine && !!seat && seat.fox === mine.fox;
     let hint = ''; if (S.phase === 'play') { if (S.flight || S.dunk) hint = ''; else if (S.mode === 'online' && p && !p.me) hint = p.name + ' IS THROWING' + (S.timer > 0 ? ' · ' + Math.ceil(S.timer) : ''); else hint = (S.mode === 'party' ? p.name + ' · ' : S.mode === 'online' ? 'YOUR THROW · ' + Math.ceil(S.timer) + ' · ' : '') + (touch ? (prefs.aimMode === 'pull' ? 'PULL BACK TO AIM · LET GO TO THROW' : 'DRAG TO AIM · LET GO TO THROW') : 'DRAG OR ARROWS TO AIM · SPACE TO THROW'); }
@@ -469,7 +469,7 @@ export async function createDunkTank({ container, onState = () => {}, world = 'm
   { const rm = /[?&]room=([A-Za-z0-9]{4})/.exec(location.search); if (rm) setTimeout(() => { netOpen(); netJoin(rm[1]); }, 50); }
   return {
     hud, startSolo, nextRound, again, toIntro, passGo, taunt,
-    openParty() { unlock(); S.mode = 'party'; S.phase = 'setup'; S.dirty = true; }, partySet(k, v) { if (k === 'n') S.setup.n = clamp(v, 2, 5); if (k === 'level' && LEVELS[v]) S.setup.level = v; if (k === 'balls' && [3, 5, 8].includes(v)) S.setup.balls = v; S.dirty = true; }, startParty,
+    openParty() { unlock(); S.mode = 'party'; S.phase = 'setup'; S.dirty = true; }, partySet(k, v) { if (k === 'n') S.setup.n = clamp(v, 2, 4); if (k === 'level' && LEVELS[v]) S.setup.level = v; if (k === 'balls' && [3, 5, 8].includes(v)) S.setup.balls = v; S.dirty = true; }, startParty,
     openOnline: netOpen, netJoin, netCreate() { const A2 = 'ABCDEFGHJKMNPQRSTUVWXYZ'; let k = ''; for (let i = 0; i < 4; i++) k += A2[Math.floor(Math.random() * A2.length)]; netJoin(k); }, netCodeType(v) { NET.codeIn = String(v || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4); NET.msg = ''; S.dirty = true; },
     netReady: () => netReadyToggle(), netSet, netShare, netBack, netLeave: () => { netLeave(); toIntro(); },
     toggleSound() { unlock(); prefs.aimSound = !prefs.aimSound; savePrefs(); flash('AIM SOUND ' + (prefs.aimSound ? 'ON' : 'OFF'), '#7dd3fc', 1); S.dirty = true; }, toggleAim() { prefs.aimMode = prefs.aimMode === 'pull' ? 'swipe' : 'pull'; savePrefs(); S.dirty = true; },

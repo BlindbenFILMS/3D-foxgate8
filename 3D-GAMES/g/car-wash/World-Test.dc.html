@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Car Wash World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="position: absolute; inset: 0; overflow: hidden; background: #0b0b0b; font-family: Archivo, 'Helvetica Neue', sans-serif; color: #ffffff">
+<div ref="{{setStage}}" aria-label="Test town with the car wash bays" style="position: absolute; inset: 0"></div>
+<sc-if value="{{showOverlay}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Main" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{closed}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 8px; bottom: 8px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px">
+<span style="background: #000000; border: 2px solid #3a3836; padding: 6px 10px; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: #ffd23a">WORLD TEST TOWN</span>
+<button onClick="{{openGame}}" style="min-height: 48px; padding: 0 14px; text-align: left; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; border-radius: 0; font: 800 14px Archivo, sans-serif; letter-spacing: 0.06em; cursor: pointer">OPEN CAR WASH</button>
+</div>
+</sc-if>
+<sc-if value="{{hasError}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="position: absolute; left: 8px; right: 8px; top: 8px; padding: 12px; background: #000000; border: 2px solid #ec3013; font-size: 13px; color: #d6d3d1">{{errText}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  constructor(...args) {
+    super(...args);
+    this.state = { open: false, closed: false, err: null };
+    this.setStage = (el) => { this.stage = el; };
+    this.api = null;
+    const self = this;
+    /* the fake walker object the world hands the page in overlay mode */
+    this.world = { _carWash: { g: () => self.api, end: () => self.closeGame() } };
+  }
+  componentDidMount() {
+    this.alive = true;
+    const base = document.baseURI;
+    Promise.all([
+      import(new URL('./vendor/three/three.module.js', base).href),
+      import(new URL('./minigames/carwash/carwash.js', base).href)
+    ]).then(([THREE, game]) => {
+      if (!this.alive || !this.stage) return;
+      this.THREE = THREE; this.game = game;
+      this.buildTown();
+      this.openGame();
+    }).catch((e) => { if (this.alive) this.setState({ err: 'World test did not load: ' + ((e && e.message) || e) }); });
+  }
+  componentWillUnmount() {
+    this.alive = false;
+    cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    if (this.api) { this.api.destroy(); this.api = null; }
+    if (this.stage && this.onKey) this.stage.removeEventListener('keydown', this.onKey);
+    if (this.renderer) { this.renderer.dispose(); this.renderer.domElement.remove(); }
+  }
+  buildTown() {
+    const THREE = this.THREE;
+    const r = new THREE.WebGLRenderer({ antialias: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    r.outputColorSpace = THREE.SRGBColorSpace;
+    Object.assign(r.domElement.style, { display: 'block', width: '100%', height: '100%', touchAction: 'none' });
+    this.stage.appendChild(r.domElement);
+    this.stage.tabIndex = 0;
+    this.onKey = (e) => { if (this.api) this.api.key(e); };
+    this.stage.addEventListener('keydown', this.onKey);
+    this.renderer = r;
+    const town = new THREE.Scene();
+    town.background = new THREE.Color(0xa8dcff);
+    town.add(new THREE.HemisphereLight(0xffffff, 0x4a5a40, 1.4));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.7); sun.position.set(12, 20, 6); town.add(sun);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshLambertMaterial({ color: 0x7fb069 }));
+    ground.rotation.x = -Math.PI / 2; town.add(ground);
+    const road = new THREE.Mesh(new THREE.PlaneGeometry(300, 8), new THREE.MeshLambertMaterial({ color: 0x55595f }));
+    road.rotation.x = -Math.PI / 2; road.position.set(0, 0.01, 6); town.add(road);
+    const houseCols = [0xf4f1ea, 0xffd23a, 0x3a86ff, 0xff7ab6, 0x2ec4b6];
+    for (let i = 0; i < 10; i++) {
+      const x = -50 + i * 11, z = i % 2 ? -6 : 18;
+      const h = new THREE.Mesh(new THREE.BoxGeometry(6, 5, 6), new THREE.MeshLambertMaterial({ color: houseCols[i % 5] }));
+      h.position.set(x, 2.5, z); town.add(h);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.6, 3, 4), new THREE.MeshLambertMaterial({ color: 0xec3013 }));
+      roof.position.set(x, 6.5, z); roof.rotation.y = Math.PI / 4; town.add(roof);
+    }
+    const parent = new THREE.Group();
+    parent.position.set(20, 0, -15); parent.rotation.y = 0.9;
+    town.add(parent);
+    this.town = town; this.parent = parent;
+    this.cam = new THREE.PerspectiveCamera(50, 1, 0.1, 600);
+    this.home = { p: new THREE.Vector3(-10, 34, 52), q: new THREE.Quaternion() };
+    this.cam.position.copy(this.home.p); this.cam.lookAt(14, 0, -12);
+    this.home.q.copy(this.cam.quaternion);
+    let last = performance.now();
+    const loop = (now) => {
+      if (!this.alive) return;
+      this.raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const w = this.stage.clientWidth || 1, hh = this.stage.clientHeight || 1;
+      const sz = r.getSize(new THREE.Vector2());
+      if (sz.x !== w || sz.y !== hh) r.setSize(w, hh, false);
+      this.cam.aspect = w / hh; this.cam.updateProjectionMatrix();
+      const k = 1 - Math.exp(-3 * dt);
+      if (this.api) { const c = this.api.camera; this.cam.position.lerp(c.position, k); this.cam.quaternion.slerp(c.quaternion, k); }
+      else { this.cam.position.lerp(this.home.p, k); this.cam.quaternion.slerp(this.home.q, k); }
+      r.render(town, this.cam);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+  openGame() {
+    if (!this.game || this.api) return;
+    this.game.createCarWash({
+      container: this.stage,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:carWash', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.cam, parent: this.parent } }
+    }).then((api) => {
+      if (!this.alive) { api.destroy(); return; }
+      this.api = api;
+      this.setState({ open: true, closed: false });
+    }).catch((e) => this.setState({ err: 'Game did not start: ' + ((e && e.message) || e) }));
+  }
+  closeGame() {
+    if (this.api) { this.api.destroy(); this.api = null; }
+    window.dispatchEvent(new CustomEvent('8g:carWash', { detail: null }));
+    this.setState({ closed: true });
+  }
+  renderVals() {
+    const st = this.state || {};
+    return {
+      setStage: this.setStage,
+      world: this.world,
+      showOverlay: !!st.open,
+      closed: !!st.closed,
+      hasError: !!st.err, errText: st.err || '',
+      openGame: () => this.openGame()
+    };
+  }
+}
+</script>
+</body>
+</html>

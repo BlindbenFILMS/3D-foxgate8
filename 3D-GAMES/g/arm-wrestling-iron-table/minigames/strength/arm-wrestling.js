@@ -4,7 +4,7 @@
 // tired arms push weakly, so burst and breathe. When the rival winds up a SURGE a ring closes on the pad: tap as it lands = COUNTER.
 // First tap right on GRIP! = QUICK START. Best of 3 pins.
 // MODES: LADDER (5 rivals, gold + XP, the belt) · QUICK MATCH (any rival you reached) · 2 PLAYERS · ONE PHONE (a pad each)
-//        · ONLINE · KING OF THE TABLE (up to 5 in a room; winner stays, loser to the back of the line; the rest watch and cheer).
+//        · ONLINE · KING OF THE TABLE (up to 4 in a room; winner stays, loser to the back of the line; the rest watch and cheer).
 // MERGE: createArmWrestling({ container, onState, world }) stands alone; buildRoom(ctx) is split out so a world can drop the
 // table into any existing interior later. No static imports: every shared file is loaded with load(), which finds the repo
 // root next to this file, or the Design canvas's project paths (where files are packed one by one and ../ links break).
@@ -42,6 +42,7 @@ export const RIVALS = [
     hi: 'Nobody has taken this table in nine years.', win: 'Nine years and a day.', lose: 'Take the belt. You earned it.',
     fox: { outfit: 'vest', torso: '#3a3836', look: { fur: '#5b4636', furDark: '#2e2219', muzzle: '#c9a98a', chin: '#e6d5c3', tailMid: '#6b5240', bodyScale: 1.16 }, eyes: ['#ec3013', '#ec3013'], mood: 'stern' } },
 ];
+export const MAX_ROOM = 4;   // King of the Table: 2 wrestle, the rest wait in line (Ben's rule: rooms hold up to 4)
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PURPLE', '#a78bfa']];
 // one table, any building: ?world= picks the room colours and the sign
 export const WORLDS = {
@@ -222,10 +223,10 @@ export async function createArmWrestling({ container, onState = () => {}, world 
   }
 
   // =================================================================================================
-  // ONLINE · KING OF THE TABLE (up to 5). Room = the 5 earliest joiners; host = the earliest joiner runs the bout and sends snapshots.
+  // ONLINE · KING OF THE TABLE (up to 4). Room = the 4 earliest joiners; host = the earliest joiner runs the bout and sends snapshots.
   const NET = { N: null, open: false, st: 'menu', code: '', codeIn: '', status: '', peers: {}, ready: false, j: 0, msg: '', ping: null, tok: 0, seen: {}, q: [], wins: {}, bout: null, boutN: 0, brk: 0, snT: 0, view: {}, copied: false, hostLast: null };
   const netIsHost = () => !!NET.N && netHost() === NET.N.id;
-  function netMembers() { if (!NET.N) return []; const all = [{ id: NET.N.id, j: NET.j, ready: NET.ready, me: true }, ...Object.entries(NET.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
+  function netMembers() { if (!NET.N) return []; const all = [{ id: NET.N.id, j: NET.j, ready: NET.ready, me: true }, ...Object.entries(NET.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, MAX_ROOM); }
   function netHost() { const m = netMembers(); return m.length ? m[0].id : null; }   // the earliest joiner hosts, so a newcomer never takes over mid-bout
   const colOf = id => { const ids = netMembers().map(m => m.id).sort(), k = Math.max(0, ids.indexOf(id)); return NET_COLS[k % NET_COLS.length]; };
   const nameOf = id => !NET.N ? '?' : id === NET.N.id ? 'YOU' : colOf(id)[0];

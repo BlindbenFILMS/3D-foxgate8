@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Washing Up World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#000000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+button{font-family:inherit;border-radius:0;cursor:pointer}
+</style>
+</helmet>
+<div data-town-root="1" ref="{{setRoot}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #9fd9f0; font-family: Archivo, system-ui, sans-serif; color: #ffffff; outline: none">
+<div data-town-stage="1" ref="{{setStage}}" style="position: absolute; inset: 0"></div>
+
+<sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="WashingUp" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+
+<div style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); background: #000000; border: 2px solid #3a3836; padding: 6px 8px; pointer-events: none; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 12px; font-weight: 900; color: #ffd23a; letter-spacing: 0.08em">WORLD TEST</div>
+<div style="font-size: 12px; color: #e8e4df">{{status}}</div>
+</div>
+
+<sc-if value="{{closed}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 50%; bottom: 24px; transform: translateX(-50%); width: calc(100% - 32px); max-width: 360px; background: #000000; border: 2px solid #3a3836; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 20px; font-weight: 900; letter-spacing: 0.04em">BACK IN TOWN</div>
+<div style="font-size: 13px; line-height: 1.4; color: #e8e4df">The game removed its group. The town camera glided home.</div>
+<button onClick="{{reopen}}" style="min-height: 48px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; padding: 0 12px; text-align: left; font-size: 14px; font-weight: 900">WALK UP TO THE SINK</button>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  setRoot = (el) => { if (el) this._root = el; };
+  setStage = (el) => { if (el) this._stage = el; };
+
+  componentDidMount() {
+    this._mounted = true;
+    if (!this._root) this._root = document.querySelector('[data-town-root]');
+    if (!this._stage) this._stage = document.querySelector('[data-town-stage]');
+    this.link = { g: () => this.api, end: () => this.endGame() };
+    this.worldObj = { _dishSink: this.link };
+    if (this._root) {
+      this._root.tabIndex = 0;
+      this._onKey = (e) => { if (this.api && this.api.key(e)) e.preventDefault(); };
+      this._root.addEventListener('keydown', this._onKey);
+    }
+    this.boot();
+  }
+
+  componentWillUnmount() {
+    this._mounted = false;
+    cancelAnimationFrame(this._raf);
+    if (this.api) { try { this.api.destroy(); } catch (e) { /* gone */ } }
+    if (this._root && this._onKey) this._root.removeEventListener('keydown', this._onKey);
+    if (this.renderer) this.renderer.dispose();
+  }
+
+  baseUrl() {
+    const s = document.querySelector('script[src*="support.js"]');
+    try { return new URL('./', s && s.src ? s.src : document.baseURI).href; } catch (e) { return document.baseURI; }
+  }
+
+  async boot() {
+    try {
+      const base = this.baseUrl();
+      const THREE = await import(new URL('vendor/three/three.module.js', base).href);
+      this.mod = await import(new URL('minigames/dishes/dishes.js', base).href);
+      if (!this._mounted) return;
+      this.THREE = THREE;
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+      this._stage.appendChild(renderer.domElement);
+      this.renderer = renderer;
+
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color('#9fd9f0');
+      scene.add(new THREE.HemisphereLight(0xffffff, 0x6b8f5a, 1.4));
+      const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(30, 50, 20); scene.add(sun);
+      const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), lam('#8fd16a')); ground.rotation.x = -Math.PI / 2; scene.add(ground);
+      const road = new THREE.Mesh(new THREE.PlaneGeometry(8, 200), lam('#d9c9a8')); road.rotation.x = -Math.PI / 2; road.position.y = 0.01; scene.add(road);
+      const houses = [[-14, -10, '#f6b73c'], [-14, 12, '#ec3013'], [14, 14, '#3a6fd8'], [-30, -30, '#b07ce8'], [36, 10, '#f6b73c']];
+      for (const [x, z, c] of houses) {
+        const h = new THREE.Mesh(new THREE.BoxGeometry(8, 6, 8), lam('#f4efe6')); h.position.set(x, 3, z); scene.add(h);
+        const r = new THREE.Mesh(new THREE.ConeGeometry(6.6, 4, 4), lam(c)); r.position.set(x, 8, z); r.rotation.y = Math.PI / 4; scene.add(r);
+      }
+      for (let i = 0; i < 14; i++) {
+        const x = Math.cos(i * 2.4) * (40 + i * 3), z = Math.sin(i * 2.4) * (40 + i * 3);
+        const t = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.5, 3), lam('#7a4a2a')); t.position.set(x, 1.5, z); scene.add(t);
+        const f = new THREE.Mesh(new THREE.SphereGeometry(2.4, 10, 8), lam('#3f9a4b')); f.position.set(x, 4.4, z); scene.add(f);
+      }
+      const parent = new THREE.Group(); parent.position.set(20, 0, -15); parent.rotation.y = 0.9; scene.add(parent);
+      const plaza = new THREE.Mesh(new THREE.CircleGeometry(9, 32), lam('#e6ded0')); plaza.rotation.x = -Math.PI / 2; plaza.position.set(20, 0.02, -15); scene.add(plaza);
+
+      const townCam = new THREE.PerspectiveCamera(55, 1, 0.1, 600);
+      this.home = { pos: new THREE.Vector3(2, 26, 34), q: new THREE.Quaternion() };
+      townCam.position.copy(this.home.pos); townCam.lookAt(14, 0, -8);
+      this.home.q.copy(townCam.quaternion);
+      this.scene = scene; this.parent = parent; this.townCam = townCam;
+
+      const loop = () => {
+        if (!this._mounted) return;
+        this._raf = requestAnimationFrame(loop);
+        const el = this._stage;
+        const w = el.clientWidth || 1, h = el.clientHeight || 1;
+        const cv = renderer.domElement;
+        if (cv.width !== Math.round(w * renderer.getPixelRatio()) || cv.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
+        townCam.aspect = w / h;
+        const k = 0.08;
+        if (this.api) {
+          const gc = this.api.camera;
+          townCam.position.lerp(gc.position, k);
+          townCam.quaternion.slerp(gc.quaternion, k);
+          townCam.fov += (gc.fov - townCam.fov) * k;
+        } else {
+          townCam.position.lerp(this.home.pos, k * 0.6);
+          townCam.quaternion.slerp(this.home.q, k * 0.6);
+          townCam.fov += (55 - townCam.fov) * k;
+        }
+        townCam.updateProjectionMatrix();
+        renderer.render(scene, townCam);
+      };
+      loop();
+      await this.openGame();
+    } catch (e) {
+      this.setState({ err: 'World test failed: ' + String((e && e.message) || e) });
+    }
+  }
+
+  async openGame() {
+    this.setState({ open: true, closed: false });
+    this.api = await this.mod.createWashingUp({
+      container: this._stage,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:dishSink', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.townCam, parent: this.parent } }
+    });
+    window.dispatchEvent(new CustomEvent('8g:dishSink', { detail: this.api.hud() }));
+    if (this._root) { try { this._root.focus({ preventScroll: true }); } catch (e) { /* ok */ } }
+    this.setState({ playing: true });
+  }
+
+  endGame() {
+    if (this.api) { this.api.destroy(); this.api = null; }
+    window.dispatchEvent(new CustomEvent('8g:dishSink', { detail: null }));
+    this.setState({ open: false, closed: true, playing: false });
+  }
+
+  renderVals() {
+    const st = this.state || {};
+    return {
+      setRoot: this.setRoot,
+      setStage: this.setStage,
+      open: !!st.open,
+      closed: !!st.closed,
+      world: this.worldObj || null,
+      reopen: () => this.openGame(),
+      status: st.err || (st.playing ? 'Game group at (20, 0, -15), turned 0.9' : st.closed ? 'Game closed' : 'Loading town')
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -221,7 +221,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #ffd23a;outline-offse
   <!-- ===== online ===== -->
   <sc-if value="{{ netOn }}" hint-placeholder-val="{{ false }}">
     <div data-safe="{{ cardSafe }}" style="position:absolute;z-index:12;left:max(12px, env(safe-area-inset-left));bottom:calc(12px + env(safe-area-inset-bottom));width:{{ cardW }};max-height:calc(100% - 24px - env(safe-area-inset-top));overflow-y:auto;background:#000;border:2px solid #7dd3fc;display:flex;flex-direction:column;box-sizing:border-box;pointer-events:auto">
-      <div style="padding:10px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid #3a3836"><span style="display:flex;flex-direction:column;gap:2px"><span style="font:800 10px var(--font-heading);letter-spacing:0.14em;color:#7dd3fc">KING OF THE TABLE · UP TO 5</span><span style="font:900 24px var(--font-heading);line-height:1;white-space:nowrap">Online</span></span><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:{{ netStatC }};white-space:nowrap">{{ netStat }}</span></div>
+      <div style="padding:10px 14px 8px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;border-bottom:2px solid #3a3836"><span style="display:flex;flex-direction:column;gap:2px"><span style="font:800 10px var(--font-heading);letter-spacing:0.14em;color:#7dd3fc">KING OF THE TABLE · UP TO 4</span><span style="font:900 24px var(--font-heading);line-height:1;white-space:nowrap">Online</span></span><span style="font:800 10px var(--font-heading);letter-spacing:0.1em;color:{{ netStatC }};white-space:nowrap">{{ netStat }}</span></div>
       <sc-if value="{{ netCodeOn }}" hint-placeholder-val="{{ false }}">
         <div style="padding:10px 14px;border-bottom:2px solid #3a3836;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px"><div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#8a847e">ROOM</span><span style="font:900 44px var(--font-heading);line-height:1;letter-spacing:0.12em;color:#ffd23a">{{ net.code }}</span></div><button onClick="{{ netShare }}" style="min-height:44px;padding:0 14px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#ffd23a;font:900 12px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left;white-space:nowrap" style-hover="background:#2a2826">{{ netShareTxt }}</button></div>
       </sc-if>
@@ -307,14 +307,14 @@ class Component extends DCLogic {
     const menuRows = [
       { k: 'QUICK MATCH', v: 'ANY RIVAL YOU HAVE REACHED', c: '#cfcac4', bar: '#ffd23a', go: e => { blur(e); this.setState({ sheet: 'rivals' }); } },
       { k: '2 PLAYERS · ONE PHONE', v: 'A PAD EACH · SIT FACING, PHONE FLAT', c: '#38bdf8', bar: '#38bdf8', go: e => { blur(e); g && g.duo(); } },
-      { k: 'ONLINE · KING OF THE TABLE', v: 'UP TO 5 · WINNER STAYS ON', c: '#7dd3fc', bar: '#7dd3fc', go: e => { blur(e); this.setState({ netHidden: false }); g && g.netOpen(); } },
+      { k: 'ONLINE · KING OF THE TABLE', v: 'UP TO 4 · WINNER STAYS ON', c: '#7dd3fc', bar: '#7dd3fc', go: e => { blur(e); this.setState({ netHidden: false }); g && g.netOpen(); } },
       { k: '▶ WATCH THE DEMO', v: 'ONE ROUND PLAYS ITSELF · 30 SECONDS', c: '#ffd23a', bar: '#ec3013', go: e => { blur(e); g && g.demoStart(); } },
       { k: 'HOW TO PLAY', v: 'PUSH · STAMINA · COUNTER · QUICK START', c: '#cfcac4', bar: '#3a3836', go: e => { blur(e); this.setState({ sheet: 'how' }); } }];
     const lad = h.ladder || 0, champ = lad >= 5;
     const statusTxt = !N.on ? (N.st === 'room' ? 'CONNECTING…' : 'NO SERVER NEEDED') : N.full ? 'ROOM FULL' : N.status === 'local' ? 'TEST · SAME DEVICE' : N.status === 'offline' ? 'OFFLINE' : N.status === 'connecting' ? 'CONNECTING…' : (N.count > 1 ? N.count + ' AT THE TABLE' : 'ONLINE') + (N.ping ? ' · ' + N.ping + ' MS' : '');
     const myLine = N.myLine, onTable = h.canTap && online;
-    const netMsg = N.msg || (!N.on ? 'Up to 5 friends at one table. Two wrestle; the winner stays on, the loser goes to the back of the line, everyone else watches and cheers. Make a room and send the link, or type a friend’s code.'
-      : N.full ? 'Five are already at this table. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : N.count < 2 ? 'Waiting for a challenger… Send the link or tell them the code.' : !N.ready ? 'You are sitting out. Tap I’M IN to join the line.' : myLine === 0 || myLine === 1 ? 'You are up next. Get ready to push.' : myLine > 1 ? 'You are #' + (myLine + 1) + ' in line.' : 'The table fills from the line.');
+    const netMsg = N.msg || (!N.on ? 'Up to 4 friends at one table. Two wrestle; the winner stays on, the loser goes to the back of the line, everyone else watches and cheers. Make a room and send the link, or type a friend’s code.'
+      : N.full ? 'Four are already at this table. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : N.count < 2 ? 'Waiting for a challenger… Send the link or tell them the code.' : !N.ready ? 'You are sitting out. Tap I’M IN to join the line.' : myLine === 0 || myLine === 1 ? 'You are up next. Get ready to push.' : myLine > 1 ? 'You are #' + (myLine + 1) + ' in line.' : 'The table fills from the line.');
     return {
       stageRef: this.stageRef, rootRef: this.rootRef, h, net: N, res, loadErr: S.err, retry: e => { blur(e); this.boot(); },
       // bout HUD
@@ -325,7 +325,7 @@ class Component extends DCLogic {
       roundTxt: 'ROUND ' + h.round, tlTxt: String(h.tl), tlCol: h.tl <= 5 ? '#ff9a8a' : '#ffffff',
       meterX: pct(0.5 + h.a * 0.5), meterL: pct(0.5 + h.a * 0.5), meterR: pct(0.5 - h.a * 0.5),
       stLw: pct(h.st[0]), stLc: stc(h.st[0]), stRw: pct(h.st[1]), stRc: stc(h.st[1]),
-      queueOn: online && N.queue.length > 2, queue: N.queue.slice(0, 5).map(q => ({ ...q, fg: q.me ? '#ffd23a' : '#ffffff' })),
+      queueOn: online && N.queue.length > 2, queue: N.queue.slice(0, 4).map(q => ({ ...q, fg: q.me ? '#ffd23a' : '#ffffff' })),
       // pads
       padOn: live && ph !== 'break' && h.canTap, padSafe: port ? 'bottom' : 'right', padL: port ? 'max(12px, env(safe-area-inset-left))' : 'auto', padR: 'max(12px, env(safe-area-inset-right))', padB: 'calc(12px + env(safe-area-inset-bottom))', padW, padH,
       padBg: h.surge && h.surge.hot ? '#14532d' : '#000000', padBd: h.surge ? (h.surge.hot ? '#22c55e' : '#ec3013') : '#ffd23a', padFg: h.surge && h.surge.hot ? '#86efac' : '#ffffff',

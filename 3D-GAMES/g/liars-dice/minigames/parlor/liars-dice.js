@@ -1,6 +1,6 @@
 // 8 GATES — LIAR'S DICE [liarsDice]. Minigame #8 (CARDS & DICE). Leather dice cups on a lamp-lit tavern table that fits any building on any world.
 // Rules live in liars-dice-rules.js (pure, tested). This file is the 3D table (cups, dice, bid slate, foxes), sound, CPU timing, demo and online sync.
-// Modes: VS FOXES (1–5 CPU foxes) · PASS & PLAY (2–6 on one phone, a cover screen hides each player's dice) · ONLINE (2–6, host-run, dice stay secret) · DEMO.
+// Modes: VS FOXES (1–5 CPU foxes) · PASS & PLAY (2–5 on one phone, a cover screen hides each player's dice) · ONLINE (2–5, host-run, dice stay secret) · DEMO.
 // MERGE: createLiarsDice({ container, onState, theme, music }) stands alone; it only needs vendor/three, fox-kit.js, engine/cast.js, engine/textures.js,
 // engine/save.js, engine/bake.js. Save keys all start 'liarsDice.'.
 import * as THREE from '../../vendor/three/three.module.js';
@@ -13,7 +13,7 @@ import { makeAudio } from './liars-dice-audio.js';
 import * as R from './liars-dice-rules.js';
 export * from './liars-dice-rules.js';
 
-export const LIARS_DICE = { name: "LIAR'S DICE", room: 'liarsDice', key: 'liarsDice', maxPlayers: 6, number: 8 };
+export const LIARS_DICE = { name: "LIAR'S DICE", room: 'liarsDice', key: 'liarsDice', maxPlayers: 5, number: 8 };
 export const SK = k => 'liarsDice.' + k;
 export const COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['VIOLET', '#a78bfa'], ['PINK', '#f472b6']];
 // DRAFT for Ben: gold + XP
@@ -343,9 +343,9 @@ export async function createLiarsDice({ container, onState = () => {}, theme = '
   const api = {
     hud, input, isAuth, get state() { return G; }, _dbg: { scene, camera, renderer, SAFE },
     setSafe(top, bottom, left = 0, right = 0) { if ([top - SAFE.top, bottom - SAFE.bottom, left - SAFE.left, right - SAFE.right].some(v => Math.abs(v) > 2)) { Object.assign(SAFE, { top, bottom, left, right }); fitCam(); } },
-    // offline: mode 'cpu' (n = CPU foxes 1–5) | 'local' (n = players 2–6). opts: { wild, spot, start }
+    // offline: mode 'cpu' (n = CPU foxes 1–5) | 'local' (n = players 2–5). opts: { wild, spot, start }
     start({ mode = 'cpu', n = 2, opts = {}, cpus } = {}) { sfx.on(); api.netEnd(true); demo = null; demoTok++; let players;
-      if (mode === 'local') players = Array.from({ length: clamp(n, 2, 6) }, (_, i) => ({ name: COLS[i][0], col: COLS[i][1], kind: 'local' }));
+      if (mode === 'local') players = Array.from({ length: clamp(n, 2, 5) }, (_, i) => ({ name: COLS[i][0], col: COLS[i][1], kind: 'local' }));
       else { players = [{ name: 'YOU', col: COLS[0][1], kind: 'me' }]; const ks = (cpus && cpus.length ? cpus : CPUS.map(c => c.key)).slice(0, clamp(n, 1, 5)); ks.forEach((k, i) => players.push({ name: CPUS.find(c => c.key === k).name, col: COLS[i + 1][1], kind: 'cpu', cpu: k })); }
       resetReveal(); const prev = G; G = R.newMatch({ players, opts, mode }); endGold = 0; endNote = ''; changed(prev); },
     rematch() { if (!G || net) return; api.start({ mode: G.mode, n: G.mode === 'local' ? G.players.length : G.players.length - 1, opts: G.opts, cpus: G.players.filter(p => p.cpu).map(p => p.cpu) }); },

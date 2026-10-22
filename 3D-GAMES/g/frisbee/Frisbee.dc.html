@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frisbee</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.fz{position:relative;width:100%;height:100vh;overflow:hidden;font-family:Archivo,'Arial Narrow',sans-serif;color:#fff;background:#000;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.fz.ov{position:absolute;inset:0;height:auto;background:transparent;pointer-events:none}
+.stage{position:absolute;inset:0;touch-action:none}
+.fz.ov .stage{display:none}
+.panel{background:#000;pointer-events:auto}
+.top{position:absolute;left:0;right:0;top:0;display:flex;flex-wrap:wrap;border-bottom:2px solid #3a3836;padding-top:env(safe-area-inset-top)}
+.btn{min-height:44px;min-width:44px;margin:0;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;text-align:left;gap:8px;background:#000;color:#fff;border:0;border-right:2px solid #3a3836;border-radius:0;font-family:inherit;font-weight:800;font-size:13px;letter-spacing:.08em;text-transform:uppercase;cursor:pointer}
+.btn:focus-visible{outline:3px solid #ffd23a;outline-offset:-3px}
+.btn.red{background:#ec3013;color:#fff;border-right:0}
+.btn.sel{background:#ffd23a;color:#000}
+.btn.wide{width:100%;border-right:0;border-top:2px solid #3a3836}
+.btn .k{font-size:12px;opacity:.7;font-weight:600}
+.spacer{flex:1 1 auto}
+.board{order:5;flex:1 1 100%;display:flex;align-items:stretch;border-top:2px solid #3a3836;min-height:52px}
+.team{flex:1 1 0;display:flex;align-items:center;gap:10px;padding:6px 12px;min-width:0}
+.team.r{justify-content:flex-end;text-align:right}
+.chip{width:14px;height:14px;flex:0 0 14px}
+.tn{font-size:13px;font-weight:800;letter-spacing:.06em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ts{font-size:30px;font-weight:900;line-height:1}
+.mid{flex:0 0 auto;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;gap:4px;padding:6px 12px;border-left:2px solid #3a3836;border-right:2px solid #3a3836}
+.lbl{font-size:12px;font-weight:600;letter-spacing:.1em;color:#bdb8b2}
+.pips{display:flex;gap:3px}
+.pip{width:9px;height:12px;background:#2a2826}
+.pip.on{background:#ffd23a}
+.pip.hot{background:#ec3013}
+.bottom{position:absolute;left:0;right:0;bottom:0;border-top:2px solid #3a3836;display:flex;flex-direction:column;padding-bottom:env(safe-area-inset-bottom)}
+.msg{padding:10px 14px;font-size:15px;font-weight:800;letter-spacing:.03em;line-height:1.25;min-height:20px}
+.cap{padding:0 14px 10px;font-size:14px;font-weight:600;line-height:1.3;color:#ffd23a}
+.ctrls{display:flex;border-top:2px solid #3a3836}
+.ctrls .btn{flex:1 1 0;min-height:52px}
+.ctrls .btn:last-child{border-right:0}
+.hint{position:absolute;pointer-events:none;display:flex;flex-direction:column;align-items:flex-start;transform:translate(-8px,-6px)}
+.hand{animation:fzhand 1.1s ease-in-out infinite}
+.hint .ht{margin-top:2px;background:#000;color:#ffd23a;font-size:12px;font-weight:800;letter-spacing:.08em;padding:4px 8px;border:2px solid #ffd23a}
+@keyframes fzhand{0%,100%{transform:translate(0,0)}50%{transform:translate(0,-14px)}}
+.modal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;pointer-events:auto}
+.card{width:100%;max-width:440px;max-height:100%;overflow:auto;background:#000;border:2px solid #3a3836;display:flex;flex-direction:column}
+.ch{display:flex;align-items:stretch;border-bottom:2px solid #3a3836}
+.ct{flex:1;padding:12px 14px;font-size:20px;font-weight:900;letter-spacing:.06em;display:flex;align-items:center}
+.sec{padding:10px 14px 4px;font-size:12px;font-weight:600;letter-spacing:.12em;color:#bdb8b2}
+.opts{display:flex;flex-wrap:wrap;border-top:2px solid #3a3836;border-bottom:2px solid #3a3836}
+.opts .btn{flex:1 1 0}
+.opts .btn:last-child{border-right:0}
+.rules{padding:6px 14px 12px;margin:0;font-size:14px;line-height:1.45;list-style:none}
+.rules li{padding:3px 0}
+.big{padding:16px 14px 4px;font-size:44px;font-weight:900;line-height:1}
+.stat{display:flex;justify-content:space-between;padding:8px 14px;border-top:2px solid #3a3836;font-size:15px;font-weight:800}
+.stat span:first-child{color:#bdb8b2;font-weight:600;letter-spacing:.08em;font-size:13px}
+.stars{display:flex;gap:6px;padding:8px 14px 12px}
+.note{padding:12px 14px;font-size:14px;line-height:1.45}
+.err{position:absolute;left:16px;right:16px;top:40%;padding:14px;background:#000;border:2px solid #ec3013;font-size:14px;pointer-events:auto}
+@media (orientation:landscape) and (max-height:560px){
+  .board{order:2;flex:1 1 auto;border-top:0;min-height:44px}
+  .board .ts{font-size:24px}
+  .top .red{order:3}
+  .bottom{flex-direction:row;flex-wrap:wrap;align-items:stretch}
+  .msg{flex:1 1 240px;align-self:center;padding:8px 14px}
+  .cap{flex:1 1 100%;order:3;padding:0 14px 8px}
+  .ctrls{flex:0 0 auto;border-top:0;border-left:2px solid #3a3836}
+  .ctrls .btn{flex:0 0 auto;min-height:48px;min-width:88px}
+}
+</style>
+</helmet>
+<div class="fz {{rootCls}}" ref="{{setRoot}}">
+<div class="stage" ref="{{setStage}}" data-frisbee-stage="1"></div>
+
+<sc-if value="{{hasHud}}" hint-placeholder-val="{{ true }}">
+<div class="panel top" data-safe="top">
+<button type="button" class="btn" onClick="{{openMenu}}">MENU</button>
+<button type="button" class="btn" onClick="{{openInvite}}">INVITE FRIEND</button>
+<div class="spacer"></div>
+<button type="button" class="btn red" onClick="{{back}}">BACK</button>
+<div class="board">
+<div class="team">
+<div class="chip" style="background: {{t0Color}}"></div>
+<div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<div class="tn">{{t0Name}}</div>
+<div class="ts">{{t0Score}}</div>
+</div>
+</div>
+<div class="mid">
+<div class="lbl">{{firstToText}}</div>
+<sc-if value="{{showStall}}" hint-placeholder-val="{{ true }}">
+<div class="lbl">{{stallText}}</div>
+<div class="pips">
+<sc-for list="{{pips}}" as="p" hint-placeholder-count="8"><div class="{{p.cls}}"></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{noStall}}" hint-placeholder-val="{{ false }}">
+<div class="lbl">{{phaseLabel}}</div>
+</sc-if>
+</div>
+<div class="team r">
+<div style="display: flex; flex-direction: column; gap: 2px; align-items: flex-end; min-width: 0">
+<div class="tn">{{t1Name}}</div>
+<div class="ts">{{t1Score}}</div>
+</div>
+<div class="chip" style="background: {{t1Color}}"></div>
+</div>
+</div>
+</div>
+
+<div class="panel bottom" data-safe="bottom">
+<div class="msg" aria-live="polite">{{msg}}</div>
+<sc-if value="{{hasCaption}}" hint-placeholder-val="{{ false }}">
+<div class="cap">{{caption}}</div>
+</sc-if>
+<sc-if value="{{showCtrls}}" hint-placeholder-val="{{ true }}">
+<div class="ctrls">
+<sc-if value="{{canAim}}" hint-placeholder-val="{{ true }}">
+<sc-for list="{{throwBtns}}" as="t" hint-placeholder-count="3">
+<button type="button" class="{{t.cls}}" onClick="{{t.pick}}"><span class="k">{{t.n}}</span>{{t.label}}</button>
+</sc-for>
+</sc-if>
+<sc-if value="{{humanDef}}" hint-placeholder-val="{{ false }}">
+<button type="button" class="btn" onClick="{{switchFox}}"><span class="k">Q</span>{{switchLabel}}</button>
+</sc-if>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{showHint}}" hint-placeholder-val="{{ false }}">
+<div class="hint" style="left: {{hintX}}px; top: {{hintY}}px">
+<svg class="hand" width="44" height="44" viewBox="0 0 24 24" fill="#ffd23a" stroke="#000000" stroke-width="1.4" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V4.5a1.5 1.5 0 0 1 3 0V10l.5-.1V8.5a1.5 1.5 0 0 1 3 0v2l.4-.1a1.5 1.5 0 0 1 2.6 1V15c0 3.3-2.2 6-5.5 6h-1.5c-1.8 0-3.2-.8-4.2-2.2L4.6 14.5a1.5 1.5 0 0 1 2.3-1.9L9 14.5z"></path></svg>
+<div class="ht">{{hintText}}</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{showMenu}}" hint-placeholder-val="{{ false }}">
+<div class="modal">
+<div class="card" role="dialog" aria-label="Menu">
+<div class="ch"><div class="ct">MENU</div><button type="button" class="btn" style="border-right: 0; border-left: 2px solid #3a3836" onClick="{{closeMenu}}">CLOSE</button></div>
+<div class="sec">MODE</div>
+<div class="opts">
+<sc-for list="{{modeBtns}}" as="m" hint-placeholder-count="3"><button type="button" class="{{m.cls}}" onClick="{{m.pick}}">{{m.label}}</button></sc-for>
+</div>
+<div class="sec">OPPONENT</div>
+<div class="opts">
+<sc-for list="{{levelBtns}}" as="l" hint-placeholder-count="3"><button type="button" class="{{l.cls}}" style="flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; padding: 8px 14px" onClick="{{l.pick}}"><span>{{l.label}}</span><span class="k">{{l.sub}}</span></button></sc-for>
+</div>
+<div class="sec">POINTS TO WIN</div>
+<div class="opts">
+<sc-for list="{{pointBtns}}" as="p" hint-placeholder-count="3"><button type="button" class="{{p.cls}}" onClick="{{p.pick}}">{{p.label}}</button></sc-for>
+</div>
+<div class="sec">AUDIO</div>
+<div class="opts">
+<button type="button" class="{{soundCls}}" onClick="{{toggleSound}}">{{soundText}}</button>
+<button type="button" class="{{musicCls}}" onClick="{{toggleMusic}}">{{musicText}}</button>
+</div>
+<div class="sec">RULES</div>
+<ul class="rules">
+<li>Two foxes per team. Catch the disc inside the far end zone to score.</li>
+<li>The holder cannot run. Throw within 8 seconds or lose the disc.</li>
+<li>Drag to aim, let go to throw. Yellow ring: good throw. Red: risky.</li>
+<li>FLAT is fast. CURVE bends around the mark. LOB floats over defenders.</li>
+<li>A drop, block or out of bounds gives the disc to the other team.</li>
+<li>On defense, tap to run. Tap near a flying disc to dive.</li>
+<li>Keys: arrows aim or run, space throws, 1 2 3 throw type, Q switch.</li>
+</ul>
+<div class="stat"><span>GOLD</span><span>{{goldTotal}}</span></div>
+<button type="button" class="btn wide" onClick="{{restart}}">RESTART</button>
+<button type="button" class="btn wide red" onClick="{{back}}">LEAVE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showInvite}}" hint-placeholder-val="{{ false }}">
+<div class="modal">
+<div class="card" role="dialog" aria-label="Invite friend">
+<div class="ch"><div class="ct">INVITE FRIEND</div><button type="button" class="btn" style="border-right: 0; border-left: 2px solid #3a3836" onClick="{{closeInvite}}">CLOSE</button></div>
+<div class="note">Online rooms are coming soon. For now, play a friend on this screen.</div>
+<button type="button" class="btn wide" onClick="{{startLocal}}">PLAY PASS &amp; PLAY</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showResult}}" hint-placeholder-val="{{ false }}">
+<div class="modal">
+<div class="card" role="dialog" aria-label="Result">
+<div class="ch"><div class="ct">{{resTitle}}</div></div>
+<div class="big">{{resScore}}</div>
+<div class="stars">
+<sc-for list="{{resStars}}" as="s" hint-placeholder-count="3">
+<svg width="30" height="30" viewBox="0 0 24 24" fill="{{s.fill}}" stroke="#ffd23a" stroke-width="2" stroke-linejoin="miter" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6-4.9-4.6 6.6-.8z"></path></svg>
+</sc-for>
+</div>
+<div class="stat"><span>BEST</span><span>{{resBest}}</span></div>
+<div class="stat"><span>GOLD WON</span><span>{{resGold}}</span></div>
+<div class="stat"><span>XP</span><span>{{resXp}}</span></div>
+<button type="button" class="btn wide" onClick="{{playAgain}}">PLAY AGAIN</button>
+<button type="button" class="btn wide red" onClick="{{back}}">BACK</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showLeft}}" hint-placeholder-val="{{ false }}">
+<div class="modal" style="background: #000000">
+<div class="card" role="dialog" aria-label="Left the field">
+<div class="ch"><div class="ct">YOU LEFT THE FIELD</div></div>
+<div class="note">The game is closed. In the 8 GATES world, BACK returns you to town.</div>
+<button type="button" class="btn wide" onClick="{{reopen}}">RETURN TO THE FIELD</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+<div class="err">Could not load the game module: {{err}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"default":null},"moduleUrl":{"editor":null,"default":"./minigames/frisbee/frisbee.js"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { h: null, menu: false, invite: false, left: false, err: '' };
+    this._root = null; this._stage = null; this._api = null; this._safeKey = ''; this._menuReq = null;
+    this.setRoot = (el) => { this._root = el; };
+    this.setStage = (el) => { this._stage = el; };
+    this._onEv = (e) => this.onHud(e ? e.detail : null);
+  }
+  componentDidMount() {
+    if (!this._root) this._root = document.querySelector('.fz');
+    if (!this._stage) this._stage = document.querySelector('[data-frisbee-stage]');
+    if (this.props.world) {
+      window.addEventListener('8g:frisbeeField', this._onEv);
+      const g = this.api();
+      if (g) { try { this.onHud(g.hud()); } catch (e) { /* not ready */ } }
+    } else {
+      this.boot();
+    }
+    this._onResize = () => this.measure();
+    window.addEventListener('resize', this._onResize);
+  }
+  componentWillUnmount() {
+    window.removeEventListener('8g:frisbeeField', this._onEv);
+    window.removeEventListener('resize', this._onResize);
+    if (!this.props.world && this._api) { try { this._api.destroy(); } catch (e) { /* gone */ } this._api = null; }
+  }
+  componentDidUpdate() { this.measure(); }
+  async boot() {
+    try {
+      const url = new URL(this.props.moduleUrl || './minigames/frisbee/frisbee.js', document.baseURI).href;
+      const m = await import(url);
+      this._api = await m.createFrisbee({ container: this._stage, onState: (h) => this.onHud(h), opts: {} });
+      this.setState({ left: false, err: '' });
+      this.measure();
+    } catch (e) {
+      this.setState({ err: String((e && e.message) || e) });
+    }
+  }
+  api() {
+    if (this.props.world) {
+      const w = this.props.world._frisbeeField;
+      return w && typeof w.g === 'function' ? w.g() : null;
+    }
+    return this._api;
+  }
+  call(name, ...args) { const a = this.api(); if (a && typeof a[name] === 'function') { try { return a[name](...args); } catch (e) { console.error(e); } } return undefined; }
+  onHud(h) {
+    if (!h) { this.setState({ h: null, menu: false, invite: false }); return; }
+    if (this._menuReq !== null && h.menuReq !== this._menuReq) { this._menuReq = h.menuReq; this.setMenu(!this.state.menu); }
+    this._menuReq = h.menuReq;
+    this.setState({ h });
+  }
+  measure() {
+    const a = this.api(), root = this._root;
+    if (!a || !root) return;
+    const rr = root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const k = el.getAttribute('data-safe');
+      if (k === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      else if (k === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      else if (k === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      else if (k === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    for (const k in s) s[k] = Math.round(s[k]);
+    const key = JSON.stringify(s);
+    if (key !== this._safeKey) { this._safeKey = key; this.call('setSafe', s); }
+  }
+  setMenu(open) { this.setState({ menu: open, invite: false }); this.call('pause', open); }
+  back() {
+    this.setState({ menu: false, invite: false });
+    if (this.props.world) {
+      const w = this.props.world._frisbeeField;
+      if (w && typeof w.end === 'function') w.end();
+      return;
+    }
+    if (this._api) { try { this._api.destroy(); } catch (e) { /* gone */ } this._api = null; }
+    this._safeKey = '';
+    this.setState({ h: null, left: true });
+  }
+  renderVals() {
+    const h = this.state.h;
+    const has = !!h;
+    const T = has ? h.teams : [{ name: 'YOU', color: '#ec3013' }, { name: 'HOPE', color: '#2f6bff' }];
+    const stall = has ? h.stall : 0;
+    const pips = [];
+    for (let i = 0; i < 8; i++) pips.push({ cls: 'pip' + (i < stall ? (stall >= 6 ? ' hot' : ' on') : '') });
+    const canAim = has && h.canAim;
+    const humanDef = has && h.humanDef;
+    const tt = has ? h.throwType : 'flat';
+    const throwBtns = (has ? h.throws : [{ key: 'flat', label: 'FLAT' }, { key: 'curve', label: 'CURVE' }, { key: 'lob', label: 'LOB' }]).map((t, i) => ({
+      n: String(i + 1), label: t.label, cls: 'btn' + (t.key === tt ? ' sel' : ''), pick: () => this.call('setThrow', t.key),
+    }));
+    const mode = has ? h.mode : 'cpu';
+    const modeBtns = [['cpu', 'VS CPU'], ['local', 'PASS & PLAY'], ['demo', 'DEMO']].map(([k, label]) => ({
+      label, cls: 'btn' + (k === mode ? ' sel' : ''), pick: () => { this.call('start', k); this.setMenu(false); },
+    }));
+    const stars = has && h.stars ? h.stars : [0, 0, 0];
+    const levelBtns = (has ? h.levels : [{ name: 'PIP', title: 'ROOKIE' }, { name: 'HOPE', title: 'CLUB' }, { name: 'NOBLE', title: 'MASTER' }]).map((l, i) => ({
+      label: l.name, sub: l.title + ' · ' + (stars[i] || 0) + '/3 STARS', cls: 'btn' + (has && h.level === i ? ' sel' : ''),
+      pick: () => { this.call('setLevel', i); this.setMenu(false); },
+    }));
+    const pointBtns = [3, 5, 7].map((n) => ({ label: String(n), cls: 'btn' + (has && h.firstTo === n ? ' sel' : ''), pick: () => { this.call('setFirstTo', n); this.setMenu(false); } }));
+    const r = has ? h.result : null;
+    const showResult = !!(r && h.phase === 'over' && !r.demo && !this.state.menu);
+    const resStars = [0, 1, 2].map((i) => ({ fill: r && i < r.stars ? '#ffd23a' : 'none' }));
+    const hint = has && h.hint ? h.hint : { show: false };
+    const phaseLabel = !has ? '' : h.phase === 'flight' ? 'IN THE AIR' : h.phase === 'loose' ? 'TURNOVER' : h.phase === 'point' ? 'POINT' : h.phase === 'over' ? 'FULL TIME' : h.phase === 'ready' ? 'READY' : '';
+    return {
+      rootCls: this.props.world ? 'ov' : '',
+      setRoot: this.setRoot, setStage: this.setStage,
+      hasHud: has && !this.state.left,
+      t0Name: T[0].name, t1Name: T[1].name, t0Color: T[0].color, t1Color: T[1].color,
+      t0Score: has ? h.score[0] : 0, t1Score: has ? h.score[1] : 0,
+      firstTo: has ? h.firstTo : 5,
+      showStall: has && h.showStall, noStall: !(has && h.showStall), stall, pips, phaseLabel,
+      msg: has ? h.msg : '', caption: has ? h.caption : '', hasCaption: !!(has && h.caption),
+      showCtrls: canAim || humanDef, canAim, humanDef, throwBtns, ctrlName: has ? h.ctrlName : '',
+      switchFox: () => this.call('switchFox'),
+      showHint: !!(hint.show && !this.state.menu && !showResult), hintX: hint.x || 0, hintY: hint.y || 0, hintText: hint.text || '',
+      openMenu: () => this.setMenu(true), closeMenu: () => this.setMenu(false),
+      openInvite: () => { this.setState({ invite: true, menu: false }); this.call('pause', true); },
+      closeInvite: () => { this.setState({ invite: false }); this.call('pause', false); },
+      startLocal: () => { this.setState({ invite: false }); this.call('pause', false); this.call('start', 'local'); },
+      showMenu: this.state.menu && has, showInvite: this.state.invite && has,
+      modeBtns, levelBtns, pointBtns,
+      soundCls: 'btn' + (has && h.sound ? ' sel' : ''), musicCls: 'btn' + (has && h.music ? ' sel' : ''),
+      soundText: 'SOUND ' + (has && h.sound ? 'ON' : 'OFF'), musicText: 'MUSIC ' + (has && h.music ? 'ON' : 'OFF'),
+      switchLabel: 'SWITCH FOX: ' + (has ? h.ctrlName : ''), firstToText: 'FIRST TO ' + (has ? h.firstTo : 5), stallText: 'STALL ' + stall + ' OF 8',
+      toggleSound: () => this.call('setSound', !(h && h.sound)), toggleMusic: () => this.call('setMusic', !(h && h.music)),
+      goldTotal: has ? String(h.gold || 0) : '0',
+      restart: () => { this.call('restart'); this.setMenu(false); },
+      back: () => this.back(),
+      showResult, resTitle: r ? r.title : '', resScore: r ? r.score : '', resStars,
+      resBest: r ? r.best || '-' : '', resGold: r ? '+' + r.gold : '', resXp: r ? '+' + r.xp : '',
+      playAgain: () => this.call('playAgain'),
+      showLeft: this.state.left && !this.props.world, reopen: () => this.boot(),
+      hasErr: !!this.state.err, err: this.state.err,
+    };
+  }
+}
+</script>
+</body>
+</html>

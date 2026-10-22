@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Orchard</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.ob{appearance:none;-webkit-appearance:none;border:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:800 13px/1 Archivo,Arial,sans-serif;letter-spacing:.03em;min-height:48px;padding:0 10px;display:flex;align-items:center;justify-content:flex-start;text-align:left;cursor:pointer;gap:8px}
+.ob:hover{border-color:#ffd23a}
+.ob:focus-visible{outline:3px solid #ffd23a;outline-offset:1px}
+.ob-red{background:#ec3013;border-color:#ec3013}
+.ob-red:hover{border-color:#ffffff}
+.ob-yel{background:#ffd23a;border-color:#ffd23a;color:#000}
+.ob-yel:hover{border-color:#ffffff}
+.lbl{font:600 12px/1.2 Archivo,Arial,sans-serif;letter-spacing:.08em;color:#c9c5bf;text-transform:uppercase}
+@keyframes obBob{0%,100%{transform:translateY(0)}50%{transform:translateY(10px)}}
+@keyframes obPop{0%{transform:scale(1.6);opacity:0}30%{transform:scale(1);opacity:1}100%{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div ref="{{setRoot}}" data-root="1" style="position: relative; width: 100%; height: 100vh; min-height: 360px; overflow: hidden; background: {{rootBg}}; pointer-events: {{rootPe}}; font-family: Archivo, Arial, sans-serif; color: #ffffff; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent">
+
+<sc-if value="{{standalone}}" hint-placeholder-val="{{ true }}">
+<div ref="{{setStage}}" data-stage="1" style="position: absolute; inset: 0; background: #8fd3ef"></div>
+</sc-if>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; top: 45%; display: flex; flex-direction: column; gap: 8px; pointer-events: auto">
+<div style="font-size: 28px; font-weight: 900; letter-spacing: .02em">ORCHARD</div>
+<div class="lbl">{{loadText}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{show}}" hint-placeholder-val="{{ true }}">
+
+<!-- TOP: timer + scores -->
+<div data-safe="top" style="position: absolute; left: 0; right: 0; top: 0; pointer-events: auto">
+<div style="background: #000000; border-bottom: 2px solid #3a3836; display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; padding: 8px 12px; box-sizing: border-box">
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 2px; min-width: 64px; padding-right: 10px; border-right: 2px solid #3a3836">
+<div class="lbl">{{timeLabel}}</div>
+<div style="font-size: 30px; font-weight: 900; line-height: 1; color: {{timeColor}}; font-variant-numeric: tabular-nums">{{timeText}}</div>
+</div>
+<sc-for list="{{players}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; justify-content: center; gap: 4px; min-width: 72px; padding: 4px 8px; border: 2px solid {{p.border}}; opacity: {{p.op}}">
+<div style="display: flex; align-items: center; gap: 6px">
+<div style="width: 10px; height: 10px; background: {{p.color}}"></div>
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .06em">{{p.name}}</div>
+</div>
+<div style="display: flex; align-items: baseline; gap: 6px">
+<div style="font-size: 22px; font-weight: 900; line-height: 1; font-variant-numeric: tabular-nums">{{p.score}}</div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a">{{p.streak}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{hasMsg}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; top: calc(100% + 8px); display: flex; pointer-events: none">
+<div style="background: #000000; border: 2px solid #ffd23a; color: #ffffff; font-size: 14px; font-weight: 800; letter-spacing: .04em; padding: 8px 12px; max-width: 360px">{{msg}}</div>
+</div>
+</sc-if>
+</div>
+
+<!-- BOTTOM: the three buttons + shake -->
+<div data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 6; pointer-events: auto">
+<sc-if value="{{hasCaption}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; bottom: calc(100% + 8px); display: flex; pointer-events: none">
+<div style="background: #000000; border: 2px solid #3a3836; padding: 10px 12px; max-width: 420px; display: flex; flex-direction: column; gap: 4px">
+<div class="lbl" style="color: #ffd23a">DEMO</div>
+<div style="font-size: 15px; font-weight: 600; line-height: 1.35">{{caption}}</div>
+</div>
+</div>
+</sc-if>
+<div style="background: #000000; border-top: 2px solid #3a3836; display: flex; flex-wrap: wrap; gap: 6px; padding: 8px; box-sizing: border-box; align-items: center">
+<button type="button" class="ob" onClick="{{openMenu}}">MENU</button>
+<button type="button" class="ob" onClick="{{openInvite}}">INVITE FRIEND</button>
+<div style="flex: 1 1 0px; min-width: 0"></div>
+<sc-if value="{{canShake}}" hint-placeholder-val="{{ true }}">
+<button type="button" class="{{shakeClass}}" onClick="{{doShake}}" aria-label="Shake the nearest tree">SHAKE</button>
+</sc-if>
+<button type="button" class="ob ob-red" onClick="{{doBack}}">BACK</button>
+</div>
+</div>
+
+<!-- countdown -->
+<sc-if value="{{hasCount}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none">
+<div style="background: #000000; border: 2px solid #ffd23a; min-width: 96px; padding: 10px 18px; display: flex; flex-direction: column; gap: 2px">
+<div class="lbl">GET READY</div>
+<div style="font-size: 64px; font-weight: 900; line-height: 1; color: #ffd23a">{{count}}</div>
+</div>
+</div>
+</sc-if>
+
+<!-- hint hand -->
+<sc-if value="{{hasHint}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: {{hintX}}px; top: {{hintY}}px; width: 44px; height: 52px; pointer-events: none; animation: obBob 0.9s ease-in-out infinite">
+<svg width="44" height="52" viewBox="0 0 44 52" aria-hidden="true"><path d="M16 4 a4 4 0 0 1 8 0 v16 l9 1.5 a4 4 0 0 1 3.4 4.8 l-2.6 13.2 a6 6 0 0 1 -5.9 4.9 h-11.4 a6 6 0 0 1 -5.1 -2.8 l-7.2 -11.6 a3.4 3.4 0 0 1 5.6 -3.9 l4.2 5 z" fill="#ffffff" stroke="#1a1626" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+</div>
+</sc-if>
+
+<!-- MENU card -->
+<sc-if value="{{cardMenu}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 12px 12px 76px; box-sizing: border-box; z-index: 5; pointer-events: auto">
+<div role="dialog" aria-label="Menu" style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; box-sizing: border-box; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="font-size: 24px; font-weight: 900; flex: 1 1 auto">MENU</div>
+<button type="button" class="ob ob-yel" onClick="{{closeCard}}">RESUME</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lbl">MODE</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{modeOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" class="ob" onClick="{{o.pick}}" style="background: {{o.bg}}; color: {{o.fg}}; border-color: {{o.bd}}; font-size: 12px; padding: 0 8px">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{isCpuPend}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lbl">OPPONENT</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{levelOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" class="ob" onClick="{{o.pick}}" style="background: {{o.bg}}; color: {{o.fg}}; border-color: {{o.bd}}; flex-direction: column; align-items: flex-start; justify-content: center; gap: 3px; padding: 6px 8px; font-size: 13px">{{o.label}}<span style="font-size: 12px; font-weight: 600; opacity: 0.8">{{o.sub}}</span></button>
+</sc-for>
+</div>
+<div class="lbl">RIVAL FOXES</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{rivalOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" class="ob" onClick="{{o.pick}}" style="background: {{o.bg}}; color: {{o.fg}}; border-color: {{o.bd}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{isLocalPend}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lbl">PLAYERS ON THIS DEVICE</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{playerOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" class="ob" onClick="{{o.pick}}" style="background: {{o.bg}}; color: {{o.fg}}; border-color: {{o.bd}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<button type="button" class="ob ob-yel" onClick="{{newGame}}">START NEW GAME</button>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button type="button" class="ob" onClick="{{toggleSound}}">{{soundLabel}}</button>
+<button type="button" class="ob" onClick="{{toggleMusic}}">{{musicLabel}}</button>
+</div>
+<button type="button" class="ob" onClick="{{toggleRules}}">{{rulesLabel}}</button>
+<sc-if value="{{showRules}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 8px; border-top: 2px solid #3a3836; padding-top: 12px; font-size: 14px; line-height: 1.4">
+<div>Tap a fruit. Your fox runs over and picks it.</div>
+<div>Full colour means ripe: 10 to 12 points. Ripe in a row adds a streak bonus.</div>
+<div>Green fruit scores 2. Brown, overripe fruit scores less.</div>
+<div>Tap a trunk or press SHAKE. Ripe fruit falls. Stand under it to catch: +3.</div>
+<div>Fruit on the ground is bruised and worth half.</div>
+<div>Golden apples are worth 30 but spoil fast.</div>
+<div>Most points when time runs out wins. Every ripe fruit chimes from its side, so you can play by ear.</div>
+<div class="lbl" style="line-height: 1.5">KEYS: ARROWS OR WASD WALK · SPACE PICKS · E SHAKES · ENTER CONTINUES</div>
+</div>
+</sc-if>
+<button type="button" class="ob ob-red" onClick="{{doBack}}">LEAVE ORCHARD</button>
+</div>
+</div>
+</sc-if>
+
+<!-- INVITE card -->
+<sc-if value="{{cardInvite}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 12px 12px 76px; box-sizing: border-box; z-index: 5; pointer-events: auto">
+<div role="dialog" aria-label="Invite a friend" style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 360px; box-sizing: border-box; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 900">INVITE FRIEND</div>
+<div class="lbl" style="color: #ffd23a">ONLINE ROOMS COMING SOON</div>
+<div style="font-size: 15px; line-height: 1.4">For now, share this device. Pass and play lets up to four foxes take turns.</div>
+<button type="button" class="ob ob-yel" onClick="{{startLocal}}">PLAY PASS &amp; PLAY</button>
+<button type="button" class="ob" onClick="{{closeCard}}">CLOSE</button>
+</div>
+</div>
+</sc-if>
+
+<!-- LEAVE card (standalone only) -->
+<sc-if value="{{cardLeave}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 12px 12px 76px; box-sizing: border-box; z-index: 5; pointer-events: auto">
+<div role="dialog" aria-label="Leave" style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 360px; box-sizing: border-box; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 900">LEAVE ORCHARD?</div>
+<div style="font-size: 15px; line-height: 1.4">Inside 8 GATES, BACK walks you out to town. Here it stops this round.</div>
+<button type="button" class="ob ob-yel" onClick="{{closeCard}}">KEEP PICKING</button>
+<button type="button" class="ob" onClick="{{watchDemo}}">WATCH THE DEMO</button>
+</div>
+</div>
+</sc-if>
+
+<!-- PASS card -->
+<sc-if value="{{cardPass}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 12px 12px 76px; box-sizing: border-box; z-index: 5; pointer-events: auto">
+<div role="dialog" aria-label="Pass the device" style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 360px; box-sizing: border-box; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div class="lbl">{{passPrev}}</div>
+<div style="font-size: 26px; font-weight: 900; display: flex; align-items: center; gap: 10px"><span style="width: 16px; height: 16px; background: {{passColor}}; display: inline-block"></span>{{passNext}}</div>
+<div style="font-size: 15px; line-height: 1.4">Same orchard, fresh trees. Hand over the device, then tap ready.</div>
+<button type="button" class="ob ob-yel" onClick="{{doReady}}">READY</button>
+</div>
+</div>
+</sc-if>
+
+<!-- RESULT card -->
+<sc-if value="{{cardResult}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 12px 12px 76px; box-sizing: border-box; z-index: 5; pointer-events: auto">
+<div role="dialog" aria-label="Results" style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; box-sizing: border-box; padding: 16px; display: flex; flex-direction: column; gap: 12px; animation: obPop 0.4s ease-out">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div class="lbl" style="color: {{resColor}}">{{resKicker}}</div>
+<div style="font-size: 30px; font-weight: 900; line-height: 1">{{resTitle}}</div>
+</div>
+<div style="display: flex; gap: 6px">
+<sc-for list="{{stars}}" as="s" hint-placeholder-count="3">
+<div style="width: 26px; height: 26px; box-sizing: border-box; border: 2px solid #ffd23a; background: {{s.bg}}"></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<div style="border: 2px solid #3a3836; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px"><div class="lbl">SCORE</div><div style="font-size: 22px; font-weight: 900">{{resScore}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px"><div class="lbl">BEST</div><div style="font-size: 22px; font-weight: 900">{{resBest}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px"><div class="lbl">GOLD</div><div style="font-size: 22px; font-weight: 900; color: #ffd23a">{{resGold}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px"><div class="lbl">XP</div><div style="font-size: 22px; font-weight: 900">{{resXp}}</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{resRows}}" as="r" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 2px solid #1d1c1b">
+<div style="font-size: 13px; font-weight: 800; width: 18px; color: #c9c5bf">{{r.rank}}</div>
+<div style="width: 10px; height: 10px; background: {{r.color}}"></div>
+<div style="font-size: 14px; font-weight: 800; flex: 1 1 auto">{{r.name}}</div>
+<div style="font-size: 16px; font-weight: 900; font-variant-numeric: tabular-nums">{{r.score}}</div>
+</div>
+</sc-for>
+</div>
+<div class="lbl">{{resNote}}</div>
+<button type="button" class="ob ob-yel" onClick="{{playAgain}}">PLAY AGAIN</button>
+<button type="button" class="ob ob-red" onClick="{{doBack}}">BACK</button>
+</div>
+</div>
+</sc-if>
+
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"default":null},"save":{"editor":null,"default":null},"kit":{"editor":null,"default":null},"onBack":{"editor":null,"default":null},"moduleUrl":{"editor":null,"default":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { h: null, card: null, showRules: false, err: null, pendMode: null, pendLevel: null, pendRivals: null, pendPlayers: null };
+    this.api = null; this.rootEl = null; this.stageEl = null; this.booting = false; this.lastSafe = '';
+    this.setRoot = (el) => { this.rootEl = el; };
+    this.setStage = (el) => { this.stageEl = el; if (el) this.boot(); };
+    this.onWorldState = (e) => { this.setState({ h: e.detail || null }); };
+    this.onResize = () => this.measure();
+  }
+  get gameKey() { return 'fruitOrchard'; }
+  getApi() {
+    const w = this.props.world;
+    if (w) { const o = w['_' + this.gameKey]; return o && typeof o.g === 'function' ? o.g() : null; }
+    return this.api;
+  }
+  componentDidMount() {
+    if (this.props.world) {
+      window.addEventListener('8g:' + this.gameKey, this.onWorldState);
+      const api = this.getApi();
+      if (api && typeof api.hud === 'function') this.setState({ h: api.hud() });
+    } else {
+      this.boot();
+    }
+    window.addEventListener('resize', this.onResize);
+    if (typeof ResizeObserver !== 'undefined') {
+      this.ro = new ResizeObserver(() => this.measure());
+      const r = this.root();
+      if (r) this.ro.observe(r);
+    }
+  }
+  componentDidUpdate() { this.measure(); }
+  componentWillUnmount() {
+    window.removeEventListener('8g:' + this.gameKey, this.onWorldState);
+    window.removeEventListener('resize', this.onResize);
+    if (this.ro) this.ro.disconnect();
+    if (this.api) { try { this.api.destroy(); } catch (e) { /* already gone */ } this.api = null; }
+  }
+  root() { return this.rootEl || document.querySelector('[data-root]'); }
+  async boot() {
+    if (this.booting || this.props.world) return;
+    const r = this.root();
+    const el = this.stageEl || (r && r.querySelector('[data-stage]'));
+    if (!el) return;
+    this.booting = true;
+    const rel = 'minigames/orchard/orchard.js';
+    const cands = [];
+    if (this.props.moduleUrl) cands.push(this.props.moduleUrl);
+    try { cands.push(new URL(rel, document.baseURI).href); } catch (e) { /* no base */ }
+    try { if (window.__dcProjectRoot) cands.push(new URL(rel, new URL(String(window.__dcProjectRoot).replace(/\/?$/, '/'), location.href)).href); } catch (e) { /* no root */ }
+    try { cands.push(new URL(rel, location.href).href); } catch (e) { /* no href */ }
+    let mod = null;
+    for (const u of cands.filter((v, i, a) => a.indexOf(v) === i)) {
+      try { mod = await import(u); if (mod && mod.createOrchard) break; } catch (e) { mod = null; }
+    }
+    if (!mod || !mod.createOrchard) { this.setState({ err: 'Could not load minigames/orchard/orchard.js' }); return; }
+    try {
+      this.api = await mod.createOrchard({ container: el, onState: (h) => this.setState({ h }), opts: { save: this.props.save || undefined, kit: this.props.kit || undefined } });
+      this.measure();
+    } catch (e) {
+      this.setState({ err: 'The orchard could not start: ' + (e && e.message ? e.message : e) });
+    }
+  }
+  measure() {
+    const api = this.getApi(), r = this.root();
+    if (!api || !r || typeof api.setSafe !== 'function') return;
+    const rr = r.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    r.querySelectorAll('[data-safe]').forEach((el) => {
+      const b = el.getBoundingClientRect();
+      if (!b.width && !b.height) return;
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, b.bottom - rr.top);
+      else if (side === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - b.top);
+      else if (side === 'left') s.left = Math.max(s.left, b.right - rr.left);
+      else if (side === 'right') s.right = Math.max(s.right, rr.right - b.left);
+    });
+    for (const k in s) s[k] = Math.round(s[k]);
+    const key = JSON.stringify(s);
+    if (key !== this.lastSafe) { this.lastSafe = key; api.setSafe(s); }
+  }
+  call(name, ...args) { const a = this.getApi(); if (a && typeof a[name] === 'function') return a[name](...args); return undefined; }
+  open(card) {
+    const h = this.state.h || {};
+    this.call('pause', true);
+    this.setState({ card, pendMode: h.mode || 'cpu', pendLevel: h.level || 'hope', pendRivals: h.rivals || 1, pendPlayers: h.nLocal || 2 });
+  }
+  close() { this.call('pause', false); this.setState({ card: null }); }
+  back() {
+    const w = this.props.world;
+    if (w && w['_' + this.gameKey] && typeof w['_' + this.gameKey].end === 'function') { w['_' + this.gameKey].end(); return; }
+    if (typeof this.props.onBack === 'function') { this.props.onBack(); return; }
+    this.call('pause', true);
+    this.setState({ card: 'leave' });
+  }
+  seg(list, cur, set) {
+    return list.map((o) => {
+      const on = o.k === cur;
+      return { label: o.label, sub: o.sub || '', bg: on ? '#ffd23a' : '#000000', fg: on ? '#000000' : '#ffffff', bd: on ? '#ffd23a' : '#3a3836', pick: () => set(o.k) };
+    });
+  }
+  renderVals() {
+    const h = this.state.h;
+    const overlay = !!this.props.world;
+    const st = this.state;
+    const show = !!h && !st.err;
+    const players = ((h && h.scores) || []).map((p) => ({
+      name: p.name, color: p.color, score: p.score == null ? '—' : String(p.score),
+      border: p.active ? (p.you ? '#ffd23a' : '#3a3836') : '#1d1c1b', op: p.active || p.score != null ? 1 : 0.55,
+      streak: p.streak >= 2 ? 'x' + p.streak : '',
+    }));
+    const res = h && h.result;
+    const rows = res ? res.rows.map((r, i) => ({ rank: String(i + 1), name: r.you ? r.name + ' (YOU)' : r.name, color: r.color, score: String(r.score) })) : [];
+    const stars = [0, 1, 2].map((i) => ({ bg: res && res.stars > i ? '#ffd23a' : 'transparent' }));
+    const pm = st.pendMode || (h && h.mode) || 'cpu';
+    const card = st.card;
+    return {
+      setRoot: this.setRoot, setStage: this.setStage,
+      standalone: !overlay,
+      rootBg: overlay ? 'transparent' : '#000000',
+      rootPe: overlay ? 'none' : 'auto',
+      loading: !overlay && (!h || !!st.err),
+      loadText: st.err ? st.err : 'PLANTING TREES…',
+      show,
+      timeLabel: h && h.mode === 'local' && h.turn ? h.turn.name : 'TIME',
+      timeText: h ? String(h.time) : '',
+      timeColor: h && h.timeLow ? '#ec3013' : '#ffffff',
+      players,
+      hasMsg: !!(h && h.msg) && !card,
+      msg: h && h.msg ? h.msg : '',
+      hasCaption: !!(h && h.caption) && !card,
+      caption: h && h.caption ? h.caption : '',
+      hasCount: !!(h && h.count) && !card,
+      count: h && h.count ? String(h.count) : '',
+      hasHint: !!(h && h.hint) && !card,
+      hintX: h && h.hint ? h.hint.x - 16 : 0,
+      hintY: h && h.hint ? h.hint.y - 2 : 0,
+      canShake: !!(h && h.phase === 'play' && h.mode !== 'demo'),
+      shakeClass: h && h.shakeReady ? 'ob ob-yel' : 'ob',
+      cardMenu: card === 'menu', cardInvite: card === 'invite', cardLeave: card === 'leave',
+      cardPass: !card && !!(h && h.pass),
+      cardResult: !card && !!res,
+      passPrev: h && h.pass ? h.pass.prev + ' SCORED ' + h.pass.prevScore : '',
+      passNext: h && h.pass ? h.pass.next + ', YOUR TURN' : '',
+      passColor: h && h.pass ? h.pass.color : '#ffffff',
+      resKicker: res ? (res.win ? 'ROUND OVER · WINNER' : 'ROUND OVER') : '',
+      resColor: res && res.win ? '#ffd23a' : '#c9c5bf',
+      resTitle: res ? res.title : '',
+      resScore: res ? String(res.score) : '0', resBest: res ? String(res.best) : '0',
+      resGold: res ? '+' + res.gold : '0', resXp: res ? '+' + res.xp : '0',
+      resRows: rows, stars,
+      resNote: res ? (res.newBest ? 'NEW BEST SCORE' : res.mode === 'local' ? 'TOP SCORE COUNTS AS BEST' : (res.streak ? 'BEST STREAK ' + res.streak + ' · ' + res.picks + ' FRUIT PICKED' : '')) : '',
+      modeOpts: this.seg([{ k: 'cpu', label: 'VS CPU' }, { k: 'local', label: 'PASS & PLAY' }, { k: 'demo', label: 'DEMO' }], pm, (k) => this.setState({ pendMode: k })),
+      levelOpts: this.seg([{ k: 'pip', label: 'PIP', sub: 'ROOKIE' }, { k: 'hope', label: 'HOPE', sub: 'CLUB' }, { k: 'noble', label: 'NOBLE', sub: 'MASTER' }], st.pendLevel || (h && h.level), (k) => this.setState({ pendLevel: k })),
+      rivalOpts: this.seg([{ k: 1, label: '1' }, { k: 2, label: '2' }, { k: 3, label: '3' }], st.pendRivals || (h && h.rivals), (k) => this.setState({ pendRivals: k })),
+      playerOpts: this.seg([{ k: 2, label: '2' }, { k: 3, label: '3' }, { k: 4, label: '4' }], st.pendPlayers || (h && h.nLocal), (k) => this.setState({ pendPlayers: k })),
+      isCpuPend: pm === 'cpu', isLocalPend: pm === 'local',
+      soundLabel: h && h.sound ? 'SOUND: ON' : 'SOUND: OFF',
+      musicLabel: h && h.music ? 'MUSIC: ON' : 'MUSIC: OFF',
+      rulesLabel: st.showRules ? 'HIDE RULES' : 'HOW TO PLAY',
+      showRules: st.showRules,
+      openMenu: () => this.open('menu'),
+      openInvite: () => this.open('invite'),
+      closeCard: () => this.close(),
+      toggleRules: () => this.setState({ showRules: !st.showRules }),
+      toggleSound: () => this.call('setSound', !(h && h.sound)),
+      toggleMusic: () => this.call('setMusic', !(h && h.music)),
+      newGame: () => {
+        if (st.pendLevel) this.call('setLevel', st.pendLevel);
+        if (st.pendRivals) this.call('setRivals', st.pendRivals);
+        if (st.pendPlayers) this.call('setPlayers', st.pendPlayers);
+        this.call('start', pm);
+        this.setState({ card: null });
+      },
+      startLocal: () => { this.call('setPlayers', (h && h.nLocal) || 2); this.call('start', 'local'); this.setState({ card: null }); },
+      watchDemo: () => { this.call('start', 'demo'); this.setState({ card: null }); },
+      doShake: () => this.call('shake'),
+      doBack: () => this.back(),
+      doReady: () => this.call('ready'),
+      playAgain: () => this.call('restart'),
+    };
+  }
+}
+</script>
+</body>
+</html>

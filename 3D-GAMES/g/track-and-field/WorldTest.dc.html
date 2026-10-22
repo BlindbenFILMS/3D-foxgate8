@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.wt button{font-family:Archivo,Arial,sans-serif;border-radius:0;cursor:pointer;text-align:left;touch-action:manipulation}
+</style>
+</helmet>
+<div class="wt" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #000000; font-family: Archivo, Arial, sans-serif; color: #ffffff">
+<div ref="{{setCanvasHost}}" style="position: absolute; left: 0; top: 0; right: 0; bottom: 0"></div>
+<sc-if value="{{gameOpen}}" hint-placeholder-val="{{ false }}">
+<dc-import name="TrackField" world="{{world}}" hint-size="100%,100%"></dc-import>
+</sc-if>
+<sc-if value="{{inTown}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 12px; right: 12px; bottom: 16px; display: flex; flex-direction: column; gap: 10px; max-width: 420px">
+<div style="background: #000000; border: 2px solid #3a3836; padding: 14px; display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a">WORLD MODE TEST</div>
+<div style="font-size: 24px; font-weight: 900; line-height: 1.05">A TOWN WITH A STADIUM IN IT</div>
+<div style="font-size: 13px; color: #d8d0c0; line-height: 1.4">The track is a group parented at x 20, z -15, turned 0.9 rad. The town renders it; the page runs in overlay mode.</div>
+<div style="font-size: 12px; color: #d8d0c0">{{status}}</div>
+</div>
+<button onClick="{{enter}}" style="min-height: 52px; padding: 0 16px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 16px; font-weight: 900">WALK TO THE TRACK</button>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._alive = true;
+    this.world = { _trackField: { g: () => this.api || null, end: () => this.leave() } };
+    this.setState({ status: 'Loading three.js and the game module.' });
+    this.boot();
+  }
+  componentWillUnmount() {
+    this._alive = false;
+    cancelAnimationFrame(this._raf);
+    window.removeEventListener('keydown', this._kd);
+    window.removeEventListener('keyup', this._kd);
+    if (this._ro) this._ro.disconnect();
+    if (this.api) { try { this.api.destroy(); } catch (e) {} }
+    if (this.renderer) { this.renderer.dispose(); }
+  }
+  async boot() {
+    try {
+      const base = document.baseURI;
+      const THREE = await import(new URL('./vendor/three/three.module.js', base).href);
+      this.mod = await import(new URL('./minigames/trackfield/trackfield.js', base).href);
+      this.T = THREE;
+      this.makeTown();
+      this.setState({ status: 'Ready. Parent group: position (20, 0, -15), rotation.y 0.9.' });
+    } catch (e) {
+      this.setState({ status: 'Load failed: ' + String(e && e.message ? e.message : e) });
+    }
+  }
+  makeTown() {
+    const T = this.T, host = this._host;
+    const renderer = new T.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+    host.appendChild(renderer.domElement);
+    this.renderer = renderer;
+    const scene = new T.Scene();
+    scene.background = new T.Color('#f2c27a');
+    scene.fog = new T.Fog('#f2c27a', 320, 900);
+    scene.add(new T.HemisphereLight('#fff1d6', '#6b5a3a', 1.2));
+    const sun = new T.DirectionalLight('#ffffff', 1.8); sun.position.set(-60, 100, 40); scene.add(sun);
+    const ground = new T.Mesh(new T.PlaneGeometry(1200, 1200), new T.MeshLambertMaterial({ color: '#c9b48a' }));
+    ground.rotation.x = -Math.PI / 2; scene.add(ground);
+    const houseMat = new T.MeshLambertMaterial({ color: '#e8e2d4' }), roofMat = new T.MeshLambertMaterial({ color: '#ec3013' });
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2, r = 150 + (i % 3) * 18;
+      const hgt = 8 + (i % 4) * 4;
+      const box = new T.Mesh(new T.BoxGeometry(14, hgt, 14), houseMat);
+      box.position.set(Math.cos(a) * r + 20, hgt / 2, Math.sin(a) * r - 15); scene.add(box);
+      const roof = new T.Mesh(new T.ConeGeometry(11, 7, 4), roofMat);
+      roof.position.set(box.position.x, hgt + 3.5, box.position.z); roof.rotation.y = Math.PI / 4; scene.add(roof);
+    }
+    const parent = new T.Group();
+    parent.position.set(20, 0, -15); parent.rotation.y = 0.9;
+    scene.add(parent);
+    const marker = new T.Mesh(new T.CylinderGeometry(0.6, 0.6, 12, 8), new T.MeshLambertMaterial({ color: '#ffd23a' }));
+    marker.position.set(20, 6, -15); scene.add(marker);
+    const cam = new T.PerspectiveCamera(50, 1, 0.3, 1500);
+    cam.position.set(140, 110, 200); cam.lookAt(20, 0, -15);
+    this.scene = scene; this.parent = parent; this.cam = cam; this.marker = marker;
+    this._kd = (e) => { if (this.api) this.api.key(e); };
+    window.addEventListener('keydown', this._kd);
+    window.addEventListener('keyup', this._kd);
+    const resize = () => {
+      const w = host.clientWidth || 1, h = host.clientHeight || 1;
+      renderer.setSize(w, h, false); cam.aspect = w / h; cam.updateProjectionMatrix();
+    };
+    if (typeof ResizeObserver !== 'undefined') { this._ro = new ResizeObserver(resize); this._ro.observe(host); }
+    resize();
+    let last = performance.now(), t = 0;
+    const tmpQ = new T.Quaternion(), tmpP = new T.Vector3();
+    const loop = (now) => {
+      if (!this._alive) return;
+      this._raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.05, (now - last) / 1000); last = now; t += dt;
+      const w = host.clientWidth || 1, h = host.clientHeight || 1;
+      cam.aspect = w / h;
+      if (this.api) {
+        const g = this.api.camera;
+        const k = 1 - Math.exp(-dt * 4);
+        cam.position.lerp(g.position, k);
+        cam.quaternion.slerp(g.quaternion, k);
+        cam.fov += (g.fov - cam.fov) * k;
+      } else {
+        tmpP.set(20 + Math.cos(t * 0.08) * 170, 95, -15 + Math.sin(t * 0.08) * 170);
+        cam.position.lerp(tmpP, 1 - Math.exp(-dt * 1.5));
+        tmpQ.copy(cam.quaternion); cam.lookAt(20, 0, -15); const goal = cam.quaternion.clone(); cam.quaternion.copy(tmpQ).slerp(goal, 1 - Math.exp(-dt * 2));
+        cam.fov += (50 - cam.fov) * (1 - Math.exp(-dt * 2));
+      }
+      cam.updateProjectionMatrix();
+      this.marker.visible = !this.api;
+      renderer.render(scene, cam);
+    };
+    this._raf = requestAnimationFrame(loop);
+    this.setState({ ready: true });
+  }
+  async enter() {
+    if (!this.mod || this.api) return;
+    const fire = (h) => window.dispatchEvent(new CustomEvent('8g:trackField', { detail: h }));
+    this.api = await this.mod.createTrackField({
+      container: null,
+      onState: fire,
+      opts: { world: { renderer: this.renderer, camera: this.cam, parent: this.parent } },
+    });
+    this.setState({ open: true });
+    fire(this.api.hud());
+  }
+  leave() {
+    if (!this.api) return;
+    try { this.api.destroy(); } catch (e) {}
+    this.api = null;
+    window.dispatchEvent(new CustomEvent('8g:trackField', { detail: null }));
+    this.setState({ open: false, status: 'Back in town. The group was removed: ' + (this.parent ? this.parent.children.length : 0) + ' children left.' });
+  }
+  renderVals() {
+    const st = this.state || {};
+    return {
+      setCanvasHost: (el) => { this._host = el; },
+      world: this.world,
+      gameOpen: !!st.open,
+      inTown: !st.open,
+      status: st.status || '',
+      enter: () => { this.enter(); },
+    };
+  }
+}
+</script>
+</body>
+</html>

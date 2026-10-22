@@ -155,7 +155,7 @@
           </div>
         </sc-for>
         <sc-if value="{{ netJoinOn }}" hint-placeholder-val="{{ true }}">
-          <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 5</span></button>
+          <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 4</span></button>
           <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:2px solid #3a3836">
             <input value="{{ codeIn }}" onChange="{{ codeType }}" onKeyDown="{{ codeKey }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code" placeholder="CODE" style="min-width:0;min-height:52px;padding:0 14px;border:0;border-radius:0;background:#1a1918;color:#ffd23a;font:900 24px var(--font-heading);letter-spacing:0.2em;text-transform:uppercase;outline:none;box-sizing:border-box;user-select:text;-webkit-user-select:text" style-focus="background:#2a2826"></input>
             <button onClick="{{ joinGo }}" style="min-height:52px;padding:0 18px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">JOIN</button>
@@ -219,7 +219,7 @@ class Component extends DCLogic {
   embed = /[?&]embed=1/.test(location.search);
   async componentDidMount() {
     addEventListener('resize', this.onRs); this.onRs(); try { this.ro = new ResizeObserver(this.onRs); this.stageRef.current && this.ro.observe(this.stageRef.current.parentElement); } catch (e) {}
-    try { const lv = JSON.parse(localStorage.getItem('shuffleboard.setup') || '{}'); this.setState(s => ({ ...s, ...lv })); } catch (e) {}
+    try { const lv = JSON.parse(localStorage.getItem('shuffleboard.setup') || '{}'); if (lv.localN > 4) lv.localN = 4; this.setState(s => ({ ...s, ...lv })); } catch (e) {}
     const wm = /[?&]world=([a-z]+)/.exec(location.search);
     try { const m = await import(new URL('minigames/shuffle/shuffleboard.js', document.baseURI).href); this.M = m; this.g = await m.createShuffleboard({ container: this.stageRef.current, onState: h => this.setState({ h }), opts: { world: wm ? wm[1] : 'tavern', embed: this.embed } }); window.__shuffle = this.g; this.forceUpdate(); }
     catch (e) { console.warn('shuffleboard failed: ' + (e && e.stack || String(e))); }
@@ -275,8 +275,8 @@ class Component extends DCLogic {
       homeOn: menu && !N && S.screen === 'home' && !S.help, kicker: 'TABLE GAMES · #16', modeH: phone && !port ? '48px' : '56px', homeCols: this.embed ? 2 : 1,
       modes: [
         { name: 'VS FOXES', sub: 'YOU + 1–4 CPU FOXES · WIN GOLD', go: e => { blur(e); this.setState({ screen: 'setup', kind: 'cpu' }); } },
-        { name: 'PASS & PLAY', sub: '2–5 PLAYERS ON THIS PHONE', go: e => { blur(e); this.setState({ screen: 'setup', kind: 'local' }); } },
-        { name: 'ONLINE', sub: 'UP TO 5 FRIENDS · ROOM CODE', go: e => { blur(e); g && g.netOpen(); } },
+        { name: 'PASS & PLAY', sub: '2–4 PLAYERS ON THIS PHONE', go: e => { blur(e); this.setState({ screen: 'setup', kind: 'local' }); } },
+        { name: 'ONLINE', sub: 'UP TO 4 FRIENDS · ROOM CODE', go: e => { blur(e); g && g.netOpen(); } },
         { name: 'PRACTICE', sub: 'SOLO · BEST FRAME ' + (h.practiceBest || 0), go: e => { blur(e); this.setState({ screen: 'home' }); g && g.startLocal({ kind: 'practice' }); } },
       ].map((x, i) => ({ ...x, bg: i === 0 ? '#ec3013' : '#000000', fg: '#ffffff' })),
       helpOpen: e => { blur(e); this.setState({ help: true }); }, backOut: e => { blur(e); this.backOut(); },
@@ -284,7 +284,7 @@ class Component extends DCLogic {
       setupOn: menu && !N && S.screen === 'setup' && !S.help, setupTitle: kind === 'cpu' ? 'Vs foxes' : 'Pass & play',
       countOn: true, countLbl: kind === 'cpu' ? 'CPU FOXES' : 'PLAYERS', countN: String(cnt), countNames: kind === 'cpu' ? 'YOU vs ' + CPU.slice(0, cnt).map(c => c.name).join(', ') : COLS.slice(0, cnt).map(c => c[0]).join(' · '),
       countDn: e => { blur(e); kind === 'cpu' ? this.keepSetup({ cpuN: Math.max(1, S.cpuN - 1) }) : this.keepSetup({ localN: Math.max(2, S.localN - 1) }); },
-      countUp: e => { blur(e); kind === 'cpu' ? this.keepSetup({ cpuN: Math.min(4, S.cpuN + 1) }) : this.keepSetup({ localN: Math.min(5, S.localN + 1) }); },
+      countUp: e => { blur(e); kind === 'cpu' ? this.keepSetup({ cpuN: Math.min(4, S.cpuN + 1) }) : this.keepSetup({ localN: Math.min(4, S.localN + 1) }); },
       opts: kind === 'cpu' ? [optLevel, optTarget, optRule, optGuide] : [optTarget, optRule, optGuide],
       startGo: e => { blur(e); g && g.startLocal({ kind, seats: Array.from({ length: cnt }), target: S.target, rule: S.rule, level: S.level }); },
       toHome: e => { blur(e); this.setState({ screen: 'home' }); },
@@ -292,7 +292,7 @@ class Component extends DCLogic {
       netOn: !!N && (menu || (!!h.done && S.netLobby)) && !S.help, netStat: netStatus, netStatC: N && (N.status === 'offline' || N.full) ? '#ec3013' : '#ffd23a',
       netCodeOn: !!N && !!N.code && N.st !== 'menu', netCode: N ? N.code : '',
       netShare: async e => { blur(e); if (!N) return; let u; try { u = new URL(location.href); u.searchParams.set('room', N.code); u.searchParams.delete('embed'); } catch (er) { return; } try { if (navigator.share && phone) await navigator.share({ title: '8 GATES · Shuffleboard', text: 'Play shuffleboard with me in 8 GATES. Room ' + N.code, url: u.href }); else { await navigator.clipboard.writeText(u.href); this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 2000); } } catch (er) {} }, netShareTxt: S.copied ? 'LINK COPIED' : 'SHARE LINK',
-      netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Up to 5 at one table. Make a room and send the link, or type a friend’s code.' : N.full ? 'Five players are already in room ' + N.code + '. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.' + (amHost ? '' : ' The host picks the rules.'),
+      netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Up to 4 at one table. Make a room and send the link, or type a friend’s code.' : N.full ? 'Four players are already in room ' + N.code + '. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.' + (amHost ? '' : ' The host picks the rules.'),
       netRows: N && N.st !== 'menu' && !N.full ? m.map(x => ({ col: x.col, name: x.name + (x.me ? ' · YOU' : ''), sub: x.id === N.host ? 'HOST' : 'PLAYER', tag: x.ready ? 'READY' : '', tagC: x.ready ? '#22c55e' : '#8a847e' })) : [],
       netOpts: N && N.st !== 'menu' && !N.full ? [opt('PLAY TO', N.cfg.target, [[11, '11', 'QUICK'], [15, '15', 'STANDARD'], [21, '21', 'LONG']], v => g && g.netCfg({ target: v })), opt('SCORING', N.cfg.rule, [['table', 'TABLE RULES', 'ONLY THE LEADER SCORES'], ['every', 'EVERY PUCK', 'ALL WEIGHTS SCORE']], v => g && g.netCfg({ rule: v }))].map(o => ({ ...o, items: o.items.map(it => ({ ...it, off: !amHost, op: amHost || it.pressed === 'true' ? 1 : 0.45 })) })) : [],
       netJoinOn: !!N && N.st === 'menu', codeIn: S.codeIn, codeType: e => this.setState({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) }), codeKey: e => { if (e.key === 'Enter') { e.preventDefault(); g && g.netJoin(this.state.codeIn); } e.stopPropagation(); },
@@ -323,7 +323,7 @@ class Component extends DCLogic {
         ['AIM', 'Drag the puck sideways (or tap the arrow buttons) to pick your lane. The white line shows where it goes.'],
         ['SWIPE', 'Swipe UP on the puck and let go. A faster swipe slides it further. Swipe at a slant to angle it a little.'],
         ['HOLD', 'Or hold THROW: the ghost ring walks down the table and back. Let go when it sits where you want the puck to stop. The tone rises as it goes further.'],
-        ['TURNS', 'Players take turns. 2 players get 4 weights each per frame, 3 to 5 players get 3 each. The last thrower in a frame has the edge (the hammer).'],
+        ['TURNS', 'Players take turns. 2 players get 4 weights each per frame, 3 or 4 players get 3 each. The last thrower in a frame has the edge (the hammer).'],
         ['SCORING', 'TABLE RULES: only the player with the furthest weight scores, one score for each of their weights past everyone else’s best. EVERY PUCK: all weights on the board score. First to the target wins (a tie plays another frame).'],
         ['VIEW', 'VIEW switches between AIM, the END zone and TOP-DOWN. The small END box shows the scoring end from above. Desktop: ←/→ lane, hold Space to throw, V view.'],
       ].map(([k, v]) => ({ k, v })),

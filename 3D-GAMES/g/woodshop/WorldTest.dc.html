@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Woodshop World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+.wt{position:relative;width:100%;height:100vh;min-height:320px;overflow:hidden;background:#8fd0ff;font-family:'Archivo',system-ui,sans-serif;color:#fff;outline:none}
+.town{position:absolute;inset:0}
+.ovl{position:absolute;inset:0;pointer-events:none}
+.bar{position:absolute;left:8px;bottom:8px;right:8px;display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+.tag{background:#000;border:2px solid #3a3836;padding:0 12px;display:flex;align-items:center;font-weight:800;font-size:13px;letter-spacing:.08em;min-height:44px}
+.go{min-height:44px;padding:0 16px;background:#ffd23a;color:#000;border:2px solid #ffd23a;border-radius:0;font-family:'Archivo',system-ui,sans-serif;font-weight:800;font-size:14px;letter-spacing:.06em;text-align:left;cursor:pointer}
+.go:focus-visible{outline:3px solid #ffffff;outline-offset:2px}
+</style>
+</helmet>
+<div class="wt" ref="{{setRoot}}" tabindex="0" onKeyDown="{{onKey}}" onKeyUp="{{onKey}}">
+<div class="town" ref="{{setStage}}"></div>
+<div class="ovl">
+<dc-import name="Main" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+<sc-if value="{{closed}}" hint-placeholder-val="{{ true }}">
+<div class="bar">
+<div class="tag">TOWN TEST / WORLD MODE</div>
+<button class="go" type="button" onClick="{{enter}}">ENTER THE WOODSHOP</button>
+</div>
+</sc-if>
+<sc-if value="{{errOn}}" hint-placeholder-val="{{ false }}">
+<div class="bar"><div class="tag">{{err}}</div></div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { closed: true, err: '' };
+    this.api = null;
+    this.T = null;
+    this.stageEl = null;
+    this.rootEl = null;
+    this.setStage = (el) => { this.stageEl = el; };
+    this.setRoot = (el) => { this.rootEl = el; };
+    this.world = { _woodshop: { g: () => this.api, end: () => this.end() } };
+  }
+
+  componentDidMount() {
+    const load = new Function('u', 'return import(u)');
+    const base = document.baseURI;
+    Promise.all([
+      load(new URL('./vendor/three/three.module.js', base).href),
+      load(new URL('./minigames/woodshop/woodshop.js', base).href),
+    ]).then(([THREE, M]) => {
+      if (this.dead) return;
+      this.build(THREE, M);
+      this.enter();
+    }).catch((e) => this.setState({ err: String((e && e.message) || e) }));
+  }
+
+  build(THREE, M) {
+    const el = this.stageEl;
+    const r = new THREE.WebGLRenderer({ antialias: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    r.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;';
+    el.appendChild(r.domElement);
+    const town = new THREE.Scene();
+    town.background = new THREE.Color('#8fd0ff');
+    town.fog = new THREE.Fog('#8fd0ff', 70, 160);
+    town.add(new THREE.HemisphereLight(0xffffff, 0x6a8a50, 1.7));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.0);
+    sun.position.set(20, 30, 10);
+    town.add(sun);
+    const lam = (hex) => new THREE.MeshLambertMaterial({ color: hex });
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), lam('#7cc46a'));
+    ground.rotation.x = -Math.PI / 2;
+    town.add(ground);
+    const road = new THREE.Mesh(new THREE.PlaneGeometry(8, 400), lam('#c9b48a'));
+    road.rotation.x = -Math.PI / 2; road.position.set(0, 0.02, 0);
+    town.add(road);
+    const houses = [[-14, -10, '#e9d3b0', '#c4572a'], [-14, 8, '#f0e2c8', '#2f6fd6'], [12, 14, '#efd9b9', '#2f9e5a'], [-30, -30, '#e3cfa8', '#8a4fd0'], [36, -36, '#efdcbc', '#c4572a']];
+    houses.forEach(([x, z, wall, roof]) => {
+      const h = new THREE.Mesh(new THREE.BoxGeometry(8, 5, 7), lam(wall)); h.position.set(x, 2.5, z); town.add(h);
+      const rf = new THREE.Mesh(new THREE.ConeGeometry(6.4, 3.2, 4), lam(roof)); rf.position.set(x, 6.6, z); rf.rotation.y = Math.PI / 4; town.add(rf);
+    });
+    for (let i = 0; i < 14; i++) {
+      const a = i * 0.9, d = 26 + (i % 4) * 9;
+      const tr = new THREE.Mesh(new THREE.ConeGeometry(1.8, 5, 7), lam('#3f8f4a'));
+      tr.position.set(Math.cos(a) * d, 2.5, Math.sin(a) * d - 10); town.add(tr);
+    }
+    /* The game's parent group: offset and rotated, as the brief asks. */
+    const parent = new THREE.Group();
+    parent.position.set(20, 0, -15);
+    parent.rotation.y = 0.9;
+    town.add(parent);
+    const pad = new THREE.Mesh(new THREE.BoxGeometry(16, 0.2, 11), lam('#b98754'));
+    pad.position.set(20, 0.0, -15); pad.rotation.y = 0.9;
+    town.add(pad);
+    const townCam = new THREE.PerspectiveCamera(50, 1, 0.1, 600);
+    townCam.position.set(-8, 16, 34);
+    townCam.lookAt(14, 0, -12);
+    const home = { pos: townCam.position.clone(), quat: townCam.quaternion.clone() };
+    this.T = { THREE, M, r, town, parent, townCam, home };
+    const resize = () => {
+      const w = el.clientWidth || 1, hgt = el.clientHeight || 1;
+      r.setSize(w, hgt, false);
+      townCam.aspect = w / hgt; townCam.updateProjectionMatrix();
+    };
+    resize();
+    if (window.ResizeObserver) { this.ro = new ResizeObserver(resize); this.ro.observe(el); }
+    let last = performance.now();
+    const loop = (now) => {
+      this.raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const k = 1 - Math.exp(-4 * dt);
+      if (this.api) {
+        const c = this.api.camera;
+        townCam.position.lerp(c.position, k);
+        townCam.quaternion.slerp(c.quaternion, k);
+        townCam.fov += (c.fov - townCam.fov) * k;
+      } else {
+        townCam.position.lerp(home.pos, k);
+        townCam.quaternion.slerp(home.quat, k);
+        townCam.fov += (50 - townCam.fov) * k;
+      }
+      townCam.aspect = (el.clientWidth || 1) / (el.clientHeight || 1);
+      townCam.updateProjectionMatrix();
+      r.render(town, townCam);
+    };
+    this.raf = requestAnimationFrame(loop);
+  }
+
+  enter() {
+    const T = this.T;
+    if (!T || this.api) return;
+    T.M.createWoodshop({
+      container: this.stageEl,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:woodshop', { detail: h })),
+      opts: { world: { renderer: T.r, camera: T.townCam, parent: T.parent } },
+    }).then((api) => {
+      if (this.dead) { api.destroy(); return; }
+      this.api = api;
+      window.dispatchEvent(new CustomEvent('8g:woodshop', { detail: api.hud() }));
+      this.setState({ closed: false });
+    }).catch((e) => this.setState({ err: String((e && e.message) || e) }));
+  }
+
+  end() {
+    if (this.api) { this.api.destroy(); this.api = null; }
+    window.dispatchEvent(new CustomEvent('8g:woodshop', { detail: null }));
+    this.setState({ closed: true });
+  }
+
+  componentWillUnmount() {
+    this.dead = true;
+    if (this.api) this.api.destroy();
+    this.api = null;
+    cancelAnimationFrame(this.raf);
+    if (this.ro) this.ro.disconnect();
+    if (this.T) this.T.r.dispose();
+  }
+
+  renderVals() {
+    return {
+      setStage: this.setStage,
+      setRoot: this.setRoot,
+      world: this.world,
+      closed: this.state.closed && !this.state.err,
+      enter: () => this.enter(),
+      onKey: (e) => { if (this.api) this.api.key(e); },
+      errOn: !!this.state.err,
+      err: this.state.err,
+    };
+  }
+}
+</script>
+</body>
+</html>

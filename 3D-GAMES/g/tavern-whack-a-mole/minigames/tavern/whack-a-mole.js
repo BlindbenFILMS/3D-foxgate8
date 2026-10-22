@@ -3,8 +3,8 @@
 //   MOLE +10 · HARD HAT (2 hits) +25 · GOLD MOLE (quick) +50 · HEDGEHOG: do NOT hit, -30 and your combo resets.
 //   Every 5 hits in a row the multiplier goes up (x2, x3, x4). A miss, a hedgehog, or (solo) a mole that gets away resets it.
 //   Last 10 seconds = FRENZY: faster moles, more gold.
-// MODES: SOLO (pays gold + XP, medals, the Golden Mallet) · PARTY (2-5 players pass one phone, everyone gets the SAME moles)
-//        · ONLINE (2-5 phones, peer to peer through engine/duel-net.js, one shared board: first mallet to land gets the mole).
+// MODES: SOLO (pays gold + XP, medals, the Golden Mallet) · PARTY (2-4 players pass one phone, everyone gets the SAME moles)
+//        · ONLINE (2-4 phones, peer to peer through engine/duel-net.js, one shared board: first mallet to land gets the mole).
 // SOUND CUES: every hole has its own note (back row high, front row low) and sits left / centre / right in stereo,
 //   so a player who can't see the board well can still play by ear. ASSIST keeps moles up longer and rings them in yellow.
 // MERGE: createWhackAMole({ container, onState, opts: { world } }) stands alone. buildCabinet(ctx) is exported so a world's
@@ -18,7 +18,7 @@ import { save } from '../../engine/save.js';
 export const MOLES = { name: 'WHACK-A-MOLE', room: 'tavernMoles', key: 'tavernMoles', round: 60, partyRound: 30 };
 export const MEDALS = [['GOLD', 2600, '#ffd23a'], ['SILVER', 1600, '#cfd6de'], ['BRONZE', 900, '#d08a4a']];
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PURPLE', '#a78bfa']];
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 export const TYPES = { mole: { name: 'MOLE', pts: 10 }, helmet: { name: 'HARD HAT', pts: 25 }, gold: { name: 'GOLD MOLE', pts: 50 }, hedge: { name: 'HEDGEHOG', pts: -30 } };
 // Save keys (all start with the game key, see the HANDOFF file)
 const K = { best: 'tavernMoles.best', plays: 'tavernMoles.plays', combo: 'tavernMoles.bestCombo', golds: 'tavernMoles.goldMoles', wins: 'tavernMoles.onlineWins', partyBest: 'tavernMoles.partyBest', medal: 'tavernMoles.medal', mallet: 'tavernMoles.goldMallet', played: 'tavernMoles.played' };
@@ -375,7 +375,7 @@ export async function createWhackAMole({ container, onState = () => {}, opts = {
     showHit(holeIdx, scoreHit(G.me, e, holeIdx, true)); hudDirty = true;
   }
 
-  // ---------- ONLINE (2-5 phones). Lobby + host-decides hits. Message types only 'hi' / 'pg' / 'ev' (same as Skate Park). ----------
+  // ---------- ONLINE (2-4 phones). Lobby + host-decides hits. Message types only 'hi' / 'pg' / 'ev' (same as Skate Park). ----------
   function members() { const N = G.net; if (!N || !N.link) return []; const all = [{ id: N.link.id, j: N.j, ready: N.ready, playing: !!N.match, me: true }, ...Object.entries(N.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, MAX_PLAYERS); }
   function inRoom() { return members().some(m => m.me); }
   function hostId(match = true) { let m = members(); const N = G.net; if (match && N && N.match) m = N.match.players.filter(p => !p.gone).map(p => ({ id: p.id })); return m.length ? m.reduce((a, b) => a.id < b.id ? a : b).id : (N && N.link ? N.link.id : null); }

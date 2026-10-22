@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Woodshop</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+.ws{position:relative;width:100%;height:100vh;min-height:320px;overflow:hidden;font-family:'Archivo',system-ui,sans-serif;color:#fff;background:#000;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+.ws.ov{position:absolute;inset:0;height:100%;min-height:0;background:transparent;pointer-events:none}
+.stage{position:absolute;inset:0}
+.top{position:absolute;top:0;left:0;right:0;padding:8px;display:flex;flex-direction:column;gap:6px;pointer-events:none;box-sizing:border-box}
+.ws.land .top{right:300px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
+.btn{pointer-events:auto;min-height:44px;min-width:44px;padding:0 14px;background:#000;color:#fff;border:2px solid #3a3836;border-radius:0;font-family:'Archivo',system-ui,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;text-align:left;display:flex;align-items:center;justify-content:flex-start;cursor:pointer;box-sizing:border-box}
+.btn:focus-visible,.act:focus-visible{outline:3px solid #ffd23a;outline-offset:2px}
+.btn.red{background:#ec3013;border-color:#ec3013;color:#fff}
+.btn.sel{border-color:#ffd23a;color:#ffd23a}
+.btn.wide{width:100%}
+.chip{background:#000;border:2px solid #3a3836;padding:5px 9px;display:flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.06em}
+.chip.on{border-color:#ffd23a}
+.chip b{font-size:16px}
+.dot{width:10px;height:10px;display:inline-block}
+.sw{width:16px;height:16px;border:2px solid #fff;display:inline-block}
+.lbl{color:#b5afa8;font-size:12px;font-weight:600;letter-spacing:.08em}
+.panel{position:absolute;left:0;right:0;bottom:0;background:#000;border-top:2px solid #3a3836;padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;pointer-events:auto;box-sizing:border-box}
+.ws.land .panel{left:auto;top:0;width:300px;border-top:0;border-left:2px solid #3a3836;justify-content:flex-end}
+.stg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.pip{border:2px solid #3a3836;padding:5px 6px;font-size:12px;font-weight:800;display:flex;justify-content:space-between;gap:4px;color:#b5afa8}
+.pip.active{border-color:#ffd23a;color:#ffd23a}
+.pip.done{border-color:#ffffff;color:#ffffff}
+.who{font-size:12px;letter-spacing:.1em;color:#ff5a3c;font-weight:800;display:flex;justify-content:space-between;gap:8px}
+.msg{font-size:15px;line-height:1.3;min-height:39px;margin:0}
+.act{position:relative;min-height:62px;width:100%;font-family:'Archivo',system-ui,sans-serif;font-size:19px;font-weight:800;letter-spacing:.05em;padding:0 64px 0 16px;border:2px solid #ffd23a;background:#ffd23a;color:#000;text-align:left;border-radius:0;touch-action:none;cursor:pointer;-webkit-touch-callout:none}
+.act.off{background:#000;color:#b5afa8;border-color:#3a3836;cursor:default}
+.act.hold{background:#ec3013;border-color:#ec3013;color:#fff}
+.hand{position:absolute;right:14px;top:10px;width:40px;height:40px;animation:nudge .9s ease-in-out infinite;pointer-events:none}
+@keyframes nudge{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+.toast{position:absolute;bottom:100%;left:12px;margin-bottom:10px;background:#000;border:2px solid #ffd23a;padding:8px 14px;display:flex;align-items:baseline;gap:12px;pointer-events:none;animation:pop .22s ease-out;transform-origin:left bottom}
+.ws.land .toast{bottom:auto;top:12px;left:auto;right:100%;margin:0 12px 0 0}
+.toast b{font-size:26px;color:#ffd23a;font-weight:800;letter-spacing:.04em}
+.toast span{font-size:18px;font-weight:800}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;pointer-events:auto;box-sizing:border-box}
+.card{background:#000;border:2px solid #3a3836;width:100%;max-width:380px;max-height:100%;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:12px;box-sizing:border-box}
+.card h2{margin:0;font-size:24px;font-weight:800;letter-spacing:.04em}
+.card p{margin:0;font-size:14px;line-height:1.45;color:#ece8e3}
+.grp{display:flex;flex-direction:column;gap:6px}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opts .btn{flex:1 1 auto}
+.rule{height:2px;background:#3a3836}
+.res{display:flex;justify-content:space-between;align-items:center;border:2px solid #3a3836;padding:8px 10px;font-weight:800;font-size:15px}
+.res span{display:flex;align-items:center;gap:8px}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.stat{border:2px solid #3a3836;padding:8px;display:flex;flex-direction:column;gap:2px}
+.stat b{font-size:20px}
+.stars{display:flex;gap:6px}
+.star{width:30px;height:30px;color:#3a3836}
+.star.on{color:#ffd23a}
+.yel{color:#ffd23a}
+.center{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-start;padding:24px;font-weight:800;letter-spacing:.08em;font-size:14px;pointer-events:none}
+</style>
+</helmet>
+<div class="{{rootCls}}" ref="{{setRoot}}">
+<sc-if value="{{standalone}}" hint-placeholder-val="{{ true }}">
+<div class="stage" ref="{{setStage}}"></div>
+</sc-if>
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div class="center">LOADING THE WORKSHOP</div>
+</sc-if>
+<sc-if value="{{show}}" hint-placeholder-val="{{ true }}">
+<div class="top" data-safe="top">
+<div class="row">
+<button class="btn red" type="button" onClick="{{back}}">BACK</button>
+<button class="btn" type="button" onClick="{{openMenu}}">MENU</button>
+<button class="btn" type="button" onClick="{{openInvite}}">INVITE FRIEND</button>
+</div>
+<div class="row">
+<sc-for list="{{seats}}" as="s" hint-placeholder-count="2">
+<div class="{{s.cls}}"><span class="dot" style="background: {{s.hex}}"></span>{{s.name}} <b>{{s.total}}</b></div>
+</sc-for>
+<div class="chip"><span class="lbl">{{roundLabel}}</span> {{orderName}} <span class="sw" style="background: {{stainHex}}"></span> {{stainName}}</div>
+</div>
+</div>
+<div class="panel" data-safe="{{panelSide}}">
+<sc-if value="{{toastOn}}" hint-placeholder-val="{{ false }}">
+<div class="toast" role="status"><b>{{toastText}}</b><span>{{toastPts}}</span></div>
+</sc-if>
+<div class="who"><span>{{stageTitle}}</span><span>{{whoLabel}}</span></div>
+<p class="msg" aria-live="polite">{{msg}}</p>
+<div class="stg">
+<sc-for list="{{stages}}" as="st" hint-placeholder-count="4">
+<div class="{{st.cls}}"><span>{{st.label}}</span><span>{{st.val}}</span></div>
+</sc-for>
+</div>
+<button class="{{actCls}}" type="button" aria-label="{{actLabel}}" onPointerDown="{{down}}" onPointerUp="{{up}}" onPointerCancel="{{up}}" onPointerLeave="{{up}}" onKeyDown="{{keyDown}}" onKeyUp="{{keyUp}}" onContextMenu="{{noMenu}}">{{actLabel}}<sc-if value="{{hint}}" hint-placeholder-val="{{ false }}"><svg class="hand" viewBox="0 0 24 24" aria-hidden="true" fill="#ffffff" stroke="#000000" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round"><path d="M9 12V4.6a1.6 1.6 0 0 1 3.2 0V11V9.6a1.6 1.6 0 0 1 3.2 0V11.5V10.6a1.6 1.6 0 0 1 3.2 0V16a6 6 0 0 1-6 6h-1.4a6 6 0 0 1-4.8-2.4L3.8 15a1.6 1.6 0 0 1 2.5-2L9 15.4Z"></path></svg></sc-if></button>
+</div>
+</sc-if>
+
+<sc-if value="{{menuOn}}" hint-placeholder-val="{{ false }}">
+<div class="scrim">
+<div class="card" role="dialog" aria-label="Menu">
+<h2>MENU</h2>
+<p>Build each order in four stages: CUT, SAND, JOIN, STAIN. Each stage scores up to 100. Highest total after the last round wins.</p>
+<div class="grp"><span class="lbl">MODE</span>
+<div class="opts"><sc-for list="{{modes}}" as="o" hint-placeholder-count="3"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+<sc-if value="{{showLevels}}" hint-placeholder-val="{{ true }}">
+<div class="grp"><span class="lbl">OPPONENT</span>
+<div class="opts"><sc-for list="{{levels}}" as="o" hint-placeholder-count="3"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+</sc-if>
+<sc-if value="{{showPlayers}}" hint-placeholder-val="{{ false }}">
+<div class="grp"><span class="lbl">PLAYERS ON THIS DEVICE</span>
+<div class="opts"><sc-for list="{{playerOpts}}" as="o" hint-placeholder-count="3"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+</sc-if>
+<sc-if value="{{showRounds}}" hint-placeholder-val="{{ true }}">
+<div class="grp"><span class="lbl">ROUNDS</span>
+<div class="opts"><sc-for list="{{roundOpts}}" as="o" hint-placeholder-count="3"><button class="{{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button></sc-for></div></div>
+</sc-if>
+<button class="btn sel wide" type="button" onClick="{{startSel}}">START NEW MATCH</button>
+<div class="rule"></div>
+<div class="opts">
+<button class="btn" type="button" onClick="{{toggleSound}}">{{soundLabel}}</button>
+<button class="btn" type="button" onClick="{{toggleMusic}}">{{musicLabel}}</button>
+</div>
+<div class="opts">
+<button class="btn" type="button" onClick="{{closeMenu}}">RESUME</button>
+<button class="btn red" type="button" onClick="{{back}}">LEAVE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{inviteOn}}" hint-placeholder-val="{{ false }}">
+<div class="scrim">
+<div class="card" role="dialog" aria-label="Invite friend">
+<h2>INVITE FRIEND</h2>
+<p>Online workshop rooms are coming soon. For now, up to four foxes can share this device with PASS &amp; PLAY.</p>
+<button class="btn sel wide" type="button" onClick="{{invitePass}}">PLAY PASS &amp; PLAY</button>
+<button class="btn wide" type="button" onClick="{{closeInvite}}">CLOSE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{resultOn}}" hint-placeholder-val="{{ false }}">
+<div class="scrim">
+<div class="card" role="dialog" aria-label="Results">
+<span class="lbl">RESULTS</span>
+<h2>{{resTitle}}</h2>
+<div class="grp">
+<sc-for list="{{resRows}}" as="r" hint-placeholder-count="2">
+<div class="res"><span><span class="dot" style="background: {{r.hex}}"></span>{{r.place}}. {{r.name}}</span><span>{{r.total}}</span></div>
+</sc-for>
+</div>
+<div class="stars" aria-label="{{starsLabel}}">
+<sc-for list="{{stars}}" as="s" hint-placeholder-count="3">
+<svg class="{{s.cls}}" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2.5l2.9 6.2 6.8.7-5.1 4.6 1.5 6.7L12 17.3l-6.1 3.4 1.5-6.7-5.1-4.6 6.8-.7z"></path></svg>
+</sc-for>
+</div>
+<div class="stats">
+<div class="stat"><span class="lbl">SCORE</span><b>{{resScore}}</b></div>
+<div class="stat"><span class="lbl">{{bestLabel}}</span><b>{{resBest}}</b></div>
+<div class="stat"><span class="lbl">GOLD</span><b class="yel">+{{resGold}}</b></div>
+</div>
+<button class="btn sel wide" type="button" onClick="{{playAgain}}">PLAY AGAIN</button>
+<button class="btn red wide" type="button" onClick="{{back}}">BACK</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{closedOn}}" hint-placeholder-val="{{ false }}">
+<div class="scrim">
+<div class="card" role="dialog" aria-label="Workshop closed">
+<h2>WORKSHOP CLOSED</h2>
+<p>You stepped away from the bench.</p>
+<button class="btn sel wide" type="button" onClick="{{reopen}}">OPEN THE WORKSHOP</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{errOn}}" hint-placeholder-val="{{ false }}">
+<div class="scrim">
+<div class="card" role="alert">
+<h2>COULD NOT LOAD</h2>
+<p>{{err}}</p>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { h: null, menu: false, invite: false, land: false, err: '', sel: { mode: 'cpu', level: 'pip', players: 2, rounds: 3 } };
+    this.api = null;
+    this.rootEl = null;
+    this.stageEl = null;
+    this.lastSafe = '';
+    this.setRoot = (el) => { this.rootEl = el; };
+    this.setStage = (el) => { this.stageEl = el; };
+  }
+
+  isOv() { return !!this.props.world; }
+
+  getApi() {
+    if (this.isOv()) {
+      const w = this.props.world && this.props.world._woodshop;
+      return w && w.g ? w.g() : null;
+    }
+    return this.api;
+  }
+
+  componentDidMount() {
+    this.onResize = () => this.measure();
+    window.addEventListener('resize', this.onResize);
+    if (this.isOv()) {
+      this.onEv = (e) => this.setState({ h: e.detail || null, menu: e.detail ? this.state.menu : false, invite: e.detail ? this.state.invite : false });
+      window.addEventListener('8g:woodshop', this.onEv);
+      const api = this.getApi();
+      if (api) this.setState({ h: api.hud() });
+    } else {
+      this.boot();
+    }
+    setTimeout(() => this.measure(), 60);
+  }
+
+  boot() {
+    const load = new Function('u', 'return import(u)');
+    const url = new URL('./minigames/woodshop/woodshop.js', document.baseURI).href;
+    load(url)
+      .then((m) => {
+        if (this.dead || !this.stageEl) return null;
+        return m.createWoodshop({ container: this.stageEl, onState: (h) => { if (!this.dead) this.setState({ h }); } });
+      })
+      .then((api) => {
+        if (!api) return;
+        if (this.dead) { api.destroy(); return; }
+        this.api = api;
+        this.lastSafe = '';
+        this.measure();
+      })
+      .catch((e) => this.setState({ err: String((e && e.message) || e) }));
+  }
+
+  componentDidUpdate() { this.measure(); }
+
+  componentWillUnmount() {
+    this.dead = true;
+    window.removeEventListener('resize', this.onResize);
+    if (this.onEv) window.removeEventListener('8g:woodshop', this.onEv);
+    if (this.api) this.api.destroy();
+    this.api = null;
+  }
+
+  measure() {
+    const root = this.rootEl;
+    if (!root) return;
+    const R = root.getBoundingClientRect();
+    if (!R.width || !R.height) return;
+    const land = R.width > R.height && R.height < 560;
+    if (land !== this.state.land) { this.setState({ land }); return; }
+    let t = 0, b = 0, l = 0, r = 0;
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const k = el.getAttribute('data-safe');
+      const q = el.getBoundingClientRect();
+      if (!q.width && !q.height) return;
+      if (k === 'top') t = Math.max(t, q.bottom - R.top);
+      else if (k === 'bottom') b = Math.max(b, R.bottom - q.top);
+      else if (k === 'left') l = Math.max(l, q.right - R.left);
+      else if (k === 'right') r = Math.max(r, R.right - q.left);
+    });
+    const key = [t, b, l, r].map(Math.round).join(',');
+    const api = this.getApi();
+    if (api && key !== this.lastSafe) {
+      this.lastSafe = key;
+      api.setSafe({ top: t, bottom: b, left: l, right: r });
+    }
+  }
+
+  renderVals() {
+    const st = this.state;
+    const h = st.h;
+    const ov = this.isOv();
+    const sel = st.sel;
+    const A = () => this.getApi();
+    const has = !!(h && h.phase && h.phase !== 'loading');
+    const seats = has ? h.seats.map((s) => ({
+      name: s.name, total: s.total, hex: s.hex, cls: s.active ? 'chip on' : 'chip',
+    })) : [];
+    const stages = has ? h.stages.map((x) => ({
+      label: x.label, val: x.score == null ? '-' : String(x.score),
+      cls: x.state === 'active' ? 'pip active' : x.state === 'done' ? 'pip done' : 'pip',
+    })) : [];
+    const res = has && h.result && !h.result.demo ? h.result : null;
+    const opt = (list, key, extra) => list.map(([id, label]) => ({
+      label, cls: sel[key] === id ? 'btn sel' : 'btn',
+      pick: () => this.setState({ sel: Object.assign({}, sel, { [key]: id }, extra || {}) }),
+    }));
+    const pauseOff = () => { const a = A(); if (a) a.pause(false); };
+    let who = '';
+    if (has) who = h.turnCpu ? h.turnName + ' WORKING' : (h.mode === 'local' ? h.turnName + ' TO PLAY' : 'YOUR TURN');
+    return {
+      rootCls: 'ws' + (ov ? ' ov' : '') + (st.land ? ' land' : ''),
+      setRoot: this.setRoot,
+      setStage: this.setStage,
+      standalone: !ov,
+      loading: !ov && !has && !st.err,
+      show: has && h.phase !== 'closed',
+      panelSide: st.land ? 'right' : 'bottom',
+      seats,
+      roundLabel: has ? 'ROUND ' + h.round + '/' + h.rounds : '',
+      orderName: has ? h.order.name : '',
+      stainName: has ? h.order.stain : '',
+      stainHex: has ? h.order.stainHex : '#000000',
+      stageTitle: has ? (h.stageIdx >= 0 && h.stageIdx < 4 ? 'STAGE ' + (h.stageIdx + 1) + ' / ' + h.stageLabel : h.stageLabel) : '',
+      whoLabel: who,
+      msg: has ? h.msg : '',
+      stages,
+      actLabel: has ? h.actionLabel : '',
+      actCls: !has || !h.actionOn ? 'act off' : h.holding ? 'act hold' : 'act',
+      hint: has && h.hint,
+      toastOn: has && !!h.toast,
+      toastText: has && h.toast ? h.toast.text : '',
+      toastPts: has && h.toast ? (h.toast.big ? h.toast.pts + ' / 400' : '+' + h.toast.pts) : '',
+      down: (e) => { if (e && e.preventDefault) e.preventDefault(); const a = A(); if (a) a.down(); },
+      up: () => { const a = A(); if (a) a.up(); },
+      keyDown: (e) => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); const a = A(); if (a) a.down(); } },
+      keyUp: (e) => { if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); const a = A(); if (a) a.up(); } },
+      noMenu: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      openMenu: () => {
+        const a = A();
+        if (a) a.pause(true);
+        const s2 = has ? { mode: h.mode, level: h.level, players: h.players, rounds: h.mode === 'demo' ? sel.rounds : h.rounds } : sel;
+        this.setState({ menu: true, invite: false, sel: Object.assign({}, sel, s2) });
+      },
+      closeMenu: () => { pauseOff(); this.setState({ menu: false }); },
+      openInvite: () => { const a = A(); if (a) a.pause(true); this.setState({ invite: true, menu: false }); },
+      closeInvite: () => { pauseOff(); this.setState({ invite: false }); },
+      invitePass: () => {
+        const a = A();
+        const players = Math.max(2, sel.players);
+        if (a) a.start('local', { players, rounds: sel.rounds, level: sel.level });
+        this.setState({ invite: false, sel: Object.assign({}, sel, { mode: 'local', players }) });
+      },
+      startSel: () => {
+        const a = A();
+        if (a) a.start(sel.mode, { level: sel.level, players: sel.players, rounds: sel.rounds });
+        this.setState({ menu: false });
+      },
+      toggleSound: () => { const a = A(); if (a && has) a.setSound(!h.sound); },
+      toggleMusic: () => { const a = A(); if (a && has) a.setMusic(!h.music); },
+      soundLabel: has && h.sound ? 'SOUND ON' : 'SOUND OFF',
+      musicLabel: has && h.music ? 'MUSIC ON' : 'MUSIC OFF',
+      back: () => {
+        this.setState({ menu: false, invite: false });
+        if (ov) { const w = this.props.world && this.props.world._woodshop; if (w && w.end) w.end(); return; }
+        const a = A(); if (a) a.leave();
+      },
+      reopen: () => { const a = A(); if (a) a.start(sel.mode, { level: sel.level, players: sel.players, rounds: sel.rounds }); },
+      playAgain: () => { const a = A(); if (a) a.restart(); },
+      menuOn: st.menu,
+      inviteOn: st.invite,
+      modes: opt([['cpu', 'VS CPU'], ['local', 'PASS & PLAY'], ['demo', 'DEMO']], 'mode'),
+      showLevels: sel.mode === 'cpu',
+      levels: opt([['pip', 'PIP / ROOKIE'], ['hope', 'HOPE / CLUB'], ['noble', 'NOBLE / MASTER']], 'level'),
+      showPlayers: sel.mode === 'local',
+      playerOpts: opt([[2, '2'], [3, '3'], [4, '4']], 'players'),
+      showRounds: sel.mode !== 'demo',
+      roundOpts: opt([[1, '1'], [3, '3'], [5, '5']], 'rounds'),
+      resultOn: !!res && !st.menu,
+      resTitle: res ? res.title : '',
+      resRows: res ? res.rows : [],
+      resScore: res ? res.score : 0,
+      resBest: res ? res.best : 0,
+      bestLabel: res && res.newBest ? 'NEW BEST PIECE' : 'BEST PIECE',
+      resGold: res ? res.gold : 0,
+      stars: [0, 1, 2].map((i) => ({ cls: res && i < res.stars ? 'star on' : 'star' })),
+      starsLabel: res ? res.stars + ' of 3 stars' : '',
+      closedOn: !ov && has && h.phase === 'closed',
+      errOn: !!st.err,
+      err: st.err,
+    };
+  }
+}
+</script>
+</body>
+</html>

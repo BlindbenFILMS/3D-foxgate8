@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.wt-btn{cursor:pointer;font:inherit}
+.wt-btn:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; height: 100vh; min-height: 360px; overflow: hidden; background: #bfe3ff; color: #ffffff; font-family: Archivo, sans-serif">
+<div ref="{{stageRef}}" style="position: absolute; inset: 0"></div>
+<sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Archery" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<div aria-hidden="true" style="position: absolute; right: 12px; top: 50%; background: #000000; border: 2px solid #3a3836; padding: 6px 10px; font-size: 12px; font-weight: 800; letter-spacing: 0.1em; color: #ffd23a; pointer-events: none">WORLD TEST</div>
+<sc-if value="{{closed}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; justify-content: flex-start">
+<div style="background: #000000; border: 2px solid #3a3836; padding: 16px; width: 100%; max-width: 420px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.14em; color: #ec3013">TOWN</div>
+<div style="font-size: 20px; font-weight: 800">ARCHERY CLOSED</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #d9d4ce">BACK called world._archeryRange.end(). The module removed its group and sent a null 8g:archeryRange event.</p>
+<button type="button" class="wt-btn" onClick="{{reopen}}" style="min-height: 48px; padding: 0 16px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">WALK BACK TO THE RANGE</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="position: absolute; left: 12px; right: 12px; bottom: 12px; background: #000000; border: 2px solid #ec3013; padding: 12px 14px; font-size: 13px">THE TOWN COULD NOT LOAD: {{err}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._alive = true;
+    this.setState({ open: false, closed: false, err: '' });
+    this.world = { _archeryRange: { g: () => this.api || null, end: () => this.closeGame() } };
+    this.boot();
+  }
+  componentWillUnmount() {
+    this._alive = false;
+    cancelAnimationFrame(this._raf);
+    if (this._ro) this._ro.disconnect();
+    if (this.api) { try { this.api.destroy(); } catch (e) { } this.api = null; }
+    if (this.r) { this.r.dispose(); this.r.domElement.remove(); }
+  }
+  send(h) { window.dispatchEvent(new CustomEvent('8g:archeryRange', { detail: h })); }
+  async boot() {
+    try {
+      const base = document.baseURI;
+      const THREE = await import(new URL('./vendor/three/three.module.js', base).href);
+      this.mod = await import(new URL('./minigames/archery/archery.js', base).href);
+      let tries = 0;
+      while (!this.stageEl && tries < 40 && this._alive) { await new Promise((r) => setTimeout(r, 25)); tries++; }
+      if (!this._alive || !this.stageEl) return;
+      this.T = THREE;
+      const stage = this.stageEl;
+      const r = new THREE.WebGLRenderer({ antialias: true });
+      r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      r.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;outline:none';
+      r.domElement.tabIndex = 0;
+      stage.appendChild(r.domElement);
+      this.r = r;
+      const town = new THREE.Scene();
+      town.background = new THREE.Color('#bfe3ff');
+      town.fog = new THREE.Fog('#bfe3ff', 90, 220);
+      town.add(new THREE.HemisphereLight('#ffffff', '#6a8f55', 1.5));
+      const sun = new THREE.DirectionalLight('#fff2dc', 2.2); sun.position.set(-20, 30, 10); town.add(sun);
+      const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(500, 500), lam('#7cbf5a'));
+      ground.rotation.x = -Math.PI / 2; town.add(ground);
+      const road = new THREE.Mesh(new THREE.PlaneGeometry(10, 300), lam('#c9c2b4'));
+      road.rotation.x = -Math.PI / 2; road.position.set(-8, 0.01, 0); town.add(road);
+      const houseCols = ['#e8c9a0', '#f1e3c8', '#d9a98a', '#c9d6e8'];
+      for (let i = 0; i < 10; i++) {
+        const h = new THREE.Group();
+        const body = new THREE.Mesh(new THREE.BoxGeometry(7, 5, 7), lam(houseCols[i % 4]));
+        body.position.y = 2.5; h.add(body);
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(5.6, 3.2, 4), lam(i % 2 ? '#b8473a' : '#5a6b8c'));
+        roof.position.y = 6.6; roof.rotation.y = Math.PI / 4; h.add(roof);
+        h.position.set(i % 2 ? -20 : 4, 0, 60 - i * 13);
+        if (i % 2 === 0 && i > 2 && i < 8) h.position.x = -34;
+        town.add(h);
+      }
+      const parent = new THREE.Group();
+      parent.position.set(20, 0, -15);
+      parent.rotation.y = 0.9;
+      town.add(parent);
+      const cam = new THREE.PerspectiveCamera(55, 1, 0.1, 600);
+      cam.position.set(-10, 28, 70); cam.lookAt(20, 0, -15);
+      this.town = town; this.parent = parent; this.townCam = cam;
+      this.homePos = cam.position.clone(); this.homeQuat = cam.quaternion.clone();
+      const size = () => {
+        const w = Math.max(1, stage.clientWidth), hh = Math.max(1, stage.clientHeight);
+        r.setSize(w, hh, false); cam.aspect = w / hh; cam.updateProjectionMatrix();
+      };
+      size();
+      this._ro = new ResizeObserver(size); this._ro.observe(stage);
+      const fwdKey = (e) => { if (this.api) this.api.key(e); };
+      r.domElement.addEventListener('keydown', fwdKey);
+      r.domElement.addEventListener('keyup', fwdKey);
+      r.domElement.addEventListener('pointerdown', () => { try { r.domElement.focus({ preventScroll: true }); } catch (e) { } });
+      let last = performance.now();
+      const loop = (t) => {
+        if (!this._alive) return;
+        this._raf = requestAnimationFrame(loop);
+        const dt = Math.min(0.05, (t - last) / 1000); last = t;
+        const k = 1 - Math.exp(-dt * 6);
+        if (this.api) {
+          const c = this.api.camera;
+          cam.position.lerp(c.position, k);
+          cam.quaternion.slerp(c.quaternion, k);
+        } else {
+          cam.position.lerp(this.homePos, k * 0.5);
+          cam.quaternion.slerp(this.homeQuat, k * 0.5);
+        }
+        cam.aspect = r.domElement.clientWidth / Math.max(1, r.domElement.clientHeight);
+        cam.updateProjectionMatrix();
+        r.render(town, cam);
+      };
+      this._raf = requestAnimationFrame(loop);
+      await this.openGame();
+    } catch (e) {
+      if (this._alive) this.setState({ err: String((e && e.message) || e) });
+    }
+  }
+  async openGame() {
+    if (this.api || !this.mod) return;
+    this.api = await this.mod.createArchery({
+      container: null,
+      onState: (h) => this.send(h),
+      opts: { world: { renderer: this.r, camera: this.townCam, parent: this.parent } },
+    });
+    if (!this._alive) { this.api.destroy(); this.api = null; return; }
+    this.setState({ open: true, closed: false });
+    this.send(this.api.hud());
+  }
+  closeGame() {
+    if (this.api) { this.api.destroy(); this.api = null; }
+    this.send(null);
+    this.setState({ open: false, closed: true });
+  }
+  renderVals() {
+    const st = this.state || {};
+    if (!this.stageRef) this.stageRef = (el) => { if (el) this.stageEl = el; };
+    return {
+      stageRef: this.stageRef,
+      world: this.world || null,
+      open: !!st.open,
+      closed: !!st.closed,
+      hasErr: !!st.err, err: st.err || '',
+      reopen: () => this.openGame(),
+    };
+  }
+}
+</script>
+</body>
+</html>

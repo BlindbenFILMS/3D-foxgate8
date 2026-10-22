@@ -1,7 +1,7 @@
 // 8 GATES — ARCADE · SLOTS: LUCKY GATES [arcadeSlots]. A new 3D three-line slot machine for the arcade room (not a replacement for #161).
 // 3 reels × 3 rows, paylines 1 (middle) · 2 (top) · 3 (bottom), bet 1–5 shared gold a line. 8 · 8 · 8 at max bet wins the progressive jackpot.
 // Real gold through engine/save.js, with a daily loss limit (100 gold). Demo mode (?demo=1) spins free credits.
-// ONLINE JACKPOT ROOM: up to 5 friends on their own phones share one growing pot and see each other's wins live.
+// ONLINE JACKPOT ROOM: up to 4 friends on their own phones share one growing pot and see each other's wins live.
 // Accessibility: SOUND REELS (each symbol has its own note when its reel stops), SPOKEN RESULTS, big controls, phone buzz.
 // FILES: slots.js (game) · slots-rules.js (maths) · slots-machine.js (cabinet + world prop) · slots-audio.js (sound + music)
 //        · slots-embed.js (open from a world) · arcade-room.js (the room, shared with nothing else yet). Uses pinball-machine.js
@@ -17,7 +17,7 @@ import { SYMBOLS, LINES, BET, MAX_LINES, JACKPOT, DAILY_LOSS_LIMIT, PAYTABLE, ev
 import { SlotSound, SlotsMusic, SYMBOL_NOTE } from './slots-audio.js';
 import { buildArcadeRoom } from './arcade-room.js';
 
-export const SLOTS = { name: 'LUCKY GATES', room: 'arcadeSlots', key: 'arcadeSlots', maxPlayers: 5 };
+export const SLOTS = { name: 'LUCKY GATES', room: 'arcadeSlots', key: 'arcadeSlots', maxPlayers: 4 };
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PINK', '#f472b6']];
 export const SAVE_KEYS = { pot: 'arcadeSlots.pot', day: 'arcadeSlots.day', prefs: 'arcadeSlots.prefs', spins: 'arcadeSlots.spins', won: 'arcadeSlots.won', bigWin: 'arcadeSlots.bigWin', jackpots: 'arcadeSlots.jackpots', jackpotFlag: 'arcadeSlots.jackpot' };
 export { PAYTABLE };
@@ -28,7 +28,7 @@ export const HOW = [
   ['JACKPOT', '8 · 8 · 8 on a line at BET 5 wins 1,250 plus the whole JACKPOT pot. Every spin adds 3% of its bet to the pot.'],
   ['FULL MOONS', 'A full moon on the first reel always pays. Two moons from the left pay more.'],
   ['DAILY LIMIT', 'You can lose at most ' + DAILY_LOSS_LIMIT + ' gold a day here. Then the machine rests until tomorrow.'],
-  ['ONLINE', 'Open a JACKPOT ROOM: up to 5 friends share one pot and see each other’s wins.']];
+  ['ONLINE', 'Open a JACKPOT ROOM: up to 4 friends share one pot and see each other’s wins.']];
 
 const rr = (a, b) => a + Math.random() * (b - a), clamp = (v, a, b) => v < a ? a : v > b ? b : v, pick = a => a[Math.floor(Math.random() * a.length)];
 const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };

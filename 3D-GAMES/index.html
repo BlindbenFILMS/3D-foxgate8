@@ -128,6 +128,7 @@ section.cat .sub{margin:0 0 14px;color:var(--dim);font-size:15px}
 const A = id => "https://claude.ai/artifact/" + id;
 const C = id => "https://claude.ai/chat/" + id;
 const R = p => "https://blindbenfilms.github.io/FOXgate8/3D/" + p;
+const R2 = p => "https://blindbenfilms.github.io/3D-foxgate8/" + p;
 const A2 = id => "https://claude.ai/code/artifact/" + id;
 const H = f => "@" + f;
 const SITE = "https://blindbenfilms.github.io/3D-foxgate8/3D-GAMES/";
@@ -150,38 +151,39 @@ const CATS = [
 // links: [label, url, primary?]
 const GAMES = [
   // ARCADE & CARNIVAL
-  {s:"ring-toss",c:"arcade",n:"Ring Toss",w:"Carnival",a:"Toss rings onto pegs over three rounds, with wind and a spinning gold peg.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/fox-ring-toss/Main.dc.html"),1]]},
+  {s:"ring-toss",c:"arcade",n:"Ring Toss",w:"Carnival",a:"Toss rings onto pegs over three rounds, with wind and a spinning gold peg.",m:["Solo","Party 2–4","Online 2–4","Demo"],l:[["Play",H("g/fox-ring-toss/Main.dc.html"),1]]},
   {s:"water-race",c:"arcade",n:"Water-Gun Horse Race",w:"Carnival",a:"Squirt the bullseye to race your horse to the flag.",m:["Solo","Online up to 4","Demo"],l:[["Play",H("g/water-gun-horse-race-462b3a/Main.dc.html"),1]]},
-  {s:"balloon-pop",c:"arcade",n:"Balloon Pop",w:"Carnival",a:"Drag to aim and throw darts at a balloon board for tickets and prizes.",m:["Classic","Blitz","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/carnival-balloon-pop-126f9d/game.html"),1]]},
-  {s:"coconut-shy",c:"arcade",n:"Coconut Shy",w:"Carnival",a:"Swipe up to knock cans and coconuts off the shelves over three rounds.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",H("Carnival Coconut Shy.dc.html"),1]]},
-  {s:"shooting-gallery",c:"arcade",n:"Shooting Gallery + Marsh Blaster",w:"Carnival",a:"Cork-rifle carnival targets, plus a duck-shooting variant, in one canvas.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/8-gates-minigames/Main.dc.html"),1]]},
-  {s:"marsh-blaster",c:"arcade",n:"Marsh Blaster",w:"Arcade",a:"Duck-hunt light-gun cabinet: ducks and clays, three shells a wave.",m:["Solo","Pass the phone","Online up to 5","Demo"],l:[["Play",H("g/marsh-blaster/index.html"),1]]},
-  {s:"dusty-gulch",c:"arcade",n:"Dusty Gulch",w:"Saloon",a:"Western shooting gallery: pop-up outlaws, cans and bottles.",m:["Solo","Pass the phone","Online up to 5","Demo"],l:[["Play",H("g/dusty-gulch/index.html"),1]]},
-  {s:"fox-blaster",c:"arcade",n:"Fox Blaster",w:"Arcade",a:"Light-gun shooter: take cover, clear three stages, beat BIG BRASS.",m:["Solo","Co-op online up to 5","Demo"],l:[["Play",H("g/fox-blaster/Main.dc.html"),1]]},
-  {s:"claw-crane",c:"arcade",n:"Claw Crane",w:"Arcade",a:"Steer the claw and drop it for trucks, plush creatures and fox heroes.",m:["Play","Practice","Party","Online race up to 5","Demo"],l:[["Play",H("Arcade Claw Crane.dc.html"),1]]},
-  {s:"love-tester",c:"arcade",n:"Love Tester",w:"Arcade",a:"Tap the heartbeat, squeeze the grip and match sparks with a partner.",m:["Solo","Online 2–5","Demo"],l:[["Play",H("g/8-gates-love-tester/love-tester.html"),1]]},
-  {s:"fox-arcade",c:"arcade",n:"Dance Machine + Shuffleboard",w:"Arcade",a:"Hit arrows on a four-lane dance pad, or slide pucks down a shuffleboard table.",m:["Vs CPU","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/fox-arcade/index.html"),1]]},
-  {s:"skee-ball",c:"arcade",n:"Skee-Ball",w:"Arcade",a:"Swipe up to roll balls into the rings and the 100 pockets.",m:["Solo","Party 2–5","Online 2–5"],l:[["Play",H("g/skee-ball-phone-preview/Main.dc.html"),1]]},
-  {s:"pinball-slots",c:"arcade",n:"Gate Rush Pinball + Lucky Gates Slots",w:"Arcade",a:"A full 3D pinball table and a three-line slot machine in one arcade room.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Pinball",H("g/8-gates-arcade/pinball.dc.html"),1],["Slots",H("g/8-gates-arcade/slots.dc.html")]]},
+  {s:"balloon-pop",c:"arcade",n:"Balloon Pop",w:"Carnival",a:"Drag to aim and throw darts at a balloon board for tickets and prizes.",m:["Classic","Blitz","Party 2–4","Online 2–4","Demo"],l:[["Play",H("g/carnival-balloon-pop-126f9d/game.html"),1]]},
+  {s:"coconut-shy",c:"arcade",n:"Coconut Shy",w:"Carnival",a:"Swipe up to knock cans and coconuts off the shelves over three rounds.",m:["Solo","Party 2–4","Online 2–4","Demo"],l:[["Play",H("Carnival Coconut Shy.dc.html"),1]]},
+  {s:"shooting-gallery",c:"arcade",n:"Shooting Gallery + Marsh Blaster",w:"Carnival",a:"Cork-rifle carnival targets, plus a duck-shooting variant, in one canvas.",m:["Solo","Party 2–4","Online 2–4","Demo"],l:[["Play",H("g/8-gates-minigames/Main.dc.html"),1]]},
+  {s:"marsh-blaster",c:"arcade",n:"Marsh Blaster",w:"Arcade",a:"Duck-hunt light-gun cabinet: ducks and clays, three shells a wave.",m:["Solo","Pass the phone","Online up to 4","Demo"],l:[["Play",H("g/marsh-blaster/index.html"),1]]},
+  {s:"dusty-gulch",c:"arcade",n:"Dusty Gulch",w:"Saloon",a:"Western shooting gallery: pop-up outlaws, cans and bottles.",m:["Solo","Pass the phone","Online up to 4","Demo"],l:[["Play",H("g/dusty-gulch/index.html"),1]]},
+  {s:"fox-blaster",c:"arcade",n:"Fox Blaster",w:"Arcade",a:"Light-gun shooter: take cover, clear three stages, beat BIG BRASS.",m:["Solo","Co-op online up to 4","Demo"],l:[["Play",H("g/fox-blaster/Main.dc.html"),1]]},
+  {s:"claw-crane",c:"arcade",n:"Claw Crane",w:"Arcade",a:"Steer the claw and drop it for trucks, plush creatures and fox heroes.",m:["Play","Practice","Party","Online race up to 4","Demo"],l:[["Play",H("Arcade Claw Crane.dc.html"),1]]},
+  {s:"love-tester",c:"arcade",n:"Love Tester",w:"Arcade",a:"Tap the heartbeat, squeeze the grip and match sparks with a partner.",m:["Solo","Online 2–4","Demo"],l:[["Play",H("g/8-gates-love-tester/love-tester.html"),1]]},
+  {s:"fox-arcade",c:"arcade",n:"Dance Machine + Shuffleboard",w:"Arcade",a:"Hit arrows on a four-lane dance pad, or slide pucks down a shuffleboard table.",m:["Vs CPU","Party 2–4","Online 2–4","Demo"],l:[["Play",H("g/fox-arcade/index.html"),1]]},
+  {s:"skee-ball",c:"arcade",n:"Skee-Ball",w:"Arcade",a:"Swipe up to roll balls into the rings and the 100 pockets.",m:["Solo","Party 2–4","Online 2–4"],l:[["Play",H("g/skee-ball-phone-preview/Main.dc.html"),1]]},
+  {s:"pinball-slots",c:"arcade",n:"Gate Rush Pinball + Lucky Gates Slots",w:"Arcade",a:"A full 3D pinball table and a three-line slot machine in one arcade room.",m:["Solo","Party 2–4","Online 2–4","Demo"],l:[["Pinball",H("g/8-gates-arcade/pinball.dc.html"),1],["Slots",H("g/8-gates-arcade/slots.dc.html")]]},
   {s:"vending",c:"arcade",n:"Snack Stop Vending Machine",w:"Any world",a:"Pick a snack, pay in gold, watch it drop; shake it loose if it gets stuck.",m:["Solo"],l:[["Play",H("Arcade Vending Machine.dc.html"),1]]},
-  {s:"pachinko",c:"arcade",n:"Fox Gate Pachinko",w:"Arcade",a:"Launch balls through the pins to bank balls and cash out gold.",m:["Free play","For gold","Online ball race 2–5"],l:[["Play",H("g/fox-gate-pachinko/Main.dc.html"),1]]},
+  {s:"pachinko",c:"arcade",n:"Fox Gate Pachinko",w:"Arcade",a:"Launch balls through the pins to bank balls and cash out gold.",m:["Free play","For gold","Online ball race 2–4"],l:[["Play",H("g/fox-gate-pachinko/Main.dc.html"),1]]},
 
   // TAVERN
   {s:"tavern-games",c:"tavern",n:"Pool, Air Hockey, Ping-Pong, Foosball",w:"Tavern",a:"Walk in, talk to a regular, stake gold and play any of four table games.",m:["Vs NPC","Demo"],l:[["Pool",H("g/tavern-games/Main.dc.html"),1],["Air Hockey",H("g/tavern-games/HockeyMain.dc.html")],["Ping-Pong",H("g/tavern-games/PongMain.dc.html")],["Foosball",H("g/tavern-games/FoosMain.dc.html")]]},
-  {s:"axe-cornhole-washers",c:"tavern",n:"Axe House, Cornhole, Washers",w:"Tavern",a:"Three throwing games against Hope, Noble or friends.",m:["Solo","Party 2–5","Online 2–5","Demo"],l:[["Axe",H("g/8-gates-minigames-phone-preview/Main.dc.html"),1],["Cornhole",H("g/8-gates-minigames-phone-preview/Cornhole.dc.html")],["Washers",H("g/8-gates-minigames-phone-preview/Washers.dc.html")]]},
-  {s:"whack-a-mole",c:"tavern",n:"Whack-a-Mole",w:"Tavern",a:"60-second rounds on a 3×3 cabinet; dodge hedgehogs, build combos.",m:["Solo","Party 2–5","Online 2–5"],l:[["Play",H("g/tavern-whack-a-mole/Main.dc.html"),1]]},
-  {s:"fox-hoops",c:"tavern",n:"Fox Hoops",w:"Zion",a:"Shoot at the tavern hoop machine, moving hoop included, to beat the record.",m:["Vs regulars","Pass & play 2–5","Online 2–5","Demo"],l:[["Play",H("g/fox-hoops-a28312/index.html"),1]]},
-  {s:"liars-dice",c:"tavern",n:"Liar's Dice",w:"Tavern",a:"Bid and bluff with leather dice cups at a lamp-lit table.",m:["Vs CPU","Pass & play 2–6","Online 2–6","Demo"],l:[["Play",H("g/liars-dice/liars-dice.dc.html"),1]]},
+  {s:"axe-cornhole-washers",c:"tavern",n:"Axe House, Cornhole, Washers",w:"Tavern",a:"Three throwing games against Hope, Noble or friends.",m:["Solo","Party 2–4","Online 2–4","Demo"],l:[["Axe",H("g/8-gates-minigames-phone-preview/Main.dc.html"),1],["Cornhole",H("g/8-gates-minigames-phone-preview/Cornhole.dc.html")],["Washers",H("g/8-gates-minigames-phone-preview/Washers.dc.html")]]},
+  {s:"whack-a-mole",c:"tavern",n:"Whack-a-Mole",w:"Tavern",a:"60-second rounds on a 3×3 cabinet; dodge hedgehogs, build combos.",m:["Solo","Party 2–4","Online 2–4"],l:[["Play",H("g/tavern-whack-a-mole/Main.dc.html"),1]]},
+  {s:"fox-hoops",c:"tavern",n:"Fox Hoops",w:"Zion",a:"Shoot at the tavern hoop machine, moving hoop included, to beat the record.",m:["Vs regulars","Pass & play 2–4","Online 2–4","Demo"],l:[["Play",H("g/fox-hoops-a28312/index.html"),1]]},
+  {s:"liars-dice",c:"tavern",n:"Liar's Dice",w:"Tavern",a:"Bid and bluff with leather dice cups at a lamp-lit table.",m:["Vs CPU","Pass & play 2–5","Online 2–5","Demo"],l:[["Play",H("g/liars-dice/liars-dice.dc.html"),1]]},
   {s:"cribbage",c:"tavern",n:"Cribbage",w:"Tavern",a:"Pegboard and cards to 121 or 61; four players play as two teams.",m:["Vs CPU","Party 2–4","Online 2–4","Demo"],l:[["Play",H("g/cribbage/cribbage.dc.html"),1]]},
   {s:"shut-the-box",c:"tavern",n:"Shut the Box",w:"Tavern",a:"Roll dice and shut tiles that add up to the roll; lowest leftover wins.",m:["Solo","Vs CPU","Party 2–5","Online 2–5","Demo"],l:[["Play",H("g/shut-the-box/shut-the-box.dc.html"),1]]},
 
   // SPORTS
-  {s:"arm-wrestling",c:"sports",n:"Arm Wrestling",w:"Meru",a:"Climb a ladder of five rivals at the Iron Table to win the belt.",m:["Ladder","2 on one phone","Online up to 5","Demo"],l:[["Play",H("g/arm-wrestling-iron-table/Main.dc.html"),1]]},
-  {s:"tug-of-war",c:"sports",n:"Tug of War",w:"Hall",a:"Time your PULL taps and DIG IN against heaves to drag the rivals into the mud.",m:["Solo ladder","2 on one phone","Online 2–5","Demo"],l:[["Play",H("Tug of War.dc.html"),1]]},
+  {s:"arm-wrestling",c:"sports",n:"Arm Wrestling",w:"Meru",a:"Climb a ladder of five rivals at the Iron Table to win the belt.",m:["Ladder","2 on one phone","Online up to 4","Demo"],l:[["Play",H("g/arm-wrestling-iron-table/Main.dc.html"),1]]},
+  {s:"fox-fighters",c:"sports",n:"Fox Fighters",w:"Meru · Pearl Sail",a:"Street-fighter-style 3D fox duels on the Pearl Sail roof: 15 fighters, story, survival and a voiced announcer.",m:["Arcade","Story","Survival","Team battle","2 on one screen","Online 1v1","Demo"],l:[["Play",R2("FOXFIGHTERS-FINAL/FoxFighters/Pearl%20Roof%20Duel.html"),1]]},
+  {s:"tug-of-war",c:"sports",n:"Tug of War",w:"Hall",a:"Time your PULL taps and DIG IN against heaves to drag the rivals into the mud.",m:["Solo ladder","2 on one phone","Online 2–4","Demo"],l:[["Play",H("Tug of War.dc.html"),1]]},
   {s:"tetherball",c:"sports",n:"Tetherball",w:"Gym hall",a:"Wrap the ball around the pole before your rival does.",m:["Ladder","2 on one phone","Online","Demo"],l:[["Play",H("g/tetherball-hall/Main.dc.html"),1]]},
-  {s:"curling",c:"sports",n:"Curling",w:"Home",a:"Set the broom, pick weight and curl, then sweep to score ends.",m:["Vs CPU","Pass & play","Online 2–5","Demo"],l:[["Play",H("g/curling-club/Main.dc.html"),1]]},
-  {s:"mini-golf",c:"sports",n:"Mini Golf",w:"Home",a:"Drag back and release to putt around a nine-hole course.",m:["Solo","Party 2–5","Online up to 5","Demo"],l:[["Play",H("g/fox-mini-golf/Main.dc.html"),1]]},
-  {s:"mechanical-bull",c:"sports",n:"Mechanical Bull",w:"Zion",a:"Hold on for 8 seconds: tap on the beat and lean against the push.",m:["Solo","Pass & play","Online up to 5","Demo"],l:[["Play",H("g/zion-mechanical-bull/Main.dc.html"),1]]},
+  {s:"curling",c:"sports",n:"Curling",w:"Home",a:"Set the broom, pick weight and curl, then sweep to score ends.",m:["Vs CPU","Pass & play","Online 2–4","Demo"],l:[["Play",H("g/curling-club/Main.dc.html"),1]]},
+  {s:"mini-golf",c:"sports",n:"Mini Golf",w:"Home",a:"Drag back and release to putt around a nine-hole course.",m:["Solo","Party 2–4","Online up to 4","Demo"],l:[["Play",H("g/fox-mini-golf/Main.dc.html"),1]]},
+  {s:"mechanical-bull",c:"sports",n:"Mechanical Bull",w:"Zion",a:"Hold on for 8 seconds: tap on the beat and lean against the push.",m:["Solo","Pass & play","Online up to 4","Demo"],l:[["Play",H("g/zion-mechanical-bull/Main.dc.html"),1]]},
 
   // CASINO
   {s:"meru-poker",c:"casino",n:"Meru Poker + Treasure Wheel",w:"Meru",a:"Spin the Treasure Wheel, or play stud and hold'em at Kane's table.",m:["Solo","Party","Online up to 5","Demo"],l:[["Treasure Wheel",H("g/meru-poker/Wheel.dc.html"),1],["Poker",H("g/meru-poker/Main.dc.html")]]},
@@ -189,10 +191,10 @@ const GAMES = [
   {s:"texas-holdem",c:"casino",n:"Texas Hold'em",w:"Meru",a:"Hold'em at the Meru Casino table against the fox regulars, with blinds and side pots.",m:["Solo","Online 2–5"],l:[["Play",H("Meru Texas Holdem.dc.html"),1]]},
 
   // BOARD GAMES
-  {s:"chess",c:"board",n:"Chess Club",w:"Home",a:"Chess on a 3D board in a small club room.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/chess-club/chess-club.dc.html"),1]]},
-  {s:"checkers",c:"board",n:"Checkers Club",w:"Home",a:"Checkers on a 3D board against fox CPUs or friends.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/checkers-club/checkers-club.dc.html"),1]]},
-  {s:"backgammon",c:"board",n:"Backgammon Club",w:"Home",a:"Roll and race your checkers home in a café corner.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/backgammon-club/backgammon-club.dc.html"),1]]},
-  {s:"go",c:"board",n:"Go Club",w:"Home",a:"9×9, 13×13 or 19×19 on a goban in a tatami room.",m:["Vs CPU","2 players","Online room of 5","Demo"],l:[["Play",H("g/go-club/go-club.dc.html"),1]]},
+  {s:"chess",c:"board",n:"Chess Club",w:"Home",a:"Chess on a 3D board in a small club room.",m:["Vs CPU","2 players","Online room of 4","Demo"],l:[["Play",H("g/chess-club/chess-club.dc.html"),1]]},
+  {s:"checkers",c:"board",n:"Checkers Club",w:"Home",a:"Checkers on a 3D board against fox CPUs or friends.",m:["Vs CPU","2 players","Online room of 4","Demo"],l:[["Play",H("g/checkers-club/checkers-club.dc.html"),1]]},
+  {s:"backgammon",c:"board",n:"Backgammon Club",w:"Home",a:"Roll and race your checkers home in a café corner.",m:["Vs CPU","2 players","Online room of 4","Demo"],l:[["Play",H("g/backgammon-club/backgammon-club.dc.html"),1]]},
+  {s:"go",c:"board",n:"Go Club",w:"Home",a:"9×9, 13×13 or 19×19 on a goban in a tatami room.",m:["Vs CPU","2 players","Online room of 4","Demo"],l:[["Play",H("g/go-club/go-club.dc.html"),1]]},
   {s:"dominoes",c:"board",n:"Dominoes Club",w:"Any world",a:"Draw or All Fives at a felt porch table, first to 50, 100 or 150.",m:["Vs CPU","Pass & play 2–4","Online 2–5","Demo"],l:[["Play",H("g/dominoes-club/dominoes-club.dc.html"),1]]},
 
   // SHOPS & JOBS
@@ -226,11 +228,11 @@ const GAMES = [
   {s:"camel-pen",c:"jobs",n:"Ummi's Camel Pen",w:"Kufa",a:"Water, feed, brush, pull thorns and train the camels owners lead in.",m:["Shift","Demo"],l:[["Play",H("Kufa Camel Pen.dc.html"),1]]},
 
   // ZIP ONLY
-  {s:"cricket",c:"sports",n:"Cricket Nets",w:"Any world",a:"Indoor cricket nets: bat against Coach Bails or bowl to Skipper Rusty.",m:["Solo","Pass & play 2–5","Online 2–5"],l:[["Play",H("Cricket Nets.dc.html"),1]]},
-  {s:"coin-pusher",c:"arcade",n:"Arcade Coin Pusher",w:"Arcade",a:"Drop tokens on the moving shelf; bonus gate spins the reel.",m:["Free play","Online token race 2–5"],l:[["Play",H("Arcade Coin Pusher.dc.html"),1]]},
-  {s:"capsule-corner",c:"arcade",n:"Capsule Corner",w:"Any world",a:"Crank three capsule machines and collect 24 figures for the shelf.",m:["Solo","Online party 2–5"],l:[["Play",H("Capsule Corner.dc.html"),1]]},
-  {s:"shuffleboard-solo",c:"tavern",n:"Shuffleboard",w:"Any world",a:"Full table room with real rules, CPU foxes Rusty and Maple, and hold-to-throw.",m:["Vs CPU 1–4","Pass & play 2–5","Online 2–5"],l:[["Play",H("Shuffleboard.dc.html"),1]]},
-  {s:"dunk-tank",c:"arcade",n:"Dunk Tank",w:"Meru",a:"Hit the bullseye and whoever is on the seat goes in the water.",m:["Solo","Online 2–5"],l:[["Play",H("Meru Dunk Tank.dc.html"),1]]},
+  {s:"cricket",c:"sports",n:"Cricket Nets",w:"Any world",a:"Indoor cricket nets: bat against Coach Bails or bowl to Skipper Rusty.",m:["Solo","Pass & play 2–4","Online 2–4"],l:[["Play",H("Cricket Nets.dc.html"),1]]},
+  {s:"coin-pusher",c:"arcade",n:"Arcade Coin Pusher",w:"Arcade",a:"Drop tokens on the moving shelf; bonus gate spins the reel.",m:["Free play","Online token race 2–4"],l:[["Play",H("Arcade Coin Pusher.dc.html"),1]]},
+  {s:"capsule-corner",c:"arcade",n:"Capsule Corner",w:"Any world",a:"Crank three capsule machines and collect 24 figures for the shelf.",m:["Solo","Online party 2–4"],l:[["Play",H("Capsule Corner.dc.html"),1]]},
+  {s:"shuffleboard-solo",c:"tavern",n:"Shuffleboard",w:"Any world",a:"Full table room with real rules, CPU foxes Rusty and Maple, and hold-to-throw.",m:["Vs CPU 1–4","Pass & play 2–4","Online 2–4"],l:[["Play",H("Shuffleboard.dc.html"),1]]},
+  {s:"dunk-tank",c:"arcade",n:"Dunk Tank",w:"Meru",a:"Hit the bullseye and whoever is on the seat goes in the water.",m:["Solo","Online 2–4"],l:[["Play",H("Meru Dunk Tank.dc.html"),1]]},
 
 
   // FROM THE PROJECT BACKUP (hosted in this page)
@@ -267,6 +269,28 @@ const GAMES = [
 
   {s:"theatre",c:"stage",n:"The Fox Wife",w:"Kyoto",a:"Wear the mask the chorus names before the drum; drag to tilt it.",m:["Play","Demo"],l:[["Play",H("Kyoto Theatre.dc.html"),1]]},
   {s:"hollow-vale",c:"stage",n:"Hollow Vale",w:"Village",a:"A small 3D village: twelve houses, a fountain, a pond and a windmill.",m:["Walk"],l:[["Play",H("Hollow Vale.dc.html"),1]]},
+
+  // OCT 15 BATCH
+  {s:"archery",c:"sports",n:"Archery",w:"Town",a:"Draw, aim and loose three arrows an end over four ends, reading wind and drop.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/8-gates-archery/Archery.dc.html"),1]]},
+  {s:"bumper-cars",c:"arcade",n:"Bumper Cars",w:"Carnival",a:"Ram rival cars for 75 seconds; side and rear hits score more.",m:["Vs CPU", "2 on one screen", "Demo"],l:[["Play",H("g/bumper-cars/BumperCars.dc.html"),1]]},
+  {s:"airport-tsa",c:"jobs",n:"Airport TSA",w:"Airport",a:"Check IDs, read X-rays and patrol the terminal for incidents.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/airport-tsa/Main.dc.html"),1]]},
+  {s:"juggling",c:"arcade",n:"Juggling",w:"Town stage",a:"Tap each paw on the beat to catch balls, clubs and torches.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/juggling/Juggling.dc.html"),1]]},
+  {s:"car-wash",c:"jobs",n:"Car Wash",w:"Town",a:"Soap, rinse and dry muddy cars; wash the most in 60 seconds.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/car-wash/Main.dc.html"),1]]},
+  {s:"woodshop",c:"jobs",n:"Woodshop",w:"Town",a:"Cut on the line, sand, hammer pegs and match the stain for furniture orders.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/woodshop/Main.dc.html"),1]]},
+  {s:"toy-workshop",c:"jobs",n:"Toy Workshop",w:"Town",a:"Build wooden toys from blueprints, paint and finish them before the bell.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/toy-workshop/Main.dc.html"),1]]},
+  {s:"washing-up",c:"jobs",n:"Washing Up",w:"Kitchen",a:"Scrub plates, pans and fragile crystal against the clock.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/washing-up/WashingUp.dc.html"),1]]},
+  {s:"croquet",c:"sports",n:"Croquet",w:"Garden",a:"Run six hoops in order, then hit the peg; roquet rivals for extra strokes.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/8-gates-croquet/Croquet.dc.html"),1]]},
+  {s:"fox-farm",c:"jobs",n:"Fox Farm",w:"Farm",a:"Plant, water and harvest corn, carrots and lettuce; shoo the crows.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/fox-farm/Main.dc.html"),1]]},
+  {s:"orchard",c:"jobs",n:"Orchard",w:"Orchard",a:"Shake the trees and catch the ripe fruit before the rival foxes.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/orchard/Orchard.dc.html"),1]]},
+  {s:"volleyball",c:"sports",n:"Volleyball",w:"Beach",a:"2v2 beach volleyball: tap as the ring closes to pass, set and spike.",m:["Vs CPU", "Pass & play 2", "Demo"],l:[["Play",H("g/volleyball/Volleyball.dc.html"),1]]},
+  {s:"basketball",c:"sports",n:"Basketball",w:"Arena",a:"Full-court 2v2 with a shot meter, steals, blocks and dunks.",m:["Vs CPU", "2 players", "Demo"],l:[["Play",H("g/basketball/Main.dc.html"),1]]},
+  {s:"track-field",c:"sports",n:"Track and Field",w:"Stadium",a:"100 m dash, long jump, javelin and hurdles against rival foxes.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/track-and-field/TrackField.dc.html"),1]]},
+  {s:"playground",c:"sports",n:"Playground",w:"Town",a:"Swings, monkey bars, merry-go-round and sandcastles, for up to four foxes.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/playground/Playground.dc.html"),1]]},
+  {s:"dodgeball",c:"sports",n:"Dodgeball",w:"Gym",a:"2v2 dodgeball: throw on the yellow band, catch to bring a teammate back.",m:["Vs CPU", "2 players", "Demo"],l:[["Play",H("g/dodgeball/Dodgeball.dc.html"),1]]},
+  {s:"baseball",c:"sports",n:"Fox Baseball",w:"Ballpark",a:"Pitch and bat through the innings chasing home runs.",m:["Vs CPU", "Pass & play", "Demo"],l:[["Play",H("g/fox-baseball/Main.dc.html"),1]]},
+  {s:"frisbee",c:"sports",n:"Frisbee",w:"Town field",a:"2v2 ultimate: flat, curve and lob throws; catch in the end zone.",m:["Vs CPU", "Pass & play", "Demo"],l:[["Play",H("g/frisbee/Frisbee.dc.html"),1]]},
+  {s:"funhouse",c:"arcade",n:"Funhouse Dash",w:"Carnival",a:"Hold to run through five funhouse rooms, racing ghosts for the best clean run.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/funhouse-dash/Main.dc.html"),1]]},
+  {s:"electrician",c:"jobs",n:"Electrician Job",w:"Town",a:"Rotate wire tiles to power every light from the breaker panel.",m:["Vs CPU", "Pass & play 2–4", "Demo"],l:[["Play",H("g/electrician-job/ElectricianJob.dc.html"),1]]},
 
   // VEHICLES (Vehicle Workshop yard)
   {s:"v-tank",c:"vehicles",n:"Tank",w:"Workshop",a:"Turns on the spot; rocket salvos, main cannon and turbo.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=tank"),1]]},

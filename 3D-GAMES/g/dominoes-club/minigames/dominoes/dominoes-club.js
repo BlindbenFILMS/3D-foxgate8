@@ -482,7 +482,7 @@ export async function createDominoesClub({ container, onState = () => {}, opts =
       if (t === 'hi') { N.members[id] = { j: +d.j || Date.now() };
         if (!N.settled && N.members[id].j >= N.j) { N.j = N.members[id].j + 1; N.members[N.me].j = N.j; send('hi', { v: 1, j: N.j }); }   /* a joiner always sorts after the people already here (phone clocks differ) */ if (!known) setTimeout(() => hello(id), 0); if (N.isHost()) { trim(); send('st', payload(id), id); } emit(); return; }
       if (!N.members[id]) N.members[id] = { j: Date.now() };
-      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq) { if (N.isHost()) return; N.state = d; sync(); } return; }
+      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq || N.stFrom !== id) { N.stFrom = id; /* a new host's table always wins, even with a lower seq (seats taken before the link came up) */ if (N.isHost()) return; N.state = d; sync(); } return; }
       if (t === 'rq') { if (N.isHost()) handle(d, id); return; }
       if (t === 'rx') { react(id, d.w); return; }
       if (t === 'bye') gone(id);
@@ -533,7 +533,7 @@ export async function createDominoesClub({ container, onState = () => {}, opts =
       standing = L.filter(m => !(s.live || s.result ? s.players : s.seats).includes(m.id)).slice(0, 3).map(m => 'net' + N.slotOf(m.id));
       placeFoxes(); aimCamera(); emit();
     }
-    N.leave = (quiet) => { N.tok++; clearInterval(N.timer); if (N.tr) { send('bye', {}); try { N.tr.leave(); } catch (e) {} } N.tr = null; N.room = null; N.members = {}; N.state = null; N.G = null; N.reacts = []; try { const u = new URL(location.href); if (u.searchParams.has('room')) { u.searchParams.delete('room'); history.replaceState(null, '', u.href); } } catch (e) {} if (!quiet) emit(); };
+    N.leave = (quiet) => { N.tok++; clearInterval(N.timer); const wasIn = !!N.room; if (N.tr) { send('bye', {}); try { N.tr.leave(); } catch (e) {} } N.tr = null; N.room = null; N.members = {}; N.state = null; N.G = null; N.reacts = []; if (wasIn) try { const u = new URL(location.href); if (u.searchParams.has('room')) { u.searchParams.delete('room'); history.replaceState(null, '', u.href); } } catch (e) {} if (!quiet) emit(); };
     N.connect = code => { N.settled = false; return connect(code); }; N.create = () => { N.settled = true; const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += A[Math.floor(Math.random() * A.length)]; connect(c).then(() => { N.settled = true; }); };
     return N;
   })();

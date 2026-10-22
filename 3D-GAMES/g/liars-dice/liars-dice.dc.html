@@ -176,7 +176,7 @@
   <sc-if value="{{ netOn }}" hint-placeholder-val="{{ false }}">
     <div style="position:absolute;inset:0;z-index:8;background:rgba(0,0,0,0.78);display:flex;align-items:center;justify-content:flex-start;padding:max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));box-sizing:border-box;overflow:auto">
       <div style="background:#000;border:2px solid #7dd3fc;width:min(440px,100%);margin:auto 0;display:flex;flex-direction:column">
-        <div style="padding:10px 14px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#7dd3fc">ONLINE · 2 TO 6 FOXES</span><span style="font:900 24px var(--font-heading);line-height:1.05">{{ netTitle }}</span><span style="font:700 13px var(--font-body);color:#cfcac2;text-wrap:pretty">{{ netSub }}</span></div>
+        <div style="padding:10px 14px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:2px"><span style="font:800 11px var(--font-heading);letter-spacing:0.12em;color:#7dd3fc">ONLINE · 2 TO 5 FOXES</span><span style="font:900 24px var(--font-heading);line-height:1.05">{{ netTitle }}</span><span style="font:700 13px var(--font-body);color:#cfcac2;text-wrap:pretty">{{ netSub }}</span></div>
         <sc-if value="{{ netMenu }}" hint-placeholder-val="{{ true }}">
           <button onClick="{{ netCreate }}" style="min-height:56px;padding:0 16px;border:0;border-bottom:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;font:900 15px var(--font-heading);letter-spacing:0.1em;cursor:pointer;text-align:left" style-hover="background:#c82a10">CREATE A ROOM</button>
           <div style="display:grid;grid-template-columns:minmax(0,1fr) 110px;border-bottom:2px solid #3a3836">
@@ -271,11 +271,11 @@ class Component extends DCLogic {
     else if (/^Digit[1-6]$/.test(e.code)) this.setPick(p.q, +e.code.slice(5));
     else if (e.code === 'Enter') { g.input({ a: 'bid', q: p.q, f: p.f }); e.preventDefault(); } else if (e.code === 'KeyL') g.input({ a: 'liar' }); else if (e.code === 'KeyS') g.input({ a: 'spot' }); else if (e.code === 'KeyH') g.hint(); };
   post(action, extra) { try { if (parent && parent !== window) parent.postMessage({ type: '8g-minigame', game: 'liarsDice', action, ...(extra || {}) }, '*'); } catch (e) {} }
-  // ---------- ONLINE (engine/duel-net.js, game 'liarsDice', up to 6). Host = the first to join (the room maker); if the host leaves, the next one takes over. The host's device runs the match. ----------
+  // ---------- ONLINE (engine/duel-net.js, game 'liarsDice', up to 5). Host = the first to join (the room maker); if the host leaves, the next one takes over. The host's device runs the match. ----------
   netSet = p => this.setState(s => ({ net: s.net ? { ...s.net, ...p } : s.net }));
   peerSet = (id, p) => this.setState(s => s.net ? { net: { ...s.net, peers: { ...s.net.peers, [id]: { ...(s.net.peers[id] || {}), ...p } } } } : null);
   netOpen = () => this.setState({ net: { st: 'menu', code: '', codeIn: '', dice: 5, diceSet: false, peers: {}, ready: false, j: 0, status: '', msg: '', copied: false }, help: false });
-  members() { const n = this.state.net; if (!n || !this.net) return []; const all = [{ id: this.net.id, j: n.j, ready: n.ready, playing: n.st === 'play', me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 6); }
+  members() { const n = this.state.net; if (!n || !this.net) return []; const all = [{ id: this.net.id, j: n.j, ready: n.ready, playing: n.st === 'play', me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
   inRoom() { return this.members().some(m => m.me); }
   hostId = (match = true) => { let m = this.members(); if (match && this.matchIds) m = m.filter(x => this.matchIds.includes(x.id)); return m.length ? m[0].id : (this.net ? this.net.id : null); };   // host = first to join (members() is sorted by join time)
   netCreate = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; for (let i = 0; i < 4; i++) c += A[Math.floor(Math.random() * A.length)]; this.netJoin(c); };
@@ -342,7 +342,7 @@ class Component extends DCLogic {
       rvSub = !rv.done ? '' : rv.gainer ? rv.gainer + (rv.gainer === 'YOU' ? ' win' : ' wins') + ' a die back.' : rv.losers.map(x => x === 'YOU' ? 'You lose' : x + ' loses').join(', ') + ' a die.';
       rvRows = rv.rows.filter(r => r.dice.length).map(r => ({ name: r.name, col: r.col, op: r.out && !r.lose ? 0.5 : 1, dice: r.dice.map(d => ({ icon: dieIcon(d.v, d.lit), ol: d.lit ? '2px solid #ffd23a' : 'none', op: d.hit ? 1 : 0.45 })), tag: rv.done ? (r.lose ? '−1 DIE' : r.gain ? '+1 DIE' : '') : '', tagCol: r.lose ? '#ff9a8a' : '#22c55e' })); }
     // ---- menu ----
-    const modeDefs = [['cpu', 'VS FOXES', '1–5 CPU foxes'], ['local', 'PASS & PLAY', '2–6 on this phone'], ['online', 'ONLINE', '2–6 friends']];
+    const modeDefs = [['cpu', 'VS FOXES', '1–5 CPU foxes'], ['local', 'PASS & PLAY', '2–5 on this phone'], ['online', 'ONLINE', '2–5 friends']];
     const modes = modeDefs.map(([id, name, sub]) => { const on = S.mode === id; return { name, sub, on, bg: on ? '#ffd23a' : id === 'online' ? '#0b1a2a' : '#000000', fg: on ? '#000000' : id === 'online' ? '#7dd3fc' : '#ffffff', go: e => { blur(e); this.setState({ mode: id }); if (id === 'online') this.netOpen(); } }; });
     const count = S.mode === 'cpu' ? S.cpuN : S.localN;
     const seg = (k, cur2, vals, set) => ({ k, n: vals.length, v: vals.map(([val, t]) => { const on = cur2 === val; return { t, on, bg: on ? '#ffffff' : '#000000', fg: on ? '#000000' : '#cfcac4', go: e => { blur(e); set(val); } }; }) });
@@ -379,11 +379,11 @@ class Component extends DCLogic {
       menuKick: (this.embed ? 'TABLE GAME' : 'PARLOR · MINIGAME #8') + ' · DICE', modes, countOnM: S.mode !== 'online', count: String(count), countLbl: S.mode === 'cpu' ? 'FOXES AT THE TABLE' : 'PLAYERS',
       countNames: S.mode === 'cpu' ? 'You vs ' + CPUS.slice(0, S.cpuN).map(c => c.name).join(', ') : 'Players: ' + C.slice(0, S.localN).map(c => c[0]).join(', '),
       countDown: e => { blur(e); S.mode === 'cpu' ? this.setState({ cpuN: Math.max(1, S.cpuN - 1) }) : this.setState({ localN: Math.max(2, S.localN - 1) }); },
-      countUp: e => { blur(e); S.mode === 'cpu' ? this.setState({ cpuN: Math.min(5, S.cpuN + 1) }) : this.setState({ localN: Math.min(6, S.localN + 1) }); },
+      countUp: e => { blur(e); S.mode === 'cpu' ? this.setState({ cpuN: Math.min(5, S.cpuN + 1) }) : this.setState({ localN: Math.min(5, S.localN + 1) }); },
       opts, statsTxt: 'GOLD ' + h.gold + ' · WINS ' + h.wins + ' · GOOD CALLS ' + (h.goodCalls || 0) + ' · GAMES ' + h.played, playLbl: S.mode === 'online' ? 'GO ONLINE' : 'PLAY',
       playGo: e => { blur(e); if (!g) return; if (S.mode === 'online') { this.netOpen(); return; } g.start({ mode: S.mode, n: S.mode === 'cpu' ? S.cpuN : S.localN, opts: { wild: S.wild, spot: S.spot, start: S.start } }); },
       netOn: !!N && N.st !== 'play', netMenu, netRoom, netTitle: netRoom ? (m.length < 2 ? 'Waiting for friends' : rc === m.length ? 'Starting…' : 'Everyone tap READY') : 'Play with friends',
-      netSub: netRoom ? 'Send your friends the code or the link. 2 to 6 players. Your dice stay secret on your own phone.' : 'Make a room and share the code, or type a friend\'s code.',
+      netSub: netRoom ? 'Send your friends the code or the link. 2 to 5 players. Your dice stay secret on your own phone.' : 'Make a room and share the code, or type a friend\'s code.',
       netStatus: N && N.status ? String(N.status).toUpperCase() : '', netMsgOn: !!(N && N.msg), codeIn: N ? N.codeIn : '',
       codeType: e => this.netSet({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4), msg: '' }), netJoinGo: e => { blur(e); this.netJoin(N && N.codeIn); }, netCreate: e => { blur(e); this.netCreate(); },
       roster, copyLbl: N && N.copied ? 'COPIED ✓' : 'COPY LINK', copyLink: e => { blur(e); try { const u = new URL(location.href); u.searchParams.set('room', N.code); u.searchParams.delete('embed'); navigator.clipboard.writeText(u.href).then(() => this.netSet({ copied: true }), () => this.netSet({ msg: 'Copy failed. Read them the code: ' + N.code })); } catch (er) {} },

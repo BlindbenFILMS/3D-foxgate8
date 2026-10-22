@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Washing Up</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#000000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+button{font-family:inherit;border-radius:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+button:active{transform:translateY(1px)}
+button:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
+.ghand{animation:ghand 1s ease-in-out infinite}
+@keyframes ghand{0%{transform:translate(-22px,0)}50%{transform:translate(22px,12px)}100%{transform:translate(-22px,0)}}
+</style>
+</helmet>
+<div data-dish-root="1" ref="{{setRoot}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: {{rootBg}}; pointer-events: {{rootPe}}; font-family: Archivo, system-ui, sans-serif; color: #ffffff; user-select: none; -webkit-user-select: none">
+
+<div data-dish-stage="1" ref="{{setStage}}" style="position: absolute; inset: 0; display: {{stageDisplay}}"></div>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; bottom: 16px; font-size: 14px; font-weight: 800; letter-spacing: 0.06em; color: #ffd23a">{{loadingText}}</div>
+</sc-if>
+
+<sc-if value="{{hasHud}}" hint-placeholder-val="{{ true }}">
+
+<div data-safe="top" style="position: absolute; top: 0; left: 0; right: 0; background: #000000; border-bottom: 2px solid #3a3836; padding: 8px 12px; display: flex; flex-direction: column; gap: 6px; pointer-events: auto">
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="display: flex; flex-wrap: wrap; gap: 6px; flex: 1 1 auto; min-width: 0">
+<sc-for list="{{players}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 6px; border: 2px solid {{p.bd}}; padding: 3px 8px 3px 6px; min-height: 30px; box-sizing: border-box">
+<div style="width: 10px; height: 10px; background: {{p.sw}}; flex: none"></div>
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.05em">{{p.name}}</div>
+<div style="font-size: 20px; font-weight: 900; line-height: 1">{{p.score}}</div>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 30px; font-weight: 900; line-height: 1; color: {{timeColor}}; font-variant-numeric: tabular-nums; flex: none">{{timeText}}</div>
+</div>
+<div style="display: flex; align-items: baseline; gap: 8px; min-height: 18px">
+<div style="font-size: 14px; font-weight: 900; color: #ffd23a; letter-spacing: 0.05em; flex: none">{{dishName}}</div>
+<div style="font-size: 13px; color: #cfcac4; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{dishTip}}</div>
+</div>
+</div>
+
+<sc-if value="{{showCount}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); background: #000000; border: 2px solid #ffd23a; min-width: 120px; padding: 8px 20px; box-sizing: border-box; pointer-events: none">
+<div style="font-size: 88px; font-weight: 900; line-height: 1; color: #ffd23a">{{countText}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showHint}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: {{hintX}}px; top: {{hintY}}px; pointer-events: none">
+<div class="ghand">
+<svg width="56" height="64" viewBox="0 0 56 64" aria-hidden="true"><path d="M18 36 V8 a6 6 0 0 1 12 0 V24 a6 6 0 0 1 11 2 a6 6 0 0 1 11 3 V44 c0 11 -8 18 -19 18 h-3 c-8 0 -12 -3 -16 -9 L3 41 a5.5 5.5 0 0 1 9 -6 Z M30 24 V34 M41 26 V34" fill="#ffffff" stroke="#1a1626" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path></svg>
+</div>
+<div style="background: #000000; color: #ffd23a; font-size: 12px; font-weight: 800; padding: 2px 6px; margin-top: 2px; display: inline-block">RUB</div>
+</div>
+</sc-if>
+
+<div data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; background: #000000; border-top: 2px solid #3a3836; padding: 8px 12px 10px; display: flex; flex-direction: column; gap: 8px; pointer-events: auto">
+<div style="font-size: 14px; font-weight: 800; color: {{msgColor}}; min-height: 18px; line-height: 18px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{msgText}}</div>
+<sc-if value="{{showSoap}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; gap: 8px">
+<button onClick="{{soap}}" aria-label="Add soap" style="flex: 1 1 auto; position: relative; min-height: 52px; background: {{soapBg}}; color: #ffffff; border: 2px solid {{soapBd}}; padding: 0 12px 6px; display: flex; align-items: center; justify-content: flex-start; text-align: left; font-size: 16px; font-weight: 900; letter-spacing: 0.06em">
+<span>{{soapLabel}}</span>
+<span style="position: absolute; left: 0; bottom: 0; height: 6px; width: {{soapPct}}; background: #ffd23a"></span>
+</button>
+<sc-if value="{{showCrack}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 0 0 34%; border: 2px solid #3a3836; position: relative; display: flex; align-items: center; padding: 0 10px 6px; box-sizing: border-box">
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 0.06em">CRACK</span>
+<span style="position: absolute; left: 0; bottom: 0; height: 6px; width: {{crackPct}}; background: #ec3013"></span>
+</div>
+</sc-if>
+</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button onClick="{{openMenu}}" style="min-height: 48px; background: #000000; color: #ffffff; border: 2px solid #3a3836; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800; letter-spacing: 0.06em">MENU</button>
+<button onClick="{{openInvite}}" style="min-height: 48px; background: #000000; color: #ffffff; border: 2px solid #3a3836; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800; letter-spacing: 0.06em">INVITE FRIEND</button>
+<button onClick="{{back}}" style="min-height: 48px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800; letter-spacing: 0.06em">BACK</button>
+</div>
+</div>
+
+<sc-if value="{{showCard}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div style="width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+
+<sc-if value="{{cardMenu}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: baseline; justify-content: space-between; border-bottom: 2px solid #3a3836; padding-bottom: 10px">
+<div style="font-size: 24px; font-weight: 900; letter-spacing: 0.04em">MENU</div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.06em">WASHING UP</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.08em">MODE</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{modeItems}}" as="it" hint-placeholder-count="3">
+<button onClick="{{it.pick}}" style="min-height: 44px; background: {{it.bg}}; color: {{it.fg}}; border: 2px solid {{it.bd}}; padding: 0 8px; text-align: left; font-size: 12px; font-weight: 800; letter-spacing: 0.04em">{{it.label}}</button>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{isCpu}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.08em">TOP RIVAL</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{diffItems}}" as="it" hint-placeholder-count="3">
+<button onClick="{{it.pick}}" style="min-height: 52px; background: {{it.bg}}; color: {{it.fg}}; border: 2px solid {{it.bd}}; padding: 4px 8px; text-align: left; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px">
+<span style="font-size: 13px; font-weight: 900; letter-spacing: 0.04em">{{it.label}}</span>
+<span style="font-size: 12px; font-weight: 600">{{it.sub}}</span>
+</button>
+</sc-for>
+</div>
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.08em; margin-top: 4px">RIVALS AT THE SINK</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{rivalItems}}" as="it" hint-placeholder-count="3">
+<button onClick="{{it.pick}}" style="min-height: 44px; background: {{it.bg}}; color: {{it.fg}}; border: 2px solid {{it.bd}}; padding: 0 8px; text-align: left; font-size: 13px; font-weight: 800">{{it.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{isLocal}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.08em">PLAYERS</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{seatItems}}" as="it" hint-placeholder-count="3">
+<button onClick="{{it.pick}}" style="min-height: 44px; background: {{it.bg}}; color: {{it.fg}}; border: 2px solid {{it.bd}}; padding: 0 8px; text-align: left; font-size: 13px; font-weight: 800">{{it.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.08em">ROUND</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{roundItems}}" as="it" hint-placeholder-count="3">
+<button onClick="{{it.pick}}" style="min-height: 44px; background: {{it.bg}}; color: {{it.fg}}; border: 2px solid {{it.bd}}; padding: 0 8px; text-align: left; font-size: 13px; font-weight: 800">{{it.label}}</button>
+</sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{toggleSound}}" style="min-height: 44px; background: #000000; color: #ffffff; border: 2px solid #3a3836; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800">{{soundLabel}}</button>
+<button onClick="{{toggleMusic}}" style="min-height: 44px; background: #000000; color: #ffffff; border: 2px solid #3a3836; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800">{{musicLabel}}</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; border-top: 2px solid #3a3836; padding-top: 10px">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.08em">RULES</div>
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="5">
+<div style="font-size: 13px; line-height: 1.35; color: #e8e4df">{{r.text}}</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{closeCard}}" style="min-height: 48px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 900">RESUME</button>
+<button onClick="{{restart}}" style="min-height: 48px; background: #000000; color: #ffffff; border: 2px solid #3a3836; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800">RESTART</button>
+<button onClick="{{back}}" style="min-height: 48px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800">LEAVE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{cardInvite}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 900; letter-spacing: 0.04em; border-bottom: 2px solid #3a3836; padding-bottom: 10px">INVITE FRIEND</div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a; letter-spacing: 0.08em">ONLINE ROOMS: COMING SOON</div>
+<div style="font-size: 14px; line-height: 1.4; color: #e8e4df">For now, wash side by side on one device with Pass and Play.</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{playLocal}}" style="min-height: 48px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 900">PASS AND PLAY</button>
+<button onClick="{{closeCard}}" style="min-height: 48px; background: #000000; color: #ffffff; border: 2px solid #3a3836; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 800">CLOSE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{cardLeft}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 900; letter-spacing: 0.04em; border-bottom: 2px solid #3a3836; padding-bottom: 10px">YOU LEFT THE SINK</div>
+<div style="font-size: 14px; line-height: 1.4; color: #e8e4df">In the 8 GATES town, BACK walks you away from the sink.</div>
+<button onClick="{{closeCard}}" style="min-height: 48px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; padding: 0 10px; text-align: left; font-size: 13px; font-weight: 900">RETURN TO THE SINK</button>
+</div>
+</sc-if>
+
+<sc-if value="{{cardPass}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.08em">{{passTurn}}</div>
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="width: 18px; height: 18px; background: {{passColor}}"></div>
+<div style="font-size: 30px; font-weight: 900; letter-spacing: 0.03em">PASS TO {{passName}}</div>
+</div>
+<div style="font-size: 14px; line-height: 1.4; color: #e8e4df">{{passText}}</div>
+<button onClick="{{ready}}" style="min-height: 52px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; padding: 0 12px; text-align: left; font-size: 15px; font-weight: 900; letter-spacing: 0.05em">READY</button>
+</div>
+</sc-if>
+
+<sc-if value="{{cardResult}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; border-bottom: 2px solid #3a3836; padding-bottom: 10px">
+<div style="font-size: 28px; font-weight: 900; letter-spacing: 0.03em; color: {{resColor}}">{{resTitle}}</div>
+<div style="display: flex; gap: 4px; flex: none">
+<sc-for list="{{stars}}" as="s" hint-placeholder-count="3">
+<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z" fill="{{s.fill}}" stroke="{{s.stroke}}" stroke-width="2" stroke-linejoin="miter"></path></svg>
+</sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{resRows}}" as="r" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 8px; border-bottom: 2px solid #1d1c1b; padding: 4px 0">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; width: 16px">{{r.place}}</div>
+<div style="width: 10px; height: 10px; background: {{r.color}}"></div>
+<div style="font-size: 14px; font-weight: 800; flex: 1 1 auto">{{r.name}}</div>
+<div style="font-size: 12px; color: #a8a29c">{{r.sub}}</div>
+<div style="font-size: 20px; font-weight: 900; min-width: 32px; text-align: right">{{r.score}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{resStats}}" as="k" hint-placeholder-count="4">
+<div style="border: 2px solid #3a3836; padding: 6px 8px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 12px; font-weight: 800; color: #a8a29c; letter-spacing: 0.06em">{{k.label}}</div>
+<div style="font-size: 20px; font-weight: 900; color: {{k.color}}">{{k.value}}</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{resNewBest}}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 12px; font-weight: 900; color: #000000; background: #ffd23a; padding: 4px 8px; align-self: flex-start; letter-spacing: 0.08em">NEW BEST</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button onClick="{{restart}}" style="min-height: 52px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; padding: 0 12px; text-align: left; font-size: 14px; font-weight: 900">PLAY AGAIN</button>
+<button onClick="{{back}}" style="min-height: 52px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; padding: 0 12px; text-align: left; font-size: 14px; font-weight: 900">BACK</button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+</sc-if>
+
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  setRoot = (el) => { if (el) this._root = el; };
+  setStage = (el) => { if (el) this._stage = el; };
+
+  componentDidMount() {
+    this._mounted = true;
+    if (!this._root) this._root = document.querySelector('[data-dish-root]');
+    if (!this._stage) this._stage = document.querySelector('[data-dish-stage]');
+    if (this.props.world) this.overlayMount(); else this.boot();
+    if (typeof ResizeObserver !== 'undefined' && this._root) {
+      this._ro = new ResizeObserver(() => this.measure(true));
+      this._ro.observe(this._root);
+    }
+  }
+
+  componentDidUpdate() { this.measure(false); }
+
+  componentWillUnmount() {
+    this._mounted = false;
+    if (this._ro) this._ro.disconnect();
+    if (this._onEv) window.removeEventListener('8g:dishSink', this._onEv);
+    if (!this.props.world && this.api) { try { this.api.destroy(); } catch (e) { /* gone */ } }
+    this.api = null;
+  }
+
+  baseUrl() {
+    const s = document.querySelector('script[src*="support.js"]');
+    try { return new URL('./', s && s.src ? s.src : document.baseURI).href; } catch (e) { return document.baseURI; }
+  }
+
+  async boot() {
+    try {
+      const mod = await import(new URL('minigames/dishes/dishes.js', this.baseUrl()).href);
+      if (!this._mounted) return;
+      this.api = await mod.createWashingUp({ container: this._stage, onState: (h) => { if (this._mounted) this.setState({ h }); } });
+      this.measure(true);
+    } catch (e) {
+      this.setState({ err: 'Could not load the game: ' + String((e && e.message) || e) });
+    }
+  }
+
+  overlayMount() {
+    const w = this.props.world;
+    const link = w && w._dishSink;
+    this._onEv = (e) => {
+      const h = e.detail;
+      if (!h) { this.api = null; this.setState({ h: null, card: null }); return; }
+      if (!this.api && link && link.g) this.api = link.g();
+      this.setState({ h });
+    };
+    window.addEventListener('8g:dishSink', this._onEv);
+    if (link && link.g) {
+      this.api = link.g();
+      if (this.api) this.setState({ h: this.api.hud() });
+    }
+  }
+
+  measure(force) {
+    if (!this.api || !this._root) return;
+    const rr = this._root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    this._root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width && !r.height) return;
+      const k = el.getAttribute('data-safe');
+      if (k === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      if (k === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      if (k === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      if (k === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    const sig = [s.top, s.bottom, s.left, s.right].map(Math.round).join(',');
+    if (!force && sig === this._safeSig) return;
+    this._safeSig = sig;
+    this.api.setSafe(s);
+  }
+
+  call(name, ...args) {
+    if (this.api && typeof this.api[name] === 'function') this.api[name](...args);
+  }
+
+  openCard(card) {
+    this.call('unlockAudio');
+    this.call('pause', true);
+    this.setState({ card });
+  }
+
+  closeCard() {
+    this.setState({ card: null });
+    this.call('pause', false);
+  }
+
+  goBack() {
+    const w = this.props.world;
+    if (w && w._dishSink && w._dishSink.end) { w._dishSink.end(); return; }
+    this.openCard('left');
+  }
+
+  /* settings that restart the round keep it paused while the menu stays open */
+  change(name, ...args) {
+    this.call(name, ...args);
+    if (this.state && this.state.card) this.call('pause', true);
+  }
+
+  renderVals() {
+    const st = this.state || {};
+    const h = st.h || null;
+    const card = st.card || null;
+    const overlay = !!this.props.world;
+    const sel = (on) => on ? { bg: '#ffd23a', fg: '#000000', bd: '#ffd23a' } : { bg: '#000000', fg: '#ffffff', bd: '#3a3836' };
+    const hasHud = !!h;
+    const t = h ? h.time : 0;
+    const showCardPass = !!h && h.phase === 'pass' && !card;
+    const showCardRes = !!h && h.phase === 'results' && !!h.result && !card;
+    const res = h && h.result ? h.result : null;
+    const playing = !!h && (h.phase === 'play' || h.phase === 'count');
+    const cast = h && h.cast ? h.cast : [{ key: 'pip', name: 'PIP' }, { key: 'hope', name: 'HOPE' }, { key: 'noble', name: 'NOBLE' }];
+    const subs = { pip: 'Rookie', hope: 'Club', noble: 'Master' };
+    return {
+      setRoot: this.setRoot,
+      setStage: this.setStage,
+      rootBg: overlay ? 'transparent' : '#000000',
+      rootPe: overlay ? 'none' : 'auto',
+      stageDisplay: overlay ? 'none' : 'block',
+      loading: !overlay && !h,
+      loadingText: st.err || 'LOADING WASHING UP',
+      hasHud,
+      players: h ? h.players.map((p) => ({ name: p.name, score: p.score, sw: p.color, bd: p.active ? '#ffd23a' : '#3a3836' })) : [],
+      timeText: Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'),
+      timeColor: h && h.phase === 'play' && t <= 10 ? '#ec3013' : '#ffffff',
+      dishName: h && h.dish ? h.dish.name : '',
+      dishTip: h ? (h.mode === 'demo' ? 'DEMO: two CPU foxes play' : h.dish ? h.dish.tip : '') : '',
+      showCount: !!h && h.phase === 'count' && !card,
+      countText: h && h.count > 0 ? String(h.count) : 'GO',
+      showHint: !!h && !!h.hint && !card,
+      hintX: h && h.hint ? h.hint.x - 18 : 0,
+      hintY: h && h.hint ? h.hint.y - 8 : 0,
+      msgText: h ? (h.msg || h.caption || (h.phase === 'play' && h.human ? 'Drag on the dish to scrub.' : '')) : '',
+      msgColor: h && h.msg ? '#ffd23a' : '#ffffff',
+      showSoap: !!h && h.human && h.mode !== 'demo',
+      soapLabel: h && h.needSoap ? 'SOAP: EMPTY, TAP' : 'SOAP',
+      soapBg: h && h.needSoap ? '#ec3013' : '#000000',
+      soapBd: h && h.needSoap ? '#ec3013' : '#3a3836',
+      soapPct: Math.round((h ? h.soap : 0) * 100) + '%',
+      showCrack: !!h && !!h.dish && h.dish.fragile && h.human,
+      crackPct: Math.round((h ? h.crack : 0) * 100) + '%',
+      soap: () => this.call('soap'),
+      openMenu: () => this.openCard('menu'),
+      openInvite: () => this.openCard('invite'),
+      back: () => this.goBack(),
+      closeCard: () => this.closeCard(),
+      restart: () => { this.setState({ card: null }); this.call('restart'); },
+      ready: () => this.call('ready'),
+      playLocal: () => { this.setState({ card: null }); this.call('setMode', 'local'); },
+      showCard: !!card || showCardPass || showCardRes,
+      cardMenu: card === 'menu',
+      cardInvite: card === 'invite',
+      cardLeft: card === 'left',
+      cardPass: showCardPass,
+      cardResult: showCardRes,
+      isCpu: !!h && h.mode === 'cpu',
+      isLocal: !!h && h.mode === 'local',
+      modeItems: [['cpu', 'VS CPU'], ['local', 'PASS & PLAY'], ['demo', 'DEMO']].map(([k, label]) => Object.assign({ label, pick: () => this.change('setMode', k) }, sel(h && h.mode === k))),
+      diffItems: cast.map((c) => Object.assign({ label: c.name, sub: subs[c.key] || '', pick: () => this.change('setDifficulty', c.key) }, sel(h && h.diff === c.key))),
+      rivalItems: [1, 2, 3].map((n) => Object.assign({ label: String(n), pick: () => this.change('setRivals', n) }, sel(h && h.rivals === n))),
+      seatItems: [2, 3, 4].map((n) => Object.assign({ label: n + ' PLAYERS', pick: () => this.change('setSeats', n) }, sel(h && h.seats === n))),
+      roundItems: [45, 60, 90].map((n) => Object.assign({ label: n + ' SEC', pick: () => this.change('setRound', n) }, sel(h && h.round === n))),
+      soundLabel: 'SOUND: ' + (h && h.sound ? 'ON' : 'OFF'),
+      musicLabel: 'MUSIC: ' + (h && h.music ? 'ON' : 'OFF'),
+      toggleSound: () => this.call('setSound', !(h && h.sound)),
+      toggleMusic: () => this.call('setMusic', !(h && h.music)),
+      rules: (h && h.rules ? h.rules : []).map((text) => ({ text })),
+      passTurn: h && h.pass ? 'TURN ' + h.pass.turn + ' OF ' + h.pass.of : '',
+      passName: h && h.pass ? h.pass.name : '',
+      passColor: h && h.pass ? h.pass.color : '#ffffff',
+      passText: h && h.pass ? 'Hand over the device. ' + h.round + ' seconds to scrub. Tap READY.' : '',
+      resTitle: res ? res.title : '',
+      resColor: res && res.win ? '#ffd23a' : '#ffffff',
+      stars: [0, 1, 2].map((i) => { const on = res && i < res.stars; return { fill: on ? '#ffd23a' : 'none', stroke: on ? '#ffd23a' : '#3a3836' }; }),
+      resRows: res ? res.rows.map((r) => ({ place: r.place, name: r.name, color: r.color, score: r.score, sub: r.dishes + ' dishes' + (r.broken ? ', ' + r.broken + ' broken' : '') })) : [],
+      resStats: res ? [
+        { label: 'SCORE', value: String(res.score), color: '#ffffff' },
+        { label: 'BEST', value: String(res.best), color: '#ffffff' },
+        { label: 'GOLD', value: '+' + res.gold, color: '#ffd23a' },
+        { label: 'XP', value: '+' + res.xp, color: '#ffffff' }
+      ] : [],
+      resNewBest: !!(res && res.newBest)
+    };
+  }
+}
+</script>
+</body>
+</html>

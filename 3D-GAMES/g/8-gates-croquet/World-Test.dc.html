@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Croquet World Test</title>
+<script src="./support.js"></script>
+<script type="module" src="./minigames/croquet/croquet-boot.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.wt{font-family:'Archivo',system-ui,'Helvetica Neue',sans-serif;color:#fff}
+.wbtn{pointer-events:auto;min-height:44px;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;background:#ffd23a;color:#000;border:2px solid #ffd23a;border-radius:0;font:800 14px/1 'Archivo',system-ui,sans-serif;letter-spacing:.06em;cursor:pointer}
+.wbtn:focus-visible{outline:2px solid #ffffff;outline-offset:2px}
+</style>
+</helmet>
+<div class="wt" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #000">
+<div ref="{{stageRef}}" style="position: absolute; inset: 0"></div>
+
+<sc-if value="{{hasWorld}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Croquet" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+
+<div style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); pointer-events: none; display: flex; flex-direction: column; gap: 3px; background: #000; border: 2px solid #3a3836; padding: 6px 8px">
+<div style="font: 800 12px/1.2 Archivo, system-ui, sans-serif; letter-spacing: .12em; color: #ffd23a">WORLD TEST</div>
+<div style="font: 600 12px/1.2 Archivo, system-ui, sans-serif">{{status}}</div>
+</div>
+
+<sc-if value="{{closed}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start">
+<div style="background: #000; border: 2px solid #3a3836; padding: 10px 12px; font: 600 14px/1.35 Archivo, system-ui, sans-serif; max-width: 300px">The court is closed. Tap the town: red dots prove the town gets taps again.</div>
+<button class="wbtn" type="button" onClick="{{reopen}}">OPEN CROQUET</button>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { world: null, open: false, townTaps: 0 };
+    this.stageEl = null;
+    this.wt = null;
+    this.stageRef = (el) => { this.stageEl = el; };
+  }
+  componentDidMount() { this.alive = true; this.boot(0); }
+  componentWillUnmount() {
+    this.alive = false;
+    if (this.wt) { this.wt.destroy(); this.wt = null; }
+  }
+  boot(tries) {
+    if (!this.alive || this.wt) return;
+    const ns = window.EightGates && window.EightGates.croquet;
+    if (!ns || !this.stageEl) { if (tries < 400) setTimeout(() => this.boot(tries + 1), 50); return; }
+    ns.createWorldTest({
+      container: this.stageEl,
+      onChange: (s) => { if (this.alive) this.setState({ open: s.open, townTaps: s.townTaps }); },
+    }).then((wt) => {
+      if (!this.alive) { wt.destroy(); return; }
+      this.wt = wt;
+      const s = wt.state();
+      this.setState({ world: wt.world, open: s.open, townTaps: s.townTaps });
+    }).catch((e) => console.error(e));
+  }
+  renderVals() {
+    return {
+      stageRef: this.stageRef,
+      hasWorld: !!this.state.world,
+      world: this.state.world,
+      closed: !!this.state.world && !this.state.open,
+      status: (this.state.open ? 'COURT OPEN' : 'COURT CLOSED') + ' / TOWN TAPS ' + this.state.townTaps,
+      reopen: () => { if (this.wt) this.wt.open(); },
+    };
+  }
+}
+</script>
+</body>
+</html>

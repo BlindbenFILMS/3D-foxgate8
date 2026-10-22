@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Electrician Job World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000;overflow:hidden}
+a{color:#ffd23a}a:hover{color:#fff}
+.wt-b{display:flex;align-items:center;justify-content:flex-start;text-align:left;min-height:44px;padding:0 14px;background:#ffd23a;color:#000;border:2px solid #ffd23a;border-radius:0;font-family:Archivo,sans-serif;font-weight:800;font-size:14px;letter-spacing:0.05em;cursor:pointer}
+.wt-b:focus-visible{outline:3px solid #fff;outline-offset:1px}
+</style>
+</helmet>
+<div ref="{{setRoot}}" tabIndex="0" onKeyDown="{{onKey}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; font-family: Archivo, sans-serif; color: #ffffff; background: #8fc7e8; outline: none">
+<div ref="{{setStage}}" style="position: absolute; inset: 0; touch-action: none"></div>
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="ElectricianJob" world="{{fakeWorld}}" hint-size="100%,100%"></dc-import>
+</div>
+<sc-if value="{{closed}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; bottom: 12px; display: flex; flex-direction: column; gap: 8px; align-items: flex-start; background: #000000; border: 2px solid #3a3836; padding: 12px">
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">WORLD TEST · TOWN</div>
+<div style="font-size: 14px; font-weight: 700">The job board stands in town. Walk up to it.</div>
+<button class="wt-b" onClick="{{open}}">OPEN ELECTRICIAN JOB</button>
+</div>
+</sc-if>
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; top: 40%; background: #000000; border: 2px solid #ec3013; padding: 14px; font-size: 14px; font-weight: 700">{{err}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  componentDidMount() { this._alive = true; this.boot(); }
+  componentWillUnmount() {
+    this._alive = false;
+    cancelAnimationFrame(this._raf);
+    if (this._ro) this._ro.disconnect();
+    if (this.game) this.game.destroy();
+    this.game = null;
+    if (this.renderer) { this.renderer.dispose(); if (this.renderer.domElement.parentNode) this.renderer.domElement.parentNode.removeChild(this.renderer.domElement); }
+  }
+  async load(rel) {
+    const urls = [];
+    try { urls.push(new URL(rel, document.baseURI).href); } catch (e) {}
+    try { urls.push(new URL(rel, location.href).href); } catch (e) {}
+    let last = null;
+    for (const u of urls) { try { return await import(u); } catch (e) { last = e; } }
+    throw last || new Error('cannot load ' + rel);
+  }
+  async boot() {
+    let tries = 0;
+    while (!this.stageEl && tries++ < 60) await new Promise(r => setTimeout(r, 30));
+    try {
+      this.THREE = await this.load('./vendor/three/three.module.js');
+      this.mod = await this.load('./minigames/electrician/electrician.js');
+    } catch (e) { console.error(e); this.setState({ err: 'Could not load three.js or the game module from this folder.' }); return; }
+    if (!this._alive) return;
+    const THREE = this.THREE;
+    const r = new THREE.WebGLRenderer({ antialias: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    r.outputColorSpace = THREE.SRGBColorSpace;
+    r.domElement.style.display = 'block'; r.domElement.style.width = '100%'; r.domElement.style.height = '100%'; r.domElement.style.touchAction = 'none';
+    this.stageEl.appendChild(r.domElement);
+    this.renderer = r;
+    /* simple town */
+    const town = new THREE.Scene();
+    town.background = new THREE.Color(0x8fc7e8);
+    town.fog = new THREE.Fog(0x8fc7e8, 60, 140);
+    town.add(new THREE.HemisphereLight(0xffffff, 0x5a7a4a, 1.2));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(-20, 40, 20); town.add(sun);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300), new THREE.MeshLambertMaterial({ color: 0x6aa84f }));
+    ground.rotation.x = -Math.PI / 2; town.add(ground);
+    const plaza = new THREE.Mesh(new THREE.CircleGeometry(14, 40), new THREE.MeshLambertMaterial({ color: 0xc9b99a }));
+    plaza.rotation.x = -Math.PI / 2; plaza.position.set(20, 0.01, -15); town.add(plaza);
+    const houseCols = [0xe07a5f, 0xf2cc8f, 0x81b29a, 0x3d405b, 0xd4a5a5];
+    for (let i = 0; i < 9; i++) {
+      const a = i / 9 * Math.PI * 2;
+      const h = new THREE.Mesh(new THREE.BoxGeometry(5, 4 + (i % 3), 5), new THREE.MeshLambertMaterial({ color: houseCols[i % 5] }));
+      h.position.set(20 + Math.cos(a) * 24, (4 + (i % 3)) / 2, -15 + Math.sin(a) * 24); h.rotation.y = -a; town.add(h);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(4.2, 2.5, 4), new THREE.MeshLambertMaterial({ color: 0x7a3b2e }));
+      roof.position.set(h.position.x, 4 + (i % 3) + 1.25, h.position.z); roof.rotation.y = Math.PI / 4 - a; town.add(roof);
+    }
+    const parent = new THREE.Group();
+    parent.position.set(20, 0, -15);
+    parent.rotation.y = 0.9;
+    town.add(parent);
+    const marker = new THREE.Mesh(new THREE.TorusGeometry(5.5, 0.12, 6, 40), new THREE.MeshBasicMaterial({ color: 0xffd23a }));
+    marker.rotation.x = Math.PI / 2; marker.position.y = 0.05; parent.add(marker);
+    const cam = new THREE.PerspectiveCamera(50, 1, 0.1, 400);
+    cam.position.set(5, 12, 20); cam.lookAt(20, 0, -15);
+    this.town = town; this.parent = parent; this.cam = cam;
+    this.walkPos = cam.position.clone(); this.walkQ = cam.quaternion.clone();
+    const fit = () => {
+      const w = this.stageEl.clientWidth || 1, h = this.stageEl.clientHeight || 1;
+      r.setSize(w, h, false);
+      if (!this.game) { cam.aspect = w / h; cam.updateProjectionMatrix(); }
+    };
+    this._ro = new ResizeObserver(fit); this._ro.observe(this.stageEl); fit();
+    let last = performance.now();
+    const loop = (now) => {
+      if (!this._alive) return;
+      this._raf = requestAnimationFrame(loop);
+      const dt = Math.min(0.05, (now - last) / 1000); last = now;
+      const k = 1 - Math.exp(-dt * 3);
+      if (this.game) {
+        const gc = this.game.camera;
+        cam.position.lerp(gc.position, k);
+        cam.quaternion.slerp(gc.quaternion, k);
+        cam.fov += (gc.fov - cam.fov) * k;
+        cam.aspect = gc.aspect;
+      } else {
+        cam.position.lerp(this.walkPos, k); cam.quaternion.slerp(this.walkQ, k);
+        const w = this.stageEl.clientWidth || 1, h = this.stageEl.clientHeight || 1; cam.aspect = w / h;
+      }
+      cam.updateProjectionMatrix();
+      r.render(town, cam);
+    };
+    this._raf = requestAnimationFrame(loop);
+    this.openGame();
+  }
+  async openGame() {
+    if (this.game || !this.mod) return;
+    const create = this.mod.createElectricianJob || this.mod.default;
+    this.game = await create({
+      container: null,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:electricianJob', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.cam, parent: this.parent } }
+    });
+    window.dispatchEvent(new CustomEvent('8g:electricianJob', { detail: this.game.hud() }));
+    this.setState({ closed: false });
+  }
+  closeGame() {
+    if (!this.game) return;
+    this.game.destroy();
+    this.game = null;
+    window.dispatchEvent(new CustomEvent('8g:electricianJob', { detail: null }));
+    this.setState({ closed: true });
+  }
+  renderVals() {
+    const st = this.state || {};
+    if (!this._fns) {
+      this._fns = {
+        setRoot: (el) => { this.rootEl = el; },
+        setStage: (el) => { this.stageEl = el; },
+        open: () => this.openGame(),
+        onKey: (e) => { if (this.game) this.game.key(e.nativeEvent || e); },
+        fakeWorld: { _electricianJob: { g: () => this.game, end: () => this.closeGame() } }
+      };
+    }
+    const f = this._fns;
+    return {
+      setRoot: f.setRoot, setStage: f.setStage, open: f.open, onKey: f.onKey,
+      fakeWorld: f.fakeWorld,
+      closed: !!st.closed,
+      hasErr: !!st.err, err: st.err || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

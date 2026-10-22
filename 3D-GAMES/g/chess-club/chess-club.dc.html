@@ -127,7 +127,7 @@ button:focus-visible,input:focus-visible{outline:2px solid #ffd23a;outline-offse
       <div data-safe="{{ menuSafe }}" style="background:#000;border:2px solid #3a3836;width:{{ menuW }};display:grid;grid-template-columns:{{ menuCols }};align-items:start;margin:auto 0 0">
         <div style="display:flex;flex-direction:column;min-width:0;border-right:{{ menuSplit }}">
         <div style="display:flex;align-items:stretch;border-bottom:2px solid #3a3836">
-          <div style="flex:1;padding:{{ menuHeadPad }};display:flex;flex-direction:column;gap:3px"><span class="k">CHESS CLUB · {{ goldTxt }}</span><span style="font:900 {{ menuTitleFs }} var(--font-heading);line-height:1">Chess</span><sc-if value="{{ port }}" hint-placeholder-val="{{ true }}"><span class="mut">Sit at the club table. Play a fox, pass the phone to a friend, or open a room for up to 5.</span></sc-if></div>
+          <div style="flex:1;padding:{{ menuHeadPad }};display:flex;flex-direction:column;gap:3px"><span class="k">CHESS CLUB · {{ goldTxt }}</span><span style="font:900 {{ menuTitleFs }} var(--font-heading);line-height:1">Chess</span><sc-if value="{{ port }}" hint-placeholder-val="{{ true }}"><span class="mut">Sit at the club table. Play a fox, pass the phone to a friend, or open a room for up to 4.</span></sc-if></div>
           <sc-if value="{{ embed }}" hint-placeholder-val="{{ false }}"><button class="cb" onClick="{{ goBack }}" style="flex:none;border-left:2px solid #3a3836">BACK</button></sc-if>
         </div>
         <sc-if value="{{ resumePortOn }}" hint-placeholder-val="{{ false }}">
@@ -153,14 +153,14 @@ button:focus-visible,input:focus-visible{outline:2px solid #ffd23a;outline-offse
         </sc-if>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:2px solid #3a3836">
           <button class="cb" onClick="{{ playLocal }}" style="border-right:2px solid #3a3836"><span>PASS &amp; PLAY</span><span class="s">2 ON ONE PHONE</span></button>
-          <button class="cb" onClick="{{ onlineOpen }}"><span style="color:#7dd3fc">ONLINE</span><span class="s">ROOM OF UP TO 5</span></button>
+          <button class="cb" onClick="{{ onlineOpen }}"><span style="color:#7dd3fc">ONLINE</span><span class="s">ROOM OF UP TO 4</span></button>
         </div>
         <button class="cb" onClick="{{ watchDemo }}" style="border-top:2px solid #3a3836;min-height:52px"><span style="color:#ffd23a">WATCH THE DEMO</span><span class="s">TWO FOXES PLAY · CAPTIONS TEACH THE MOVES · TAP TO TAKE OVER</span></button>
         <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid #3a3836">
           <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="6"><button class="cb" onClick="{{ t.go }}" aria-pressed="{{ t.on }}" style="min-height:48px;border-right:2px solid #2a2826;border-bottom:2px solid #2a2826"><span style="font-size:11px">{{ t.label }}</span><span class="s" style="color:{{ t.col }}">{{ t.state }}</span></button></sc-for>
         </div>
         <button class="cb" onClick="{{ helpOpen }}" style="min-height:44px;border-top:2px solid #3a3836;color:#ffd23a">HOW TO PLAY</button>
-        <sc-if value="{{ land }}" hint-placeholder-val="{{ false }}"><div class="mut" style="padding:10px 14px;border-top:2px solid #3a3836">Sit at the club table. Play a fox for gold, pass the phone to a friend, or open a room for up to 5: two play, the rest watch and take the next game.</div></sc-if>
+        <sc-if value="{{ land }}" hint-placeholder-val="{{ false }}"><div class="mut" style="padding:10px 14px;border-top:2px solid #3a3836">Sit at the club table. Play a fox for gold, pass the phone to a friend, or open a room for up to 4: two play, the rest watch and take the next game.</div></sc-if>
         </div>
       </div>
     </div>

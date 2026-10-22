@@ -8,7 +8,7 @@
 //   Rival teams SURGE (red warning one beat ahead): be dug in on that beat to BLOCK it.
 //   Drag the red ribbon past your tape to take the round. Best of 3.
 //
-// MODES  solo ladder (4 rivals, DRAFT names) · 2 players on one phone · online 2–5 players (two teams, CPU fills to 4 v 4).
+// MODES  solo ladder (4 rivals, DRAFT names) · 2 players on one phone · online 2–4 players (two teams, CPU fills to 4 v 4).
 // ONLINE uses engine/duel-net.js (connectDuel, same as Skate Park) with game 'tugWar'. If that file can't load,
 //        it falls back to BroadcastChannel so it can be tested in two tabs of one browser.
 //        Host = lowest id in the match; the host runs the rope, every phone judges its own beat and sends its pull.
@@ -363,12 +363,12 @@ export async function createTugOfWar({ container, onState = () => {}, theme = 'h
   function startLocal() { au.unlock(); S.host = true; setup('local'); }
   function again() { if (S.mode === 'online') { netReady(); return; } if (S.mode === 'solo') setup('solo', { rival: S.rival }); else setup('local'); }
 
-  // ================= ONLINE (2–5 players; host = lowest id in the match) =================
+  // ================= ONLINE (2–4 players; host = lowest id in the match) =================
   let N = null, nTimer = 0, snT = 0, lastSeen = {}, matchIds = null, netTok = 0;
   S.net = null;
   const netSend = (t, d, to) => { if (N) N.send(t, d, to); };
   function netOpen() { S.net = { st: 'menu', code: '', codeIn: '', peers: {}, ready: false, j: 0, status: '', msg: '', ping: null, copied: false }; push(true); }
-  function members() { const n = S.net; if (!n || !N) return []; const all = [{ id: N.id, j: n.j, ready: n.ready, playing: n.st === 'play', me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
+  function members() { const n = S.net; if (!n || !N) return []; const all = [{ id: N.id, j: n.j, ready: n.ready, playing: n.st === 'play', me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 4); }
   const inRoom = () => members().some(m => m.me);
   function hostId(match = true) { let m = members(); if (match && matchIds) m = m.filter(x => matchIds.includes(x.id)); return m.length ? m.reduce((a, b) => a.id < b.id ? a : b).id : N ? N.id : null; }
   function playerList(ids) { return ids.map((id, k) => ({ id, team: k % 2, name: (k % 2 ? 'BLUE ' : 'RED ') + (Math.floor(k / 2) + 1) })); }
@@ -416,7 +416,7 @@ export async function createTugOfWar({ container, onState = () => {}, theme = 'h
   let pushT = 0, dirty = true; const els = { get: () => ({}) };
   function push(now) { dirty = true; if (now) pushT = 0; }
   function hud() {
-    const n = S.net, m = n && N ? members() : [], full = !!n && n.st !== 'menu' && !!N && members().length === 5 && !m.some(x => x.me), pl = playerList(m.map(x => x.id));
+    const n = S.net, m = n && N ? members() : [], full = !!n && n.st !== 'menu' && !!N && members().length === 4 && !m.some(x => x.me), pl = playerList(m.map(x => x.id));
     const L = S.locals.map((x, k) => ({ combo: x.combo, stam: Math.round(x.stam), brace: x.brace, q: x.qT > 0 && x.q ? (x.q === 'tired' ? { txt: 'TIRED', col: '#ff9a8a' } : Q[x.q]) : null, tired: x.stam < 12, team: x.t, col: S.teamCol[x.t], frenzy: x.combo >= FRENZY }));
     const rivals = RIVALS.map((R, i) => ({ i, name: R.name, line: R.line, col: R.col, beaten: save.flag('tugWar.beat.' + R.id), locked: !(i === 0 || save.flag('tugWar.beat.' + RIVALS[i - 1].id)), gold: R.gold }));
     return { mode: S.mode, phase: S.phase, round: S.round, score: S.score.slice(), myTeam: S.myTeam, teamName: S.teamName.slice(), teamCol: S.teamCol.slice(), x: S.x, win: WIN,

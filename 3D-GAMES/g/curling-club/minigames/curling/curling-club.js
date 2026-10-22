@@ -1,7 +1,7 @@
 // 8 GATES — CURLING CLUB [curlingClub] · minigame #67 (Curling). An interior that drops into any building on any world.
 // One sheet of ice in a small club hall. Tap the ice to set the skip's broom, pick the curl, hold THROW to set the weight,
 // then hold SWEEP (or hold anywhere on the ice) while the stone runs: sweeping carries it further and straighter.
-// Modes: vs CPU (ROOKIE / CLUB / PRO) · PASS & PLAY on one phone (2-5, any seat can be CPU) · ONLINE 2-5 (engine/duel-net.js, driven by the page).
+// Modes: vs CPU (ROOKIE / CLUB / PRO) · PASS & PLAY on one phone (2-4, any seat can be CPU) · ONLINE 2-4 (engine/duel-net.js, driven by the page).
 //
 // NO STATIC IMPORTS on purpose: the page hands in THREE, the fox kit, CAST and the shared save. Module-to-module relative imports
 // break when the Design canvas packs each file on its own (the black-screen bug), so this file never imports anything.

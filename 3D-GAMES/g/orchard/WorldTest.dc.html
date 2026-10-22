@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Orchard World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap">
+<style>
+body{margin:0;background:#000}
+.wt{appearance:none;border:2px solid #ffd23a;border-radius:0;background:#ffd23a;color:#000;font:800 14px/1 Archivo,Arial,sans-serif;letter-spacing:.04em;min-height:48px;padding:0 16px;display:flex;align-items:center;justify-content:flex-start;cursor:pointer}
+.wt:hover{border-color:#fff}
+</style>
+</helmet>
+<div ref="{{setRoot}}" data-wt-root="1" style="position: relative; width: 100%; height: 100vh; min-height: 360px; overflow: hidden; background: #000000; font-family: Archivo, Arial, sans-serif; color: #ffffff">
+<div ref="{{setStage}}" data-wt-stage="1" style="position: absolute; inset: 0"></div>
+<sc-if value="{{inGame}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Orchard" world="{{fakeWorld}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{inTown}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<div style="background: #000000; border: 2px solid #3a3836; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; max-width: 420px">
+<div style="font-size: 12px; font-weight: 600; letter-spacing: .08em; color: #c9c5bf">WORLD MODE TEST</div>
+<div style="font-size: 15px; font-weight: 600; line-height: 1.35">{{status}}</div>
+</div>
+<button type="button" class="wt" onClick="{{enter}}">ENTER ORCHARD</button>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"moduleUrl":{"editor":null,"default":null},"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { inGame: false, status: 'A toy town. The orchard plot stands at (20, 0, -15), turned 0.9 rad.' };
+    this.rootEl = null; this.stageEl = null; this.api = null; this.mods = null; this.alive = true;
+    this.setRoot = (el) => { this.rootEl = el; };
+    this.setStage = (el) => { this.stageEl = el; if (el) this.boot(); };
+    const self = this;
+    this.fakeWorld = {
+      _fruitOrchard: {
+        g: () => self.api,
+        end: () => self.leave(),
+      },
+    };
+  }
+  url(rel) {
+    if (this.props.moduleUrl && rel.indexOf('orchard.js') >= 0) return [this.props.moduleUrl];
+    const c = [];
+    try { c.push(new URL(rel, document.baseURI).href); } catch (e) { /* no base */ }
+    try { if (window.__dcProjectRoot) c.push(new URL(rel, new URL(String(window.__dcProjectRoot).replace(/\/?$/, '/'), location.href)).href); } catch (e) { /* no root */ }
+    try { c.push(new URL(rel, location.href).href); } catch (e) { /* no href */ }
+    return c.filter((v, i, a) => a.indexOf(v) === i);
+  }
+  async load(rel) {
+    for (const u of this.url(rel)) { try { return await import(u); } catch (e) { /* try next */ } }
+    return null;
+  }
+  async boot() {
+    if (this.booted) return;
+    const el = this.stageEl || document.querySelector('[data-wt-stage]');
+    if (!el) return;
+    this.booted = true;
+    const THREE = await this.load('vendor/three/three.module.js');
+    const game = await this.load('minigames/orchard/orchard.js');
+    if (!THREE || !game) { this.setState({ status: 'Could not load the modules.' }); return; }
+    this.THREE = THREE; this.game = game;
+    const r = new THREE.WebGLRenderer({ antialias: true });
+    r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    r.domElement.style.display = 'block'; r.domElement.style.width = '100%'; r.domElement.style.height = '100%'; r.domElement.style.touchAction = 'none';
+    r.domElement.tabIndex = 0;
+    el.appendChild(r.domElement);
+    this.renderer = r;
+    const town = new THREE.Scene();
+    town.background = new THREE.Color('#bfe3ff');
+    town.add(new THREE.HemisphereLight(0xffffff, 0x8a7a5a, 1.4));
+    const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(-8, 14, 6); town.add(sun);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(240, 240), new THREE.MeshLambertMaterial({ color: '#d8c79a' }));
+    ground.rotation.x = -Math.PI / 2; town.add(ground);
+    const houseMat = new THREE.MeshLambertMaterial({ color: '#ec3013' }), roofMat = new THREE.MeshLambertMaterial({ color: '#3a3836' });
+    [[-12, -6], [-4, -20], [6, 10], [34, -2], [36, -30], [-18, 14]].forEach(([x, z], i) => {
+      const h = new THREE.Mesh(new THREE.BoxGeometry(5, 4 + (i % 3), 5), i % 2 ? houseMat : new THREE.MeshLambertMaterial({ color: '#ffd23a' }));
+      h.position.set(x, (4 + (i % 3)) / 2, z); town.add(h);
+      const rf = new THREE.Mesh(new THREE.ConeGeometry(4.2, 2.4, 4), roofMat); rf.position.set(x, 4 + (i % 3) + 1.2, z); rf.rotation.y = Math.PI / 4; town.add(rf);
+    });
+    const parent = new THREE.Group(); parent.position.set(20, 0, -15); parent.rotation.y = 0.9; town.add(parent);
+    const marker = new THREE.Mesh(new THREE.BoxGeometry(20, 0.02, 9.6), new THREE.MeshLambertMaterial({ color: '#7cc456' }));
+    marker.position.set(0, 0.01, 0.9); parent.add(marker);
+    this.marker = marker;
+    const townCam = new THREE.PerspectiveCamera(50, 1, 0.1, 600);
+    townCam.position.set(-6, 22, 38); townCam.lookAt(10, 0, -10);
+    this.townHome = { p: townCam.position.clone(), q: townCam.quaternion.clone() };
+    this.town = town; this.parent = parent; this.townCam = townCam;
+    this.onKey = (e) => { if (this.api) this.api.key(e); };
+    r.domElement.addEventListener('keydown', this.onKey);
+    r.domElement.addEventListener('pointerdown', () => r.domElement.focus());
+    const loop = () => {
+      if (!this.alive) return;
+      this.raf = requestAnimationFrame(loop);
+      const w = el.clientWidth || 1, h = el.clientHeight || 1;
+      const c = r.domElement;
+      if (c.width !== Math.round(w * r.getPixelRatio()) || c.height !== Math.round(h * r.getPixelRatio())) r.setSize(w, h, false);
+      townCam.aspect = w / h;
+      if (this.api) {
+        const g = this.api.camera;
+        townCam.position.lerp(g.position, 0.12);
+        townCam.quaternion.slerp(g.quaternion, 0.12);
+        townCam.fov += (g.fov - townCam.fov) * 0.12;
+      } else {
+        townCam.position.lerp(this.townHome.p, 0.06);
+        townCam.quaternion.slerp(this.townHome.q, 0.06);
+        townCam.fov += (50 - townCam.fov) * 0.06;
+      }
+      townCam.updateProjectionMatrix();
+      r.render(town, townCam);
+    };
+    loop();
+  }
+  async enter() {
+    if (this.api || !this.game) return;
+    this.marker.visible = false;
+    this.api = await this.game.createOrchard({
+      container: this.stageEl,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:fruitOrchard', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.townCam, parent: this.parent } },
+    });
+    this.setState({ inGame: true });
+  }
+  leave() {
+    if (!this.api) return;
+    this.api.destroy();
+    this.api = null;
+    window.dispatchEvent(new CustomEvent('8g:fruitOrchard', { detail: null }));
+    this.marker.visible = true;
+    this.setState({ inGame: false, status: 'Back in town. The orchard group was removed and the town is untouched.' });
+  }
+  componentWillUnmount() {
+    this.alive = false; cancelAnimationFrame(this.raf);
+    if (this.api) this.api.destroy();
+    if (this.renderer) { this.renderer.domElement.removeEventListener('keydown', this.onKey); this.renderer.dispose(); }
+  }
+  renderVals() {
+    return {
+      setRoot: this.setRoot, setStage: this.setStage,
+      inGame: this.state.inGame, inTown: !this.state.inGame,
+      fakeWorld: this.fakeWorld, status: this.state.status,
+      enter: () => this.enter(),
+    };
+  }
+}
+</script>
+</body>
+</html>

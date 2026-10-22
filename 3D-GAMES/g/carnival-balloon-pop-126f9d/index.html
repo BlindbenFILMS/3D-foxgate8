@@ -76,7 +76,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .row3 { display: grid; grid-template-columns: repeat(3, 1fr); }
 .row3 button, .row5 button { min-height: 48px; border: 0; border-right: 2px solid var(--rule); background: #000; color: var(--ink); font-size: 12px; font-weight: 900; letter-spacing: .08em; text-align: left; padding: 0 14px; }
 .row3 button:last-child, .row5 button:last-child { border-right: 0; }
-.row5 { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 2px solid var(--rule); }
+.row5 { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 2px solid var(--rule); }
 .row5 button { text-align: center; font-size: 22px; }
 .list { display: flex; flex-direction: column; }
 .list .li { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 2px solid var(--rule); font-size: 14px; font-weight: 800; }
@@ -130,7 +130,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
       <div class="grid2">
         <button class="big primary" id="m-classic" type="button"><b>CLASSIC</b><small>6 DARTS · 2g · WIN TICKETS</small></button>
         <button class="big" id="m-blitz" type="button"><b>BLITZ</b><small>45 S · MOVING BOARD · 2g</small></button>
-        <button class="big" id="m-party" type="button"><b>PARTY</b><small>PASS THE PHONE · 2-5</small></button>
+        <button class="big" id="m-party" type="button"><b>PARTY</b><small>PASS THE PHONE · 2-4</small></button>
         <button class="big" id="m-demo" type="button"><b>DEMO</b><small>WATCH THE STALL PLAY</small></button>
         <button class="big gold" id="m-prizes" type="button"><b>PRIZE SHELF</b><small id="m-prsub">SPEND YOUR TICKETS</small></button>
       </div>
@@ -140,7 +140,7 @@ button:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
     <!-- party size -->
     <section class="ui card hidden" id="c-party" data-safe="card">
       <header><small>PARTY · PASS THE PHONE</small><strong>How many players?</strong><p>Same board for everyone, 6 darts each.</p></header>
-      <div class="row5"><button type="button" data-n="2">2</button><button type="button" data-n="3">3</button><button type="button" data-n="4">4</button><button type="button" data-n="5">5</button></div>
+      <div class="row5"><button type="button" data-n="2">2</button><button type="button" data-n="3">3</button><button type="button" data-n="4">4</button></div>
       <div class="row3"><button type="button" class="back">BACK</button></div>
     </section>
 

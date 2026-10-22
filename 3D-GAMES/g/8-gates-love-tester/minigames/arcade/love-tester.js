@@ -7,7 +7,7 @@
 // The meter climbs to a LOVE % and a rating: COLD FISH · JUST FRIENDS · SWEET ON YOU · HOT STUFF · RED HOT · SOULMATES.
 // SOLO: the partner comes from the world (?with=hope / noble / a name, or a postMessage) or is picked on the intro card. Their answers come from a hidden
 //       "chemistry" so the same pair tends to score alike, but play still matters most.
-// ONLINE (2–5 phones, peer to peer through engine/duel-net.js, game 'loveTester'; falls back to same-device tabs for testing):
+// ONLINE (2–4 phones, peer to peer through engine/duel-net.js, game 'loveTester'; falls back to same-device tabs for testing):
 //       everyone plays the same machine (same tempo, sweet spots and questions from a shared seed) at the same time; at the end the
 //       machine scores EVERY pair and names the best match.
 // Saves only through engine/save.js and only under 'loveTester.*' keys.
@@ -20,7 +20,7 @@ import { save } from '../../engine/save.js';
 export const GAME = 'loveTester';
 export const LOVE_TESTER = { name: 'LOVE TESTER', room: 'loveTester', number: 39 };
 export const PRICE = 2;                       // DRAFT for Ben: gold per go (plays free, "ON THE HOUSE", when you are short)
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PINK', '#f472b6']];
 export const RATINGS = [
   { at: 0, name: 'COLD FISH', col: '#7dd3fc', mood: 'sad' },
@@ -570,7 +570,7 @@ export async function createLoveTester({ container, onState = () => {}, world = 
   };
 }
 
-// ---------- ONLINE ROOM (2–5 phones). Uses the repo's engine/duel-net.js (peer to peer, game 'loveTester');
+// ---------- ONLINE ROOM (2–4 phones). Uses the repo's engine/duel-net.js (peer to peer, game 'loveTester');
 // when that file is not there (this kit) it falls back to BroadcastChannel so two tabs on one device can test it. ----------
 async function connect({ code, onMsg, onLeave, onStatus }) {
   try { const mod = await import(new URL('../../engine/duel-net.js', import.meta.url).href); if (mod && mod.connectDuel) return await mod.connectDuel({ game: GAME, code, onJoin: () => {}, onLeave, onMsg, onStatus }); } catch (e) {}

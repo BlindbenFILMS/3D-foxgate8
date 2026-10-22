@@ -1,7 +1,7 @@
 // 8 GATES — TABLE SHUFFLEBOARD [shuffleboard] · minigame #16 (TABLE GAMES).
 // A long waxed table in a lounge room that fits inside any building on any world (?world=meru|gaya|… restyles the room).
 // Slide your weights to the far end: 1 · 2 · 3 zones, a weight hanging over the edge is a HANGER worth 4. Knock the others off.
-// 1–5 players: VS FOXES (CPU: Hope, Noble + two DRAFT foxes) · PASS & PLAY on one phone · ONLINE peer to peer (engine/duel-net.js, up to 5).
+// 1–5 players: VS FOXES (CPU: Hope, Noble + two DRAFT foxes) · PASS & PLAY on one phone · ONLINE peer to peer (engine/duel-net.js, up to 4).
 // Controls: drag the puck sideways to pick a lane, SWIPE UP on it to slide (swipe speed = power) · or HOLD the THROW button: the ghost
 // puck walks down the table, let go where you want it to stop. Desktop: ←/→ (A/D) lane, hold Space to charge.
 // MERGE: createShuffleboard({ container, onState, opts }) stands alone (the DC page uses it). buildShuffleTable(ctx) builds just the
@@ -49,7 +49,7 @@ const loadPrefs = () => { try { return { guide: true, sound: true, ...JSON.parse
 export function zoneOf(z) { if (z > L) return 0; if (z + R > L) return 4; if (z - R >= L - ZONES.three) return 3; if (z - R >= L - ZONES.two) return 2; if (z >= FOUL) return 1; return 0; }
 export const ZONE_NAME = { 4: 'HANGER', 3: '3 ZONE', 2: '2 ZONE', 1: '1 ZONE', 0: 'DEAD' };
 // rule 'table' (classic): only the owner of the furthest weight scores, every one of their weights past all the others' best
-// rule 'every': every weight on the board scores its zone (good for 3–5 players)
+// rule 'every': every weight on the board scores its zone (good for 3–4 players)
 export function scoreFrame(pucks, ids, rule) {
   const on = pucks.filter(p => p.alive && !p.fall && !p.dead && zoneOf(p.z) > 0), pts = Object.fromEntries(ids.map(i => [i, 0])), counted = [];
   if (!on.length) return { pts, counted, lead: null };
@@ -362,7 +362,7 @@ export async function createShuffleboard({ container, onState = () => {}, opts =
 
   // ---- online (engine/duel-net.js; falls back to two tabs on one computer) ----
   const netCode = () => { const A = 'ABCDEFGHJKMNPQRSTUVWXYZ'; let k = ''; for (let i = 0; i < 4; i++) k += A[Math.floor(Math.random() * A.length)]; return k; };
-  function members() { if (!net || !N) return []; const all = [{ id: N.id, j: net.j, ready: net.ready, playing: mode === 'net' && phase !== 'menu' && !done, me: true, name: net.name }, ...Object.entries(net.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
+  function members() { if (!net || !N) return []; const all = [{ id: N.id, j: net.j, ready: net.ready, playing: mode === 'net' && phase !== 'menu' && !done, me: true, name: net.name }, ...Object.entries(net.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 4); }
   const hostId = () => { const m = members(); return m.length ? m[0].id : null; };
   function netOpen() { net = { st: 'menu', code: '', peers: {}, ready: false, j: 0, status: '', msg: '', ping: null, cfg: { target: 15, rule: 'table' } }; emit(true); }
   async function netJoin(code) {
@@ -409,7 +409,7 @@ export async function createShuffleboard({ container, onState = () => {}, opts =
   function maybeStart() { if (!net || !N || net.st !== 'room' || hostId() !== N.id) return; const m = members(); if (m.length < 2 || !m.every(x => x.ready)) return;
     const d = { k: 'start', ids: m.map(x => x.id), cfg: net.cfg, mid: Date.now() }; N.send('ev', d); netStart(d); }
   function netStart(d) { if (!net || !N || !Array.isArray(d.ids)) return; if (!d.ids.includes(N.id)) { net.msg = 'A game started without you. You join the next one.'; emit(true); return; }
-    mode = 'net'; net.st = 'play'; net.ready = false; for (const k in net.peers) net.peers[k].ready = false; const ids = d.ids.slice(0, 5);
+    mode = 'net'; net.st = 'play'; net.ready = false; for (const k in net.peers) net.peers[k].ready = false; const ids = d.ids.slice(0, 4);
     setPlayers(ids.map((id, i) => ({ id, kind: id === N.id ? 'me' : 'net', name: COLS[i][0] })));
     startMatch({ target: [11, 15, 21].includes(+(d.cfg && d.cfg.target)) ? +d.cfg.target : 15, rule: d.cfg && d.cfg.rule === 'every' ? 'every' : 'table' }); placeFoxes(true); }
   function netReady() { if (!net || !N) return; net.ready = !net.ready; N.send('ev', { k: 'ready', on: net.ready }); emit(true); setTimeout(maybeStart, 0); }
@@ -421,7 +421,7 @@ export async function createShuffleboard({ container, onState = () => {}, opts =
     let list;
     if (kind === 'practice') list = [{ kind: 'me', name: 'YOU' }];
     else if (kind === 'cpu') { const n = clamp(seats.length || 1, 1, 4); list = [{ kind: 'me', name: 'YOU' }, ...CPU_FOXES.slice(0, n).map(f => ({ kind: 'cpu', ...f }))]; }
-    else { const n = clamp(seats.length || 2, 2, 5); list = Array.from({ length: n }, (_, i) => ({ kind: i ? 'local' : 'me', name: COLS[i][0] })); }
+    else { const n = clamp(seats.length || 2, 2, 4); list = Array.from({ length: n }, (_, i) => ({ kind: i ? 'local' : 'me', name: COLS[i][0] })); }
     setPlayers(list); startMatch({ target, rule, level }); placeFoxes(true);
   }
   function toMenu() { mode = 'menu'; phase = 'menu'; done = null; frameCard = null; flash = null; charge = null; chargeToneOff(); order = []; clearPucks(); pucks = []; removeFoxes(); players = []; view = 'aim'; room.drawBoard([], 15, 0, null); demoFoxes(); emit(true); }
@@ -495,7 +495,7 @@ export async function createShuffleboard({ container, onState = () => {}, opts =
       players: players.map(p => ({ id: p.id, name: p.me && mode !== 'local' ? 'YOU' : p.name, col: p.col, colName: p.colName, score: p.score, left: live ? left(p) : 0, per: perPlayer, turn: !!c && c.id === p.id && (phase === 'aim' || phase === 'slide' || phase === 'syncWait'), kind: p.kind, me: !!p.me, gone: !!p.gone })),
       turn: c && /^(aim|slide|syncWait|between)$/.test(phase) ? { name: c.me && mode !== 'local' ? 'YOU' : c.name, col: c.col, kind: c.kind, line: c.line } : null, myTurn: localTurn(), charging: charge != null, chargeD: charge != null ? chargeD(charge.t) : 0, chargeZone: charge != null ? ZONE_NAME[zoneOf(laneZ + chargeD(charge.t))] || (laneZ + chargeD(charge.t) > L ? 'OFF THE END' : '') : '',
       flash: flash ? { txt: flash.txt, col: flash.col } : null, frameCard: frameCard ? { title: frameCard.title, frame: frameCard.frame, rows: frameCard.rows, canNext: !done } : null, done, say, mini: mr,
-      throwsLeft: order.length - throwN, net: net ? { st: net.st, code: net.code, status: net.status, msg: net.msg, ping: net.ping, ready: net.ready, cfg: net.cfg, me: N ? N.id : null, host: hostId(), members: members().map((x, i) => ({ id: x.id, me: x.me, ready: !!x.ready, playing: !!x.playing, slot: i, name: COLS[i][0], col: COLS[i][1] })), full: !!N && members().length >= 5 && !members().some(x => x.me) } : null };
+      throwsLeft: order.length - throwN, net: net ? { st: net.st, code: net.code, status: net.status, msg: net.msg, ping: net.ping, ready: net.ready, cfg: net.cfg, me: N ? N.id : null, host: hostId(), members: members().map((x, i) => ({ id: x.id, me: x.me, ready: !!x.ready, playing: !!x.playing, slot: i, name: COLS[i][0], col: COLS[i][1] })), full: !!N && members().length >= 4 && !members().some(x => x.me) } : null };
   }
   function emit(force) { dirty = false; const h = hud(), s = JSON.stringify(h); if (!force && s === lastHud) return; lastHud = s; onState(h); }
   const emitT = setInterval(() => { if (charge != null || phase === 'slide') emit(); }, 120);

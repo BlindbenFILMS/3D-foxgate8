@@ -2,7 +2,7 @@
 // Fits any building on any world (the room is self-contained and lit on its own).
 // PLAY: swipe up from the ball to roll it (speed of the swipe = power, angle = aim, a curved swipe = spin). Drag sideways first to move the ball.
 //       EASY ROLL (and Space / Enter on desktop): tap to lock the aim, tap to lock the power.
-// MODES: SOLO (9 balls, Hope plays the next lane) · PASS & PLAY (2–5 on one phone, take turns ball by ball) · ONLINE (2–5, everyone rolls on their own lane at once).
+// MODES: SOLO (9 balls, Hope plays the next lane) · PASS & PLAY (2–4 on one phone, take turns ball by ball) · ONLINE (2–4, everyone rolls on their own lane at once).
 // SOUND GUIDE: aim = left/right pan, power = pitch, every score is spoken (for players who can't see the board). Phones that can, buzz on each score.
 // Holes: 10 · 20 · 30 · 40 · 50 rings, two 100 pockets in the top corners. Balls that stop short roll back for 0.
 // MERGE: createSkeeBall({ container, onState }) stands alone. buildArcade() makes the room into its own scene; a world can open the DC page in a panel (?embed=1).
@@ -15,7 +15,7 @@ import { save } from '../../engine/save.js';
 export const KEY = 'arcadeSkee';
 export const BALLS = 9;
 export const COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PINK', '#f472b6']];
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 // rewards (DRAFT for Ben): tickets = score / 10, gold = score / 50, XP = score / 30
 export const REWARD = { ticketPer: 10, goldPer: 50, xpPer: 30, clubScore: 450 };
 const HOPE_LINES = { // DRAFT lines for Ben
@@ -313,7 +313,7 @@ export async function createSkeeBall({ container, onState = () => {}, opts = {} 
     else if (e.code === 'ArrowLeft' || e.code === 'ArrowRight') { const L = lanes[S.myLane]; L.x0 = clamp(L.x0 + (e.code === 'ArrowLeft' ? -0.04 : 0.04), -LW / 2 + R + 0.01, LW / 2 - R - 0.01); } }
   if (!opts.noKeys) addEventListener('keydown', onKey);
 
-  // ----- online (2–5): engine/duel-net.js, or a same-device test channel -----
+  // ----- online (2–4): engine/duel-net.js, or a same-device test channel -----
   function localDuel({ game, code, onJoin, onLeave, onMsg, onStatus }) { const id = Math.random().toString(36).slice(2, 10); let ch; try { ch = new BroadcastChannel('8g-' + game + '-' + code); } catch (e) { onStatus('offline'); return { id, send() {}, leave() {} }; }
     ch.onmessage = e => { const m = e.data || {}; if (m.from === id || (m.to && m.to !== id)) return; if (m.t === '__join') { onJoin(m.from); return; } if (m.t === '__bye') { onLeave && onLeave(m.from); return; } onMsg(m.t, m.d, m.from); };
     setTimeout(() => { onStatus('local'); ch.postMessage({ from: id, t: '__join' }); }, 60);

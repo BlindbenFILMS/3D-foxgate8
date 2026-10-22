@@ -1,0 +1,529 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Juggling</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#fff}
+.jg{position:relative;width:100%;height:100vh;overflow:hidden;font-family:Archivo,"Helvetica Neue",Arial,sans-serif;color:#fff;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.jg-solo{background:#0b1630}
+.jg-overlay{background:transparent;pointer-events:none}
+.jg-stage{position:absolute;inset:0}
+.jg-ui{position:absolute;inset:0;pointer-events:none}
+.jg-head{position:absolute;top:0;left:0;right:0;display:flex;flex-direction:column;align-items:flex-start;z-index:3;pointer-events:none}
+.jg-top{width:100%;background:#000;border-bottom:2px solid #3a3836;pointer-events:auto}
+.jg-row{display:flex}
+.jg-b{appearance:none;-webkit-appearance:none;border:0;border-radius:0;background:#000;color:#fff;font-family:Archivo,"Helvetica Neue",Arial,sans-serif;font-weight:800;font-size:14px;line-height:1.1;letter-spacing:.06em;text-transform:uppercase;min-height:44px;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;text-align:left;cursor:pointer;box-sizing:border-box}
+.jg-b:focus-visible{outline:3px solid #ffd23a;outline-offset:-3px}
+.jg-b:active{background:#ffd23a;color:#000}
+.jg-b.red{background:#ec3013;color:#fff}
+.jg-b.yel{background:#ffd23a;color:#000}
+.jg-b.sel{background:#ffd23a;color:#000}
+.jg-b.line{border:2px solid #3a3836}
+.jg-top .jg-row .jg-b{flex:1 1 0;border-right:2px solid #3a3836;padding:0 10px;letter-spacing:.03em;white-space:nowrap}
+.jg-top .jg-row .jg-b:last-child{border-right:0}
+.jg-info{display:flex;flex-direction:column}
+.jg-chips{display:grid;border-top:2px solid #3a3836}
+.jg-chip{padding:6px 10px;border-right:2px solid #3a3836;min-width:0}
+.jg-chip:last-child{border-right:0}
+.jg-chip.on{background:#ffd23a;color:#000}
+.jg-chip .n{font-weight:800;font-size:12px;line-height:1.2;letter-spacing:.08em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.jg-chip .s{font-weight:900;font-size:24px;line-height:1.05;font-variant-numeric:tabular-nums}
+.jg-stats{display:flex;border-top:2px solid #3a3836}
+.jg-stat{padding:6px 10px;border-right:2px solid #3a3836;display:flex;flex-direction:column;gap:3px;min-width:0;flex:1 1 0}
+.jg-stat:last-child{border-right:0}
+.jg-stat .l{font-weight:600;font-size:12px;line-height:1;color:#cfcac2;letter-spacing:.08em}
+.jg-stat .v{font-weight:900;font-size:18px;line-height:1;font-variant-numeric:tabular-nums;display:flex;gap:4px;align-items:center;white-space:nowrap}
+.jg-pip{width:12px;height:12px;border:2px solid #fff;box-sizing:border-box}
+.jg-pip.on{background:#ec3013;border-color:#ec3013}
+.jg-call{margin:10px 12px 0;background:#000;border:2px solid #3a3836;padding:8px 12px;display:flex;align-items:baseline;gap:10px;pointer-events:none;max-width:calc(100% - 24px);box-sizing:border-box}
+.jg-call .t{font-weight:900;font-size:28px;line-height:1;letter-spacing:.02em}
+.jg-call .u{font-weight:800;font-size:14px;line-height:1;color:#fff}
+.jg-call.k-perfect .t{color:#ffd23a}
+.jg-call.k-ok .t{color:#cfcac2}
+.jg-call.k-drop{background:#ec3013;border-color:#ec3013}
+.jg-call.k-early .t{color:#ff8a7a}
+.jg-call.k-level{background:#ffd23a;border-color:#ffd23a}
+.jg-call.k-level .t,.jg-call.k-level .u{color:#000}
+.jg-call.k-count .t{font-size:64px;color:#ffd23a}
+.jg-call.a{animation:jgPopA .18s ease-out}
+.jg-call.b{animation:jgPopB .18s ease-out}
+@keyframes jgPopA{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+@keyframes jgPopB{from{transform:translateY(-8px);opacity:0}to{transform:none;opacity:1}}
+.jg-foot{position:absolute;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:flex-start}
+.jg-cap{margin:0 12px 10px;background:#000;border:2px solid #3a3836;padding:8px 12px;display:flex;gap:10px;align-items:baseline;pointer-events:none;max-width:calc(100% - 24px);box-sizing:border-box}
+.jg-cap .tag{font-weight:900;font-size:12px;letter-spacing:.1em;color:#000;background:#ec3013;color:#fff;padding:3px 6px}
+.jg-cap .x{font-weight:600;font-size:15px;line-height:1.3}
+.jg-turn{margin:0 12px 10px;background:#000;border:2px solid #ffd23a;pointer-events:auto;display:flex;flex-direction:column;max-width:calc(100% - 24px);width:360px;box-sizing:border-box}
+.jg-turn .h{font-weight:900;font-size:26px;line-height:1;padding:12px 12px 4px;text-transform:uppercase}
+.jg-turn .p{font-weight:600;font-size:14px;color:#cfcac2;padding:0 12px 12px}
+.jg-bar{width:100%;background:#000;border-top:2px solid #3a3836;pointer-events:auto;box-sizing:border-box}
+.jg-hands{display:flex}
+.jg-hand{flex:1 1 0;min-height:104px;flex-direction:column;align-items:flex-start;justify-content:center;gap:6px;position:relative;touch-action:none}
+.jg-hand + .jg-hand{border-left:2px solid #3a3836}
+.jg-hand .big{font-weight:900;font-size:22px;letter-spacing:.04em}
+.jg-hand .sm{font-weight:600;font-size:12px;letter-spacing:.06em;color:#cfcac2;text-transform:none}
+.jg-hand:active .sm{color:#000}
+.jg-hand.dim{opacity:.5}
+.jg-cpu{display:flex;align-items:stretch}
+.jg-cpu .who{flex:1 1 auto;padding:12px;display:flex;flex-direction:column;gap:4px;justify-content:center;min-height:80px}
+.jg-cpu .who .a{font-weight:900;font-size:18px;text-transform:uppercase;letter-spacing:.03em}
+.jg-cpu .who .b2{font-weight:600;font-size:12px;color:#cfcac2}
+.jg-cpu .jg-b{border-left:2px solid #3a3836;min-width:150px}
+.jg-hint{position:absolute;left:14px;top:-66px;width:52px;height:56px;pointer-events:none;animation:jgBob .7s ease-in-out infinite alternate}
+@keyframes jgBob{from{transform:translateY(0)}to{transform:translateY(10px)}}
+.jg-side{display:none;position:absolute;bottom:0;width:138px;height:min(62%,250px);background:#000;pointer-events:auto;box-sizing:border-box}
+.jg-sideL{left:0;border-top:2px solid #3a3836;border-right:2px solid #3a3836}
+.jg-sideR{right:0;border-top:2px solid #3a3836;border-left:2px solid #3a3836}
+.jg-side .jg-hand{height:100%;width:100%}
+.jg-side .jg-hint{top:-66px}
+.jg-modal{position:absolute;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:12px;pointer-events:auto;box-sizing:border-box;z-index:2}
+.jg-card{background:#000;border:2px solid #3a3836;width:100%;max-width:440px;max-height:100%;overflow:auto;box-sizing:border-box}
+.jg-card .ttl{font-weight:900;font-size:30px;line-height:1;padding:16px 14px 12px;margin:0}
+.jg-card .ttl.y{color:#ffd23a}
+.jg-lab{font-weight:800;font-size:12px;letter-spacing:.1em;color:#cfcac2;padding:12px 14px 8px;border-top:2px solid #3a3836}
+.jg-seg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:0 14px 12px}
+.jg-seg .jg-b{border:2px solid #3a3836;padding:0 10px;font-size:13px}
+.jg-seg .jg-b.sel{border-color:#ffd23a}
+.jg-seg .jg-b .d{display:block;font-weight:600;font-size:12px;letter-spacing:.04em;text-transform:none;margin-top:3px}
+.jg-tg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;padding:0 14px 12px}
+.jg-tg .jg-b{border:2px solid #3a3836;justify-content:space-between}
+.jg-tg .jg-b .st{font-weight:900;color:#ffd23a}
+.jg-rules{padding:0 14px 12px;margin:0;display:flex;flex-direction:column;gap:6px}
+.jg-rules p{margin:0;font-weight:400;font-size:14px;line-height:1.4;color:#e9e5de}
+.jg-note{padding:0 14px 12px;font-weight:600;font-size:12px;color:#cfcac2}
+.jg-acts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid #3a3836;position:sticky;bottom:0;background:#000}
+.jg-acts .jg-b{border-right:2px solid #3a3836}
+.jg-acts .jg-b:last-child{border-right:0}
+.jg-acts2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:2px solid #3a3836}
+.jg-acts2 .jg-b{border-right:2px solid #3a3836;min-height:52px}
+.jg-acts2 .jg-b:last-child{border-right:0}
+.jg-res{display:flex;flex-direction:column}
+.jg-line{display:flex;justify-content:space-between;align-items:baseline;padding:8px 14px;border-top:2px solid #3a3836;gap:10px}
+.jg-line .n{font-weight:800;font-size:14px;letter-spacing:.08em}
+.jg-line .s{font-weight:900;font-size:22px;font-variant-numeric:tabular-nums}
+.jg-line.w .n,.jg-line.w .s{color:#ffd23a}
+.jg-kv{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:2px solid #3a3836}
+.jg-kv .c{padding:10px 14px;border-right:2px solid #3a3836;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:4px}
+.jg-kv .c:nth-child(2n){border-right:0}
+.jg-kv .l{font-weight:600;font-size:12px;letter-spacing:.08em;color:#cfcac2}
+.jg-kv .v{font-weight:900;font-size:22px;font-variant-numeric:tabular-nums}
+.jg-kv .v.y{color:#ffd23a}
+.jg-stars{display:flex;gap:6px;padding:12px 14px}
+.jg-p{padding:0 14px 14px;margin:0;font-weight:400;font-size:15px;line-height:1.4;color:#e9e5de}
+.jg-err{position:absolute;left:12px;right:12px;top:40%;background:#000;border:2px solid #ec3013;padding:12px;font-weight:600;font-size:14px;pointer-events:auto}
+@media (orientation: landscape) and (max-height: 560px){
+  .jg-port{display:none !important}
+  .jg-side{display:block}
+  .jg-info{flex-direction:row;border-top:2px solid #3a3836}
+  .jg-chips{flex:1 1 55%;border-top:0}
+  .jg-stats{flex:1 1 45%;border-top:0;border-left:2px solid #3a3836}
+  .jg-chip .s{font-size:20px}
+  .jg-call .t{font-size:24px}
+  .jg-call.k-count .t{font-size:52px}
+  .jg-cap,.jg-turn{margin-left:150px}
+}
+</style>
+</helmet>
+<div class="jg {{ rootCls }}" ref="{{ rootRef }}">
+<div class="jg-stage" ref="{{ stageRef }}" data-jg-stage="1"></div>
+<sc-if value="{{ show }}" hint-placeholder-val="{{ true }}">
+<div class="jg-ui">
+
+<div class="jg-head">
+<div class="jg-top" data-safe="top">
+<div class="jg-row">
+<button class="jg-b" type="button" onClick="{{ openMenu }}">Menu</button>
+<button class="jg-b" type="button" onClick="{{ openInvite }}">Invite friend</button>
+<button class="jg-b red" type="button" onClick="{{ back }}">Back</button>
+</div>
+<div class="jg-info">
+<div class="jg-chips" style="grid-template-columns: {{ chipCols }}">
+<sc-for list="{{ chips }}" as="c" hint-placeholder-count="2">
+<div class="jg-chip {{ c.cls }}">
+<div class="n">{{ c.label }}</div>
+<div class="s">{{ c.score }}</div>
+</div>
+</sc-for>
+</div>
+<div class="jg-stats">
+<div class="jg-stat"><div class="l">TIME</div><div class="v">{{ time }}</div></div>
+<div class="jg-stat"><div class="l">DROPS</div><div class="v">
+<sc-for list="{{ dropPips }}" as="d" hint-placeholder-count="3"><span class="{{ d.cls }}"></span></sc-for>
+</div></div>
+<div class="jg-stat"><div class="l">COMBO</div><div class="v">{{ combo }}</div></div>
+<div class="jg-stat"><div class="l">ROUND</div><div class="v">{{ roundTxt }}</div></div>
+</div>
+</div>
+</div>
+<sc-if value="{{ callOn }}" hint-placeholder-val="{{ false }}">
+<div class="{{ callCls }}" role="status" aria-live="polite"><span class="t">{{ callText }}</span><span class="u">{{ callSub }}</span></div>
+</sc-if>
+</div>
+
+<div class="jg-foot">
+<sc-if value="{{ captionOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-cap"><span class="tag">DEMO</span><span class="x">{{ caption }}</span></div>
+</sc-if>
+<sc-if value="{{ awaiting }}" hint-placeholder-val="{{ false }}">
+<div class="jg-turn">
+<div class="h">{{ awaitTitle }}</div>
+<div class="p">Hand the phone over, then start.</div>
+<button class="jg-b yel" type="button" onClick="{{ begin }}" style="min-height: 56px; font-size: 16px">Tap to start</button>
+</div>
+</sc-if>
+<sc-if value="{{ handsOn }}" hint-placeholder-val="{{ true }}">
+<div class="jg-bar jg-port" data-safe="bottom">
+<div class="jg-hands">
+<button class="jg-b jg-hand {{ handCls }}" type="button" aria-label="Left hand" onPointerDown="{{ tapL }}">
+<sc-if value="{{ hintL }}" hint-placeholder-val="{{ false }}">
+<svg class="jg-hint" viewBox="0 0 52 56" aria-hidden="true"><path d="M20 4h8v26h4V18h7v14h4v-8h6v18c0 7-5 12-12 12H26c-6 0-10-4-12-9l-8-14 6-3 8 9V4z" fill="#ffd23a" stroke="#000" stroke-width="3" stroke-linejoin="miter" transform="rotate(180 26 28)"></path></svg>
+</sc-if>
+<span class="big">Left hand</span>
+<span class="sm">A or left arrow</span>
+</button>
+<button class="jg-b jg-hand {{ handCls }}" type="button" aria-label="Right hand" onPointerDown="{{ tapR }}">
+<sc-if value="{{ hintR }}" hint-placeholder-val="{{ false }}">
+<svg class="jg-hint" viewBox="0 0 52 56" aria-hidden="true"><path d="M20 4h8v26h4V18h7v14h4v-8h6v18c0 7-5 12-12 12H26c-6 0-10-4-12-9l-8-14 6-3 8 9V4z" fill="#ffd23a" stroke="#000" stroke-width="3" stroke-linejoin="miter" transform="rotate(180 26 28)"></path></svg>
+</sc-if>
+<span class="big">Right hand</span>
+<span class="sm">L or right arrow</span>
+</button>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ cpuOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-bar" data-safe="bottom">
+<div class="jg-cpu">
+<div class="who"><span class="a">{{ cpuTitle }}</span><span class="b2">{{ cpuSub }}</span></div>
+<button class="jg-b {{ fastCls }}" type="button" onClick="{{ fast }}">{{ fastLabel }}</button>
+</div>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{ handsOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-side jg-sideL" data-safe="left">
+<button class="jg-b jg-hand {{ handCls }}" type="button" aria-label="Left hand" onPointerDown="{{ tapL }}">
+<sc-if value="{{ hintL }}" hint-placeholder-val="{{ false }}">
+<svg class="jg-hint" viewBox="0 0 52 56" aria-hidden="true"><path d="M20 4h8v26h4V18h7v14h4v-8h6v18c0 7-5 12-12 12H26c-6 0-10-4-12-9l-8-14 6-3 8 9V4z" fill="#ffd23a" stroke="#000" stroke-width="3" stroke-linejoin="miter" transform="rotate(180 26 28)"></path></svg>
+</sc-if>
+<span class="big">Left</span>
+<span class="sm">A or left arrow</span>
+</button>
+</div>
+<div class="jg-side jg-sideR" data-safe="right">
+<button class="jg-b jg-hand {{ handCls }}" type="button" aria-label="Right hand" onPointerDown="{{ tapR }}">
+<sc-if value="{{ hintR }}" hint-placeholder-val="{{ false }}">
+<svg class="jg-hint" viewBox="0 0 52 56" aria-hidden="true"><path d="M20 4h8v26h4V18h7v14h4v-8h6v18c0 7-5 12-12 12H26c-6 0-10-4-12-9l-8-14 6-3 8 9V4z" fill="#ffd23a" stroke="#000" stroke-width="3" stroke-linejoin="miter" transform="rotate(180 26 28)"></path></svg>
+</sc-if>
+<span class="big">Right</span>
+<span class="sm">L or right arrow</span>
+</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ menuOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-modal" style="padding-top: {{ modalTop }}">
+<div class="jg-card" role="dialog" aria-label="Menu">
+<h2 class="ttl">Menu</h2>
+<div class="jg-lab">MODE</div>
+<div class="jg-seg">
+<sc-for list="{{ modeOpts }}" as="o" hint-placeholder-count="3">
+<button class="jg-b {{ o.cls }}" type="button" onClick="{{ o.pick }}">{{ o.label }}</button>
+</sc-for>
+</div>
+<sc-if value="{{ showLevels }}" hint-placeholder-val="{{ true }}">
+<div class="jg-lab">OPPONENT</div>
+<div class="jg-seg">
+<sc-for list="{{ levelOpts }}" as="o" hint-placeholder-count="3">
+<button class="jg-b {{ o.cls }}" type="button" onClick="{{ o.pick }}" style="min-height: 56px; flex-direction: column; align-items: flex-start; justify-content: center">{{ o.label }}<span class="d">{{ o.desc }}</span></button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ showPlayers }}" hint-placeholder-val="{{ false }}">
+<div class="jg-lab">PLAYERS</div>
+<div class="jg-seg">
+<sc-for list="{{ playerOpts }}" as="o" hint-placeholder-count="3">
+<button class="jg-b {{ o.cls }}" type="button" onClick="{{ o.pick }}">{{ o.label }}</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ showRounds }}" hint-placeholder-val="{{ true }}">
+<div class="jg-lab">ROUNDS</div>
+<div class="jg-seg">
+<sc-for list="{{ roundOpts }}" as="o" hint-placeholder-count="3">
+<button class="jg-b {{ o.cls }}" type="button" onClick="{{ o.pick }}">{{ o.label }}</button>
+</sc-for>
+</div>
+</sc-if>
+<div class="jg-note">{{ pendNote }}</div>
+<div class="jg-lab">OPTIONS</div>
+<div class="jg-tg">
+<sc-for list="{{ toggles }}" as="o" hint-placeholder-count="4">
+<button class="jg-b" type="button" onClick="{{ o.flip }}" aria-pressed="{{ o.pressed }}">{{ o.label }}<span class="st">{{ o.val }}</span></button>
+</sc-for>
+</div>
+<div class="jg-lab">RULES</div>
+<div class="jg-rules">
+<sc-for list="{{ rules }}" as="r" hint-placeholder-count="4"><p>{{ r.t }}</p></sc-for>
+</div>
+<div class="jg-acts">
+<button class="jg-b yel" type="button" onClick="{{ restart }}">Restart</button>
+<button class="jg-b" type="button" onClick="{{ closeMenu }}">Resume</button>
+<button class="jg-b red" type="button" onClick="{{ back }}">Leave</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ inviteOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-modal" style="padding-top: {{ modalTop }}">
+<div class="jg-card" role="dialog" aria-label="Invite friend">
+<h2 class="ttl">Invite friend</h2>
+<p class="jg-p">Online rooms are coming soon. Play together now with PASS &amp; PLAY on this device, up to 4 foxes.</p>
+<div class="jg-acts2">
+<button class="jg-b yel" type="button" onClick="{{ passPlay }}">Pass &amp; play</button>
+<button class="jg-b" type="button" onClick="{{ closeInvite }}">Close</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ resultOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-modal" style="padding-top: {{ modalTop }}">
+<div class="jg-card jg-res" role="dialog" aria-label="Results">
+<h2 class="ttl y">{{ resTitle }}</h2>
+<sc-for list="{{ resLines }}" as="l" hint-placeholder-count="2">
+<div class="jg-line {{ l.cls }}"><span class="n">{{ l.name }}</span><span class="s">{{ l.score }}</span></div>
+</sc-for>
+<div class="jg-stars" role="img" aria-label="{{ starsLabel }}">
+<sc-for list="{{ stars }}" as="s" hint-placeholder-count="3">
+<svg width="32" height="32" viewBox="0 0 32 32" aria-hidden="true"><polygon points="16,2 20.2,11.6 30.5,12.3 22.6,19 25.1,29.2 16,23.6 6.9,29.2 9.4,19 1.5,12.3 11.8,11.6" fill="{{ s.fill }}" stroke="#ffd23a" stroke-width="2" stroke-linejoin="miter"></polygon></svg>
+</sc-for>
+</div>
+<div class="jg-kv">
+<div class="c"><span class="l">{{ resYouLabel }}</span><span class="v">{{ resYou }}</span></div>
+<div class="c"><span class="l">{{ resBestLabel }}</span><span class="v y">{{ resBest }}</span></div>
+<div class="c"><span class="l">GOLD WON</span><span class="v y">{{ resGold }}</span></div>
+<div class="c"><span class="l">XP</span><span class="v">{{ resXp }}</span></div>
+</div>
+<div class="jg-acts2">
+<button class="jg-b yel" type="button" onClick="{{ playAgain }}">Play again</button>
+<button class="jg-b red" type="button" onClick="{{ back }}">Back</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ leftOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-modal" style="padding-top: {{ modalTop }}">
+<div class="jg-card" role="dialog" aria-label="Left the stage">
+<h2 class="ttl">You left the stage</h2>
+<p class="jg-p">The juggling stage is still set up. Step back on whenever you like.</p>
+<div class="jg-acts2">
+<button class="jg-b yel" type="button" onClick="{{ returnStage }}">Return</button>
+<button class="jg-b" type="button" onClick="{{ returnStage }}">Play again</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ errOn }}" hint-placeholder-val="{{ false }}">
+<div class="jg-err">{{ err }}</div>
+</sc-if>
+
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"tsType":"object"},"onBack":{"editor":null,"tsType":"function"},"moduleUrl":{"editor":null,"tsType":"string"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._dead = false;
+    this._safeKey = '';
+    this.setState({ h: null, menu: false, invite: false, left: false, err: null, pend: null, callOn: false });
+    if (this.props.world) this.mountOverlay(); else this.mountGame();
+    this._onResize = () => this.measure();
+    window.addEventListener('resize', this._onResize);
+    if (window.ResizeObserver) {
+      this._ro = new ResizeObserver(() => this.measure());
+      if (this._root) this._ro.observe(this._root);
+    }
+  }
+  componentDidUpdate() { this.measure(); }
+  componentWillUnmount() {
+    this._dead = true;
+    window.removeEventListener('resize', this._onResize);
+    if (this._ro) this._ro.disconnect();
+    if (this._onEv) window.removeEventListener('8g:jugglingStage', this._onEv);
+    clearTimeout(this._tt);
+    if (!this.props.world && this.api) { this.api.destroy(); this.api = null; }
+  }
+  mountGame() {
+    const rel = this.props.moduleUrl || 'minigames/juggling/juggling.js';
+    let url;
+    try { url = new URL(rel, document.baseURI).href; } catch (e) { url = rel; }
+    import(url).then((m) => {
+      if (this._dead) return null;
+      const stage = this._stage || document.querySelector('[data-jg-stage]');
+      return m.createJuggling({ container: stage, onState: (h) => this.onHud(h) });
+    }).then((api) => {
+      if (!api) return;
+      if (this._dead) { api.destroy(); return; }
+      this.api = api;
+      this.measure(true);
+    }).catch((e) => {
+      this.setState({ err: 'Could not start the game: ' + ((e && e.message) || e) });
+    });
+  }
+  mountOverlay() {
+    const w = this.props.world;
+    const grab = () => { const s = w && w._jugglingStage; return s && typeof s.g === 'function' ? s.g() : null; };
+    this._onEv = (e) => {
+      const h = e.detail;
+      if (!h) { this.api = null; this.setState({ h: null, menu: false, invite: false }); return; }
+      if (!this.api) { this.api = grab(); this._safeKey = ''; }
+      this.onHud(h);
+    };
+    window.addEventListener('8g:jugglingStage', this._onEv);
+    this.api = grab();
+    if (this.api) this.onHud(this.api.hud());
+  }
+  onHud(h) {
+    if (this._dead) return;
+    const patch = { h };
+    if (h && h.toast && h.toast.id !== this._tid) {
+      this._tid = h.toast.id;
+      patch.callOn = true;
+      clearTimeout(this._tt);
+      this._tt = setTimeout(() => { if (!this._dead) this.setState({ callOn: false }); }, h.toast.kind === 'turn' ? 1800 : 1000);
+    }
+    this.setState(patch);
+  }
+  measure(force) {
+    const root = this._root;
+    if (!root || !this.api) return;
+    const rr = root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      else if (side === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      else if (side === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      else if (side === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    const key = [s.top, s.bottom, s.left, s.right].map(Math.round).join(',') + ':' + Math.round(rr.width) + 'x' + Math.round(rr.height);
+    if (!force && key === this._safeKey) return;
+    this._safeKey = key;
+    if (Math.round(s.top) !== this.state.safeTop) this.setState({ safeTop: Math.round(s.top) });
+    this.api.setSafe({ top: Math.round(s.top), bottom: Math.round(s.bottom), left: Math.round(s.left), right: Math.round(s.right) });
+  }
+  call(fn, a, b) { const api = this.api; if (api && typeof api[fn] === 'function') return api[fn](a, b); return undefined; }
+  doBack() {
+    this.setState({ menu: false, invite: false });
+    const w = this.props.world;
+    if (w && w._jugglingStage && typeof w._jugglingStage.end === 'function') { w._jugglingStage.end(); return; }
+    if (typeof this.props.onBack === 'function') { this.props.onBack(); return; }
+    this.call('pause', true);
+    this.setState({ left: true });
+  }
+  renderVals() {
+    const st = this.state || {};
+    const h = st.h;
+    const overlay = !!this.props.world;
+    const fmt = (n) => String(Math.round(n || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    if (!this._rr) this._rr = (el) => { this._root = el; };
+    if (!this._sr) this._sr = (el) => { this._stage = el; };
+    const players = h ? h.players : [];
+    const chips = players.map((p) => ({ label: p.cpu ? p.name + ' · ' + p.rank : p.name, score: fmt(p.score), cls: p.active ? 'on' : '' }));
+    const phase = h ? h.phase : 'ready';
+    const human = h ? h.isHuman : true;
+    const menuOn = !!st.menu, inviteOn = !!st.invite, leftOn = !!st.left;
+    const modal = menuOn || inviteOn || leftOn;
+    const resultOn = !!(h && phase === 'result' && h.result && !modal);
+    const toastK = h && h.toast ? h.toast : null;
+    let callOn = false, callText = '', callSub = '', callCls = 'jg-call';
+    if (h && phase === 'count') {
+      callOn = true; callText = h.count > 0 ? String(h.count) : 'GO'; callSub = h.isHuman ? 'Get ready' : h.active + ' is up'; callCls = 'jg-call k-count ' + (h.count % 2 ? 'a' : 'b');
+    } else if (toastK && st.callOn && phase !== 'result') {
+      callOn = true; callText = toastK.text; callSub = toastK.sub || ''; callCls = 'jg-call k-' + toastK.kind + ' ' + (toastK.id % 2 ? 'a' : 'b');
+    }
+    const pend = st.pend || (h ? { mode: h.mode, level: h.config.level, players: h.config.players, rounds: h.config.rounds } : { mode: 'cpu', level: 'hope', players: 2, rounds: 2 });
+    const setPend = (k, v) => this.setState({ pend: Object.assign({}, pend, { [k]: v }) });
+    const modeOpts = [['cpu', 'VS CPU'], ['local', 'Pass & play'], ['demo', 'Demo']].map(([k, label]) => ({ label, cls: pend.mode === k ? 'sel' : 'line', pick: () => setPend('mode', k) }));
+    const levelOpts = [['pip', 'PIP', 'Rookie'], ['hope', 'HOPE', 'Club level'], ['noble', 'NOBLE', 'Master']].map(([k, label, desc]) => ({ label, desc, cls: pend.level === k ? 'sel' : 'line', pick: () => setPend('level', k) }));
+    const playerOpts = [2, 3, 4].map((n) => ({ label: n + ' foxes', cls: pend.players === n ? 'sel' : 'line', pick: () => setPend('players', n) }));
+    const roundOpts = [1, 2, 3].map((n) => ({ label: n + (n === 1 ? ' round' : ' rounds'), cls: pend.rounds === n ? 'sel' : 'line', pick: () => setPend('rounds', n) }));
+    const cur = h ? { mode: h.mode, level: h.config.level, players: h.config.players, rounds: h.config.rounds } : pend;
+    const changed = pend.mode !== cur.mode || (pend.mode === 'cpu' && pend.level !== cur.level) || (pend.mode === 'local' && pend.players !== cur.players) || (pend.mode !== 'demo' && pend.rounds !== cur.rounds);
+    const sets = h ? h.settings : { sound: true, music: true, cues: true, assist: false };
+    const toggles = [['sound', 'Sound'], ['music', 'Music'], ['cues', 'Audio cues'], ['assist', 'Assist']].map(([k, label]) => ({ label, val: sets[k] ? 'ON' : 'OFF', pressed: sets[k] ? 'true' : 'false', flip: () => this.call('setOption', k, !sets[k]) }));
+    const rules = (this.api && this.api.rules ? this.api.rules : []).map((t) => ({ t }));
+    const res = h && h.result;
+    const nStars = res ? res.stars : 0;
+    return {
+      rootCls: overlay ? 'jg-overlay' : 'jg-solo',
+      modalTop: ((st.safeTop || 0) + 12) + 'px',
+      rootRef: this._rr, stageRef: this._sr,
+      show: overlay ? !!h : true,
+      chips, chipCols: 'repeat(' + Math.max(1, chips.length) + ', minmax(0, 1fr))',
+      time: h ? String(Math.ceil(h.time)) : '30',
+      dropPips: [0, 1, 2].map((i) => ({ cls: h && i < h.drops ? 'jg-pip on' : 'jg-pip' })),
+      combo: h ? (h.combo + (h.mult > 1 ? ' x' + h.mult : '')) : '0',
+      roundTxt: h ? h.round + '/' + h.rounds : '1/2',
+      callOn, callText, callSub, callCls,
+      captionOn: !!(h && h.caption && phase !== 'result'), caption: h ? h.caption : '',
+      awaiting: !!(h && h.awaitingTap && !modal), awaitTitle: h ? 'Pass to ' + h.active : '',
+      handsOn: !h || (human && phase !== 'result'),
+      handCls: h && phase === 'play' ? '' : 'dim',
+      hintL: !!(h && h.hint === 'L'), hintR: !!(h && h.hint === 'R'),
+      cpuOn: !!(h && !human && phase !== 'result'),
+      cpuTitle: h ? h.active + (phase === 'play' ? ' is juggling' : ' is up next') : '',
+      cpuSub: h && h.mode === 'demo' ? 'Demo match. Watch the rings and listen.' : 'Watch the timing. Your turn is next.',
+      fastLabel: h && h.fast ? 'Normal speed' : 'Fast forward', fastCls: h && h.fast ? 'yel' : '',
+      fast: () => this.call('fast'),
+      tapL: (e) => { if (e && e.preventDefault) e.preventDefault(); this.call('tap', 0); },
+      tapR: (e) => { if (e && e.preventDefault) e.preventDefault(); this.call('tap', 1); },
+      begin: () => this.call('begin'),
+      openMenu: () => { this.call('pause', true); this.setState({ menu: true, invite: false, pend: null }); },
+      closeMenu: () => { this.call('pause', false); this.setState({ menu: false }); },
+      openInvite: () => { this.call('pause', true); this.setState({ invite: true, menu: false }); },
+      closeInvite: () => { this.call('pause', false); this.setState({ invite: false }); },
+      passPlay: () => { this.setState({ invite: false }); this.call('start', 'local', { players: 2 }); },
+      restart: () => { this.setState({ menu: false }); this.call('start', pend.mode, { level: pend.level, players: pend.players, rounds: pend.rounds }); },
+      playAgain: () => this.call('playAgain'),
+      back: () => this.doBack(),
+      returnStage: () => { this.setState({ left: false }); this.call('pause', false); this.call('playAgain'); },
+      menuOn, inviteOn, leftOn, resultOn,
+      modeOpts, levelOpts, playerOpts, roundOpts, toggles, rules,
+      showLevels: pend.mode === 'cpu', showPlayers: pend.mode === 'local', showRounds: pend.mode !== 'demo',
+      pendNote: changed ? 'Press RESTART to apply the new setup.' : 'Mode, opponent and rounds apply when you restart.',
+      resTitle: res ? res.title : '',
+      resLines: res ? res.lines.map((l) => ({ name: l.name, score: fmt(l.score), cls: l.winner ? 'w' : '' })) : [],
+      stars: [0, 1, 2].map((i) => ({ fill: i < nStars ? '#ffd23a' : 'none' })),
+      starsLabel: nStars + ' of 3 stars',
+      resYouLabel: res && res.mode === 'demo' ? 'TOP SCORE' : (res && res.youName && res.youName !== 'YOU' ? res.youName + ' SCORE' : 'YOUR SCORE'),
+      resYou: res ? fmt(res.mode === 'demo' ? (res.lines[0] ? res.lines[0].score : 0) : res.youScore) : '0',
+      resBestLabel: res && res.newBest ? 'NEW BEST' : 'BEST',
+      resBest: res ? fmt(res.best) : '0',
+      resGold: res ? '+' + res.gold : '+0',
+      resXp: res ? '+' + res.xp : '+0',
+      errOn: !!st.err, err: st.err || ''
+    };
+  }
+}
+</script>
+</body>
+</html>

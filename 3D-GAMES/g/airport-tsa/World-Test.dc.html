@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Airport TSA World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd23a}a:hover{color:#ffffff}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; height: 100vh; min-height: 320px; overflow: hidden; background: #9fd3f0; font-family: Archivo, Arial, sans-serif; color: #ffffff">
+<div data-town-stage="1" ref="{{setStage}}" style="position: absolute; inset: 0"></div>
+<sc-if value="{{hasWorld}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Main" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<div style="position: absolute; left: 12px; bottom: 12px; max-width: 300px; padding: 10px 12px; background: #000000; border: 2px solid #3a3836; display: flex; flex-direction: column; gap: 4px; pointer-events: none">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">WORLD MODE TEST</div>
+<div style="font-size: 13px; font-weight: 700; line-height: 1.35">{{status}}</div>
+</div>
+<sc-if value="{{ended}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box">
+<div style="width: 100%; max-width: 380px; background: #000000; border: 2px solid #3a3836; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">BACK IN TOWN</div>
+<div style="font-size: 20px; font-weight: 900">The game removed only its own group. The town is untouched.</div>
+<button type="button" onClick="{{again}}" style="min-height: 52px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-family: Archivo, sans-serif; font-size: 15px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">WALK INTO THE AIRPORT AGAIN</button>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { world: null, ended: false, status: 'Building a small town, then dropping the airport in at (20, 0, -15), turned 0.9 rad.' };
+    this.stage = null; this._dead = false; this.api = null; this.raf = 0;
+  }
+  rel(p) {
+    const urls = [];
+    try { urls.push(new URL(p, document.baseURI).href); } catch (e) { }
+    const sup = document.querySelector('script[src*="support.js"]');
+    if (sup && sup.src) { try { const u = new URL(p, sup.src).href; if (urls.indexOf(u) < 0) urls.push(u); } catch (e) { } }
+    return urls;
+  }
+  async load(p) {
+    let err = null;
+    for (const u of this.rel(p)) { try { return await import(u); } catch (e) { err = e; } }
+    throw err || new Error('could not load ' + p);
+  }
+  async componentDidMount() {
+    const stage = this.stage || document.querySelector('[data-town-stage]');
+    if (!stage) return;
+    let THREE, M;
+    try { THREE = await this.load('./vendor/three/three.module.js'); M = await this.load('./minigames/airport/airport.js'); }
+    catch (e) { this.setState({ status: 'Could not load: ' + String((e && e.message) || e) }); return; }
+    if (this._dead) return;
+    this.THREE = THREE; this.M = M;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    const cv = renderer.domElement; cv.style.cssText = 'display:block;width:100%;height:100%;touch-action:none;outline:none'; cv.tabIndex = 0;
+    stage.appendChild(cv);
+    const town = new THREE.Scene(); town.background = new THREE.Color('#9fd3f0');
+    town.add(new THREE.HemisphereLight('#ffffff', '#6f8f5a', 1.2));
+    const sun = new THREE.DirectionalLight('#fff4e0', 1.5); sun.position.set(-40, 80, 30); town.add(sun);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({ color: '#7fbf6a' })); ground.rotation.x = -Math.PI / 2; ground.position.y = -0.02; town.add(ground);
+    const road = new THREE.Mesh(new THREE.PlaneGeometry(14, 600), new THREE.MeshLambertMaterial({ color: '#5b6168' })); road.rotation.x = -Math.PI / 2; road.position.set(-55, -0.01, 0); town.add(road);
+    const houseCols = ['#ec3013', '#ffd23a', '#2c6fbb', '#f4f1ea', '#3fa35b'];
+    for (let i = 0; i < 12; i++) {
+      const h = 6 + (i % 4) * 3;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(10, h, 10), new THREE.MeshLambertMaterial({ color: houseCols[i % 5] }));
+      m.position.set(-80 - (i % 2) * 18, h / 2, -120 + i * 22); town.add(m);
+    }
+    const parent = new THREE.Group(); parent.position.set(20, 0, -15); parent.rotation.y = 0.9; town.add(parent);
+    const townCam = new THREE.PerspectiveCamera(55, 1, 0.1, 900); townCam.position.set(-120, 90, 120); townCam.lookAt(20, 0, -15);
+    this.three = { renderer, town, parent, townCam, cv };
+    this._onKey = (e) => { if (this.api) this.api.key(e); };
+    cv.addEventListener('keydown', this._onKey); cv.addEventListener('keyup', this._onKey);
+    this._focus = () => { try { cv.focus({ preventScroll: true }); } catch (e) { } };
+    cv.addEventListener('pointerdown', this._focus);
+    const loop = () => {
+      if (this._dead) return;
+      this.raf = requestAnimationFrame(loop);
+      const w = Math.max(1, stage.clientWidth), h = Math.max(1, stage.clientHeight);
+      if (cv.width !== Math.round(w * renderer.getPixelRatio()) || cv.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
+      townCam.aspect = w / h;
+      if (this.api) {
+        const c = this.api.camera;
+        townCam.position.lerp(c.position, 0.12); townCam.quaternion.slerp(c.quaternion, 0.12); townCam.fov += (c.fov - townCam.fov) * 0.12;
+      } else {
+        townCam.position.lerp(new THREE.Vector3(-120, 90, 120), 0.03); townCam.lookAt(20, 0, -15);
+      }
+      townCam.updateProjectionMatrix();
+      renderer.render(town, townCam);
+    };
+    loop();
+    await this.enter();
+  }
+  async enter() {
+    const T = this.three; if (!T || this._dead) return;
+    const onState = (h) => { window.dispatchEvent(new CustomEvent('8g:airportTSA', { detail: h })); };
+    const api = await this.M.createAirport({ onState, opts: { world: { renderer: T.renderer, camera: T.townCam, parent: T.parent } } });
+    if (this._dead) { api.destroy(); return; }
+    this.api = api;
+    const world = {
+      _airportTSA: {
+        g: () => this.api,
+        end: () => {
+          const a = this.api; this.api = null;
+          if (a) a.destroy();
+          window.dispatchEvent(new CustomEvent('8g:airportTSA', { detail: null }));
+          this.setState({ world: null, ended: true, status: 'Game closed. Children left in the parent group: ' + T.parent.children.length + '.' });
+        },
+      },
+    };
+    this.setState({ world, ended: false, status: 'Airport running inside the town renderer. The town camera glides onto api.camera.' });
+  }
+  componentWillUnmount() {
+    this._dead = true;
+    cancelAnimationFrame(this.raf);
+    if (this.api) this.api.destroy();
+    const T = this.three;
+    if (T) { T.cv.removeEventListener('keydown', this._onKey); T.cv.removeEventListener('keyup', this._onKey); T.cv.removeEventListener('pointerdown', this._focus); T.renderer.dispose(); if (T.cv.parentNode) T.cv.parentNode.removeChild(T.cv); }
+  }
+  renderVals() {
+    return {
+      setStage: (el) => { this.stage = el; },
+      hasWorld: !!this.state.world,
+      world: this.state.world,
+      ended: this.state.ended,
+      status: this.state.status,
+      again: () => { this.setState({ ended: false }); this.enter(); },
+    };
+  }
+}
+</script>
+</body>
+</html>

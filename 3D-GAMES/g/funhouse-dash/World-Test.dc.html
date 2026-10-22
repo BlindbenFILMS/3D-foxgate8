@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funhouse World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.wt{font-family:Archivo,Arial,sans-serif;font-weight:800;font-size:14px;min-height:44px;padding:0 14px;border:2px solid #ffd23a;border-radius:0;background:#000000;color:#ffd23a;display:flex;align-items:center;justify-content:flex-start;text-align:left;cursor:pointer}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #8fd3ff; font-family: Archivo, Arial, sans-serif; color: #ffffff">
+<div ref="{{setStage}}" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0"></div>
+<sc-if value="{{ready}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none">
+<dc-import name="Main" world="{{world}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{closed}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; background: #000000; border: 2px solid #3a3836; padding: 14px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">WORLD MODE TEST</div>
+<div style="font-size: 16px; font-weight: 600">The game closed and removed its group from the town.</div>
+<button class="wt" type="button" onClick="{{relaunch}}">WALK BACK IN</button>
+</div>
+</sc-if>
+<sc-if value="{{showErr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; right: 16px; top: 16px; background: #000000; border: 2px solid #ec3013; padding: 14px; font-size: 14px">{{err}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._alive = true;
+    this.setState({ ready: false, closed: false, err: '' });
+    this.boot();
+  }
+  componentWillUnmount() {
+    this._alive = false;
+    cancelAnimationFrame(this._raf);
+    if (this.api) this.api.destroy();
+    this.api = null;
+    if (this.renderer) { this.renderer.dispose(); if (this.renderer.domElement.parentNode) this.renderer.domElement.parentNode.removeChild(this.renderer.domElement); }
+  }
+  baseUrl() {
+    const sc = document.querySelector('script[src*="support.js"]');
+    return sc && sc.src ? sc.src : document.baseURI;
+  }
+  async load(rel) {
+    let lastErr = null;
+    for (const b of [this.baseUrl(), document.baseURI]) {
+      try { return await import(new URL(rel, b).href); } catch (e) { lastErr = e; }
+    }
+    throw lastErr;
+  }
+  async boot() {
+    try {
+      const THREE = await this.load('vendor/three/three.module.js');
+      this.mod = await this.load('minigames/funhouse/funhouse.js');
+      if (!this._alive || !this.stage) return;
+      this.THREE = THREE;
+      const renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      Object.assign(renderer.domElement.style, { display: 'block', width: '100%', height: '100%', touchAction: 'none' });
+      this.stage.appendChild(renderer.domElement);
+      this.renderer = renderer;
+      /* a simple town: ground, sky colour, light, a few houses */
+      const town = new THREE.Scene();
+      town.background = new THREE.Color(0x8fd3ff);
+      town.fog = new THREE.Fog(0x8fd3ff, 120, 320);
+      town.add(new THREE.HemisphereLight(0xffffff, 0x5a7a4a, 1.6));
+      const sun = new THREE.DirectionalLight(0xfff4e0, 2.2);
+      sun.position.set(30, 60, 20);
+      town.add(sun);
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(600, 600), new THREE.MeshLambertMaterial({ color: 0x74c365 }));
+      ground.rotation.x = -Math.PI / 2;
+      town.add(ground);
+      const houseCols = [0xf4a259, 0xbc4b51, 0x5b8e7d, 0xf4e285, 0x8cb369];
+      for (let i = 0; i < 14; i++) {
+        const a = (i / 14) * Math.PI * 2, r = 60 + (i % 3) * 14;
+        const box = new THREE.Mesh(new THREE.BoxGeometry(8, 6 + (i % 4) * 2, 8), new THREE.MeshLambertMaterial({ color: houseCols[i % houseCols.length] }));
+        box.position.set(20 + Math.cos(a) * r, box.geometry.parameters.height / 2, -15 + Math.sin(a) * r);
+        town.add(box);
+      }
+      const parent = new THREE.Group();
+      parent.position.set(20, 0, -15);
+      parent.rotation.y = 0.9;
+      town.add(parent);
+      this.parent = parent;
+      this.town = town;
+      const townCam = new THREE.PerspectiveCamera(50, 1, 0.1, 800);
+      townCam.position.set(70, 45, 60);
+      townCam.lookAt(20, 0, -15);
+      this.townCam = townCam;
+      this.world = {
+        _funhouse: {
+          g: () => this.api,
+          end: () => this.endGame(),
+        },
+      };
+      await this.launch();
+      const loop = () => {
+        if (!this._alive) return;
+        this._raf = requestAnimationFrame(loop);
+        const w = this.stage.clientWidth || 1, h = this.stage.clientHeight || 1;
+        const cv = renderer.domElement;
+        if (cv.width !== Math.round(w * renderer.getPixelRatio()) || cv.height !== Math.round(h * renderer.getPixelRatio())) renderer.setSize(w, h, false);
+        townCam.aspect = w / h;
+        if (this.api) {
+          const c = this.api.camera;
+          townCam.position.lerp(c.position, 0.12);
+          townCam.quaternion.slerp(c.quaternion, 0.12);
+          townCam.fov = c.fov;
+        } else {
+          townCam.position.lerp(new THREE.Vector3(70, 45, 60), 0.03);
+          const m = new THREE.Matrix4().lookAt(townCam.position, new THREE.Vector3(20, 0, -15), new THREE.Vector3(0, 1, 0));
+          townCam.quaternion.slerp(new THREE.Quaternion().setFromRotationMatrix(m), 0.05);
+        }
+        townCam.updateProjectionMatrix();
+        renderer.render(town, townCam);
+      };
+      loop();
+    } catch (e) {
+      this.setState({ err: 'World test could not start: ' + String(e && e.message || e) });
+    }
+  }
+  async launch() {
+    const fire = (h) => window.dispatchEvent(new CustomEvent('8g:funhouse', { detail: h }));
+    this.api = await this.mod.createFunhouse({
+      container: this.stage,
+      onState: fire,
+      opts: { world: { renderer: this.renderer, camera: this.townCam, parent: this.parent } },
+    });
+    fire(this.api.hud());
+    this.setState({ ready: true, closed: false });
+  }
+  endGame() {
+    if (this.api) this.api.destroy();
+    this.api = null;
+    window.dispatchEvent(new CustomEvent('8g:funhouse', { detail: null }));
+    this.setState({ ready: false, closed: true });
+  }
+  renderVals() {
+    const st = this.state || {};
+    return {
+      setStage: (el) => { this.stage = el; },
+      ready: !!st.ready,
+      closed: !!st.closed,
+      world: this.world || null,
+      relaunch: () => { this.launch(); },
+      showErr: !!st.err,
+      err: st.err || '',
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dodgeball World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-uid="{{uid}}" ref="{{setRoot}}" tabindex="0" onKeyDown="{{onKey}}" onKeyUp="{{onKey}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #9fd3ff; font-family: Archivo, system-ui, sans-serif; color: #ffffff; outline: none; touch-action: none">
+  <div data-town="1" ref="{{setTown}}" style="position: absolute; inset: 0"></div>
+
+  <sc-if value="{{open}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; pointer-events: none">
+      <dc-import name="Dodgeball" world="{{world}}" hint-size="100%,100%"></dc-import>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{closed}}" hint-placeholder-val="{{ true }}">
+    <div style="position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; justify-content: flex-start">
+      <div style="max-width: 360px; background: #000000; border: 2px solid #3a3836; padding: 14px; display: flex; flex-direction: column; gap: 10px; text-align: left">
+        <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">WORLD MODE TEST</div>
+        <div style="font-size: 15px; font-weight: 600; line-height: 1.4">The court stands in town at (20, 0, -15), turned 0.9. Walk up to it.</div>
+        <button onClick="{{enter}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; min-height: 50px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 15px; border-radius: 0">{{enterLabel}}</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { open: false, ready: false, err: '' };
+    this.uid = 'wt' + Math.random().toString(36).slice(2, 9);
+    this.setRoot = (el) => { if (el) this._root = el; };
+    this.setTown = (el) => { if (el) this._town = el; };
+    this.api = null;
+    /* the fake walker the overlay page talks to, shaped like the real world's */
+    this.world = { _dodgeballCourt: { g: () => this.api, end: () => this.closeGame() } };
+    this.onKey = (e) => { if (this.api) this.api.key(e.nativeEvent || e); };
+  }
+  el() { return this._root || document.querySelector('[data-uid="' + this.uid + '"]'); }
+  town() { if (this._town) return this._town; const r = this.el(); return r ? r.querySelector('[data-town]') : null; }
+  rel(path) { try { return new URL(path, document.baseURI).href; } catch (x) { return './' + path; } }
+
+  componentDidMount() {
+    const boot = () => {
+      const host = this.town();
+      if (!host) { this.tries = (this.tries || 0) + 1; if (this.tries < 40) setTimeout(boot, 50); return; }
+      Promise.all([import(this.rel('vendor/three/three.module.js')), import(this.rel('minigames/dodgeball/dodgeball.js'))]).then(([THREE, mod]) => {
+        if (this.dead) return;
+        this.THREE = THREE; this.mod = mod;
+        const r = new THREE.WebGLRenderer({ antialias: true });
+        r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        r.outputColorSpace = THREE.SRGBColorSpace;
+        r.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+        host.appendChild(r.domElement);
+        this.renderer = r;
+        const scene = new THREE.Scene(); scene.background = new THREE.Color(0x9fd3ff);
+        scene.add(new THREE.HemisphereLight(0xffffff, 0x6a8a5a, 1.3));
+        const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(30, 50, 20); scene.add(sun);
+        const ground = new THREE.Mesh(new THREE.PlaneGeometry(300, 300).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0x7fc46a }));
+        ground.position.y = -0.02; scene.add(ground);
+        const houseMat = new THREE.MeshLambertMaterial({ color: 0xf2e3c6 }), roofMat = new THREE.MeshLambertMaterial({ color: 0xc8553d }), treeMat = new THREE.MeshLambertMaterial({ color: 0x2f8f4e });
+        [[-10, 10], [0, 25], [45, -10], [40, 20], [-15, -30], [10, -45], [55, -40]].forEach(([x, z], i) => {
+          const h = 5 + (i % 3) * 2;
+          const b = new THREE.Mesh(new THREE.BoxGeometry(8, h, 8), houseMat); b.position.set(x, h / 2, z); scene.add(b);
+          const roof = new THREE.Mesh(new THREE.ConeGeometry(6.5, 3.5, 4), roofMat); roof.position.set(x, h + 1.75, z); roof.rotation.y = Math.PI / 4; scene.add(roof);
+        });
+        for (let i = 0; i < 24; i++) {
+          const a = i / 24 * Math.PI * 2, d = 38 + (i % 4) * 6;
+          const t = new THREE.Mesh(new THREE.ConeGeometry(1.6, 5, 7), treeMat); t.position.set(20 + Math.cos(a) * d, 2.5, -15 + Math.sin(a) * d); scene.add(t);
+        }
+        const parent = new THREE.Group(); parent.position.set(20, 0, -15); parent.rotation.y = 0.9; scene.add(parent);
+        this.scene = scene; this.parent = parent;
+        const cam = new THREE.PerspectiveCamera(55, 1, 0.1, 600); cam.position.set(-20, 35, 45); cam.lookAt(20, 0, -15);
+        this.townCam = cam;
+        this.t = 0;
+        const loop = () => {
+          if (this.dead) return;
+          this.raf = requestAnimationFrame(loop);
+          const w = host.clientWidth || 1, hh = host.clientHeight || 1;
+          if (w !== this.w || hh !== this.h) { this.w = w; this.h = hh; r.setSize(w, hh, false); }
+          cam.aspect = w / hh;
+          this.t += 1 / 60;
+          if (this.api) {
+            const g = this.api.camera;
+            cam.position.lerp(g.position, 0.12); cam.quaternion.slerp(g.quaternion, 0.12);
+            cam.fov += (g.fov - cam.fov) * 0.12;
+          } else {
+            const a = this.t * 0.15;
+            cam.position.lerp(new THREE.Vector3(20 + Math.cos(a) * 55, 32, -15 + Math.sin(a) * 55), 0.05);
+            cam.lookAt(20, 0, -15); cam.fov += (55 - cam.fov) * 0.05;
+          }
+          cam.updateProjectionMatrix();
+          r.render(scene, cam);
+        };
+        loop();
+        this.setState({ ready: true });
+        this.openGame();
+      }).catch((err) => this.setState({ err: 'Could not load: ' + (err && err.message ? err.message : err) }));
+    };
+    boot();
+    const root = this.el(); if (root && root.focus) root.focus();
+  }
+  componentWillUnmount() {
+    this.dead = true; cancelAnimationFrame(this.raf);
+    if (this.api) this.api.destroy();
+    this.api = null;
+    if (this.renderer) { this.renderer.dispose(); this.renderer.domElement.remove(); }
+  }
+  openGame() {
+    if (this.api || !this.mod) return;
+    this.mod.createDodgeball({
+      container: this.town(),
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:dodgeballCourt', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.townCam, parent: this.parent }, mode: 'cpu' },
+    }).then((api) => {
+      if (this.dead) { api.destroy(); return; }
+      this.api = api;
+      this.setState({ open: true });
+      window.dispatchEvent(new CustomEvent('8g:dodgeballCourt', { detail: api.hud() }));
+      const root = this.el(); if (root && root.focus) root.focus();
+    });
+  }
+  closeGame() {
+    if (!this.api) return;
+    this.api.destroy(); this.api = null;
+    window.dispatchEvent(new CustomEvent('8g:dodgeballCourt', { detail: null }));
+    this.setState({ open: false });
+  }
+  renderVals() {
+    return {
+      uid: this.uid, setRoot: this.setRoot, setTown: this.setTown, onKey: this.onKey, world: this.world,
+      open: this.state.open, closed: !this.state.open,
+      enter: () => this.openGame(),
+      enterLabel: this.state.err ? this.state.err : this.state.ready ? 'PLAY DODGEBALL' : 'LOADING THE TOWN',
+    };
+  }
+}
+</script>
+</body>
+</html>

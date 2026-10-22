@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baseball World Test</title>
+<script src="./support.js"></script>
+<script src="blob/f21230e78a6e61faae7c0897b709cd7b.js" data-fox-baseball></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+</style>
+</helmet>
+<div style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #9fd8ff; font-family: Archivo, system-ui, sans-serif; color: #fff">
+  <div ref="{{ setStage }}" style="position: absolute; inset: 0"></div>
+  <sc-if value="{{ playing }}" hint-placeholder-val="{{ true }}">
+    <div style="position: absolute; inset: 0; pointer-events: none">
+      <dc-import name="Main" world="{{ fakeWorld }}" hint-size="100%,100%"></dc-import>
+    </div>
+  </sc-if>
+  <sc-if value="{{ left }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: 16px; top: 16px; background: #000; border: 2px solid #3a3836; padding: 14px; display: flex; flex-direction: column; gap: 10px; max-width: 320px">
+      <div style="font-weight: 900; font-size: 20px">WORLD TEST</div>
+      <div style="font-size: 14px; line-height: 1.4">You left the ballpark. The town keeps rendering on its own camera.</div>
+      <button type="button" onClick="{{ enter }}" style="font-family: Archivo, system-ui, sans-serif; font-weight: 800; font-size: 14px; min-height: 44px; padding: 0 14px; text-align: left; background: #ffd23a; color: #000; border: 2px solid #ffd23a; cursor: pointer">PLAY BASEBALL AGAIN</button>
+    </div>
+  </sc-if>
+  <sc-if value="{{ err }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: 16px; right: 16px; top: 40%; background: #000; border: 2px solid #ec3013; padding: 12px; font-size: 14px">{{ err }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { playing: false, left: false, err: '' };
+    this.stage = null;
+    this.setStage = (el) => { this.stage = el; };
+    this.api = null;
+    const self = this;
+    this.fakeWorld = {
+      _baseballField: {
+        g: () => self.api,
+        end: () => self.leave(),
+      },
+    };
+  }
+  async componentDidMount() {
+    try {
+      let mod = window.FoxBaseball;
+      if (!mod) {
+        for (let i = 0; i < 40 && !window.FoxBaseball && document.querySelector('script[data-fox-baseball]'); i++) await new Promise((r) => setTimeout(r, 100));
+        mod = window.FoxBaseball;
+      }
+      if (!mod) mod = await import(new URL('./minigames/baseball/baseball.js', document.baseURI).href);
+      const THREE = mod.THREE || await import(new URL('./vendor/three/three.module.js', document.baseURI).href);
+      this.mod = mod; this.THREE = THREE;
+      this.buildTown();
+      await this.enterGame();
+    } catch (e) {
+      console.error(e);
+      this.setState({ err: 'World test failed: ' + (e && e.message ? e.message : e) });
+    }
+  }
+  buildTown() {
+    const THREE = this.THREE;
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+    this.stage.appendChild(renderer.domElement);
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x9fd8ff);
+    scene.fog = new THREE.Fog(0x9fd8ff, 160, 420);
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x556644, 1.2));
+    const sun = new THREE.DirectionalLight(0xffffff, 1.6); sun.position.set(30, 80, 40); scene.add(sun);
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(800, 800), new THREE.MeshLambertMaterial({ color: 0x8a9a6a }));
+    ground.rotation.x = -Math.PI / 2; ground.position.y = -0.06; scene.add(ground);
+    const colors = [0xd9a066, 0xc96f4a, 0xe8d6b0, 0x7f9fb8];
+    for (let i = 0; i < 26; i++) {
+      const a = (i / 26) * Math.PI * 2, r = 120 + (i % 3) * 18;
+      const h = 8 + (i % 4) * 4;
+      const house = new THREE.Mesh(new THREE.BoxGeometry(12, h, 12), new THREE.MeshLambertMaterial({ color: colors[i % 4] }));
+      house.position.set(20 + Math.cos(a) * r, h / 2, -15 + Math.sin(a) * r);
+      scene.add(house);
+      const roof = new THREE.Mesh(new THREE.ConeGeometry(9.5, 6, 4), new THREE.MeshLambertMaterial({ color: 0x8c2f22 }));
+      roof.position.set(house.position.x, h + 3, house.position.z); roof.rotation.y = Math.PI / 4;
+      scene.add(roof);
+    }
+    const parent = new THREE.Group();
+    parent.position.set(20, 0, -15); parent.rotation.y = 0.9;
+    scene.add(parent);
+    const townCam = new THREE.PerspectiveCamera(55, 1, 0.3, 900);
+    townCam.position.set(20, 140, 160); townCam.lookAt(20, 0, -15);
+    Object.assign(this, { renderer, scene, parent, townCam });
+    const resize = () => {
+      const w = this.stage.clientWidth || 1, h = this.stage.clientHeight || 1;
+      renderer.setSize(w, h, false); townCam.aspect = w / h; townCam.updateProjectionMatrix();
+    };
+    this.ro = new ResizeObserver(resize); this.ro.observe(this.stage); resize();
+    const loop = () => {
+      this.raf = requestAnimationFrame(loop);
+      if (this.api) {
+        const c = this.api.camera;
+        townCam.position.copy(c.position); townCam.quaternion.copy(c.quaternion);
+        townCam.fov = c.fov; townCam.updateProjectionMatrix();
+      } else {
+        const t = performance.now() / 6000;
+        townCam.position.set(20 + Math.cos(t) * 170, 120, -15 + Math.sin(t) * 170); townCam.lookAt(20, 0, -15);
+      }
+      renderer.render(scene, townCam);
+    };
+    loop();
+    this.onKey = (e) => { if (this.api && this.api.key(e)) e.preventDefault(); };
+    window.addEventListener('keydown', this.onKey);
+  }
+  async enterGame() {
+    this.api = await this.mod.createBaseball({
+      container: this.stage,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:baseballField', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.townCam, parent: this.parent } },
+    });
+    this.api.snapCam();
+    this.setState({ playing: true, left: false });
+    window.dispatchEvent(new CustomEvent('8g:baseballField', { detail: this.api.hud() }));
+  }
+  leave() {
+    if (this.api) { this.api.destroy(); this.api = null; }
+    window.dispatchEvent(new CustomEvent('8g:baseballField', { detail: null }));
+    this.setState({ playing: false, left: true });
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this.raf);
+    if (this.onKey) window.removeEventListener('keydown', this.onKey);
+    if (this.ro) this.ro.disconnect();
+    if (this.api) this.api.destroy();
+    if (this.renderer) this.renderer.dispose();
+  }
+  renderVals() {
+    return {
+      setStage: this.setStage, fakeWorld: this.fakeWorld,
+      playing: this.state.playing, left: this.state.left, err: this.state.err,
+      enter: () => this.enterGame(),
+    };
+  }
+}
+</script>
+</body>
+</html>

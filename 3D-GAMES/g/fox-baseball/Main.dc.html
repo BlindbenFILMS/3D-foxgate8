@@ -1,0 +1,401 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Baseball</title>
+<script src="./support.js"></script>
+<script src="blob/f21230e78a6e61faae7c0897b709cd7b.js" data-fox-baseball></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+.bb-root,.bb-root *{box-sizing:border-box;border-radius:0}
+.bb-btn{font-family:Archivo,system-ui,sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;min-height:44px;min-width:44px;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;text-align:left;background:#000;color:#fff;border:2px solid #3a3836;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.bb-btn:hover{border-color:#fff}
+.bb-btn:focus-visible{outline:3px solid #ffd23a;outline-offset:0}
+.bb-btn.on{background:#ffd23a;color:#000;border-color:#ffd23a}
+.bb-btn.red{background:#ec3013;border-color:#ec3013;color:#fff}
+.bb-btn.wide{flex:1 1 0}
+.bb-ctl{flex:none}
+.bb-row{display:flex;gap:8px;align-items:center}
+.bb-lbl{font-family:Archivo,system-ui,sans-serif;font-size:12px;font-weight:800;letter-spacing:.08em;color:#bdb8b2;text-transform:uppercase}
+.bb-top{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;padding:8px 10px;background:#000;border-bottom:2px solid #3a3836}
+.bb-bottom{padding:8px 10px 10px;background:#000;border-top:2px solid #3a3836;display:flex;flex-direction:column;gap:8px}
+@media (orientation: landscape) and (max-height: 500px){
+  .bb-bottom{flex-direction:row;align-items:center;flex-wrap:wrap;padding:6px 10px}
+  .bb-top{padding:6px 10px}
+  .bb-cap{flex:1 1 220px}
+  .bb-ctl{flex:1 1 300px}
+}
+</style>
+</helmet>
+<div class="bb-root" ref="{{ setRoot }}" style="position: relative; width: 100%; height: 100vh; min-height: 320px; overflow: hidden; font-family: Archivo, system-ui, sans-serif; color: #fff; background: {{ rootBg }}; pointer-events: {{ rootPE }}; user-select: none; -webkit-user-select: none">
+  <div ref="{{ setStage }}" style="position: absolute; inset: 0"></div>
+
+  <div data-safe="top" class="bb-top" style="position: absolute; left: 0; right: 0; top: 0; pointer-events: auto">
+    <div class="bb-row" style="gap: 10px; flex-wrap: wrap">
+      <div class="bb-row" style="gap: 0; border: 2px solid #3a3836">
+        <div style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-right: 2px solid #3a3836; background: {{ batA }}">
+          <span style="width: 10px; height: 10px; background: {{ teamA.color }}"></span>
+          <span style="font-weight: 900; font-size: 15px">{{ teamA.short }}</span>
+          <span style="font-weight: 900; font-size: 20px; min-width: 22px">{{ teamA.score }}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: {{ batB }}">
+          <span style="width: 10px; height: 10px; background: {{ teamB.color }}"></span>
+          <span style="font-weight: 900; font-size: 15px">{{ teamB.short }}</span>
+          <span style="font-weight: 900; font-size: 20px; min-width: 22px">{{ teamB.score }}</span>
+        </div>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span class="bb-lbl" style="color: #fff">{{ inningTxt }}</span>
+        <div style="display: flex; gap: 8px; align-items: center">
+          <span class="bb-lbl">B</span>
+          <sc-for list="{{ ballDots }}" as="d" hint-placeholder-count="3"><span style="width: 9px; height: 9px; border: 2px solid #ffd23a; background: {{ d.bg }}"></span></sc-for>
+          <span class="bb-lbl">S</span>
+          <sc-for list="{{ strikeDots }}" as="d" hint-placeholder-count="2"><span style="width: 9px; height: 9px; border: 2px solid #ffd23a; background: {{ d.bg }}"></span></sc-for>
+          <span class="bb-lbl">O</span>
+          <sc-for list="{{ outDots }}" as="d" hint-placeholder-count="2"><span style="width: 9px; height: 9px; border: 2px solid #ec3013; background: {{ d.bg }}"></span></sc-for>
+        </div>
+      </div>
+      <div aria-label="{{ basesLabel }}" role="img" style="position: relative; width: 38px; height: 30px">
+        <span style="position: absolute; left: 13px; top: 2px; width: 11px; height: 11px; transform: rotate(45deg); border: 2px solid #fff; background: {{ base2 }}"></span>
+        <span style="position: absolute; left: 24px; top: 13px; width: 11px; height: 11px; transform: rotate(45deg); border: 2px solid #fff; background: {{ base1 }}"></span>
+        <span style="position: absolute; left: 2px; top: 13px; width: 11px; height: 11px; transform: rotate(45deg); border: 2px solid #fff; background: {{ base3 }}"></span>
+      </div>
+    </div>
+    <div class="bb-row">
+      <button class="bb-btn" type="button" onClick="{{ openMenu }}">Menu</button>
+      <button class="bb-btn" type="button" onClick="{{ openInvite }}">Invite friend</button>
+      <button class="bb-btn red" type="button" onClick="{{ goBack }}">Back</button>
+    </div>
+  </div>
+
+  <sc-if value="{{ showMsg }}" hint-placeholder-val="{{ false }}">
+    <div aria-live="polite" style="position: absolute; left: 0; right: 0; top: {{ msgTop }}px; display: flex; justify-content: center; pointer-events: none; padding: 0 16px">
+      <div style="background: #000; border: 2px solid #3a3836; border-left: 8px solid {{ msgColor }}; padding: 10px 18px 12px; max-width: 92%">
+        <div style="font-weight: 900; font-size: 34px; line-height: 1.05; letter-spacing: .02em; color: {{ msgColor }}; text-transform: uppercase">{{ msgText }}</div>
+        <sc-if value="{{ msgSub }}" hint-placeholder-val="{{ true }}"><div class="bb-lbl" style="color: #fff; font-size: 13px; margin-top: 4px">{{ msgSub }}</div></sc-if>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hint }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: {{ hint.x }}px; top: {{ hint.y }}px; pointer-events: none; transform: translate(-14px, 6px)">
+      <svg width="56" height="64" viewBox="0 0 56 64" aria-hidden="true" style="display: block">
+        <path d="M14 4 L14 34 M14 20 C14 16 22 16 22 20 L22 30 M22 22 C22 18 30 18 30 22 L30 31 M30 24 C30 20 38 20 38 24 L38 44 C38 54 32 60 24 60 L20 60 C12 60 8 54 6 46 L4 38 C3 34 8 32 10 36 L14 42" fill="#fff" stroke="#000" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"></path>
+      </svg>
+      <div class="bb-lbl" style="background: #ffd23a; color: #000; padding: 4px 8px; margin-top: 4px; white-space: nowrap">{{ hint.text }}</div>
+    </div>
+  </sc-if>
+
+  <div data-safe="bottom" class="bb-bottom" style="position: absolute; left: 0; right: 0; bottom: 0; pointer-events: auto">
+    <div class="bb-cap" style="display: flex; flex-direction: column; gap: 2px; min-height: 34px">
+      <div class="bb-lbl" style="color: {{ roleColor }}">{{ roleTitle }}</div>
+      <div style="font-size: 14px; font-weight: 600; line-height: 1.25">{{ roleText }}</div>
+    </div>
+    <sc-if value="{{ showPitch }}" hint-placeholder-val="{{ false }}">
+      <div class="bb-row bb-ctl">
+        <sc-for list="{{ pitchBtns }}" as="b" hint-placeholder-count="3"><button class="{{ b.cls }}" type="button" onClick="{{ b.pick }}">{{ b.label }}</button></sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showSwing }}" hint-placeholder-val="{{ false }}">
+      <div class="bb-row bb-ctl">
+        <button class="{{ powerCls }}" type="button" onClick="{{ togglePower }}">{{ powerLabel }}</button>
+        <span class="bb-lbl" style="flex: 1 1 auto">Power: bigger hits, smaller timing window</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showThrows }}" hint-placeholder-val="{{ false }}">
+      <div class="bb-row bb-ctl">
+        <span class="bb-lbl">Throw</span>
+        <sc-for list="{{ throwBtns }}" as="b" hint-placeholder-count="4"><button class="bb-btn wide" type="button" onClick="{{ b.pick }}">{{ b.label }}</button></sc-for>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showRun }}" hint-placeholder-val="{{ false }}">
+      <div class="bb-row bb-ctl">
+        <button class="bb-btn wide on" type="button" onClick="{{ runGo }}">Run</button>
+        <button class="bb-btn wide" type="button" onClick="{{ runHold }}">Hold</button>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showCaption }}" hint-placeholder-val="{{ false }}">
+      <div style="font-size: 13px; font-weight: 600; color: #ffd23a; line-height: 1.3; flex: 1 1 100%">{{ caption }}</div>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ menuOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: auto">
+      <div role="dialog" aria-label="Menu" style="background: #000; border: 2px solid #3a3836; width: 100%; max-width: 460px; max-height: 100%; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+        <div class="bb-row" style="justify-content: space-between">
+          <div style="font-weight: 900; font-size: 26px">MENU</div>
+          <button class="bb-btn" type="button" onClick="{{ closeMenu }}">Resume</button>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="bb-lbl">Mode</div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ modeBtns }}" as="b" hint-placeholder-count="4"><button class="{{ b.cls }}" type="button" onClick="{{ b.pick }}">{{ b.label }}</button></sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="bb-lbl">Opponent</div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ levelBtns }}" as="b" hint-placeholder-count="3"><button class="{{ b.cls }}" type="button" onClick="{{ b.pick }}" style="flex-direction: column; align-items: flex-start; justify-content: center; padding: 6px 10px"><span>{{ b.label }}</span><span style="font-size: 12px; font-weight: 600">{{ b.sub }}</span></button></sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="bb-lbl">Innings</div>
+          <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ inningBtns }}" as="b" hint-placeholder-count="4"><button class="{{ b.cls }}" type="button" onClick="{{ b.pick }}">{{ b.label }}</button></sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div class="bb-lbl">Options</div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{ optBtns }}" as="b" hint-placeholder-count="3"><button class="{{ b.cls }}" type="button" onClick="{{ b.pick }}">{{ b.label }}</button></sc-for>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px; border-top: 2px solid #3a3836; padding-top: 12px">
+          <div class="bb-lbl">Rules</div>
+          <div style="font-size: 14px; line-height: 1.45">Three outs end your turn at bat. Most runs after the last inning wins. Ties go to extra innings.</div>
+          <div style="font-size: 14px; line-height: 1.45">Bat: tap where the ball will cross, as it arrives. Three beeps count you in.</div>
+          <div style="font-size: 14px; line-height: 1.45">Pitch: pick a pitch, tap the zone to aim, then tap on the yellow band.</div>
+          <div style="font-size: 14px; line-height: 1.45">Field: tap a base to choose the throw. Run: RUN or HOLD your runners.</div>
+          <div class="bb-lbl" style="color: #fff">Keys: Space swing or pitch. Arrows aim. 1 2 3 pitch or throw. P power. G run. B hold.</div>
+        </div>
+        <div class="bb-row">
+          <button class="bb-btn wide" type="button" onClick="{{ restart }}">Restart</button>
+          <button class="bb-btn wide red" type="button" onClick="{{ goBack }}">Leave</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ inviteOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: auto">
+      <div role="dialog" aria-label="Invite friend" style="background: #000; border: 2px solid #3a3836; width: 100%; max-width: 420px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+        <div style="font-weight: 900; font-size: 24px">INVITE FRIEND</div>
+        <div style="font-size: 15px; line-height: 1.45">Online rooms are coming soon. Play a friend now on this device with Pass and Play.</div>
+        <div class="bb-row">
+          <button class="bb-btn wide on" type="button" onClick="{{ startLocal }}">Pass and play</button>
+          <button class="bb-btn wide" type="button" onClick="{{ closeInvite }}">Close</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ showResult }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.6); display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: auto">
+      <div role="dialog" aria-label="Result" style="background: #000; border: 2px solid #3a3836; border-top: 8px solid {{ resColor }}; width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+        <div style="font-weight: 900; font-size: 32px; color: {{ resColor }}">{{ res.title }}</div>
+        <div style="font-weight: 900; font-size: 22px">{{ resScore }}</div>
+        <div style="overflow-x: auto; border: 2px solid #3a3836">
+          <sc-for list="{{ resRows }}" as="row" hint-placeholder-count="3">
+            <div style="display: flex; border-bottom: 1px solid #3a3836">
+              <span class="bb-lbl" style="width: 52px; padding: 6px 8px; color: #fff">{{ row.name }}</span>
+              <sc-for list="{{ row.cells }}" as="c" hint-placeholder-count="3"><span style="width: 26px; padding: 6px 0; font-size: 13px; font-weight: 800; text-align: center">{{ c.v }}</span></sc-for>
+              <span style="width: 34px; padding: 6px 0; font-size: 13px; font-weight: 900; text-align: center; color: #ffd23a">{{ row.r }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ resRewards }}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <div style="border: 2px solid #3a3836; padding: 8px"><div class="bb-lbl">Gold</div><div style="font-weight: 900; font-size: 20px; color: #ffd23a">{{ resGold }}</div></div>
+            <div style="border: 2px solid #3a3836; padding: 8px"><div class="bb-lbl">XP</div><div style="font-weight: 900; font-size: 20px">{{ resXp }}</div></div>
+            <div style="border: 2px solid #3a3836; padding: 8px"><div class="bb-lbl">Best</div><div style="font-weight: 900; font-size: 20px">{{ resBest }}</div></div>
+          </div>
+          <div class="bb-row" role="img" aria-label="{{ starsLabel }}">
+            <sc-for list="{{ stars }}" as="s" hint-placeholder-count="3"><svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 L14.9 8.6 L22 9.3 L16.6 14 L18.2 21 L12 17.3 L5.8 21 L7.4 14 L2 9.3 L9.1 8.6 Z" fill="{{ s.fill }}" stroke="#ffd23a" stroke-width="2" stroke-linejoin="miter"></path></svg></sc-for>
+            <span class="bb-lbl" style="color: #fff">{{ resNote }}</span>
+          </div>
+        </sc-if>
+        <div class="bb-row">
+          <button class="bb-btn wide on" type="button" onClick="{{ restart }}">Play again</button>
+          <button class="bb-btn wide red" type="button" onClick="{{ goBack }}">Back</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ leftOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.72); display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: auto">
+      <div role="dialog" aria-label="Left the game" style="background: #000; border: 2px solid #3a3836; width: 100%; max-width: 420px; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+        <div style="font-weight: 900; font-size: 24px">YOU LEFT THE BALLPARK</div>
+        <div style="font-size: 15px; line-height: 1.45">In town, BACK returns you to the street. Here, you can step back in.</div>
+        <div class="bb-row">
+          <button class="bb-btn wide on" type="button" onClick="{{ comeBack }}">Play again</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ err }}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; left: 16px; right: 16px; top: 45%; background: #000; border: 2px solid #ec3013; padding: 12px; font-size: 14px">{{ err }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null},"opts":{"editor":null},"onBack":{"editor":null},"moduleUrl":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { h: null, menu: false, invite: false, left: false, err: '' };
+    this.api = null; this.root = null; this.stage = null; this.lastSafe = '';
+    this.setRoot = (el) => { this.root = el; };
+    this.setStage = (el) => { this.stage = el; };
+  }
+  componentDidMount() {
+    const w = this.props.world;
+    if (w) {
+      this.onEv = (e) => {
+        const slot = w._baseballField;
+        this.api = slot && slot.g ? slot.g() : null;
+        this.setState({ h: e.detail || null, menu: e.detail ? this.state.menu : false });
+      };
+      window.addEventListener('8g:baseballField', this.onEv);
+      const slot = w._baseballField;
+      this.api = slot && slot.g ? slot.g() : null;
+      if (this.api) this.setState({ h: this.api.hud() });
+    } else {
+      this.boot();
+    }
+    this.unlock = () => { if (this.api && this.api.unlockAudio) this.api.unlockAudio(); };
+    window.addEventListener('pointerdown', this.unlock, true);
+    if (typeof ResizeObserver !== 'undefined' && this.root) {
+      this.ro = new ResizeObserver(() => this.measure());
+      this.ro.observe(this.root);
+      this.root.querySelectorAll('[data-safe]').forEach((el) => this.ro.observe(el));
+    }
+    setTimeout(() => this.measure(), 50);
+  }
+  async boot() {
+    try {
+      let mod = window.FoxBaseball;
+      if (!mod) {
+        for (let i = 0; i < 40 && !window.FoxBaseball && document.querySelector('script[data-fox-baseball]'); i++) await new Promise((r) => setTimeout(r, 100));
+        mod = window.FoxBaseball;
+      }
+      if (!mod) {
+        const url = this.props.moduleUrl || new URL('./minigames/baseball/baseball.js', document.baseURI).href;
+        mod = await import(url);
+      }
+      if (!this.stage) return;
+      this.api = await mod.createBaseball({ container: this.stage, onState: (h) => this.setState({ h }), opts: this.props.opts || {} });
+      this.measure();
+    } catch (e) {
+      console.error(e);
+      this.setState({ err: 'Could not load the game: ' + (e && e.message ? e.message : e) });
+    }
+  }
+  componentDidUpdate() { this.measure(); }
+  componentWillUnmount() {
+    if (this.onEv) window.removeEventListener('8g:baseballField', this.onEv);
+    window.removeEventListener('pointerdown', this.unlock, true);
+    if (this.ro) this.ro.disconnect();
+    if (this.api && !this.props.world) this.api.destroy();
+    this.api = null;
+  }
+  measure() {
+    if (!this.root || !this.api) return;
+    const R = this.root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    this.root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, r.bottom - R.top);
+      if (side === 'bottom') s.bottom = Math.max(s.bottom, R.bottom - r.top);
+      if (side === 'left') s.left = Math.max(s.left, r.right - R.left);
+      if (side === 'right') s.right = Math.max(s.right, R.right - r.left);
+    });
+    const k = [s.top, s.bottom, s.left, s.right].map(Math.round).join(',');
+    if (k !== this.lastSafe) { this.lastSafe = k; this.safe = s; this.api.setSafe(s); }
+  }
+  call(fn, ...a) { if (this.api && this.api[fn]) this.api[fn](...a); }
+  renderVals() {
+    const h = this.state.h || {};
+    const world = !!this.props.world;
+    const T = h.teams || [];
+    const tA = T[0] || { short: '---', score: 0, color: '#ffffff', batting: true };
+    const tB = T[1] || { short: '---', score: 0, color: '#ffffff', batting: false };
+    const dots = (n, on, col) => Array.from({ length: n }, (_, i) => ({ bg: i < on ? col : 'transparent' }));
+    const B = h.bases || [false, false, false];
+    const tone = h.msg && h.msg.tone;
+    const msgColor = tone === 'good' ? '#ffd23a' : tone === 'bad' ? '#ec3013' : '#ffffff';
+    const safeTop = this.safe ? this.safe.top : 100;
+    const role = h.role;
+    const who = h.who ? h.who + ' ' : '';
+    let roleTitle = '', roleText = '', roleColor = '#bdb8b2';
+    if (role === 'bat') { roleTitle = who + 'at bat · ' + (h.batter || ''); roleText = 'Tap where the ball will cross, right as it arrives.'; roleColor = '#ffd23a'; }
+    else if (role === 'pitch') { roleTitle = who + 'pitch · ' + (h.pitcher || ''); roleText = h.aimStage === 'meter' ? 'Tap again when the bar is on yellow.' : 'Pick a pitch, then tap the zone to aim.'; roleColor = '#ffd23a'; }
+    else if (role === 'field') { roleTitle = who + 'in the field'; roleText = 'Tap a base to throw there.'; roleColor = '#ffd23a'; }
+    else if (role === 'run') { roleTitle = who + 'on the bases'; roleText = 'RUN sends runners on. HOLD keeps them safe.'; roleColor = '#ffd23a'; }
+    else if (h.phase) { roleTitle = 'At bat · ' + (h.batter || '') ; roleText = 'Pitching · ' + (h.pitcher || ''); }
+    const C = h.controls || {};
+    const pt = h.pitchType || 'fast';
+    const pitchBtns = [['fast', 'Fast'], ['curve', 'Curve'], ['change', 'Change']].map(([k, l]) => ({ label: l, cls: 'bb-btn wide' + (pt === k ? ' on' : ''), pick: () => this.call('pitchType', k) }));
+    const throwBtns = [['1B', 1], ['2B', 2], ['3B', 3], ['Home', 4]].map(([l, b]) => ({ label: l, pick: () => this.call('throwTo', b) }));
+    const mode = h.mode || 'cpu';
+    const modeBtns = [['cpu', 'VS CPU', 2], ['local', 'Pass & play 2', 2], ['local4', 'Pass & play 4', 4], ['demo', 'Demo', 2]].map(([k, l, n]) => {
+      const sel = k === 'local4' ? (mode === 'local' && h.players === 4) : k === 'local' ? (mode === 'local' && h.players !== 4) : mode === k;
+      return { label: l, cls: 'bb-btn' + (sel ? ' on' : ''), pick: () => { this.call('setPlayers', n); this.call('start', k === 'local4' ? 'local' : k); this.closeMenu(); } };
+    });
+    const levelBtns = [['PIP', 'Rookie'], ['HOPE', 'Club'], ['NOBLE', 'Master']].map(([l, s], i) => ({ label: l, sub: s, cls: 'bb-btn' + (h.level === i ? ' on' : ''), pick: () => { this.call('setLevel', i); if (mode !== 'cpu') this.call('start', 'cpu'); this.closeMenu(); } }));
+    const inningBtns = [1, 3, 6, 9].map((n) => ({ label: String(n), cls: 'bb-btn' + (h.innings === n ? ' on' : ''), pick: () => { this.call('setInnings', n); this.closeMenu(); } }));
+    const optBtns = [
+      { label: 'Sound', cls: 'bb-btn' + (h.sound ? ' on' : ''), pick: () => this.call('setSound', !h.sound) },
+      { label: 'Music', cls: 'bb-btn' + (h.music ? ' on' : ''), pick: () => this.call('setMusic', !h.music) },
+      { label: 'Pitch help', cls: 'bb-btn' + (h.pitchHelp ? ' on' : ''), pick: () => this.call('setPitchHelp', !h.pitchHelp) },
+    ];
+    const res = h.result || null;
+    const resRows = res ? res.line.map((l, i) => ({ name: res.names[i], cells: l.map((v) => ({ v })), r: String(res.score[i]) })) : [];
+    const stars = res ? [0, 1, 2].map((i) => ({ fill: i < res.stars ? '#ffd23a' : 'transparent' })) : [];
+    return {
+      setRoot: this.setRoot, setStage: this.setStage,
+      rootBg: world ? 'transparent' : '#000', rootPE: world ? 'none' : 'auto',
+      teamA: tA, teamB: tB, batA: tA.batting ? '#1c1b1a' : '#000', batB: tB.batting ? '#1c1b1a' : '#000',
+      inningTxt: h.inning ? (h.half === 'TOP' ? 'Top ' : 'Bottom ') + h.inning : 'Baseball',
+      ballDots: dots(3, h.balls || 0, '#ffd23a'), strikeDots: dots(2, h.strikes || 0, '#ffd23a'), outDots: dots(2, Math.min(2, h.outs || 0), '#ec3013'),
+      base1: B[0] ? '#ffd23a' : 'transparent', base2: B[1] ? '#ffd23a' : 'transparent', base3: B[2] ? '#ffd23a' : 'transparent',
+      basesLabel: 'Runners on ' + (['first', 'second', 'third'].filter((_, i) => B[i]).join(', ') || 'no base'),
+      showMsg: !!(h.msg && (h.msg.text || h.msg.sub)) && !res, msgText: h.msg ? h.msg.text : '', msgSub: h.msg ? h.msg.sub : '', msgColor, msgTop: Math.round(safeTop + 14),
+      hint: h.hint && !this.state.menu ? h.hint : null,
+      roleTitle, roleText, roleColor,
+      showPitch: !!C.pitchTypes, pitchBtns,
+      showSwing: !!C.swing, powerCls: 'bb-btn' + (h.power ? ' on' : ''), powerLabel: h.power ? 'Power on' : 'Power', togglePower: () => this.call('power'),
+      showThrows: !!C.throws, throwBtns,
+      showRun: !!C.run, runGo: () => this.call('runners', 'go'), runHold: () => this.call('runners', 'back'),
+      showCaption: !!h.caption, caption: h.caption || '',
+      menuOpen: this.state.menu, inviteOpen: this.state.invite,
+      openMenu: () => { this.call('pause', true); this.setState({ menu: true, invite: false }); },
+      closeMenu: () => this.closeMenu(),
+      openInvite: () => { this.call('pause', true); this.setState({ invite: true, menu: false }); },
+      closeInvite: () => { this.call('pause', false); this.setState({ invite: false }); },
+      startLocal: () => { this.call('setPlayers', 2); this.call('start', 'local'); this.call('pause', false); this.setState({ invite: false }); },
+      modeBtns, levelBtns, inningBtns, optBtns,
+      restart: () => { this.call('restart'); this.call('pause', false); this.setState({ menu: false }); },
+      goBack: () => this.back(),
+      showResult: !!res, res: res || { title: '' }, resColor: res && res.win === false ? '#ec3013' : '#ffd23a',
+      resScore: res ? res.names[0] + ' ' + res.score[0] + '  —  ' + res.names[1] + ' ' + res.score[1] : '',
+      resRows, resRewards: !!(res && res.mode === 'cpu'), resGold: res ? '+' + res.gold : '', resXp: res ? '+' + res.xp : '', resBest: res ? String(res.best) : '',
+      stars, starsLabel: res ? res.stars + ' of 3 stars' : '', resNote: res ? (res.newBest ? 'New best' : res.win ? 'vs ' + res.opponent : 'Try again') : '',
+      leftOpen: this.state.left,
+      comeBack: () => { this.setState({ left: false }); this.call('restart'); this.call('pause', false); },
+      err: this.state.err,
+    };
+  }
+  closeMenu() { this.call('pause', false); this.setState({ menu: false }); }
+  back() {
+    const w = this.props.world;
+    this.setState({ menu: false, invite: false });
+    if (w && w._baseballField && w._baseballField.end) { w._baseballField.end(); return; }
+    if (this.props.onBack) { this.props.onBack(); return; }
+    this.call('pause', true);
+    window.dispatchEvent(new CustomEvent('8g:baseballField:back'));
+    this.setState({ left: true });
+  }
+}
+</script>
+</body>
+</html>

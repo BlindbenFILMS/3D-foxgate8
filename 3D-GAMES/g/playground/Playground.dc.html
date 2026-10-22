@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Playground</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#fff}
+.pg-root{position:relative;width:100%;height:100vh;height:100dvh;overflow:hidden;font-family:'Archivo',system-ui,sans-serif;color:#fff;-webkit-user-select:none;user-select:none}
+.pg-top{position:absolute;left:0;right:0;top:0;background:#000;border-bottom:2px solid #3a3836;padding:10px 12px;display:flex;flex-direction:column;gap:8px;pointer-events:auto;box-sizing:border-box}
+.pg-bottom{position:absolute;left:0;right:0;bottom:0;background:#000;border-top:2px solid #3a3836;padding:10px 12px 12px;display:flex;flex-direction:column;gap:10px;pointer-events:auto;box-sizing:border-box}
+.pg-btnrow{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pg-btn{min-height:44px;border:2px solid #3a3836;background:#000;color:#fff;font-family:'Archivo',system-ui,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-align:left;padding:0 12px;border-radius:0;cursor:pointer;touch-action:manipulation}
+.pg-btn:hover{border-color:#fff}
+.pg-btn:focus-visible,.pg-act:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.pg-act{min-height:64px;background:#ffd23a;color:#000;border:2px solid #ffd23a;font-family:'Archivo',system-ui,sans-serif;font-weight:900;font-size:22px;letter-spacing:.06em;text-align:left;padding:0 16px;border-radius:0;cursor:pointer;touch-action:manipulation}
+.pg-back{background:#ec3013;border-color:#ec3013}
+.pg-card{background:#000;border:2px solid #3a3836;padding:16px;box-sizing:border-box;pointer-events:auto}
+.pg-modal{position:absolute;inset:0;background:rgba(0,0,0,.62);display:flex;align-items:center;justify-content:center;padding:16px;box-sizing:border-box;pointer-events:auto;z-index:20}
+.pg-label{font-size:12px;font-weight:800;letter-spacing:.14em;color:#ffd23a}
+.pg-hand{animation:pgbob 0.9s ease-in-out infinite}
+@keyframes pgbob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media (orientation:landscape) and (max-height:520px){
+.pg-top{flex-direction:row;align-items:center;gap:12px;padding:6px 12px}
+.pg-toprow{flex:0 0 auto;min-width:190px}
+.pg-chips{flex:1}
+.pg-bottom{flex-direction:row;align-items:stretch;gap:10px;padding:8px 12px}
+.pg-meterwrap{flex:1;min-width:0;justify-content:center}
+.pg-act{min-height:52px;width:170px;flex:0 0 170px}
+.pg-btnrow{flex:0 0 330px}
+}
+</style>
+</helmet>
+<div class="pg-root" data-pg-root="1" ref="{{setRoot}}" style="background: {{rootBg}}; pointer-events: {{rootPE}}">
+<sc-if value="{{standalone}}" hint-placeholder-val="{{true}}">
+<div data-stage="1" ref="{{setStage}}" style="position: absolute; inset: 0; background: #9fd6ff"></div>
+</sc-if>
+
+<sc-if value="{{showHud}}" hint-placeholder-val="{{false}}">
+<div class="pg-top" data-safe="top">
+<div class="pg-toprow" style="display: flex; align-items: baseline; gap: 10px; min-width: 0">
+<div class="pg-label">{{eventNo}}</div>
+<div style="font-size: 20px; font-weight: 900; letter-spacing: .02em; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{eventName}}</div>
+<div style="font-size: 20px; font-weight: 900; font-variant-numeric: tabular-nums">{{timerText}}</div>
+</div>
+<div class="pg-chips" style="display: grid; grid-template-columns: {{chipCols}}; gap: 6px">
+<sc-for list="{{players}}" as="pl" hint-placeholder-count="4">
+<div style="{{pl.chipStyle}}">
+<div style="display: flex; align-items: center; gap: 6px; min-width: 0"><span style="{{pl.swatch}}"></span><span style="font-size: 12px; font-weight: 900; letter-spacing: .06em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{pl.name}}</span></div>
+<div style="display: flex; justify-content: space-between; gap: 4px; font-size: 12px; white-space: nowrap"><span style="font-weight: 800">{{pl.ptsText}}</span><span style="color: #d8d3cb; overflow: hidden; text-overflow: ellipsis">{{pl.score}}</span></div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{showCaption}}" hint-placeholder-val="{{false}}">
+<div class="pg-card" style="position: absolute; left: 12px; right: 12px; max-width: 420px; padding: 10px 12px; display: flex; flex-direction: column; gap: 4px; {{captionPos}}">
+<div class="pg-label">{{captionWho}}</div>
+<div style="font-size: 16px; font-weight: 700; line-height: 1.3">{{captionText}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showCount}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 0; right: 0; top: 42%; display: flex; justify-content: center; pointer-events: none">
+<div style="background: #000; border: 2px solid #ffd23a; color: #ffd23a; font-size: 72px; font-weight: 900; line-height: 1; padding: 10px 26px; min-width: 60px; text-align: left">{{countdown}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showEventEnd}}" hint-placeholder-val="{{false}}">
+<div class="pg-card" style="position: absolute; left: 12px; right: 12px; max-width: 380px; display: flex; flex-direction: column; gap: 8px; {{captionPos}}">
+<div class="pg-label">{{eventEndTitle}}</div>
+<sc-for list="{{eventRows}}" as="row" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 44px 16px minmax(0, 1fr) auto 36px; align-items: center; gap: 8px; font-size: 14px; border-top: 2px solid #3a3836; padding-top: 8px">
+<span style="font-weight: 900; color: #ffd23a">{{row.placeText}}</span>
+<span style="{{row.swatch}}"></span>
+<span style="font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{row.nameText}}</span>
+<span style="font-variant-numeric: tabular-nums">{{row.score}}</span>
+<span style="font-weight: 900; color: #ffd23a">{{row.gain}}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+
+<sc-if value="{{showHint}}" hint-placeholder-val="{{false}}">
+<div class="pg-hand" style="position: absolute; left: 28px; pointer-events: none; {{hintPos}}">
+<svg width="44" height="52" viewBox="0 0 44 52" aria-hidden="true"><path d="M18 4v24l-5-5c-2-2-5-2-6 0-1 2 0 4 1 5l11 13c2 2 4 3 7 3h6c5 0 8-4 8-9V24c0-2-2-4-4-4s-4 2-4 4v-2c0-2-2-4-4-4s-4 2-4 4v-2c0-2-2-4-4-4s-2 1-2 2V4c0-2-1-3-2-3s-2 1-2 3z" fill="#ffd23a" stroke="#000" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+</div>
+</sc-if>
+
+<div class="pg-bottom" data-safe="bottom">
+<div class="pg-meterwrap" style="display: flex; flex-direction: column; gap: 6px">
+<div style="display: flex; justify-content: space-between; gap: 8px; font-size: 12px; font-weight: 800; letter-spacing: .08em"><span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{meterLabel}}</span><span style="color: {{meterNoteColor}}; white-space: nowrap">{{meterNote}}</span></div>
+<div style="position: relative; height: 28px; border: 2px solid {{meterBorder}}; background: #161514">
+<div style="position: absolute; top: 0; bottom: 0; background: #ffd23a; {{zoneStyle}}"></div>
+<div style="position: absolute; top: -7px; bottom: -7px; width: 8px; background: #fff; border: 2px solid #000; {{markerStyle}}"></div>
+</div>
+</div>
+<button class="pg-act" type="button" style="opacity: {{actOpacity}}" onPointerDown="{{actDown}}" onClick="{{actClick}}">{{actionLabel}}</button>
+<div class="pg-btnrow">
+<button class="pg-btn" type="button" onClick="{{openMenu}}">MENU</button>
+<button class="pg-btn" type="button" onClick="{{openInvite}}">INVITE FRIEND</button>
+<button class="pg-btn pg-back" type="button" onClick="{{back}}">BACK</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showLoading}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; pointer-events: none">
+<div class="pg-card" style="display: flex; flex-direction: column; gap: 6px; max-width: 320px">
+<div class="pg-label">8 GATES 3D</div>
+<div style="font-size: 22px; font-weight: 900">PLAYGROUND</div>
+<div style="font-size: 13px; color: #d8d3cb">{{loadingText}}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showMenu}}" hint-placeholder-val="{{false}}">
+<div class="pg-modal">
+<div class="pg-card" style="width: 100%; max-width: 400px; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; justify-content: space-between; gap: 8px">
+<div style="font-size: 22px; font-weight: 900">MENU</div>
+<button class="pg-btn" type="button" onClick="{{closePanel}}">CLOSE</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="pg-label">MODE</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{modeOpts}}" as="o" hint-placeholder-count="3"><button class="pg-btn" type="button" style="{{o.style}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="pg-label">OPPONENT</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{levelOpts}}" as="o" hint-placeholder-count="3"><button class="pg-btn" type="button" style="{{o.style}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="pg-label">{{foxLabel}}</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{foxOpts}}" as="o" hint-placeholder-count="3"><button class="pg-btn" type="button" style="{{o.style}}" onClick="{{o.pick}}">{{o.label}}</button></sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="pg-btn" type="button" onClick="{{toggleSound}}">{{soundLabel}}</button>
+<button class="pg-btn" type="button" onClick="{{toggleMusic}}">{{musicLabel}}</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="pg-label">RULES</div>
+<sc-for list="{{rules}}" as="r" hint-placeholder-count="5">
+<div style="font-size: 13px; line-height: 1.4; color: #e8e4dd; border-top: 2px solid #3a3836; padding-top: 6px">{{r.text}}</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="pg-btn" type="button" onClick="{{restart}}">RESTART</button>
+<button class="pg-btn pg-back" type="button" onClick="{{back}}">LEAVE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showInvite}}" hint-placeholder-val="{{false}}">
+<div class="pg-modal">
+<div class="pg-card" style="width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px">
+<div class="pg-label">INVITE FRIEND</div>
+<div style="font-size: 22px; font-weight: 900">ONLINE ROOMS COMING SOON</div>
+<div style="font-size: 14px; line-height: 1.4; color: #e8e4dd">For now, hand the phone around. PASS &amp; PLAY takes up to four foxes.</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="pg-btn" type="button" onClick="{{goLocal}}">PASS &amp; PLAY</button>
+<button class="pg-btn" type="button" onClick="{{closePanel}}">CLOSE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showResult}}" hint-placeholder-val="{{false}}">
+<div class="pg-modal">
+<div class="pg-card" style="width: 100%; max-width: 380px; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; gap: 12px">
+<div class="pg-label">PLAYGROUND RESULTS</div>
+<div style="font-size: 28px; font-weight: 900; line-height: 1.05">{{resTitle}}</div>
+<sc-if value="{{resShowStars}}" hint-placeholder-val="{{true}}">
+<div style="display: flex; gap: 6px" role="img" aria-label="{{resStarsLabel}}">
+<sc-for list="{{resStars}}" as="s" hint-placeholder-count="3">
+<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l3 7h7l-5.6 4.4 2.1 7.3L12 16.5 5.5 20.7l2.1-7.3L2 9h7z" fill="{{s.fill}}" stroke="#ffd23a" stroke-width="2" stroke-linejoin="miter"></path></svg>
+</sc-for>
+</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{resStats}}" as="s" hint-placeholder-count="4">
+<div style="border: 2px solid #3a3836; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px">
+<div class="pg-label">{{s.label}}</div>
+<div style="font-size: 20px; font-weight: 900">{{s.value}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; flex-direction: column; gap: 0">
+<sc-for list="{{resRows}}" as="row" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 44px 16px minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 14px; border-top: 2px solid #3a3836; padding: 7px 0">
+<span style="font-weight: 900; color: #ffd23a">{{row.placeText}}</span>
+<span style="{{row.swatch}}"></span>
+<span style="font-weight: 800">{{row.name}}</span>
+<span style="font-weight: 900">{{row.ptsText}}</span>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 13px; color: #e8e4dd">{{resNote}}</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="pg-act" type="button" style="font-size: 16px; min-height: 52px" onClick="{{playAgain}}">PLAY AGAIN</button>
+<button class="pg-btn pg-back" type="button" style="min-height: 52px" onClick="{{back}}">BACK</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showLeft}}" hint-placeholder-val="{{false}}">
+<div class="pg-modal">
+<div class="pg-card" style="width: 100%; max-width: 340px; display: flex; flex-direction: column; gap: 12px">
+<div class="pg-label">PLAYGROUND</div>
+<div style="font-size: 24px; font-weight: 900">YOU LEFT THE PLAYGROUND</div>
+<button class="pg-act" type="button" style="font-size: 16px; min-height: 52px" onClick="{{playAgain}}">PLAY AGAIN</button>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"default":null,"tsType":"object"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { hud: null, panel: null, err: '', topH: 100, botH: 170 };
+    this.api = null; this.root = null; this.stage = null; this.safeKey = ''; this.dead = false; this.booted = false;
+    this.onWorld = this.onWorld.bind(this);
+    this.setRoot = (el) => { if (el) this.root = el; };
+    this.setStage = (el) => { if (el) this.stage = el; };
+  }
+  componentDidMount() {
+    if (this.props.world) {
+      window.addEventListener('8g:playground', this.onWorld);
+      const w = this.props.world._playground;
+      const g = w && w.g ? w.g() : null;
+      if (g) { this.api = g; this.setState({ hud: g.hud() }); }
+    } else {
+      setTimeout(() => this.boot(), 0);
+    }
+  }
+  async boot() {
+    if (this.booted || this.dead) return; this.booted = true;
+    try {
+      const url = new URL('./minigames/playground/playground.js', document.baseURI).href;
+      const mod = await import(url);
+      if (this.dead) return;
+      const el = this.stage || document.querySelector('[data-stage]');
+      if (!el) throw new Error('stage missing');
+      const g = await mod.createPlayground({ container: el, onState: (h) => { if (!this.dead) this.setState({ hud: h }); } });
+      if (this.dead) { g.destroy(); return; }
+      this.api = g;
+      this.setState({ hud: g.hud() });
+    } catch (e) {
+      this.setState({ err: String((e && e.message) || e) });
+    }
+  }
+  onWorld(e) {
+    const h = e.detail;
+    if (!h) { this.api = null; this.setState({ hud: null, panel: null }); return; }
+    if (!this.api) { const w = this.props.world && this.props.world._playground; this.api = w && w.g ? w.g() : null; }
+    this.setState({ hud: h });
+  }
+  componentWillUnmount() {
+    this.dead = true;
+    window.removeEventListener('8g:playground', this.onWorld);
+    if (!this.props.world && this.api) this.api.destroy();
+    this.api = null;
+  }
+  componentDidUpdate() { this.measure(); }
+  measure() {
+    const root = this.root || document.querySelector('[data-pg-root]');
+    if (!root || !this.api) return;
+    const rr = root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      else if (side === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      else if (side === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      else if (side === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    const k = [s.top, s.bottom, s.left, s.right].map(Math.round).join(',');
+    if (k !== this.safeKey) {
+      this.safeKey = k;
+      this.api.setSafe(s);
+      const topH = Math.round(s.top), botH = Math.round(s.bottom);
+      if (topH !== this.state.topH || botH !== this.state.botH) this.setState({ topH, botH });
+    }
+  }
+  call(fn, ...a) { const g = this.api; if (g && typeof g[fn] === 'function') return g[fn](...a); return undefined; }
+  setPanel(p) {
+    this.call('pause', !!p && p !== 'result');
+    this.setState({ panel: p });
+  }
+  goBack() {
+    this.call('pause', false);
+    this.setState({ panel: null });
+    const w = this.props.world && this.props.world._playground;
+    if (w && w.end) w.end(); else this.call('leave');
+  }
+  renderVals() {
+    const h = this.state.hud, ov = !!this.props.world, panel = this.state.panel;
+    const sw = (c, human) => 'display: inline-block; width: 12px; height: 12px; flex: 0 0 12px; background: ' + c + '; border: 2px solid ' + (human ? '#fff' : '#000');
+    const pl = h ? h.players : [];
+    const players = pl.map((p) => ({
+      name: p.name, ptsText: p.pts + ' PTS', score: p.score,
+      swatch: sw(p.color, p.human),
+      chipStyle: 'border: 2px solid ' + ((p.active || p.turn) ? '#ffd23a' : '#3a3836') + '; padding: 5px 7px; display: flex; flex-direction: column; gap: 3px; min-width: 0; opacity: ' + (p.out ? 0.6 : 1),
+    }));
+    const m = h && h.meter;
+    const mv = m ? Math.max(0, Math.min(1, m.v)) : 0;
+    const flash = m && m.flash;
+    let meterNote = '', meterNoteColor = '#ffd23a';
+    if (flash === 'good') meterNote = 'NICE';
+    else if (flash === 'bad') { meterNote = 'MISS'; meterNoteColor = '#ff6a4d'; }
+    else if (h && h.phase === 'play' && m && !m.idle && mv >= m.lo && mv <= m.hi) meterNote = 'NOW';
+    const phase = h ? h.phase : '';
+    const evRows = (h && h.eventResult) || [];
+    const res = h && h.result;
+    const sel = (on) => on ? 'background: #ffd23a; color: #000; border-color: #ffd23a' : '';
+    const mode = h ? h.mode : 'cpu';
+    const modes = [['cpu', 'VS CPU'], ['local', 'PASS & PLAY'], ['demo', 'DEMO']];
+    const levels = [['EASY', 'PIP'], ['MEDIUM', 'HOPE'], ['HARD', 'NOBLE']];
+    const nNow = h ? (mode === 'local' ? h.localPlayers : h.foxes) : 4;
+    const topH = this.state.topH, botH = this.state.botH;
+    const resStats = res ? [
+      { label: 'SCORE', value: res.pts + ' PTS' },
+      { label: 'BEST', value: res.best == null ? '-' : res.best + ' PTS' + (res.newBest ? ' NEW' : '') },
+      { label: 'GOLD WON', value: String(res.gold) },
+      { label: 'XP', value: '+' + res.xp },
+    ] : [];
+    return {
+      standalone: !ov,
+      rootBg: ov ? 'transparent' : '#000',
+      rootPE: ov ? 'none' : 'auto',
+      setRoot: this.setRoot, setStage: this.setStage,
+      showHud: !!h,
+      showLoading: !h && (!ov || !!this.state.err),
+      loadingText: this.state.err ? 'Could not start: ' + this.state.err : 'Loading the playground...',
+      eventNo: h ? (phase === 'result' ? 'FINAL' : (h.eventIndex + 1) + '/' + h.eventCount) : '',
+      eventName: h ? (phase === 'result' ? 'CHAMPIONSHIP' : h.eventName) : '',
+      timerText: h && (phase === 'play' || phase === 'turnEnd') ? h.timerText : '',
+      chipCols: 'repeat(' + Math.max(1, players.length) + ', minmax(0, 1fr))',
+      players,
+      showCaption: !!(h && h.caption && phase !== 'eventEnd' && phase !== 'result'),
+      captionWho: h && h.caption ? h.caption.who : '',
+      captionText: h && h.caption ? h.caption.text : '',
+      captionPos: 'top: ' + (topH + 10) + 'px',
+      showCount: !!(h && h.countdown),
+      countdown: h ? h.countdown : '',
+      showEventEnd: phase === 'eventEnd' && evRows.length > 0,
+      eventEndTitle: h ? h.eventName + ' RESULTS' : '',
+      eventRows: evRows.map((r) => ({ placeText: r.placeText, swatch: sw(r.color, r.human), nameText: r.name + (r.best ? ' NEW BEST' : ''), score: r.score, gain: r.gain })),
+      showHint: !!(h && h.idleHint && !panel),
+      hintPos: 'bottom: ' + (botH + 6) + 'px',
+      meterLabel: h ? (mode === 'demo' ? 'DEMO: ' + h.hint : (phase === 'turn' ? h.turnName + ' IS UP' : h.verb + ': HIT THE YELLOW')) : '',
+      meterNote, meterNoteColor,
+      meterBorder: flash === 'good' ? '#ffd23a' : flash === 'bad' ? '#ff6a4d' : '#3a3836',
+      zoneStyle: m ? 'left: ' + (m.lo * 100).toFixed(1) + '%; width: ' + ((m.hi - m.lo) * 100).toFixed(1) + '%; opacity: ' + (m.idle ? 0.35 : 1) : 'left: 0; width: 0',
+      markerStyle: 'left: calc(' + (mv * 100).toFixed(1) + '% - 6px); opacity: ' + (m && !m.idle ? 1 : 0.3),
+      actionLabel: h ? h.actionLabel : 'TAP',
+      actOpacity: h && h.canAct ? 1 : 0.45,
+      actDown: (e) => { if (e && e.button > 0) return; this.pd = Date.now(); this.call('action'); },
+      actClick: (e) => { if (e && e.detail === 0) this.call('action'); },
+      openMenu: () => this.setPanel('menu'),
+      openInvite: () => this.setPanel('invite'),
+      closePanel: () => this.setPanel(null),
+      back: () => this.goBack(),
+      goLocal: () => { this.setPanel(null); this.call('start', 'local'); },
+      showMenu: panel === 'menu',
+      showInvite: panel === 'invite',
+      modeOpts: modes.map(([k, label]) => ({ label, style: sel(mode === k), pick: () => { this.setPanel(null); this.call('start', k); } })),
+      levelOpts: levels.map(([lv, who], i) => ({ label: who, style: sel(h && h.level === i), pick: () => { this.setPanel(null); this.call('setLevel', i); } })),
+      foxLabel: mode === 'local' ? 'PLAYERS' : 'FOXES',
+      foxOpts: [2, 3, 4].map((n) => ({ label: String(n), style: sel(nNow === n), pick: () => { this.setPanel(null); this.call('setFoxes', n); } })),
+      soundLabel: 'SOUND ' + (h && h.sound ? 'ON' : 'OFF'),
+      musicLabel: 'MUSIC ' + (h && h.music ? 'ON' : 'OFF'),
+      toggleSound: () => this.call('setSound', !(h && h.sound)),
+      toggleMusic: () => this.call('setMusic', !(h && h.music)),
+      rules: (h && h.rules ? h.rules : []).map((t) => ({ text: t })),
+      restart: () => { this.setPanel(null); this.call('restart'); },
+      playAgain: () => { this.setPanel(null); this.call('playAgain'); },
+      showResult: !!res && !panel,
+      resTitle: res ? res.title : '',
+      resShowStars: !!(res && mode === 'cpu'),
+      resStars: [0, 1, 2].map((k) => ({ fill: res && k < res.stars ? '#ffd23a' : 'none' })),
+      resStarsLabel: res ? res.stars + ' of 3 stars' : '',
+      resStats,
+      resRows: res ? res.standings.map((s) => ({ placeText: s.placeText, swatch: sw(s.color, s.human), name: s.name, ptsText: s.pts + ' PTS' })) : [],
+      resNote: res ? res.note : '',
+      showLeft: phase === 'left' && !panel,
+    };
+  }
+}
+</script>
+</body>
+</html>

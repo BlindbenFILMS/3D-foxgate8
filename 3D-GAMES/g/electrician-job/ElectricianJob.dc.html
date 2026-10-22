@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Electrician Job</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000;overflow:hidden}
+a{color:#ffd23a}a:hover{color:#fff}
+.ej-b{display:flex;align-items:center;justify-content:flex-start;text-align:left;min-height:44px;min-width:44px;padding:0 14px;box-sizing:border-box;background:#000;color:#fff;border:2px solid #3a3836;border-radius:0;font-family:Archivo,sans-serif;font-weight:800;font-size:14px;letter-spacing:0.05em;cursor:pointer;pointer-events:auto;-webkit-tap-highlight-color:transparent}
+.ej-b:hover{border-color:#fff}
+.ej-b:focus-visible{outline:3px solid #ffd23a;outline-offset:1px}
+.ej-red{background:#ec3013;border-color:#ec3013;color:#fff}
+.ej-red:hover{border-color:#fff}
+.ej-on{background:#ffd23a;border-color:#ffd23a;color:#000}
+.ej-wide{width:100%}
+@keyframes ejbob{0%,100%{transform:translate(0,0)}50%{transform:translate(-6px,-8px)}}
+@keyframes ejpop{0%{transform:scale(0.7);opacity:0}100%{transform:scale(1);opacity:1}}
+</style>
+</helmet>
+<div ref="{{setRoot}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; font-family: Archivo, sans-serif; color: #ffffff; background: {{rootBg}}; pointer-events: {{rootPE}}">
+<sc-if value="{{standalone}}" hint-placeholder-val="{{ true }}">
+<div ref="{{setStage}}" style="position: absolute; inset: 0; pointer-events: auto; touch-action: none"></div>
+</sc-if>
+
+<sc-if value="{{showUi}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+
+<sc-if value="{{tall}}" hint-placeholder-val="{{ true }}">
+<div data-safe="top" style="position: absolute; top: 0; left: 0; right: 0; padding: 8px 8px 0 8px; display: flex; flex-direction: column; gap: 6px; pointer-events: none">
+<div style="display: flex; gap: 6px; align-items: stretch">
+<button class="ej-b" onClick="{{openMenu}}" aria-label="Menu">MENU</button>
+<button class="ej-b" onClick="{{openInvite}}">INVITE FRIEND</button>
+<div style="flex: 1 1 auto"></div>
+<button class="ej-b ej-red" onClick="{{leave}}">BACK</button>
+</div>
+<div style="display: flex; background: #000000; border: 2px solid #3a3836; pointer-events: auto">
+<div style="flex: 1 1 0; padding: 6px 10px; border-right: 2px solid #3a3836; min-width: 0">
+<div style="font-size: 12px; font-weight: 700; color: #b8b2aa; letter-spacing: 0.06em">{{timeLabel}}</div>
+<div style="font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums">{{timeText}}</div>
+</div>
+<div style="flex: 1 1 0; padding: 6px 10px; border-right: 2px solid #3a3836; min-width: 0">
+<div style="font-size: 12px; font-weight: 700; color: #b8b2aa; letter-spacing: 0.06em">TURNS</div>
+<div style="font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums">{{moves}}</div>
+</div>
+<div style="flex: 1 1 0; padding: 6px 10px; min-width: 0">
+<div style="font-size: 12px; font-weight: 700; color: #b8b2aa; letter-spacing: 0.06em">LIGHTS</div>
+<div style="font-size: 22px; font-weight: 900; font-variant-numeric: tabular-nums; color: {{litColor}}">{{litText}}</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; background: #000000; border: 2px solid #3a3836; padding: 6px 8px; pointer-events: auto">
+<sc-for list="{{players}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 8px; min-height: 18px">
+<div style="width: 10px; height: 14px; background: {{p.color}}; flex: 0 0 auto"></div>
+<div style="width: 72px; flex: 0 0 auto; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: {{p.nameColor}}">{{p.name}}</div>
+<div style="flex: 1 1 auto; height: 10px; background: #1f1d1c; border: 1px solid #3a3836; position: relative">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{p.pct}}%; background: {{p.color}}"></div>
+</div>
+<div style="width: 76px; flex: 0 0 auto; font-size: 12px; font-weight: 800; text-align: left; font-variant-numeric: tabular-nums; color: {{p.labelColor}}">{{p.label}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+</sc-if>
+<sc-if value="{{land}}" hint-placeholder-val="{{ false }}">
+<div data-safe="top" style="position: absolute; top: 0; left: 0; right: 0; padding: 8px 8px 0 8px; pointer-events: none">
+<div style="display: flex; gap: 6px; align-items: stretch">
+<button class="ej-b" onClick="{{openMenu}}" aria-label="Menu">MENU</button>
+<button class="ej-b" onClick="{{openInvite}}">INVITE FRIEND</button>
+<div style="flex: 1 1 auto"></div>
+<button class="ej-b ej-red" onClick="{{leave}}">BACK</button>
+</div>
+</div>
+<div data-safe="left" style="position: absolute; top: 60px; left: 8px; bottom: 8px; width: 236px; display: flex; flex-direction: column; gap: 6px; pointer-events: none">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); background: #000000; border: 2px solid #3a3836; pointer-events: auto">
+<div style="padding: 4px 8px; border-right: 2px solid #3a3836; min-width: 0">
+<div style="font-size: 12px; font-weight: 700; color: #b8b2aa">{{timeLabel}}</div>
+<div style="font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums">{{timeText}}</div>
+</div>
+<div style="padding: 4px 8px; border-right: 2px solid #3a3836; min-width: 0">
+<div style="font-size: 12px; font-weight: 700; color: #b8b2aa">TURNS</div>
+<div style="font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums">{{moves}}</div>
+</div>
+<div style="padding: 4px 8px; min-width: 0">
+<div style="font-size: 12px; font-weight: 700; color: #b8b2aa">LIGHTS</div>
+<div style="font-size: 18px; font-weight: 900; font-variant-numeric: tabular-nums; color: {{litColor}}">{{litText}}</div>
+</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px; background: #000000; border: 2px solid #3a3836; padding: 6px 8px; pointer-events: auto">
+<sc-for list="{{players}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 8px; min-height: 18px">
+<div style="width: 10px; height: 14px; background: {{p.color}}; flex: 0 0 auto"></div>
+<div style="width: 50px; flex: 0 0 auto; font-size: 12px; font-weight: 800; letter-spacing: 0.04em; color: {{p.nameColor}}">{{p.name}}</div>
+<div style="flex: 1 1 auto; height: 10px; background: #1f1d1c; border: 1px solid #3a3836; position: relative">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{p.pct}}%; background: {{p.color}}"></div>
+</div>
+<div style="width: 70px; flex: 0 0 auto; font-size: 12px; font-weight: 800; text-align: left; font-variant-numeric: tabular-nums; color: {{p.labelColor}}">{{p.label}}</div>
+</div>
+</sc-for>
+</div>
+<div style="flex: 1 1 auto"></div>
+<div style="background: #000000; border: 2px solid #3a3836; padding: 8px 10px; font-size: 13px; font-weight: 700; line-height: 1.3; pointer-events: auto">{{caption}}</div>
+<div style="display: flex; gap: 6px">
+<sc-if value="{{canHint}}" hint-placeholder-val="{{ true }}">
+<button class="ej-b" onClick="{{hint}}">HINT</button>
+</sc-if>
+<sc-if value="{{isDemo}}" hint-placeholder-val="{{ false }}">
+<button class="ej-b ej-on" onClick="{{playCpu}}">PLAY</button>
+</sc-if>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showBanner}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; right: 0; top: 42%; display: flex; justify-content: center; pointer-events: none">
+<div style="background: #000000; border: 2px solid #ffd23a; color: #ffd23a; font-size: 32px; font-weight: 900; letter-spacing: 0.06em; padding: 10px 18px; animation: ejpop 0.25s ease-out">{{banner}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showHint}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: {{hintX}}px; top: {{hintY}}px; width: 56px; height: 56px; pointer-events: none; animation: ejbob 0.9s ease-in-out infinite">
+<svg width="56" height="56" viewBox="0 0 56 56" aria-hidden="true"><path d="M8 4 L8 36 L16 29 L22 44 L29 41 L23 26 L34 26 Z" fill="#ffd23a" stroke="#000000" stroke-width="3" stroke-linejoin="miter"></path></svg>
+</div>
+</sc-if>
+
+<sc-if value="{{tall}}" hint-placeholder-val="{{ true }}">
+<div data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 0 8px 8px 8px; display: flex; gap: 6px; align-items: stretch; pointer-events: none">
+<div style="flex: 1 1 auto; min-width: 0; background: #000000; border: 2px solid #3a3836; padding: 8px 10px; font-size: 14px; font-weight: 700; line-height: 1.3; letter-spacing: 0.02em; pointer-events: auto; display: flex; align-items: center; min-height: 44px; box-sizing: border-box">{{caption}}</div>
+<sc-if value="{{canHint}}" hint-placeholder-val="{{ true }}">
+<button class="ej-b" onClick="{{hint}}">HINT</button>
+</sc-if>
+<sc-if value="{{isDemo}}" hint-placeholder-val="{{ false }}">
+<button class="ej-b ej-on" onClick="{{playCpu}}">PLAY</button>
+</sc-if>
+</div>
+
+</sc-if>
+
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Menu" style="width: 100%; max-width: 420px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="font-size: 22px; font-weight: 900; letter-spacing: 0.05em; flex: 1 1 auto">MENU</div>
+<button class="ej-b ej-on" onClick="{{closeMenu}}">RESUME</button>
+</div>
+<div style="height: 2px; background: #3a3836"></div>
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">MODE</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+<button class="{{m.cls}}" onClick="{{m.pick}}">{{m.label}}</button>
+</sc-for>
+</div>
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">LEVEL</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{levels}}" as="l" hint-placeholder-count="3">
+<button class="{{l.cls}}" onClick="{{l.pick}}" style="flex-direction: column; align-items: flex-start; justify-content: center; padding: 6px 10px">
+<span>{{l.name}}</span>
+<span style="font-size: 12px; font-weight: 700">{{l.sub}}</span>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{showOpps}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">CPU ELECTRICIANS</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{opps}}" as="o" hint-placeholder-count="3">
+<button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showLocal}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">PLAYERS</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{locals}}" as="o" hint-placeholder-count="3">
+<button class="{{o.cls}}" onClick="{{o.pick}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="ej-b" onClick="{{toggleSound}}">{{soundLabel}}</button>
+<button class="ej-b" onClick="{{toggleMusic}}">{{musicLabel}}</button>
+</div>
+<div style="height: 2px; background: #3a3836"></div>
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">RULES</div>
+<div style="font-size: 14px; font-weight: 600; line-height: 1.45; color: #ffffff">Power runs from the breaker panel at the back. Tap a tile to turn its wires. Hold a tile to lock it. Light every fixture with no loose live wires. First electrician to power the house wins.</div>
+<div style="font-size: 12px; font-weight: 600; line-height: 1.45; color: #b8b2aa">Keys: arrows move, space turns, L locks, H shows a hint.</div>
+<div style="height: 2px; background: #3a3836"></div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="ej-b" onClick="{{restart}}">RESTART JOB</button>
+<button class="ej-b ej-red" onClick="{{leave}}">LEAVE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{inviteOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Invite friend" style="width: 100%; max-width: 380px; background: #000000; border: 2px solid #3a3836; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 22px; font-weight: 900; letter-spacing: 0.05em">INVITE FRIEND</div>
+<div style="height: 2px; background: #ec3013"></div>
+<div style="font-size: 16px; font-weight: 700; line-height: 1.4">Online rooms are coming soon. Race a friend on this phone with PASS &amp; PLAY.</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="ej-b ej-on" onClick="{{playLocal}}">PASS &amp; PLAY</button>
+<button class="ej-b" onClick="{{closeInvite}}">CLOSE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showPass}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Pass the phone" style="width: 100%; max-width: 380px; background: #000000; border: 2px solid #3a3836; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; animation: ejpop 0.25s ease-out">
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">{{passDone}} DONE IN {{passTime}}s</div>
+<div style="font-size: 26px; font-weight: 900; letter-spacing: 0.04em; color: #ffd23a">PASS TO {{passNext}}</div>
+<div style="font-size: 14px; font-weight: 600; line-height: 1.4">Same house, same wiring. Fastest job wins.</div>
+<button class="ej-b ej-on ej-wide" onClick="{{nextTurn}}">{{passReady}}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showResult}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,0.55); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Results" style="width: 100%; max-width: 400px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 14px; box-sizing: border-box; display: flex; flex-direction: column; gap: 10px; animation: ejpop 0.3s ease-out">
+<div style="font-size: 12px; font-weight: 800; color: #b8b2aa; letter-spacing: 0.08em">{{rLevel}} JOB</div>
+<div style="font-size: 28px; font-weight: 900; letter-spacing: 0.04em; color: {{rTitleColor}}">{{rTitle}}</div>
+<div style="font-size: 14px; font-weight: 700">{{rSub}}</div>
+<div style="display: flex; gap: 6px">
+<sc-for list="{{stars}}" as="s" hint-placeholder-count="3">
+<div style="width: 28px; height: 28px; background: {{s.fill}}; border: 2px solid #ffd23a"></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 2px solid #3a3836">
+<div style="padding: 6px 8px; border-right: 2px solid #3a3836"><div style="font-size: 12px; font-weight: 700; color: #b8b2aa">SCORE</div><div style="font-size: 20px; font-weight: 900">{{rScore}}</div></div>
+<div style="padding: 6px 8px; border-right: 2px solid #3a3836"><div style="font-size: 12px; font-weight: 700; color: #b8b2aa">BEST</div><div style="font-size: 20px; font-weight: 900">{{rBest}}</div></div>
+<div style="padding: 6px 8px"><div style="font-size: 12px; font-weight: 700; color: #b8b2aa">GOLD</div><div style="font-size: 20px; font-weight: 900; color: #ffd23a">+{{rGold}}</div></div>
+</div>
+<div style="font-size: 12px; font-weight: 700; color: #b8b2aa">TIME {{rTime}}s · TURNS {{rMoves}} (BEST POSSIBLE {{rMin}}) · XP +{{rXp}}</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{rLines}}" as="ln" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 800; padding: 4px 0; border-top: 2px solid #3a3836">
+<div style="width: 20px">{{ln.place}}</div>
+<div style="width: 10px; height: 14px; background: {{ln.color}}"></div>
+<div style="flex: 1 1 auto; color: {{ln.nameColor}}">{{ln.name}}</div>
+<div style="font-variant-numeric: tabular-nums">{{ln.text}}</div>
+</div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="ej-b ej-on" onClick="{{playAgain}}">PLAY AGAIN</button>
+<button class="ej-b ej-red" onClick="{{leave}}">BACK</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</sc-if>
+
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; top: 40%; background: #000000; border: 2px solid #ec3013; padding: 14px; font-size: 14px; font-weight: 700; line-height: 1.4; pointer-events: auto">{{err}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"default":null},"kit":{"editor":null,"default":null},"save":{"editor":null,"default":null},"moduleUrl":{"editor":null,"default":"./minigames/electrician/electrician.js"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._mounted = true;
+    this._onEvt = (e) => {
+      const h = e.detail || null;
+      if (!h) { this.setState({ h: null, menu: false, invite: false }); return; }
+      this.setState({ h: h });
+    };
+    if (this.props.world) {
+      window.addEventListener('8g:electricianJob', this._onEvt);
+      const w = this.props.world._electricianJob;
+      const g = w && w.g ? w.g() : null;
+      if (g && g.hud) this.setState({ h: g.hud() });
+    } else {
+      this.boot();
+    }
+    this._ro = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(() => this.measure()) : null;
+    if (this._ro && this.rootEl) this._ro.observe(this.rootEl);
+  }
+  componentWillUnmount() {
+    this._mounted = false;
+    if (this._onEvt) window.removeEventListener('8g:electricianJob', this._onEvt);
+    if (this._ro) this._ro.disconnect();
+    if (this._own && this._own.destroy) this._own.destroy();
+    this._own = null;
+  }
+  componentDidUpdate() { this.measure(); }
+  async boot() {
+    let tries = 0;
+    while (!this.stageEl && tries++ < 60) await new Promise(r => setTimeout(r, 30));
+    if (!this.stageEl || !this._mounted) return;
+    const rel = this.props.moduleUrl || './minigames/electrician/electrician.js';
+    const urls = [];
+    try { urls.push(new URL(rel, document.baseURI).href); } catch (e) {}
+    try { urls.push(new URL(rel, location.href).href); } catch (e) {}
+    let mod = null, lastErr = null;
+    for (const u of urls) { try { mod = await import(u); break; } catch (e) { lastErr = e; } }
+    if (!mod) { this.setState({ err: 'Could not load the game module. Open this page from its folder so ' + rel + ' is next to it.' }); if (lastErr) console.error(lastErr); return; }
+    if (!this._mounted) return;
+    const create = mod.createElectricianJob || mod.default;
+    const opts = {};
+    if (this.props.kit) opts.kit = this.props.kit;
+    if (this.props.save) opts.save = this.props.save;
+    this._own = await create({ container: this.stageEl, onState: (h) => { if (this._mounted) this.setState({ h: h }); }, opts: opts });
+    this._safeKey = '';
+    this.measure();
+  }
+  api() {
+    if (this._own) return this._own;
+    const w = this.props.world && this.props.world._electricianJob;
+    return w && w.g ? w.g() : null;
+  }
+  measure() {
+    const root = this.rootEl, api = this.api();
+    if (!root || !api || !api.setSafe) return;
+    const rr = root.getBoundingClientRect();
+    let top = 0, bottom = 0, left = 0, right = 0;
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const s = el.getAttribute('data-safe');
+      if (s === 'top') top = Math.max(top, r.bottom - rr.top);
+      else if (s === 'bottom') bottom = Math.max(bottom, rr.bottom - r.top);
+      else if (s === 'left') left = Math.max(left, r.right - rr.left);
+      else if (s === 'right') right = Math.max(right, rr.right - r.left);
+    });
+    const land = rr.width > rr.height && rr.height < 560;
+    if (land !== !!(this.state || {}).land) { this.setState({ land: land }); return; }
+    const key = [top, bottom, left, right].map(Math.round).join(',');
+    if (key !== this._safeKey) { this._safeKey = key; api.setSafe({ top: top, bottom: bottom, left: left, right: right }); }
+  }
+  call(name, arg) { const a = this.api(); if (a && a[name]) a[name](arg); }
+  renderVals() {
+    const st = this.state || {};
+    const h = st.h || null;
+    const overlay = !!this.props.world;
+    if (!this._fns) {
+      this._fns = {
+        setRoot: (el) => { this.rootEl = el; },
+        setStage: (el) => { this.stageEl = el; },
+        openMenu: () => { this.call('pause', true); this.setState({ menu: true, invite: false }); },
+        closeMenu: () => { this.call('pause', false); this.setState({ menu: false }); },
+        openInvite: () => { this.call('pause', true); this.setState({ invite: true, menu: false }); },
+        closeInvite: () => { this.call('pause', false); this.setState({ invite: false }); },
+        playLocal: () => { this.setState({ invite: false, menu: false }); this.call('start', 'local'); },
+        playCpu: () => { this.setState({ menu: false }); this.call('start', 'cpu'); },
+        hint: () => this.call('hint'),
+        restart: () => { this.setState({ menu: false }); this.call('restart'); },
+        playAgain: () => this.call('playAgain'),
+        nextTurn: () => this.call('nextTurn'),
+        toggleSound: () => this.call('toggleSound'),
+        toggleMusic: () => this.call('toggleMusic'),
+        leave: () => {
+          this.setState({ menu: false, invite: false });
+          const w = this.props.world && this.props.world._electricianJob;
+          if (w && w.end) { w.end(); return; }
+          window.dispatchEvent(new CustomEvent('8g:electricianJob:leave'));
+          this.call('start', 'demo');
+        }
+      };
+    }
+    const f = this._fns;
+    const menu = !!st.menu, invite = !!st.invite;
+    const modal = menu || invite;
+    const hh = h || {};
+    const mode = hh.mode || 'cpu';
+    const players = (hh.players || []).map((p) => ({
+      name: p.name, color: p.color, pct: p.pct,
+      nameColor: p.you ? '#ffd23a' : '#ffffff',
+      label: p.done ? 'DONE ' + p.time : p.pct + '%',
+      labelColor: p.done ? '#ffd23a' : '#ffffff'
+    }));
+    const modes = [['cpu', 'VS CPU'], ['local', 'PASS & PLAY'], ['demo', 'DEMO']].map((m) => ({
+      label: m[1], cls: 'ej-b' + (mode === m[0] ? ' ej-on' : ''),
+      pick: () => { this.setState({ menu: false }); this.call('start', m[0]); }
+    }));
+    const levels = (hh.levels || [{ id: 0, name: 'EASY', opp: 'PIP', size: 4 }, { id: 1, name: 'MEDIUM', opp: 'HOPE', size: 5 }, { id: 2, name: 'HARD', opp: 'NOBLE', size: 6 }]).map((l) => ({
+      name: l.name, sub: (mode === 'cpu' ? 'VS ' + l.opp + ' · ' : '') + l.size + 'x' + l.size,
+      cls: 'ej-b' + (hh.level === l.id ? ' ej-on' : ''),
+      pick: () => { this.setState({ menu: false }); this.call('setLevel', l.id); }
+    }));
+    const opps = [1, 2, 3].map((k) => ({ label: k + (k === 1 ? ' RIVAL' : ' RIVALS'), cls: 'ej-b' + (hh.opponents === k ? ' ej-on' : ''), pick: () => { this.setState({ menu: false }); this.call('setOpponents', k); } }));
+    const locals = [2, 3, 4].map((k) => ({ label: k + ' PLAYERS', cls: 'ej-b' + (hh.localPlayers === k ? ' ej-on' : ''), pick: () => { this.setState({ menu: false }); this.call('setLocalPlayers', k); } }));
+    const r = hh.result || {};
+    const stars = [0, 1, 2].map((i) => ({ fill: i < (r.stars || 0) ? '#ffd23a' : '#000000' }));
+    const rLines = (r.lines || []).map((ln) => ({ place: ln.place, name: ln.name, text: ln.text, color: ln.color, nameColor: ln.you ? '#ffd23a' : '#ffffff' }));
+    const allLit = hh.fixtures && hh.lit === hh.fixtures;
+    return {
+      setRoot: f.setRoot, setStage: f.setStage,
+      standalone: !overlay,
+      rootBg: overlay ? 'transparent' : '#000000',
+      rootPE: overlay ? 'none' : 'auto',
+      showUi: !!h,
+      land: !!st.land, tall: !st.land,
+      timeLabel: mode === 'local' ? (hh.turnName || 'TIME') : 'TIME',
+      timeText: hh.timeText || '0.0',
+      moves: hh.moves || 0,
+      litText: (hh.lit || 0) + '/' + (hh.fixtures || 0),
+      litColor: allLit ? '#ffd23a' : '#ffffff',
+      players: players,
+      showBanner: !!hh.banner && !modal && !hh.result && !hh.pass,
+      banner: hh.banner || '',
+      showHint: !!hh.hint && !modal && hh.phase === 'play',
+      hintX: hh.hint ? hh.hint.x - 6 : 0,
+      hintY: hh.hint ? hh.hint.y - 2 : 0,
+      caption: hh.caption || (hh.phase === 'ready' ? 'GET READY. POWER THE WHOLE HOUSE.' : ''),
+      canHint: hh.phase === 'play' && mode !== 'demo',
+      isDemo: mode === 'demo',
+      menuOpen: menu, inviteOpen: invite,
+      modes: modes, levels: levels, opps: opps, locals: locals,
+      showOpps: mode === 'cpu', showLocal: mode === 'local',
+      soundLabel: 'SOUND ' + (hh.sound === false ? 'OFF' : 'ON'),
+      musicLabel: 'MUSIC ' + (hh.music ? 'ON' : 'OFF'),
+      showPass: !!hh.pass && !modal,
+      passReady: hh.pass ? hh.pass.next + ' READY' : '', passDone: hh.pass ? hh.pass.done : '', passNext: hh.pass ? hh.pass.next : '', passTime: hh.pass ? hh.pass.time : '',
+      showResult: !!hh.result && !modal && mode !== 'demo',
+      rLevel: r.level || '', rTitle: r.title || '', rSub: r.sub || '', rTitleColor: r.win ? '#ffd23a' : '#ec3013',
+      rScore: r.score || 0, rBest: r.best || 0, rGold: r.gold || 0, rXp: r.xp || 0,
+      rTime: r.time || '', rMoves: r.moves || 0, rMin: r.minMoves || 0,
+      stars: stars, rLines: rLines,
+      hasErr: !!st.err, err: st.err || '',
+      openMenu: f.openMenu, closeMenu: f.closeMenu, openInvite: f.openInvite, closeInvite: f.closeInvite,
+      playLocal: f.playLocal, playCpu: f.playCpu, hint: f.hint, restart: f.restart, playAgain: f.playAgain,
+      nextTurn: f.nextTurn, toggleSound: f.toggleSound, toggleMusic: f.toggleMusic, leave: f.leave
+    };
+  }
+}
+</script>
+</body>
+</html>

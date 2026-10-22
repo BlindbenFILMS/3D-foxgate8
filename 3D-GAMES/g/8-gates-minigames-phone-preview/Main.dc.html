@@ -115,8 +115,8 @@
       <sc-if value="{{ partyPickOn }}" hint-placeholder-val="{{ false }}">
         <div style="padding:8px 14px 12px;border-bottom:2px solid #2a2826;display:flex;flex-direction:column;gap:6px;background:#141312">
           <span style="font:800 10px var(--font-heading);letter-spacing:0.12em;color:#cfcac4">HOW MANY THROWERS? PASS THE PHONE AFTER EACH THROW</span>
-          <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0">
-            <sc-for list="{{ partyNs }}" as="n" hint-placeholder-count="4"><button onClick="{{ n.go }}" aria-label="{{ n.aria }}" style="min-height:52px;margin-left:-2px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#fff;font:900 22px var(--font-heading);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" style-hover="background:#ffd23a;color:#000">{{ n.n }}<span style="display:flex;gap:2px"><sc-for list="{{ n.dots }}" as="d" hint-placeholder-count="3"><span style="width:6px;height:6px;background:{{ d.c }};display:block"></span></sc-for></span></button></sc-for>
+          <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0">
+            <sc-for list="{{ partyNs }}" as="n" hint-placeholder-count="3"><button onClick="{{ n.go }}" aria-label="{{ n.aria }}" style="min-height:52px;margin-left:-2px;border:2px solid #ffd23a;border-radius:0;background:#000;color:#fff;font:900 22px var(--font-heading);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px" style-hover="background:#ffd23a;color:#000">{{ n.n }}<span style="display:flex;gap:2px"><sc-for list="{{ n.dots }}" as="d" hint-placeholder-count="3"><span style="width:6px;height:6px;background:{{ d.c }};display:block"></span></sc-for></span></button></sc-for>
           </div>
         </div>
       </sc-if>
@@ -163,7 +163,7 @@
         </sc-for>
       </sc-if>
       <sc-if value="{{ netJoinOn }}" hint-placeholder-val="{{ true }}">
-        <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 5</span></button>
+        <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 4</span></button>
         <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:2px solid #3a3836">
           <input value="{{ netCodeIn }}" onChange="{{ netCodeType }}" onKeyDown="{{ netCodeKey }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code" placeholder="CODE" style="min-width:0;min-height:52px;padding:0 14px;border:0;border-radius:0;background:#1a1918;color:#ffd23a;font:900 24px var(--font-heading);letter-spacing:0.2em;text-transform:uppercase;outline:none;box-sizing:border-box" style-focus="background:#2a2826"></input>
           <button onClick="{{ netJoinGo }}" style="min-height:52px;padding:0 18px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">JOIN</button>
@@ -207,7 +207,7 @@ class Component extends DCLogic {
     addEventListener('resize', this.onRs); this.onRs(); try { this.ro = new ResizeObserver(this.onRs); this.stageRef.current && this.ro.observe(this.stageRef.current.parentElement); } catch (e) {}
     const q = new URLSearchParams(location.search); this.embed = q.get('embed') === '1';
     try {
-      const m = await import('blob/0587d3e5802d7d4357a780f041491c7e.js'); this.M = m;
+      const m = await import(new URL('blob/0587d3e5802d7d4357a780f041491c7e.js', document.baseURI).href); this.M = m;
       this.g = await m.createAxeHouse({ container: this.stageRef.current, onState: h => this.setState({ h }), meterEl: () => this.meterRef.current, world: (q.get('world') || 'any').toLowerCase() });
       window.__axe = this.g; window.__axePage = this; this.forceUpdate();
       if (q.get('demo') === '1') setTimeout(() => this.g.start('solo', { demo: 'guided' }), 400);
@@ -219,11 +219,11 @@ class Component extends DCLogic {
     this.g.setSafe(top + 6, bot + 6); }
   componentWillUnmount() { this.netLeave(); removeEventListener('resize', this.onRs); this.ro && this.ro.disconnect(); this.g && this.g.destroy(); }
   onRs = () => { const el = this.stageRef.current, r = el && el.parentElement ? el.parentElement.getBoundingClientRect() : null; this.setState({ vw: r && r.width ? r.width : innerWidth, vh: r && r.height ? r.height : innerHeight }); };
-  // ---------- ONLINE (up to 5, engine/duel-net.js game 'axeHouse'; falls back to two tabs on one device). Room = the 5 earliest joiners; host = lowest id; everyone throws at once ----------
+  // ---------- ONLINE (up to 4, engine/duel-net.js game 'axeHouse'; falls back to two tabs on one device). Room = the 4 earliest joiners; host = lowest id; everyone throws at once ----------
   netSet = p => this.setState(s => ({ net: s.net ? { ...s.net, ...p } : s.net }));
   peerSet = (id, p) => this.setState(s => s.net ? { net: { ...s.net, peers: { ...s.net.peers, [id]: { ...(s.net.peers[id] || {}), ...p } } } } : null);
   netOpen = () => this.setState({ net: { st: 'menu', code: '', codeIn: '', peers: {}, ready: false, j: 0, status: '', msg: '', copied: false, ping: null }, netCard: true, party: false });
-  members() { const n = this.state.net; if (!n || !this.net) return []; const all = [{ id: this.net.id, j: n.j, ready: n.ready, playing: n.st === 'play', me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 5); }
+  members() { const n = this.state.net; if (!n || !this.net) return []; const all = [{ id: this.net.id, j: n.j, ready: n.ready, playing: n.st === 'play', me: true }, ...Object.entries(n.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, 4); }
   inRoom() { return this.members().some(m => m.me); }
   hostId = () => { const m = this.members(); return m.length ? m.reduce((a, b) => a.id < b.id ? a : b).id : (this.net ? this.net.id : null); };
   playerList(ids) { const s = ids.slice().sort(), C = (this.M && this.M.COLS) || [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PURPLE', '#a78bfa']], me = this.net && this.net.id; return s.map((id, slot) => ({ id, slot, col: C[slot][1], name: id === me ? 'YOU' : C[slot][0] })); }
@@ -259,14 +259,14 @@ class Component extends DCLogic {
     this.g.netBegin({ t0, me: this.net.id, players: this.playerList(d.ids), send: (t, x, to) => this.net && this.net.send(t, x, to), onEnd: () => { this.netSet({ st: 'room', ready: false }); if (this.net) this.net.send('ev', { k: 'playing', on: false }); } }); }
   netReadyToggle = () => { const n = this.state.net; if (!n || !this.net) return; const on = !n.ready; this.netSet({ ready: on }); this.net.send('ev', { k: 'ready', on }); setTimeout(this.nMaybeStart, 0); };
   netVals(blur, phone) {
-    const S = this.state, N = S.net, m = N ? this.members() : [], full = !!N && N.st !== 'menu' && !!this.net && m.length === 5 && !m.some(x => x.me), pl = this.playerList(m.map(x => x.id)), host = this.hostId();
+    const S = this.state, N = S.net, m = N ? this.members() : [], full = !!N && N.st !== 'menu' && !!this.net && m.length >= 4 && !m.some(x => x.me), pl = this.playerList(m.map(x => x.id)), host = this.hostId();
     const busy = !!N && N.st !== 'play' && m.some(x => !x.me && x.playing), allReady = m.length >= 2 && m.every(x => x.ready), rc = m.filter(x => x.ready).length, h = S.h || {};
     return {
       netOn: !!N && S.netCard && N.st !== 'play',
       netStat: !N ? '' : full ? 'ROOM FULL' : N.status === 'local' ? 'TEST · TABS' : N.status === 'offline' ? 'OFFLINE' : N.status === 'off' ? 'NETWORK OFF' : N.status === 'online' ? (m.length > 1 ? m.length + ' IN THE HOUSE' + (N.ping ? ' · ' + N.ping + ' MS' : '') : 'ONLINE') : N.st === 'menu' ? 'NO SERVER NEEDED' : 'CONNECTING…', netStatC: N && (N.status === 'offline' || full) ? '#ec3013' : '#ffd23a',
       netCodeOn: !!N && !!N.code && N.st !== 'menu', netCode: N ? N.code : '',
       netShare: async e => { blur(e); if (!N) return; let u; try { u = new URL(location.href); u.searchParams.set('room', N.code); u.searchParams.delete('embed'); } catch (er) { return; } try { if (navigator.share && phone) await navigator.share({ title: '8 GATES · Axe House', text: 'Throw axes with me in 8 GATES. Room ' + N.code, url: u.href }); else { await navigator.clipboard.writeText(u.href); this.netSet({ copied: true }); setTimeout(() => this.netSet({ copied: false }), 2000); } } catch (er) {} }, netShareTxt: N && N.copied ? 'LINK COPIED' : 'SHARE LINK',
-      netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Up to 5 friends throw at once, each in their own lane. Make a room and send the link, or type a friend’s code.' : full ? 'Five throwers are already in room ' + N.code + '. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : busy ? 'A game is on. You join the next one.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.',
+      netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Up to 4 friends throw at once, each in their own lane. Make a room and send the link, or type a friend’s code.' : full ? 'Four throwers are already in room ' + N.code + '. Try another code.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : busy ? 'A game is on. You join the next one.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.',
       netRowsOn: !!N && N.st !== 'menu' && !full && m.length > 0, netRows: m.map(x => { const p = pl.find(q => q.id === x.id) || {}; return { col: p.col || '#fff', name: x.me ? 'YOU · ' + (this.M ? this.M.COLS[p.slot][0] : '') : p.name, sub: x.id === host ? 'HOST' : 'THROWER', tag: x.playing && !x.me ? 'THROWING' : x.ready ? 'READY' : '', tagC: x.ready ? '#22c55e' : '#8a847e' }; }),
       netJoinOn: !!N && N.st === 'menu', netCodeIn: N ? N.codeIn : '', netCodeType: e => this.netSet({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4), msg: '' }), netCodeKey: e => { if (e.key === 'Enter') { e.preventDefault(); this.netJoin(this.state.net && this.state.net.codeIn); } e.stopPropagation(); },
       netJoinGo: e => { blur(e); this.netJoin(N && N.codeIn); }, netCreate: e => { blur(e); const A = 'ABCDEFGHJKMNPQRSTUVWXYZ'; let k = ''; for (let i = 0; i < 4; i++) k += A[Math.floor(Math.random() * A.length)]; this.netJoin(k); },
@@ -311,12 +311,12 @@ class Component extends DCLogic {
         { name: 'SOLO', sub: '10 THROWS · BEAT YOUR BEST', tag: h.best ? 'BEST ' + h.best : 'PLAY', tagC: '#ffd23a', go: go('solo') },
         { name: 'VS HOPE', sub: 'SHE THROWS BY EAR · NEXT LANE', tag: 'CPU', tagC: '#f472b6', go: go('cpu', { opp: 'hope' }) },
         { name: 'VS NOBLE', sub: 'BIG ARM FROM THE CHAIR', tag: 'CPU', tagC: '#fb923c', go: go('cpu', { opp: 'noble' }) },
-        { name: 'PARTY', sub: '2–5 THROWERS · ONE PHONE', tag: S.party ? '▾' : '2–5', tagC: '#22c55e', exp: S.party ? 'true' : 'false', go: e => { blur(e); this.setState({ party: !S.party }); } },
-        { name: 'ONLINE', sub: '2–5 FRIENDS · ROOM CODE · ALL THROW AT ONCE', tag: '2–5', tagC: '#7dd3fc', go: e => { blur(e); this.netOpen(); } },
+        { name: 'PARTY', sub: '2–4 THROWERS · ONE PHONE', tag: S.party ? '▾' : '2–4', tagC: '#22c55e', exp: S.party ? 'true' : 'false', go: e => { blur(e); this.setState({ party: !S.party }); } },
+        { name: 'ONLINE', sub: '2–4 FRIENDS · ROOM CODE · ALL THROW AT ONCE', tag: '2–4', tagC: '#7dd3fc', go: e => { blur(e); this.netOpen(); } },
         { name: 'WATCH THE DEMO', sub: '30 SECONDS · SEE EVERY RULE', tag: '▶ PLAY', tagC: '#ffffff', go: go('solo', { demo: 'guided' }) },
         { name: 'JUKEBOX', sub: '♪ ' + (h.music || 'OFF'), tag: 'NEXT ▸', tagC: '#a78bfa', go: e => { blur(e); g && g.nextTrack(); } },
       ].map(m => ({ exp: 'false', bg: '#000000', fg: '#ffffff', bar: m.tagC, ...m })),
-      partyPickOn: S.party, partyNs: [2, 3, 4, 5].map(n => ({ n: String(n), aria: n + ' players', dots: Array.from({ length: n }, (_, i) => ({ c: ((this.M && this.M.COLS) || [])[i] ? this.M.COLS[i][1] : '#fff' })), go: go('party', { n }) })),
+      partyPickOn: S.party, partyNs: [2, 3, 4].map(n => ({ n: String(n), aria: n + ' players', dots: Array.from({ length: n }, (_, i) => ({ c: ((this.M && this.M.COLS) || [])[i] ? this.M.COLS[i][1] : '#fff' })), go: go('party', { n }) })),
       demoOn: !!h.demo && !!h.demoCap && play, demoW: port ? 'calc(100% - 24px)' : 'min(440px, calc(100% - 200px))', demoN: h.demoCap ? h.demoCap.n + ' / ' + h.demoCap.of : '', demoPct: h.demoCap ? Math.round(h.demoCap.n / h.demoCap.of * 100) + '%' : '0%',
       demoKey: h.demoCap ? h.demoCap.key : '', demoTxt: h.demoCap ? h.demoCap.cap : '', demoKeyFs: h.demoCap && h.demoCap.key.length > 2 ? '15px' : '28px', demoKeyBg: !h.demoCap ? '#000' : h.demoCap.key === 'KILL' ? '#2563eb' : h.demoCap.key === 'RED' ? '#ec3013' : h.demoCap.key === 'HOLD' ? '#22c55e' : '#ffd23a', demoKeyFg: h.demoCap && /KILL|RED/.test(h.demoCap.key) ? '#ffffff' : '#000000',
       demoExitTop: 'calc(8px + env(safe-area-inset-top))', demoExit: e => { blur(e); g && g.toMenu(); },

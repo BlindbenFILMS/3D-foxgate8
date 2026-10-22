@@ -105,7 +105,7 @@
   <div style="position:absolute;inset:0;z-index:11;background:rgba(0,0,0,0.72);display:flex;align-items:{{ menuAlign }};justify-content:flex-start;padding:12px;padding-bottom:calc(12px + env(safe-area-inset-bottom));box-sizing:border-box">
     <div style="width:{{ menuW }};max-height:100%;overflow:auto;background:#000;border:2px solid #7dd3fc;display:flex;flex-direction:column;touch-action:pan-y">
       <div style="padding:12px 14px;border-bottom:2px solid #3a3836;display:flex;flex-direction:column;gap:4px">
-        <div style="display:flex;justify-content:space-between;gap:8px"><span style="font:800 11px var(--font-heading);letter-spacing:0.14em;color:#7dd3fc">ONLINE · UP TO 5</span><span style="font:800 11px var(--font-heading);letter-spacing:0.1em;color:{{ netStatC }}">{{ netStat }}</span></div>
+        <div style="display:flex;justify-content:space-between;gap:8px"><span style="font:800 11px var(--font-heading);letter-spacing:0.14em;color:#7dd3fc">ONLINE · UP TO 4</span><span style="font:800 11px var(--font-heading);letter-spacing:0.1em;color:{{ netStatC }}">{{ netStat }}</span></div>
         <span style="font:900 26px var(--font-heading);letter-spacing:-0.01em;line-height:1">{{ netTitle }}</span>
         <span style="font:600 13px/1.35 var(--font-body);color:#cfcac4">{{ netMsg }}</span>
       </div>
@@ -195,7 +195,7 @@ class Component extends DCLogic {
     const S = this.state, g = this.g, blur = e => e && e.currentTarget && e.currentTarget.blur && e.currentTarget.blur();
     const h = S.h || { phase: 'menu', card: null, tip: '', flash: null, prefs: { assist: false, ring: true, players: 2 }, gold: 0, items: [], net: null, done: null };
     const { vw, vh } = S, phone = Math.min(vw, vh) < 520, land = phone && vw > vh, port = vh > vw, bar = S.hi.bar || 0, pad = !!S.hi.pad;
-    const play = h.phase !== 'menu' && h.phase !== 'done' && h.phase !== 'pass', N = h.net, P = h.prefs || {};
+    const play = h.phase !== 'menu' && h.phase !== 'done' && h.phase !== 'pass', N = h.net, P0 = h.prefs || {}, P = P0.players > 4 ? { ...P0, players: 4 } : P0;
     const stdHud = { hp: 100, hpMax: 100, en: 100, gold: h.gold || 0, hour: 19, day: 1, items: h.items || [], place: 'Cricket Nets · ' + (h.card ? h.card.place : 'The Hall'), quest: { text: h.card ? (h.card.role + ' · ' + h.card.who) : 'Pick a game' }, prompt: null, toast: null, muted: !!P.muted, weather: 'Indoor', boat: false, inCave: true, vehSwap: h.btns || [['drive', 'DRIVE'], ['lob', 'LOFT'], ['guard', 'BLOCK']] };
     const top0 = bar + 42, colPx = phone ? (land ? 220 : Math.min(236, vw - 110)) : 270;
     const menuW = port ? '100%' : land ? 'min(430px, 60%)' : '440px';
@@ -231,15 +231,15 @@ class Component extends DCLogic {
         mode('nets', { sub: 'COACH BAILS BOWLS · 2 OVERS' + (best['cricketNets.best.nets'] ? ' · BEST ' + best['cricketNets.best.nets'] : '') }),
         mode('chase', { sub: 'BEAT THE TARGET IN 3 OVERS · +50 GOLD' + (best['cricketNets.wins.chase'] ? ' · WON ' + best['cricketNets.wins.chase'] : '') }),
         mode('bowl', { sub: 'YOU BOWL · KEEP RUSTY UNDER 16 · +40 GOLD' }),
-        mode('pass', { sub: P.players + ' PLAYERS · ONE PHONE · 1 OVER EACH', stepper: true, n: String(P.players || 2), minus: e => { blur(e); g && g.setPref('players', Math.max(2, (P.players || 2) - 1)); }, plus: e => { blur(e); g && g.setPref('players', Math.min(5, (P.players || 2) + 1)); }, go: e => { blur(e); g && g.start('pass', { players: P.players || 2 }); } }),
-        { name: 'ONLINE', sub: '2–5 FRIENDS · BOWL AT EACH OTHER', bar: '#7dd3fc', subCol: '#7dd3fc', stepper: false, go: e => { blur(e); g && g.netOpen(); } },
+        mode('pass', { sub: P.players + ' PLAYERS · ONE PHONE · 1 OVER EACH', stepper: true, n: String(P.players || 2), minus: e => { blur(e); g && g.setPref('players', Math.max(2, (P.players || 2) - 1)); }, plus: e => { blur(e); g && g.setPref('players', Math.min(4, (P.players || 2) + 1)); }, go: e => { blur(e); g && g.start('pass', { players: P.players || 2 }); } }),
+        { name: 'ONLINE', sub: '2–4 FRIENDS · BOWL AT EACH OTHER', bar: '#7dd3fc', subCol: '#7dd3fc', stepper: false, go: e => { blur(e); g && g.netOpen(); } },
         { name: 'WATCH DEMO', sub: 'SEE HOW IT PLAYS · TAP TO TAKE OVER', bar: '#c4b5fd', subCol: '#c4b5fd', stepper: false, go: e => { blur(e); g && g.demo(); this.forceUpdate(); } },
       ],
       optBtns: [['assist', 'SOUND CUE', P.assist ? 'ON' : 'OFF', P.assist], ['ring', 'TIMING RING', P.ring !== false ? 'ON' : 'OFF', P.ring !== false], ['muted', 'SOUND', P.muted ? 'OFF' : 'ON', !P.muted]].map(([k, l, v, on]) => ({ k: l, v, c: on ? '#22c55e' : '#8a847e', pressed: on ? 'true' : 'false', go: e => { blur(e); g && g.unlockAudio(); g && g.setPref(k, k === 'ring' ? !(P.ring !== false) : !P[k]); } })),
       // online
       netOn: !!N && N.st !== 'play' && !h.done, netTitle: !N ? '' : N.st === 'menu' ? 'Play your friends' : full ? 'Room full' : 'Room ' + N.code,
       netStat: !N ? '' : full ? 'ROOM FULL' : N.status === 'local' ? 'TEST · TABS' : N.status === 'offline' ? 'OFFLINE' : N.status === 'online' ? (m.length > 1 ? m.length + ' IN THE HALL' + (N.ping ? ' · ' + N.ping + ' MS' : '') : 'ONLINE') : N.st === 'menu' ? 'NO SERVER NEEDED' : 'CONNECTING…', netStatC: N && (N.status === 'offline' || full) ? '#ec3013' : '#ffd23a',
-      netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Make a room and send the link, or type a friend’s code. Each of you bats one innings; the others take turns bowling at you.' : full ? 'Five players are already in room ' + N.code + '.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : m.length < 2 ? 'Waiting for friends… send the link or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The match starts when all are ready.',
+      netMsg: !N ? '' : N.msg ? N.msg : N.st === 'menu' ? 'Make a room and send the link, or type a friend’s code. Each of you bats one innings; the others take turns bowling at you.' : full ? 'Four players are already in room ' + N.code + '.' : N.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : m.length < 2 ? 'Waiting for friends… send the link or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The match starts when all are ready.',
       netJoinOn: !!N && N.st === 'menu', netCodeIn: S.codeIn, netCodeType: e => this.setState({ codeIn: String(e.target.value || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4) }), netCodeKey: e => { if (e.key === 'Enter') { e.preventDefault(); g && g.netJoin(this.state.codeIn); } e.stopPropagation(); },
       netJoinGo: e => { blur(e); g && g.netJoin(S.codeIn); }, netCreate: e => { blur(e); g && g.netCreate(); },
       netCodeOn: !!N && N.st !== 'menu' && !!N.code && !full, netCode: N ? N.code : '',

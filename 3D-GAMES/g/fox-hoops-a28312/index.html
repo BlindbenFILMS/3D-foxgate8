@@ -112,8 +112,8 @@
       </sc-if>
       <sc-if value="{{ passPickOn }}" hint-placeholder-val="{{ false }}">
         <span style="padding:8px 14px 6px;font:800 10px var(--font-heading);letter-spacing:0.12em;color:#8a847e">HOW MANY PLAYERS ON THIS PHONE?</span>
-        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:2px solid #2a2826">
-          <sc-for list="{{ passNs }}" as="n" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid #2a2826">
+          <sc-for list="{{ passNs }}" as="n" hint-placeholder-count="3">
             <button onClick="{{ n.go }}" aria-pressed="{{ n.pressed }}" style="min-height:52px;border:0;border-right:2px solid #2a2826;border-radius:0;background:{{ n.bg }};color:{{ n.fg }};font:900 22px var(--font-heading);cursor:pointer" style-hover="filter:brightness(1.15)">{{ n.n }}</button>
           </sc-for>
         </div>
@@ -174,7 +174,7 @@
         </div>
       </sc-if>
       <sc-if value="{{ netJoinOn }}" hint-placeholder-val="{{ true }}">
-        <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 5 PLAYERS</span></button>
+        <button onClick="{{ netCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-top:2px solid #3a3836;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 4 PLAYERS</span></button>
         <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:2px solid #3a3836">
           <input value="{{ netCodeIn }}" onChange="{{ netCodeType }}" onKeyDown="{{ netCodeKey }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code" placeholder="CODE" style="min-width:0;min-height:52px;padding:0 14px;border:0;border-radius:0;background:#1a1918;color:#ffd23a;font:900 24px var(--font-heading);letter-spacing:0.2em;text-transform:uppercase;outline:none;box-sizing:border-box" style-focus="background:#2a2826"></input>
           <button onClick="{{ netJoinGo }}" style="min-height:52px;padding:0 18px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">JOIN</button>
@@ -284,10 +284,10 @@ class Component extends DCLogic {
     v.modes = [
       { name: 'VS THE REGULARS', sub: 'ZORAN + HOYT · ' + (h.best ? 'YOUR BEST ' + h.best : 'TAVERN RECORD ' + h.record), go: e => { blur(e); G && G.playHouse(); }, bg: '#ec3013', fg: '#fff' },
       { name: 'WATCH THE DEMO', sub: 'HOW TO PLAY · ABOUT 35 SECONDS', go: e => { blur(e); G && G.demoStart(); }, bg: '#000', fg: '#ffd23a' },
-      { name: 'PASS & PLAY', sub: '2–5 PLAYERS ON THIS PHONE', go: e => { blur(e); this.setState({ passPick: 2 }); }, bg: '#000', fg: '#fff' },
-      { name: 'ONLINE', sub: '2–5 FRIENDS · ROOM CODE · NO SERVER', go: e => { blur(e); G && G.netOpen(); }, bg: '#000', fg: '#7dd3fc' },
+      { name: 'PASS & PLAY', sub: '2–4 PLAYERS ON THIS PHONE', go: e => { blur(e); this.setState({ passPick: 2 }); }, bg: '#000', fg: '#fff' },
+      { name: 'ONLINE', sub: '2–4 FRIENDS · ROOM CODE · NO SERVER', go: e => { blur(e); G && G.netOpen(); }, bg: '#000', fg: '#7dd3fc' },
       { name: 'FREE SHOOT', sub: 'NO CLOCK · AIM GUIDE ON', go: e => { blur(e); G && G.playPractice(); }, bg: '#000', fg: '#fff' }];
-    v.passNs = [2, 3, 4, 5].map(n => ({ n, pressed: pk === n ? 'true' : 'false', bg: pk === n ? '#ffd23a' : '#000', fg: pk === n ? '#000' : '#fff', go: e => { blur(e); this.setState({ passPick: n }); } }));
+    v.passNs = [2, 3, 4].map(n => ({ n, pressed: pk === n ? 'true' : 'false', bg: pk === n ? '#ffd23a' : '#000', fg: pk === n ? '#000' : '#fff', go: e => { blur(e); this.setState({ passPick: n }); } }));
     v.passPick = pk; v.passGo = e => { blur(e); const n = this.state.passPick; this.setState({ passPick: 0 }); G && G.passStart(n); }; v.passBack = e => { blur(e); this.setState({ passPick: 0 }); };
     v.optCols = port ? 2 : 4; v.optBtns = [['music', 'MUSIC', 'TAVERN TUNES'], ['tap', 'TAP MODE', 'ONE TAP SHOTS'], ['guide', 'AIM GUIDE', 'SHOW THE ARC'], ['audio', 'AUDIO CUES', 'SPEECH + PAN']].map(([k, name, sub]) => { const on = !!opts[k]; return { name, sub: on ? 'ON · ' + sub : 'OFF · ' + sub, pressed: on ? 'true' : 'false', bg: on ? '#f3f2f2' : '#000', fg: on ? '#201e1d' : '#fff', bar: on ? '#ec3013' : 'transparent', go: e => { blur(e); G && G.setOpt(k); } }; });
     // ---- pass & play turn card ----
@@ -303,7 +303,7 @@ class Component extends DCLogic {
       v.netCodeOn = !!net.code && net.st !== 'menu'; v.netCode = net.code;
       v.netShareTxt = S.copied ? 'LINK COPIED' : 'SHARE LINK';
       v.netShare = async e => { blur(e); const u = this.roomUrl(net.code); try { if (navigator.share && phone) await navigator.share({ title: '8 GATES · Fox Hoops', text: 'Shoot hoops with me in 8 GATES. Room ' + net.code, url: u }); else { await navigator.clipboard.writeText(u); this.setState({ copied: true }); setTimeout(() => this.setState({ copied: false }), 2000); } } catch (er) {} };
-      v.netMsg = net.msg ? net.msg : net.st === 'menu' ? 'Up to 5 friends, one machine each. Make a room and send the link, or type a friend’s code.' : full ? 'Five players are already in room ' + net.code + '. Try another code.' : net.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : racing ? 'A game is on. You join the next one.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.';
+      v.netMsg = net.msg ? net.msg : net.st === 'menu' ? 'Up to 4 friends, one machine each. Make a room and send the link, or type a friend’s code.' : full ? 'Four players are already in room ' + net.code + '. Try another code.' : net.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : racing ? 'A game is on. You join the next one.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The game starts when all are ready.';
       v.netRowsOn = net.st !== 'menu' && !full && m.length > 0;
       v.netRows = m.map(x => { const p = (net.list || []).find(q => q.id === x.id) || {}; return { col: p.col || '#fff', name: (p.cname || 'PLAYER') + (x.me ? ' · YOU' : ''), sub: x.id === net.host ? 'HOST' : 'PLAYER', tag: x.playing && !x.me ? 'PLAYING' : x.ready ? 'READY' : '', tagC: x.ready ? '#22c55e' : '#8a847e' }; });
       v.netModeOn = !full; v.netModes = [['shootout', 'SHOOTOUT', '60 S · TOP SCORE'], ['race', 'RACE TO ' + h.raceTo, 'FIRST TO ' + h.raceTo + ' POINTS']].map(([id, name, sub]) => { const sel = net.mode === id; return { name, sub, pressed: sel ? 'true' : 'false', bg: sel ? '#f3f2f2' : '#000', fg: sel ? '#201e1d' : '#fff', bar: sel ? '#ec3013' : 'transparent', go: e => { blur(e); G.netMode(id); } }; });

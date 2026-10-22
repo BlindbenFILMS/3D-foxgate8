@@ -11,7 +11,7 @@
 //
 // MODES
 //   FREE PLAY  — your own token cup (shared save stat) and your own board, which is SAVED per world (it stays loaded between visits).
-//   TOKEN RACE — online, 2-5 players. Every phone gets the SAME seeded board and 30 race tokens; 90 s; most tokens wins.
+//   TOKEN RACE — online, 2-4 players. Every phone gets the SAME seeded board and 30 race tokens; 90 s; most tokens wins.
 //                The jackpot POT is shared: every coin anyone loses to a drain goes into it, the first JACKPOT on the reel takes it.
 //
 // PHYSICS: a light 2.5D model built for phones (no physics engine): coins are discs on three surfaces (shelf top, bed, one
@@ -26,7 +26,7 @@ import { castKit, loadCastRigs } from '../../engine/cast.js';
 import { crestTex, canvasTex, FONT } from '../../engine/textures.js';
 
 export const GAME = 'arcadeCoinPusher';
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 export const NET_GAME = 'coinpusher';
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['VIOLET', '#a78bfa']];
 // DRAFT economy for Ben: 5g buys 25 tokens; cash out 10 tokens = 1g (the house edge), at most 30g a day; first visit gets a free cup of 10.

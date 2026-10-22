@@ -3,7 +3,7 @@
 // world can open it (in a panel with ?embed=1, or as an interior).
 // Table: 3 pop bumpers, F-O-X top lanes (lane change on the flippers, skill shot on the plunge), 3 drop targets, 2 standups,
 // left + right orbit loop, the GATE HOLE (3 locks = 3-ball MULTIBALL, then JACKPOTS), 8 GATES to open (all 8 = 100,000 + 30 s double score).
-// Players: SOLO · PASS & PLAY (2–5, take turns ball by ball) · ONLINE (2–5, everyone plays their own table at once, live scores).
+// Players: SOLO · PASS & PLAY (2–4, take turns ball by ball) · ONLINE (2–4, everyone plays their own table at once, live scores).
 // Accessibility: SOUND BALL (a soft tone follows the ball: left/right = pan, high/low = pitch), AUTO FLIP assist, SPOKEN CALLS, phone buzz.
 // Physics is 2D on the playfield plane (substepped, 600 Hz) and drawn in 3D (toon + ink outlines, like the rest of 8 GATES).
 // Extras: EXTRA BALL (lit after 4 gates), inlane → orbit/hole COMBO, top-5 high scores, dot-matrix score display, synth music + sound.
@@ -17,8 +17,8 @@ import { canvasTex, crestTex, FONT } from '../../engine/textures.js';
 import { tableLayout, buildMachine, makeGradient, glowTex, TW, TH, BR, FL, S, SLOPE } from './pinball-machine.js';
 import { PinballSound, PinballMusic } from './pinball-audio.js';
 
-export const PINBALL = { name: 'GATE RUSH', room: 'arcadePinball', key: 'arcadePinball', balls: 3, maxPlayers: 5 };
-// slot colours for pass & play and online (5 players)
+export const PINBALL = { name: 'GATE RUSH', room: 'arcadePinball', key: 'arcadePinball', balls: 3, maxPlayers: 4 };
+// slot colours for pass & play and online (up to 4 players)
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PINK', '#f472b6']];
 export const SAVE_KEYS = { top: 'arcadePinball.top', best: 'arcadePinball.best', games: 'arcadePinball.games', wins: 'arcadePinball.onlineWins', prefs: 'arcadePinball.prefs', wizard: 'arcadePinball.wizard' };
 export const RULES = [
@@ -452,7 +452,7 @@ export async function createPinball({ container, onState }) {
     if (prefs.music) music.setMode(m); music.setDuck(st.paused ? 0.3 : 1);
     if (ph === 'play' && !st.paused) { let sp = 0, n = 0; for (const b of st.balls) if (b.held <= 0 && !(b.x > 9.02 && b.y < 1.6)) { sp = Math.max(sp, Math.hypot(b.vx, b.vy)); n++; } snd.setRoll(sp, n); } else snd.setRoll(0, 0);
   }
-  // ---------------- online (2–5 players, own tables, live scores) ----------------
+  // ---------------- online (2–4 players, own tables, live scores) ----------------
   let N = null, netTok = 0, lastNetSend = 0, nTimer = 0; const peers = new Map(); // id → { j, ready, playing, score, ball, done, seen }
   const net = { st: null, code: '', status: '', j: 0, ready: false, msg: '', matchIds: null, ping: null };
   const netOn = () => !!net.st;

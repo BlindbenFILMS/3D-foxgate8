@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Croquet</title>
+<script src="./support.js"></script>
+<script type="module" src="./minigames/croquet/croquet-boot.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.cq{font-family:'Archivo',system-ui,'Helvetica Neue',sans-serif;color:#fff;-webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+.cq *{box-sizing:border-box}
+.btn{pointer-events:auto;min-height:44px;min-width:44px;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;gap:8px;text-align:left;background:#000;color:#fff;border:2px solid #3a3836;border-radius:0;font:800 13px/1.1 'Archivo',system-ui,sans-serif;letter-spacing:.06em;cursor:pointer;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.btn:hover{border-color:#ffffff}
+.btn:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
+.btn.red{background:#ec3013;border-color:#ec3013;color:#fff}
+.btn.red:hover{border-color:#ffffff}
+.btn.on{background:#ffd23a;border-color:#ffd23a;color:#000}
+.btn.off{opacity:.45}
+.btn.big{min-height:52px;font-size:15px}
+.panel{pointer-events:auto;background:#000;border:2px solid #3a3836}
+.lab{font:800 12px/1.2 'Archivo',system-ui,sans-serif;letter-spacing:.12em;color:#ffd23a;text-transform:uppercase}
+.txt{font:600 14px/1.35 'Archivo',system-ui,sans-serif;color:#fff}
+.small{font:400 12px/1.4 'Archivo',system-ui,sans-serif;color:#d9d6d0}
+.topbar{position:absolute;left:0;right:0;top:0;padding:8px;padding-top:max(8px,env(safe-area-inset-top));display:flex;flex-wrap:wrap;gap:6px;align-items:flex-start;pointer-events:none}
+.buttons{display:flex;gap:6px;flex:1 1 auto;justify-content:flex-start}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1 1 100%}
+.chip{pointer-events:auto;background:#000;border:2px solid #3a3836;display:flex;align-items:center;gap:8px;padding:5px 9px 5px 6px;min-height:36px}
+.sw{width:16px;height:16px;border:2px solid #1a1626;flex:0 0 auto}
+.botbar{position:absolute;left:0;right:0;bottom:0;padding:8px;padding-bottom:max(8px,env(safe-area-inset-bottom));display:flex;flex-wrap:wrap;gap:6px;align-items:stretch;pointer-events:none}
+.msg{flex:1 1 100%;min-height:44px;padding:8px 12px;display:flex;flex-direction:column;justify-content:center;gap:2px}
+.ctrls{display:flex;gap:6px;flex:1 1 100%}
+.strike{flex:1 1 auto;flex-direction:column;align-items:stretch;justify-content:center;gap:6px;padding:6px 14px;touch-action:none}
+.meter{height:8px;background:#1d1c1b;border:1px solid #3a3836;width:100%}
+.fill{height:100%;background:#ffd23a}
+.card{pointer-events:auto;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92%,440px);max-height:calc(100% - 24px);overflow:auto;background:#000;border:2px solid #3a3836;padding:16px;display:flex;flex-direction:column;gap:14px}
+.row{display:flex;flex-wrap:wrap;gap:6px}
+.rule{height:2px;background:#3a3836}
+.hand{position:absolute;left:50%;top:40%;width:230px;margin-left:-115px;display:flex;flex-direction:column;align-items:flex-start;gap:8px;pointer-events:none;animation:cqfade 2.4s ease-in-out infinite}
+.handbox{height:106px;width:60px}
+.hand svg{animation:cqdrag 1.6s ease-in-out infinite}
+@keyframes cqdrag{0%{transform:translateY(0)}60%{transform:translateY(46px)}100%{transform:translateY(46px)}}
+@keyframes cqfade{0%,100%{opacity:.95}50%{opacity:.75}}
+.cap{pointer-events:none;position:absolute;left:8px;right:8px;display:flex;justify-content:flex-start}
+@media (min-width:700px){
+  .chips{order:-1;flex:1 1 300px}
+  .buttons{flex:0 0 auto}
+  .msg{flex:1 1 300px;order:0}
+  .ctrls{flex:0 0 auto;order:1}
+  .strike{min-width:190px}
+}
+@media (max-height:430px){
+  .chip{min-height:30px;padding:3px 8px 3px 5px}
+  .card{padding:12px;gap:10px}
+}
+</style>
+</helmet>
+<div class="cq" ref="{{rootRef}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; pointer-events: none; background: transparent">
+<sc-if value="{{standalone}}" hint-placeholder-val="{{ true }}">
+<div ref="{{stageRef}}" style="position: absolute; inset: 0; background: #12301a; pointer-events: auto"></div>
+</sc-if>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 4px">
+<div class="lab">8 GATES 3D</div>
+<div class="txt">Laying out the croquet lawn</div>
+</div>
+</sc-if>
+
+<sc-if value="{{has}}" hint-placeholder-val="{{ true }}">
+<div class="topbar" data-safe="top">
+<div class="buttons">
+<button class="btn" type="button" onClick="{{openMenu}}" aria-label="Menu">MENU</button>
+<button class="btn" type="button" onClick="{{openInvite}}">INVITE FRIEND</button>
+<button class="btn red" type="button" onClick="{{goBack}}">BACK</button>
+</div>
+<div class="chips">
+<sc-for list="{{players}}" as="p" hint-placeholder-count="2">
+<div class="chip" style="{{p.chip}}">
+<div class="sw" style="{{p.sw}}"></div>
+<div style="display: flex; flex-direction: column; gap: 1px">
+<div style="font: 800 12px/1.1 Archivo, system-ui, sans-serif; letter-spacing: .06em">{{p.name}}</div>
+<div style="font: 600 12px/1.1 Archivo, system-ui, sans-serif; color: #d9d6d0">{{p.line}}</div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<sc-if value="{{hasCaption}}" hint-placeholder-val="{{ false }}">
+<div class="cap" style="{{capStyle}}">
+<div class="panel" style="padding: 8px 12px; display: flex; flex-direction: column; gap: 3px; max-width: 520px; border-color: #ffd23a">
+<div class="lab">HOW TO PLAY</div>
+<div class="txt">{{caption}}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showBottom}}" hint-placeholder-val="{{ true }}">
+<div class="botbar" data-safe="bottom">
+<div class="panel msg">
+<div class="lab">{{turnLabel}}</div>
+<div class="txt">{{message}}</div>
+</div>
+<div class="ctrls">
+<button class="btn {{aimCls}}" type="button" onClick="{{aimLeft}}" aria-label="Aim left">
+<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M12 3 L5 9 L12 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"></path></svg>
+</button>
+<button class="btn {{aimCls}}" type="button" onClick="{{aimRight}}" aria-label="Aim right">
+<svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><path d="M6 3 L13 9 L6 15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square"></path></svg>
+</button>
+<button class="btn strike {{strikeCls}}" type="button" onPointerDown="{{strikeDown}}" onPointerUp="{{strikeUp}}" onPointerCancel="{{strikeUp}}" onPointerLeave="{{strikeUp}}" onClick="{{strikeClick}}" aria-label="Hold to charge, release to hit">
+<span>{{strikeLabel}}</span>
+<span class="meter"><span class="fill" style="display: block; width: {{powerPct}}"></span></span>
+</button>
+<button class="btn" type="button" onClick="{{toggleView}}">{{viewLabel}}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{hint}}" hint-placeholder-val="{{ false }}">
+<div class="hand">
+<div class="handbox"><svg width="46" height="56" viewBox="0 0 46 56" aria-hidden="true"><path d="M16 4 h6 v20 h4 v-6 h6 v8 h4 v-4 h6 v18 l-6 12 h-20 l-10 -16 l4 -4 l6 6 z" fill="#ffffff" stroke="#1a1626" stroke-width="2.5" stroke-linejoin="miter"></path></svg></div>
+<div class="panel" style="padding: 6px 10px"><div class="lab" style="color: #ffffff">DRAG BACK, LET GO TO HIT</div></div>
+</div>
+</sc-if>
+
+<sc-if value="{{menu}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,.55); pointer-events: auto"></div>
+<div class="card" role="dialog" aria-label="Menu">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<div style="font: 800 22px/1 Archivo, system-ui, sans-serif; letter-spacing: .04em">MENU</div>
+<button class="btn" type="button" onClick="{{closeMenu}}">CLOSE</button>
+</div>
+<div class="rule"></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lab">MODE</div>
+<div class="row">
+<sc-for list="{{modes}}" as="o" hint-placeholder-count="3">
+<button class="btn {{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{isCpu}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lab">DIFFICULTY</div>
+<div class="row">
+<sc-for list="{{levels}}" as="o" hint-placeholder-count="3">
+<button class="btn {{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button>
+</sc-for>
+</div>
+<div class="small">PIP is a rookie. HOPE is club level and plays by feel. NOBLE is a master.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lab">OPPONENTS</div>
+<div class="row">
+<sc-for list="{{opps}}" as="o" hint-placeholder-count="3">
+<button class="btn {{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{isLocal}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lab">PLAYERS ON THIS DEVICE</div>
+<div class="row">
+<sc-for list="{{humans}}" as="o" hint-placeholder-count="3">
+<button class="btn {{o.cls}}" type="button" onClick="{{o.pick}}">{{o.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lab">AUDIO</div>
+<div class="row">
+<button class="btn {{soundCls}}" type="button" onClick="{{toggleSound}}">{{soundLabel}}</button>
+<button class="btn {{musicCls}}" type="button" onClick="{{toggleMusic}}">{{musicLabel}}</button>
+</div>
+</div>
+<div class="rule"></div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lab">RULES</div>
+<div class="small">Run hoops 1 to 6 in order, the way the painted arrow points. Then hit the striped peg to win.</div>
+<div class="small">Run your hoop: one extra stroke. Hit another ball (a roquet): two extra strokes, once per ball until your next hoop. Out of bounds ends your turn.</div>
+<div class="small">Score: 10 per hoop, 30 for the peg, minus 1 per stroke.</div>
+<div class="lab" style="margin-top: 4px">CONTROLS</div>
+<div class="small">Drag back from anywhere and let go to hit. Tap the lawn to aim at a spot. Or hold STRIKE and release on the power you want.</div>
+<div class="small">Keyboard: arrows aim and set power, Space to start and stop the meter, V for the court view.</div>
+</div>
+<div class="rule"></div>
+<div class="row">
+<button class="btn on" type="button" onClick="{{restart}}">RESTART</button>
+<button class="btn red" type="button" onClick="{{goBack}}">LEAVE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{invite}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,.55); pointer-events: auto"></div>
+<div class="card" role="dialog" aria-label="Invite friend">
+<div style="font: 800 22px/1 Archivo, system-ui, sans-serif; letter-spacing: .04em">INVITE FRIEND</div>
+<div class="rule"></div>
+<div class="lab">COMING SOON</div>
+<div class="txt">Online croquet rooms are on the way. For now, play PASS AND PLAY on one device.</div>
+<div class="row">
+<button class="btn on" type="button" onClick="{{pickLocal}}">PASS AND PLAY</button>
+<button class="btn" type="button" onClick="{{closeInvite}}">CLOSE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showResult}}" hint-placeholder-val="{{ false }}">
+<div class="card" role="dialog" aria-label="Results">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div class="lab">{{resKicker}}</div>
+<div style="font: 800 30px/1 Archivo, system-ui, sans-serif; letter-spacing: .02em">{{resTitle}}</div>
+</div>
+<div class="row" style="gap: 4px" aria-label="{{starsLabel}}">
+<sc-for list="{{stars}}" as="st" hint-placeholder-count="3">
+<svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path d="M15 2 L18.8 11 L28 11.6 L21 17.8 L23.2 27 L15 22 L6.8 27 L9 17.8 L2 11.6 L11.2 11 Z" fill="{{st.fill}}" stroke="#ffd23a" stroke-width="2" stroke-linejoin="miter"></path></svg>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<div class="panel" style="padding: 10px; display: flex; flex-direction: column; gap: 4px"><div class="lab">SCORE</div><div style="font: 800 24px/1 Archivo, system-ui, sans-serif">{{resScore}}</div></div>
+<div class="panel" style="padding: 10px; display: flex; flex-direction: column; gap: 4px"><div class="lab">BEST</div><div style="font: 800 24px/1 Archivo, system-ui, sans-serif">{{resBest}}</div></div>
+<div class="panel" style="padding: 10px; display: flex; flex-direction: column; gap: 4px"><div class="lab">GOLD</div><div style="font: 800 24px/1 Archivo, system-ui, sans-serif">{{resGold}}</div></div>
+</div>
+<div class="small">{{resLine}}</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{rows}}" as="r" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 10px; padding: 6px 0; border-top: 2px solid #3a3836">
+<div style="font: 800 14px/1 Archivo, system-ui, sans-serif; width: 18px">{{r.place}}</div>
+<div class="sw" style="{{r.sw}}"></div>
+<div style="font: 800 13px/1 Archivo, system-ui, sans-serif; flex: 1 1 auto">{{r.name}}</div>
+<div class="small">{{r.line}}</div>
+</div>
+</sc-for>
+</div>
+<div class="row">
+<button class="btn on big" type="button" onClick="{{playAgain}}">PLAY AGAIN</button>
+<button class="btn red big" type="button" onClick="{{goBack}}">BACK</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{left}}" hint-placeholder-val="{{ false }}">
+<div class="card" role="dialog" aria-label="Left the court">
+<div class="lab">CROQUET</div>
+<div style="font: 800 26px/1 Archivo, system-ui, sans-serif">You left the court.</div>
+<div class="row">
+<button class="btn on big" type="button" onClick="{{playAgain}}">PLAY AGAIN</button>
+</div>
+</div>
+</sc-if>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { hud: null, menu: false, invite: false };
+    this.stageEl = null;
+    this.rootEl = null;
+    this.api = null;
+    this.safeKey = '';
+    this.stageRef = (el) => { this.stageEl = el; };
+    this.rootRef = (el) => { this.rootEl = el; };
+    this.onHud = (e) => { this.setState({ hud: e.detail || null }); };
+    this.onResize = () => { this.measure(); };
+  }
+  componentDidMount() {
+    this.alive = true;
+    window.addEventListener('resize', this.onResize);
+    if (this.props.world) this.attachWorld();
+    else this.boot(0);
+  }
+  componentDidUpdate(prev) {
+    if (prev.world !== this.props.world && this.props.world) this.attachWorld();
+    if (this.raf) cancelAnimationFrame(this.raf);
+    this.raf = requestAnimationFrame(() => this.measure());
+  }
+  componentWillUnmount() {
+    this.alive = false;
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('8g:croquet', this.onHud);
+    if (this.raf) cancelAnimationFrame(this.raf);
+    if (this.api) { try { this.api.destroy(); } catch (e) { /* already gone */ } this.api = null; }
+  }
+  attachWorld() {
+    window.removeEventListener('8g:croquet', this.onHud);
+    window.addEventListener('8g:croquet', this.onHud);
+    const g = this.getApi();
+    if (g) this.setState({ hud: g.hud() });
+  }
+  boot(tries) {
+    if (!this.alive || this.props.world || this.api) return;
+    const ns = window.EightGates && window.EightGates.croquet;
+    if (!ns || !this.stageEl) {
+      if (tries < 400) setTimeout(() => this.boot(tries + 1), 50);
+      return;
+    }
+    ns.createCroquet({ container: this.stageEl, onState: (h) => { if (this.alive) this.setState({ hud: h }); } })
+      .then((api) => { if (!this.alive) { api.destroy(); return; } this.api = api; this.measure(); })
+      .catch((err) => { console.error(err); });
+  }
+  getApi() {
+    const w = this.props.world;
+    if (w) return w._croquet && typeof w._croquet.g === 'function' ? w._croquet.g() : null;
+    return this.api;
+  }
+  measure() {
+    const root = this.rootEl, g = this.getApi();
+    if (!root || !g) return;
+    const rr = root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      if (side === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      if (side === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      if (side === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    const key = [s.top, s.bottom, s.left, s.right].map((v) => Math.round(v / 4)).join(',');
+    this.lastTop = s.top + 6;
+    if (key !== this.safeKey) { this.safeKey = key; g.setSafe(s); }
+  }
+  call(fn, ...args) {
+    const g = this.getApi();
+    if (g && typeof g[fn] === 'function') g[fn](...args);
+  }
+  setMenu(open) {
+    this.setState({ menu: open, invite: false });
+    this.call('pause', open);
+  }
+  renderVals() {
+    const h = this.state.hud;
+    const has = !!(h && h.players);
+    const st = (h && h.settings) || {};
+    const phase = h ? h.phase : 'loading';
+    const menu = this.state.menu, invite = this.state.invite;
+    const opt = (label, on, pick) => ({ label, cls: on ? 'on' : '', pick });
+    const after = (fn) => (...a) => { fn(...a); this.setState({ menu: false, invite: false }); this.call('pause', false); };
+    const turn = has ? h.turn : null;
+    const res = has ? h.result : null;
+    const over = phase === 'over' && !!res;
+    let turnLabel = '';
+    if (has) {
+      if (phase === 'over') turnLabel = 'GAME OVER';
+      else if (phase === 'intro') turnLabel = 'CROQUET';
+      else turnLabel = turn.name + (turn.human ? '' : ' (CPU)') + ' / ' + turn.ball + ' BALL / ' + turn.target + (turn.strokesLeft > 1 ? ' / ' + turn.strokesLeft + ' STROKES' : '');
+    }
+    const canStrike = has && h.canStrike;
+    const goBack = () => {
+      this.setState({ menu: false, invite: false });
+      const w = this.props.world;
+      if (w && w._croquet && typeof w._croquet.end === 'function') w._croquet.end();
+      else this.call('back');
+    };
+    const stars = res ? [0, 1, 2].map((i) => ({ fill: i < res.stars ? '#ffd23a' : 'none' })) : [];
+    return {
+      standalone: !this.props.world,
+      stageRef: this.stageRef,
+      rootRef: this.rootRef,
+      has,
+      loading: !has && !this.props.world,
+      players: has ? h.players.map((p) => ({
+        name: p.name + (p.kind === 'cpu' && p.tag ? ' ' + p.tag : ''),
+        line: p.done ? 'PEGGED OUT' : p.progress + ' / ' + p.target,
+        sw: 'background:' + p.color,
+        chip: p.isTurn ? 'border-color:#ffd23a' : '',
+      })) : [],
+      hasCaption: has && !!h.caption && !over && !menu,
+      caption: has ? h.caption : '',
+      capStyle: 'top:' + Math.round(this.lastTop || 120) + 'px',
+      showBottom: has && phase !== 'over' && phase !== 'left',
+      turnLabel,
+      message: has ? (h.message || (phase === 'roll' || phase === 'swing' ? 'Ball in play.' : turn.human ? 'Line it up.' : 'Watch the shot.')) : '',
+      aimCls: canStrike ? '' : 'off',
+      strikeCls: canStrike ? (h.charging ? 'on' : '') : 'off',
+      strikeLabel: !has ? 'HIT' : h.charging ? 'RELEASE TO HIT' : canStrike ? 'HOLD TO HIT' : (turn.human ? 'WAIT' : turn.name + ' IS PLAYING'),
+      powerPct: has ? Math.round(h.power * 100) + '%' : '0%',
+      strikeDown: (e) => { if (e && e.pointerType !== 'mouse' && e.preventDefault) e.preventDefault(); if (e && e.button > 0) return; this.pressed = true; this.call('chargeStart'); },
+      strikeUp: () => { if (this.pressed) { this.pressed = false; this.call('chargeEnd'); } },
+      strikeClick: (e) => { if (e && e.detail === 0) { this.call('chargeStart'); this.call('chargeEnd'); } },
+      aimLeft: () => this.call('nudge', -1),
+      aimRight: () => this.call('nudge', 1),
+      toggleView: () => this.call('toggleView'),
+      viewLabel: has && h.view === 'map' ? 'AIM VIEW' : 'COURT',
+      hint: has && h.hint && !menu && !invite,
+      openMenu: () => { this.call('unlockAudio'); this.setMenu(true); },
+      closeMenu: () => this.setMenu(false),
+      openInvite: () => { this.setState({ invite: true, menu: false }); this.call('pause', true); },
+      closeInvite: () => { this.setState({ invite: false }); this.call('pause', false); },
+      pickLocal: after(() => this.call('setMode', 'local')),
+      goBack,
+      menu, invite,
+      modes: [
+        opt('VS CPU', st.mode === 'cpu' && h.mode !== 'demo', after(() => this.call('setMode', 'cpu'))),
+        opt('PASS AND PLAY', h && h.mode === 'local', after(() => this.call('setMode', 'local'))),
+        opt('DEMO', h && h.mode === 'demo', after(() => this.call('setMode', 'demo'))),
+      ],
+      isCpu: has && h.mode !== 'local',
+      isLocal: has && h.mode === 'local',
+      levels: [
+        opt('EASY / PIP', st.level === 0, after(() => this.call('setLevel', 0))),
+        opt('CLUB / HOPE', st.level === 1, after(() => this.call('setLevel', 1))),
+        opt('MASTER / NOBLE', st.level === 2, after(() => this.call('setLevel', 2))),
+      ],
+      opps: [1, 2, 3].map((n) => opt(String(n), st.opponents === n, after(() => this.call('setOpponents', n)))),
+      humans: [2, 3, 4].map((n) => opt(n + ' PLAYERS', st.humans === n, after(() => this.call('setHumans', n)))),
+      soundLabel: st.sound ? 'SOUND ON' : 'SOUND OFF',
+      soundCls: st.sound ? 'on' : '',
+      toggleSound: () => this.call('setSound', !st.sound),
+      musicLabel: st.music ? 'MUSIC ON' : 'MUSIC OFF',
+      musicCls: st.music ? 'on' : '',
+      toggleMusic: () => this.call('setMusic', !st.music),
+      restart: after(() => this.call('restart')),
+      showResult: over && !menu && !invite,
+      resKicker: res ? (res.newBest ? 'NEW BEST' : 'RESULT') : '',
+      resTitle: res ? res.title : '',
+      resScore: res ? String(res.score) : '0',
+      resBest: res ? String(res.best) : '0',
+      resGold: res ? '+' + res.gold : '+0',
+      resLine: res ? res.hoops + ' of 6 hoops in ' + res.strokes + ' strokes. +' + res.xp + ' XP.' : '',
+      stars,
+      starsLabel: res ? res.stars + ' of 3 stars' : '',
+      rows: res ? res.rows.map((r) => ({ place: String(r.place), name: r.name, sw: 'background:' + r.color, line: (r.pegged ? 'PEGGED OUT' : r.hoops + ' HOOPS') + ' / ' + r.strokes + ' STROKES' })) : [],
+      playAgain: () => { this.setState({ menu: false, invite: false }); this.call('playAgain'); },
+      left: phase === 'left',
+    };
+  }
+}
+</script>
+</body>
+</html>

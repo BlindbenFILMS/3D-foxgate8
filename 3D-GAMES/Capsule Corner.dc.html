@@ -139,7 +139,7 @@
         <div style="min-height:44px;padding:4px 14px;border-bottom:2px solid #2a2826;display:grid;grid-template-columns:12px minmax(0,1fr) auto;align-items:center;gap:10px"><span style="width:12px;height:12px;background:{{ r.col }};display:block"></span><span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font:900 14px var(--font-heading);letter-spacing:0.05em;white-space:nowrap">{{ r.name }}</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;color:#8a847e;white-space:nowrap">{{ r.sub }}</span></span><span style="font:900 10px var(--font-heading);letter-spacing:0.1em;color:{{ r.tagC }}">{{ r.tag }}</span></div>
       </sc-for>
       <sc-if value="{{ lobJoinOn }}" hint-placeholder-val="{{ true }}">
-        <button onClick="{{ pCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 5</span></button>
+        <button onClick="{{ pCreate }}" style="min-height:52px;padding:4px 14px;border:0;border-radius:0;background:#ec3013;color:#fff;cursor:pointer;text-align:left;display:flex;flex-direction:column;justify-content:center;gap:1px" style-hover="background:#c82a10"><span style="font:900 16px var(--font-heading);letter-spacing:0.08em">CREATE ROOM</span><span style="font:800 9px var(--font-heading);letter-spacing:0.08em;opacity:0.9;white-space:nowrap">GET A CODE TO SHARE · UP TO 4</span></button>
         <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;border-top:2px solid #3a3836">
           <input value="{{ codeIn }}" onChange="{{ codeType }}" onKeyDown="{{ codeKey }}" maxlength="4" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Room code" placeholder="CODE" style="min-width:0;min-height:52px;padding:0 14px;border:0;border-radius:0;background:#1a1918;color:#ffd23a;font:900 24px var(--font-heading);letter-spacing:0.2em;text-transform:uppercase;outline:none;box-sizing:border-box;user-select:text;-webkit-user-select:text" style-focus="background:#2a2826"></input>
           <button onClick="{{ pJoin }}" style="min-height:52px;padding:0 18px;border:0;border-left:2px solid #3a3836;border-radius:0;background:#000;color:#fff;font:900 14px var(--font-heading);letter-spacing:0.08em;cursor:pointer;text-align:left" style-hover="background:#2a2826">JOIN</button>
@@ -246,7 +246,7 @@ class Component extends DCLogic {
     const p = h ? h.primary : { label: '', sub: '', kind: 'wait', enabled: false }, st = h ? h.state : 'idle', party = h ? h.party : null, mt = party && party.match;
     const tools = [
       { label: 'SHELF', sub: h ? h.total + '/24' : '', key: 'C', aria: 'Open your shelf of figures', go: e => { blur(e); this.toggleShelf(); }, bg: '#000000', fg: '#ffffff' },
-      { label: 'PARTY', sub: party && party.code ? party.code : 'UP TO 5', key: 'P', aria: 'Play online with up to 5 friends', go: e => { blur(e); this.openParty(); }, bg: party && party.st ? '#ffd23a' : '#000000', fg: party && party.st ? '#000000' : '#ffffff' },
+      { label: 'PARTY', sub: party && party.code ? party.code : 'UP TO 4', key: 'P', aria: 'Play online with up to 4 friends', go: e => { blur(e); this.openParty(); }, bg: party && party.st ? '#ffd23a' : '#000000', fg: party && party.st ? '#000000' : '#ffffff' },
       { label: h && h.muted ? 'SOUND' : 'SOUND', sub: h && h.muted ? 'OFF' : 'ON', key: 'M', aria: 'Sound on or off', go: e => { blur(e); api && api.mute(); }, bg: '#000000', fg: h && h.muted ? '#8a847e' : '#ffffff' },
       { label: '?', sub: 'HELP', key: 'H', aria: 'How to play', go: e => { blur(e); this.setState({ help: true }); }, bg: '#000000', fg: '#ffffff' },
     ];
@@ -303,7 +303,7 @@ class Component extends DCLogic {
         { n: '1', c: '#22c55e', fg: '#000000', t: 'PAY FOR A CAPSULE', d: 'One free capsule every day. After that ' + (h ? h.price : 10) + ' gold each, or ' + (h ? h.starCost : 5) + ' ★ stars.' },
         { n: '2', c: '#ec3013', fg: '#ffffff', t: 'TURN THE CRANK', d: 'Spin the handle round with your finger, or hold the red button. Finish the turn when the light is on the ★ for a LUCKY capsule.' },
         { n: '3', c: '#ffd23a', fg: '#000000', t: 'TAP, THEN TWIST', d: 'Tap the capsule in the tray. Twist the top three times (tap or swipe) and the figure pops out.' },
-        { n: '4', c: '#38bdf8', fg: '#000000', t: 'COLLECT ALL 24', d: '8 Muscle Foxes, 8 Monster Trucks, 8 Creatures. Common, rare, super and the shiny golden ones. PARTY: up to 5 friends online.' },
+        { n: '4', c: '#38bdf8', fg: '#000000', t: 'COLLECT ALL 24', d: '8 Muscle Foxes, 8 Monster Trucks, 8 Creatures. Common, rare, super and the shiny golden ones. PARTY: up to 4 friends online.' },
       ],
     };
   }

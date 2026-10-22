@@ -2,7 +2,7 @@
 //   MUSCLE FOXES · MONSTER TRUCKS · CREATURES — 8 figures each (4 common, 2 rare, 1 super, 1 golden).
 // Loop: pay (gold / free daily / 5 stars) → turn the crank (stop the chasing light on the ★ = LUCKY) → the capsule drops
 // into the tray → tap it → twist it open → the figure pops out → it goes on your SHELF. Doubles give ★ stars.
-// PARTY: up to 5 players online (engine/duel-net.js, local-tab fallback): 5 rounds, everyone turns at once, best pull scores.
+// PARTY: up to 4 players online (engine/duel-net.js, local-tab fallback): 5 rounds, everyone turns at once, best pull scores.
 // Shared files are only IMPORTED, never edited. Every save key starts with 'capsuleCorner.'.
 import * as THREE from '../../vendor/three/three.module.js';
 import { foxKit, PLAYER_MALE } from '../../fox-kit.js';
@@ -15,7 +15,7 @@ export const GAME = 'capsuleCorner';
 const SK = k => GAME + '.' + k;                       // save key helper
 export const PRICE = 10;                              // DRAFT for Ben: gold per capsule
 export const STAR_COST = 5;                           // DRAFT: stars for a free capsule
-export const ROUNDS = 5, MAXP = 5;
+export const ROUNDS = 5, MAXP = 4;
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PINK', '#f472b6']];
 
 // ---------------------------------------------------------------- helpers (copied, shared files untouched)
@@ -475,8 +475,8 @@ export async function createCapsuleCorner({ container, onState = () => {}, opts 
   { const f = frame(shot()); CAM.pos.copy(f.pos); CAM.look.copy(f.look); CAM.off = f.off.slice(); }
   tick();
 
-  // =================================================================== PARTY (online, up to 5)
-  // Room = the 5 earliest joiners; host = lowest id among them. Host deals the rounds; everyone pulls on their own phone
+  // =================================================================== PARTY (online, up to 4)
+  // Room = the 4 earliest joiners; host = lowest id among them. Host deals the rounds; everyone pulls on their own phone
   // and sends what came out. Score = rarity points (+2 lucky). 5 rounds, best total wins.
   const P = { st: null, code: '', status: '', peers: {}, ready: false, j: 0, msg: '', ping: null, match: null, net: null, tok: 0, seen: {}, timer: 0, mid: 0, copied: false };
   const members = () => { if (!P.st || !P.net) return []; const all = [{ id: P.net.id, j: P.j, ready: P.ready, playing: P.st === 'play', me: true }, ...Object.entries(P.peers).map(([id, p]) => ({ id, ...p, me: false }))]; all.sort((a, b) => a.j - b.j || (a.id < b.id ? -1 : 1)); return all.slice(0, MAXP); };
@@ -545,7 +545,7 @@ export async function createCapsuleCorner({ container, onState = () => {}, opts 
     if (!P.st) return null; const m = members(), full = P.st !== 'menu' && !!P.net && m.length === MAXP && !m.some(x => x.me), pl = playerList(m.map(x => x.id)), host = hostId(false), mt = P.match;
     const allReady = m.length >= 2 && m.every(x => x.ready), rc = m.filter(x => x.ready).length;
     const statusTxt = full ? 'ROOM FULL' : P.status === 'local' ? 'TEST · THIS DEVICE' : P.status === 'offline' ? 'OFFLINE' : P.status === 'off' ? 'NETWORK OFF' : P.status === 'online' ? (m.length > 1 ? m.length + ' IN THE ROOM' + (P.ping ? ' · ' + P.ping + ' MS' : '') : 'ONLINE') : P.st === 'menu' ? 'UP TO ' + MAXP + ' PLAYERS' : 'CONNECTING…';
-    const msg = P.msg || (P.st === 'menu' ? 'Everyone turns their machine at the same time. ' + ROUNDS + ' rounds — the rarest pulls win. Make a room and send the link, or type a friend’s code.' : full ? 'Five players are already in room ' + P.code + '. Try another code.' : P.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The party starts when all are ready.');
+    const msg = P.msg || (P.st === 'menu' ? 'Everyone turns their machine at the same time. ' + ROUNDS + ' rounds — the rarest pulls win. Make a room and send the link, or type a friend’s code.' : full ? 'Four players are already in room ' + P.code + '. Try another code.' : P.status === 'offline' ? 'Could not reach the network. Some school or work Wi-Fi blocks this.' : m.length < 2 ? 'Waiting for friends… Send them the link, or tell them the code.' : allReady ? 'Everyone is ready. Starting…' : 'Everyone taps READY. The party starts when all are ready.');
     const out = { st: P.st, code: P.code, statusTxt, statusBad: P.status === 'offline' || full, msg, full, copied: P.copied, n: m.length,
       rows: m.map(x => { const p = pl.find(q => q.id === x.id) || {}; return { id: x.id, col: p.col || '#fff', name: (p.name || '?') + (x.me ? ' · YOU' : ''), sub: x.id === host ? 'HOST' : 'PLAYER', tag: x.playing && !x.me ? 'PLAYING' : x.ready ? 'READY' : '', tagC: x.ready ? '#22c55e' : '#8a847e' }; }),
       canReady: P.st === 'room' && !full && m.length >= 2, ready: P.ready, readyTxt: P.ready ? 'READY ✓' : 'READY', readySub: P.ready ? (allReady ? 'STARTING…' : 'WAITING · ' + rc + '/' + m.length + ' READY') : ROUNDS + ' ROUNDS · ' + m.length + ' PLAYERS',

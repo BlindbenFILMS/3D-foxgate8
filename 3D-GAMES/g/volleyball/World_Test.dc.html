@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Volleyball World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.wt-root *{box-sizing:border-box}
+.wt-root button{font-family:Archivo,sans-serif;border-radius:0;cursor:pointer}
+.wt-root:focus{outline:none}
+</style>
+</helmet>
+<div class="wt-root" data-wt="root" tabindex="0" onKeyDown="{{onKey}}" onKeyUp="{{onKey}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: #9fd8ff; color: #ffffff; font-family: Archivo, sans-serif">
+<div data-wt="stage" style="position: absolute; inset: 0"></div>
+<sc-if value="{{inGame}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+<dc-import name="Volleyball" world="{{fakeWorld}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+<sc-if value="{{notInGame}}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; left: 12px; top: 12px; right: 12px; max-width: 380px; background: #000000; border: 2px solid #3a3836; padding: 16px; display: flex; flex-direction: column; gap: 10px">
+<span style="font-size: 12px; font-weight: 900; color: #ffd23a; letter-spacing: 0.1em">WORLD MODE TEST</span>
+<span style="font-size: 24px; font-weight: 900; line-height: 1.1">8 GATES TOWN</span>
+<p style="margin: 0; font-size: 14px; font-weight: 600; line-height: 1.45">The court is a Group at (20, 0, -15), turned 0.9 rad. The town camera glides onto the game camera. Taps on the town count below.</p>
+<button type="button" onClick="{{startGame}}" style="height: 52px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 15px; font-weight: 900; text-align: left">PLAY VOLLEYBALL</button>
+</div>
+</sc-if>
+<div style="position: absolute; right: 12px; top: 50%; background: #000000; border: 2px solid #3a3836; padding: 6px 10px; font-size: 12px; font-weight: 800; pointer-events: none">TOWN TAPS: {{taps}}</div>
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; right: 12px; bottom: 12px; background: #000000; border: 2px solid #ec3013; padding: 12px; font-size: 13px; font-weight: 700">WORLD TEST ERROR: {{err}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":720}}'>
+class Component extends DCLogic {
+  state = { inGame: false, taps: 0, err: '' };
+
+  componentDidMount() { this.boot(); }
+
+  componentWillUnmount() {
+    this.dead = true;
+    cancelAnimationFrame(this.raf);
+    if (this.api) { this.api.destroy(); this.api = null; }
+    if (this.focusCap) window.removeEventListener('pointerdown', this.focusCap, true);
+    if (this.renderer) { this.renderer.dispose(); if (this.renderer.domElement.parentNode) this.renderer.domElement.parentNode.removeChild(this.renderer.domElement); }
+  }
+
+  async boot() {
+    try {
+      const base = document.baseURI;
+      const THREE = await import(new URL('./vendor/three/three.module.js', base).href);
+      this.mod = await import(new URL('./minigames/volleyball/volleyball.js', base).href);
+      this.root = document.querySelector('[data-wt="root"]');
+      this.stage = document.querySelector('[data-wt="stage"]');
+      this.T = THREE;
+      const r = new THREE.WebGLRenderer({ antialias: true });
+      r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      r.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+      this.stage.appendChild(r.domElement);
+      this.renderer = r;
+
+      const town = new THREE.Scene();
+      town.background = new THREE.Color('#9fd8ff');
+      town.fog = new THREE.Fog('#9fd8ff', 90, 260);
+      town.add(new THREE.HemisphereLight('#ffffff', '#6a8a4a', 1.5));
+      const sun = new THREE.DirectionalLight('#fff2dc', 2.2);
+      sun.position.set(-20, 40, 25);
+      town.add(sun);
+      const lam = (c) => new THREE.MeshLambertMaterial({ color: c });
+      const g = new THREE.Mesh(new THREE.PlaneGeometry(500, 500).rotateX(-Math.PI / 2), lam('#86c56f'));
+      g.position.y = -0.1;
+      town.add(g);
+      const road = new THREE.Mesh(new THREE.BoxGeometry(8, 0.05, 300), lam('#8d8a86'));
+      road.position.set(-12, -0.05, 0);
+      town.add(road);
+      const roofs = ['#ec3013', '#1f4fd8', '#ffd23a', '#2f9e4a'];
+      for (let i = 0; i < 14; i++) {
+        const a = (i / 14) * Math.PI * 2, R = 48 + (i % 3) * 6;
+        const x = 20 + Math.cos(a) * R, z = -15 + Math.sin(a) * R;
+        const w = 6 + (i % 3) * 2, h = 5 + (i % 4) * 2;
+        const house = new THREE.Mesh(new THREE.BoxGeometry(w, h, w), lam('#f1e7d6'));
+        house.position.set(x, h / 2, z);
+        const roof = new THREE.Mesh(new THREE.ConeGeometry(w * 0.8, 3, 4), lam(roofs[i % 4]));
+        roof.position.set(x, h + 1.5, z); roof.rotation.y = Math.PI / 4;
+        town.add(house, roof);
+      }
+      for (let i = 0; i < 18; i++) {
+        const x = -40 + (i * 37) % 120, z = -70 + (i * 53) % 130;
+        if (Math.hypot(x - 20, z + 15) < 24) continue;
+        const t = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.4, 3, 6), lam('#8e5d31'));
+        t.position.set(x, 1.5, z);
+        const c = new THREE.Mesh(new THREE.SphereGeometry(2, 10, 8), lam('#3a9e4f'));
+        c.position.set(x, 4, z);
+        town.add(t, c);
+      }
+      const parent = new THREE.Group();
+      parent.position.set(20, 0, -15);
+      parent.rotation.y = 0.9;
+      town.add(parent);
+      this.town = town; this.parent = parent;
+
+      const cam = new THREE.PerspectiveCamera(50, 1, 0.1, 800);
+      cam.position.set(-30, 34, 45);
+      cam.lookAt(18, 0, -14);
+      this.cam = cam;
+      this.home = { p: cam.position.clone(), q: cam.quaternion.clone() };
+
+      r.domElement.addEventListener('pointerdown', () => this.setState({ taps: this.state.taps + 1 }));
+      this.focusCap = () => { if (this.root && document.activeElement !== this.root) { try { this.root.focus({ preventScroll: true }); } catch (e) { /* ignore */ } } };
+      window.addEventListener('pointerdown', this.focusCap, true);
+
+      this.fakeWorld = { _volleyballCourt: { g: () => this.api, end: () => this.endGame() } };
+      this.last = performance.now();
+      const loop = (t) => {
+        if (this.dead) return;
+        this.raf = requestAnimationFrame(loop);
+        const dt = Math.min(0.05, (t - this.last) / 1000); this.last = t;
+        const w = this.stage.clientWidth || 1, h = this.stage.clientHeight || 1;
+        const sz = r.getSize(new THREE.Vector2());
+        if (sz.x !== w || sz.y !== h) r.setSize(w, h, false);
+        cam.aspect = w / h;
+        const k = 1 - Math.exp(-dt * 4);
+        if (this.api) {
+          const c = this.api.camera;
+          cam.position.lerp(c.position, k);
+          cam.quaternion.slerp(c.quaternion, k);
+          cam.fov += (c.fov - cam.fov) * k;
+        } else {
+          cam.position.lerp(this.home.p, k);
+          cam.quaternion.slerp(this.home.q, k);
+          cam.fov += (50 - cam.fov) * k;
+        }
+        cam.updateProjectionMatrix();
+        r.render(town, cam);
+      };
+      this.raf = requestAnimationFrame(loop);
+      await this.startGame();
+    } catch (e) {
+      this.setState({ err: String((e && e.message) || e) });
+    }
+  }
+
+  startGame = async () => {
+    if (this.api || !this.mod) return;
+    this.api = await this.mod.createVolleyball({
+      container: null,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:volleyballCourt', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.cam, parent: this.parent } }
+    });
+    this.setState({ inGame: true });
+    if (this.root) { try { this.root.focus({ preventScroll: true }); } catch (e) { /* ignore */ } }
+  };
+
+  endGame() {
+    if (this.api) { this.api.destroy(); this.api = null; }
+    window.dispatchEvent(new CustomEvent('8g:volleyballCourt', { detail: null }));
+    this.setState({ inGame: false });
+  }
+
+  onKey = (e) => { if (this.api) this.api.key(e.nativeEvent || e); };
+
+  renderVals() {
+    return {
+      inGame: this.state.inGame, notInGame: !this.state.inGame,
+      fakeWorld: this.fakeWorld || { _volleyballCourt: { g: () => null, end: () => {} } },
+      startGame: this.startGame, onKey: this.onKey,
+      taps: this.state.taps,
+      hasErr: !!this.state.err, err: this.state.err
+    };
+  }
+}
+</script>
+</body>
+</html>

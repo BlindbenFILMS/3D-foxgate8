@@ -1,0 +1,542 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Airport TSA</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd23a}a:hover{color:#ffffff}
+</style>
+</helmet>
+<div data-airport-root="1" ref="{{setRoot}}" style="{{rootStyle}}">
+
+<sc-if value="{{standalone}}" hint-placeholder-val="{{true}}">
+<div data-airport-stage="1" ref="{{setStage}}" style="position: absolute; inset: 0; background: #bfe3f5"></div>
+</sc-if>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; left: 16px; bottom: 16px; right: 16px; max-width: 420px; padding: 14px 16px; background: #000000; border: 2px solid #3a3836; display: flex; flex-direction: column; gap: 6px; pointer-events: auto">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; color: #ec3013">8 GATES 3D</div>
+<div style="font-size: 18px; font-weight: 900">{{loadText}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{playing}}" hint-placeholder-val="{{true}}">
+<div data-safe="top" style="position: absolute; top: 0; left: 0; right: 0; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: stretch; pointer-events: none">
+<div style="display: flex; pointer-events: auto; background: #000000; border: 2px solid #3a3836">
+<div style="padding: 5px 12px; border-right: 2px solid #3a3836; min-width: 52px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #a8a49e">TIME</div>
+<div style="font-size: 20px; font-weight: 900; line-height: 1.15; color: {{timeColor}}">{{timeText}}</div>
+</div>
+<div style="padding: 5px 12px; border-right: 2px solid #3a3836; min-width: 52px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #a8a49e">{{scoreLabel}}</div>
+<div style="font-size: 20px; font-weight: 900; line-height: 1.15; color: #ffd23a">{{score}}</div>
+</div>
+<sc-if value="{{hasRival}}" hint-placeholder-val="{{true}}">
+<div style="padding: 5px 12px; border-right: 2px solid #3a3836; min-width: 52px">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: #a8a49e">{{rivalName}}</div>
+<div style="font-size: 20px; font-weight: 900; line-height: 1.15">{{rivalScore}}</div>
+</div>
+</sc-if>
+<div style="padding: 5px 12px; min-width: 52px; background: {{queueBg}}">
+<div style="font-size: 12px; font-weight: 700; letter-spacing: 0.06em; color: {{queueLabel}}">LINE</div>
+<div style="font-size: 20px; font-weight: 900; line-height: 1.15">{{queue}}</div>
+</div>
+</div>
+<div style="display: flex; pointer-events: auto">
+<button type="button" onClick="{{openMenu}}" style="min-height: 48px; min-width: 64px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-left: 0; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-align: left; cursor: pointer; border-radius: 0">MENU</button>
+<button type="button" onClick="{{openInvite}}" style="min-height: 48px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; border-left: 0; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-align: left; cursor: pointer; border-radius: 0">INVITE FRIEND</button>
+<button type="button" onClick="{{back}}" style="min-height: 48px; min-width: 64px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 900; letter-spacing: 0.06em; text-align: left; cursor: pointer; border-radius: 0">BACK</button>
+</div>
+</div>
+
+<div aria-hidden="true" style="{{mapStyle}}">
+<svg width="132" height="112" viewBox="0 0 80 68" style="display: block">
+<rect x="0" y="0" width="80" height="68" fill="#141312"></rect>
+<rect x="4" y="2" width="44" height="16" fill="#1f5f5b"></rect>
+<rect x="32" y="2" width="44" height="16" fill="#1f5f5b"></rect>
+<rect x="28" y="22" width="24" height="16" fill="#3a3836"></rect>
+<rect x="0" y="21.6" width="80" height="0.8" fill="#6f6b66"></rect>
+<rect x="54" y="22" width="4" height="12" fill="#2a2827"></rect>
+<rect x="3" y="53" width="22" height="4" fill="#2c4d8f"></rect>
+<rect x="58" y="44" width="14" height="10" fill="#5a4030"></rect>
+<rect x="55" y="55" width="18" height="5" fill="#6f6b66"></rect>
+<rect x="0" y="22" width="7" height="9" fill="#6f6b66"></rect>
+</svg>
+<div style="position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; background: #ffffff; outline: 2px solid #000000; {{postDot}}"></div>
+<sc-if value="{{hasRivalDot}}" hint-placeholder-val="{{true}}">
+<div style="position: absolute; width: 9px; height: 9px; margin: -5px 0 0 -5px; background: #ec3013; outline: 2px solid #000000; {{rivalDot}}"></div>
+</sc-if>
+<sc-for list="{{incDots}}" as="d" hint-placeholder-count="0">
+<div style="position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: #ffd23a; outline: 2px solid #ec3013; {{d.style}}"></div>
+</sc-for>
+<div style="position: absolute; width: 10px; height: 10px; margin: -5px 0 0 -5px; background: #ffd23a; outline: 2px solid #000000; {{playerDot}}"></div>
+</div>
+
+<sc-if value="{{hasToast}}" hint-placeholder-val="{{false}}">
+<div role="status" style="{{toastStyle}}">
+<span style="font-size: 14px; font-weight: 900; letter-spacing: 0.04em">{{toastText}}</span>
+<span style="font-size: 16px; font-weight: 900; color: {{toastColor}}">{{toastPts}}</span>
+</div>
+</sc-if>
+
+<sc-if value="{{hasCaption}}" hint-placeholder-val="{{false}}">
+<div style="{{capStyle}}">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">{{capLabel}}</div>
+<div style="font-size: 14px; font-weight: 700; line-height: 1.35">{{captionText}}</div>
+<sc-if value="{{demo}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button type="button" onClick="{{playCpu}}" style="min-height: 44px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 900; letter-spacing: 0.06em; text-align: left; cursor: pointer; border-radius: 0">PLAY VS CPU</button>
+<button type="button" onClick="{{playLocal}}" style="min-height: 44px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; letter-spacing: 0.06em; text-align: left; cursor: pointer; border-radius: 0">PASS AND PLAY</button>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{showPatrol}}" hint-placeholder-val="{{true}}">
+<div data-safe="{{ctrlSafeL}}" onPointerDown="{{joyDown}}" onPointerMove="{{joyMove}}" onPointerUp="{{joyUp}}" onPointerCancel="{{joyUp}}" role="application" aria-label="Movement pad. Drag to walk." style="position: absolute; left: 12px; bottom: 12px; width: 132px; height: 132px; pointer-events: auto; touch-action: none; background: rgba(0, 0, 0, 0.6); border: 2px solid #3a3836; box-sizing: border-box; user-select: none">
+<div style="position: absolute; left: 50%; top: 10px; bottom: 10px; width: 2px; background: #3a3836"></div>
+<div style="position: absolute; top: 50%; left: 10px; right: 10px; height: 2px; background: #3a3836"></div>
+<div style="{{knobStyle}}"></div>
+<div style="position: absolute; left: 6px; top: 4px; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; color: #a8a49e">MOVE</div>
+</div>
+<div data-safe="{{ctrlSafeR}}" style="position: absolute; right: 12px; bottom: 12px; width: 212px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; pointer-events: auto">
+<button type="button" onClick="{{act}}" style="{{actStyle}}"><span style="display: inline-block; min-width: 22px; color: #ffd23a">1</span>{{actLabel}}</button>
+<button type="button" onPointerDown="{{sprintOn}}" onPointerUp="{{sprintOff}}" onPointerLeave="{{sprintOff}}" onPointerCancel="{{sprintOff}}" style="{{sprintStyle}}"><span style="display: inline-block; min-width: 22px; color: #ffd23a">2</span>SPRINT</button>
+<button type="button" onClick="{{radio}}" style="{{radioStyle}}"><span style="display: inline-block; min-width: 22px; color: #ffd23a">3</span>{{radioLabel}}</button>
+</div>
+</sc-if>
+
+<sc-if value="{{showSheet}}" hint-placeholder-val="{{false}}">
+<div data-safe="{{sheetSafe}}" style="{{sheetStyle}}">
+
+<sc-if value="{{isPost}}" hint-placeholder-val="{{false}}">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">LANE 1 · YOUR POST</div>
+<div style="font-size: 18px; font-weight: 900">Waiting for the next passenger.</div>
+<div style="font-size: 13px; color: #a8a49e; font-weight: 600">Leave your post any time to patrol. The line keeps growing while you are away.</div>
+</sc-if>
+
+<sc-if value="{{isId}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">PASSENGER {{idN}} · ID CHECK</div>
+<div style="font-size: 12px; font-weight: 800; color: #ffd23a">TODAY {{today}}</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<div style="background: #f4f1ea; color: #111111; padding: 10px; border: 2px solid #3a3836; display: flex; flex-direction: column; gap: 6px; min-width: 0">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em">ID CARD</div>
+<div style="display: flex; gap: 8px; align-items: center">
+<svg width="46" height="46" viewBox="0 0 48 48" role="img" aria-label="ID photo of the passenger" style="flex: none; background: #c9c3b4">
+<polygon points="7,15 14,3 20,15 28,15 34,3 41,15 41,31 24,45 7,31" fill="{{idPhoto}}" stroke="#1a1626" stroke-width="2"></polygon>
+<polygon points="15,30 24,41 33,30 24,25" fill="#f6efe2"></polygon>
+<rect x="15" y="19" width="4" height="4" fill="#1a1626"></rect>
+<rect x="29" y="19" width="4" height="4" fill="#1a1626"></rect>
+<rect x="22" y="36" width="4" height="3" fill="#1a1626"></rect>
+</svg>
+<div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+<div style="font-size: 12px; font-weight: 700; color: #5a5650">NAME</div>
+<div style="font-size: 14px; font-weight: 900; line-height: 1.15">{{idName}}</div>
+</div>
+</div>
+<div style="font-size: 12px; font-weight: 700; color: #5a5650">EXPIRES</div>
+<div style="font-size: 16px; font-weight: 900">{{idExp}}</div>
+</div>
+<div style="background: #ffd23a; color: #111111; padding: 10px; border: 2px solid #3a3836; display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em">BOARDING PASS</div>
+<div style="font-size: 12px; font-weight: 700">NAME</div>
+<div style="font-size: 14px; font-weight: 900; line-height: 1.15">{{passName}}</div>
+<div style="font-size: 12px; font-weight: 700">{{flight}} TO {{dest}}</div>
+<div style="font-size: 12px; font-weight: 700">GATE {{gate}} · SEAT {{seat}}</div>
+<div style="font-size: 12px; font-weight: 700">DATE</div>
+<div style="font-size: 16px; font-weight: 900">{{passDate}}</div>
+</div>
+</div>
+<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; font-weight: 800; color: #a8a49e">
+<span>FUR ON CAMERA</span><span style="display: inline-block; width: 16px; height: 16px; border: 2px solid #3a3836; background: {{idLive}}"></span>
+<span>FUR IN PHOTO</span><span style="display: inline-block; width: 16px; height: 16px; border: 2px solid #3a3836; background: {{idPhoto}}"></span>
+</div>
+<sc-if value="{{canAct}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{approve}}" style="min-height: 52px; padding: 0 10px; background: #ffffff; color: #000000; border: 2px solid #ffffff; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ec3013">1</span>APPROVE</button>
+<button type="button" onClick="{{deny}}" style="min-height: 52px; padding: 0 10px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ffd23a">2</span>DENY</button>
+<button type="button" onClick="{{leave}}" style="min-height: 52px; padding: 0 10px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ffd23a">3</span>LEAVE POST</button>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{isXray}}" hint-placeholder-val="{{false}}">
+<div style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">X-RAY · BAG {{xNum}}</div>
+<div style="font-size: 12px; font-weight: 900; color: #ffd23a">{{xTags}} TAGGED</div>
+</div>
+<div style="font-size: 17px; font-weight: 900; line-height: 1.25">{{xText}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<span style="font-size: 12px; font-weight: 800; padding: 4px 8px; border: 2px solid #3a3836">KNIVES</span>
+<span style="font-size: 12px; font-weight: 800; padding: 4px 8px; border: 2px solid #3a3836">BIG SCISSORS</span>
+<span style="font-size: 12px; font-weight: 800; padding: 4px 8px; border: 2px solid #3a3836">LIQUIDS OVER 100 ML</span>
+<span style="font-size: 12px; font-weight: 800; padding: 4px 8px; border: 2px solid #3a3836">TOOLS</span>
+<span style="font-size: 12px; font-weight: 800; padding: 4px 8px; border: 2px solid #3a3836">SPRAY CANS</span>
+<span style="font-size: 12px; font-weight: 800; padding: 4px 8px; border: 2px solid #3a3836">FIREWORKS</span>
+</div>
+<sc-if value="{{xButtons}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{clearBag}}" style="min-height: 52px; padding: 0 10px; background: #ffffff; color: #000000; border: 2px solid #ffffff; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ec3013">1</span>CLEAR BAG</button>
+<button type="button" onClick="{{searchBag}}" style="min-height: 52px; padding: 0 10px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ffd23a">2</span>SEARCH BAG</button>
+<button type="button" onClick="{{leave}}" style="min-height: 52px; padding: 0 10px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ffd23a">3</span>LEAVE POST</button>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{isReveal}}" hint-placeholder-val="{{false}}">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #a8a49e">BAG RESULT</div>
+<div style="font-size: 22px; font-weight: 900; line-height: 1.15; color: {{revealColor}}">{{revealTitle}}</div>
+<div style="font-size: 14px; font-weight: 700">{{revealText}}</div>
+<div style="font-size: 20px; font-weight: 900; color: {{revealColor}}">{{revealPts}}</div>
+<sc-if value="{{canAct}}" hint-placeholder-val="{{true}}">
+<button type="button" onClick="{{skip}}" style="min-height: 48px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">NEXT PASSENGER</button>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{isInspect}}" hint-placeholder-val="{{false}}">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">INSPECT · {{inspTitle}}</div>
+<div style="font-size: 18px; font-weight: 900; line-height: 1.3">{{inspText}}</div>
+<div style="font-size: 13px; color: #a8a49e; font-weight: 600">Act if it is a real problem. Clear it if all is fine.</div>
+<sc-if value="{{canAct}}" hint-placeholder-val="{{true}}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{inspectAct}}" style="min-height: 52px; padding: 0 10px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ffd23a">1</span>{{inspAct}}</button>
+<button type="button" onClick="{{inspectClear}}" style="min-height: 52px; padding: 0 10px; background: #ffffff; color: #000000; border: 2px solid #ffffff; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ec3013">2</span>ALL CLEAR</button>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{showLeaveOnly}}" hint-placeholder-val="{{false}}">
+<button type="button" onClick="{{leave}}" style="min-height: 48px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; text-align: left; cursor: pointer; border-radius: 0"><span style="display: inline-block; min-width: 18px; color: #ffd23a">3</span>LEAVE POST AND PATROL</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{showHint}}" hint-placeholder-val="{{false}}">
+<div aria-hidden="true" style="{{hintStyle}}">
+<svg width="44" height="52" viewBox="0 0 44 52" style="display: block">
+<path d="M16 4 L22 4 L22 22 L26 20 L32 22 L36 26 L36 40 L30 48 L14 48 L6 34 L10 30 L16 34 Z" fill="#ffffff" stroke="#000000" stroke-width="3" stroke-linejoin="miter"></path>
+</svg>
+<div style="font-size: 13px; font-weight: 900; letter-spacing: 0.06em; background: #000000; padding: 4px 8px; border: 2px solid #ffd23a">{{hintText}}</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{showHandoff}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.72); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div style="width: 100%; max-width: 420px; background: #000000; border: 2px solid #3a3836; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">PASS AND PLAY</div>
+<div style="font-size: 24px; font-weight: 900">{{hoLast}} SCORED {{hoScore}}</div>
+<div style="font-size: 15px; font-weight: 700">Hand the device to {{hoNext}}. Same airport, same passengers.</div>
+<button type="button" onClick="{{nextPlayer}}" style="min-height: 52px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-family: Archivo, sans-serif; font-size: 15px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">START {{hoNext}} SHIFT</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showResult}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.66); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto; overflow-y: auto">
+<div style="width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">SHIFT OVER</div>
+<div style="font-size: 26px; font-weight: 900; line-height: 1.1">{{resTitle}}</div>
+<div style="font-size: 14px; font-weight: 700; color: #a8a49e">{{resSub}}</div>
+<div style="display: flex; gap: 6px">
+<sc-for list="{{resStars}}" as="st" hint-placeholder-count="3">
+<div style="width: 28px; height: 28px; box-sizing: border-box; border: 2px solid #ffd23a; background: {{st.bg}}"></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 2px solid #3a3836">
+<div style="padding: 8px 10px; border-right: 2px solid #3a3836"><div style="font-size: 12px; font-weight: 700; color: #a8a49e">SCORE</div><div style="font-size: 22px; font-weight: 900; color: #ffd23a">{{resScore}}</div></div>
+<div style="padding: 8px 10px; border-right: 2px solid #3a3836"><div style="font-size: 12px; font-weight: 700; color: #a8a49e">{{resBestLabel}}</div><div style="font-size: 22px; font-weight: 900">{{resBest}}</div></div>
+<div style="padding: 8px 10px"><div style="font-size: 12px; font-weight: 700; color: #a8a49e">GOLD WON</div><div style="font-size: 22px; font-weight: 900; color: #ffd23a">{{resGold}}</div></div>
+</div>
+<div style="display: flex; flex-direction: column; border: 2px solid #3a3836">
+<sc-for list="{{resRows}}" as="row" hint-placeholder-count="2">
+<div style="display: flex; justify-content: space-between; padding: 8px 10px; border-bottom: 2px solid #3a3836; font-size: 15px; font-weight: 900"><span>{{row.name}}</span><span>{{row.score}}</span></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{resStats}}" as="sx" hint-placeholder-count="4">
+<div style="display: flex; justify-content: space-between; font-size: 13px; font-weight: 800; padding: 4px 0; border-bottom: 2px solid #3a3836"><span style="color: #a8a49e">{{sx.label}}</span><span>{{sx.value}}</span></div>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{playAgain}}" style="min-height: 52px; padding: 0 12px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-family: Archivo, sans-serif; font-size: 15px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">PLAY AGAIN</button>
+<button type="button" onClick="{{resultBack}}" style="min-height: 52px; padding: 0 12px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-family: Archivo, sans-serif; font-size: 15px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">BACK</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showMenu}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.72); display: flex; align-items: flex-start; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto; overflow-y: auto">
+<div role="dialog" aria-label="Menu" style="width: 100%; max-width: 520px; background: #000000; border: 2px solid #3a3836; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<div style="font-size: 24px; font-weight: 900">AIRPORT TSA</div>
+<button type="button" onClick="{{closeMenu}}" style="min-height: 44px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">RESUME</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; line-height: 1.4">
+<div><span style="color: #ffd23a; font-weight: 900">POST.</span> Walk to LANE 1 and take your post. Check IDs, then tag banned items on the X-ray.</div>
+<div><span style="color: #ffd23a; font-weight: 900">PATROL.</span> Leave your post to hunt lone bags, open staff doors, spills and wrong-way walkers.</div>
+<div><span style="color: #ffd23a; font-weight: 900">BALANCE.</span> A long line costs points. Your rival works LANE 2 and patrols too.</div>
+<div><span style="color: #ffd23a; font-weight: 900">KEYS.</span> WASD to walk, SHIFT to sprint, 1 2 3 for the buttons, ESC for this menu.</div>
+</div>
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">MODE</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{playCpu}}" style="{{modeCpuStyle}}">VS CPU</button>
+<button type="button" onClick="{{playLocal}}" style="{{modeLocalStyle}}">PASS AND PLAY</button>
+<button type="button" onClick="{{playDemo}}" style="{{modeDemoStyle}}">DEMO</button>
+</div>
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">RIVAL AGENT</div>
+<div style="display: flex; flex-direction: column; gap: 8px">
+<sc-for list="{{levels}}" as="lv" hint-placeholder-count="3">
+<button type="button" onClick="{{lv.pick}}" style="{{lv.style}}"><span style="font-size: 15px; font-weight: 900">{{lv.name}}</span><span style="font-size: 12px; font-weight: 800; color: #ffd23a"> {{lv.title}}</span><span style="display: block; font-size: 12px; font-weight: 600; color: #c9c5bf; margin-top: 2px">{{lv.blurb}}</span></button>
+</sc-for>
+</div>
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">PASS AND PLAY AGENTS</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{playerOpts}}" as="po" hint-placeholder-count="3">
+<button type="button" onClick="{{po.pick}}" style="{{po.style}}">{{po.label}}</button>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{toggleSound}}" style="min-height: 48px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; text-align: left; cursor: pointer; border-radius: 0">{{soundLabel}}</button>
+<button type="button" onClick="{{toggleMusic}}" style="min-height: 48px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; text-align: left; cursor: pointer; border-radius: 0">{{musicLabel}}</button>
+<button type="button" onClick="{{restart}}" style="min-height: 48px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 800; text-align: left; cursor: pointer; border-radius: 0">RESTART SHIFT</button>
+<button type="button" onClick="{{back}}" style="min-height: 48px; padding: 0 12px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">LEAVE</button>
+</div>
+<div style="font-size: 12px; font-weight: 700; color: #a8a49e">BEST {{best}} · GOLD {{gold}}</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showInvite}}" hint-placeholder-val="{{false}}">
+<div style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.72); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Invite a friend" style="width: 100%; max-width: 420px; background: #000000; border: 2px solid #3a3836; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 900; letter-spacing: 0.08em; color: #ec3013">INVITE FRIEND</div>
+<div style="font-size: 22px; font-weight: 900">Online rooms are coming soon.</div>
+<div style="font-size: 14px; font-weight: 600; line-height: 1.4">For now, share one device. Up to 4 agents take turns on the same shift.</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+<button type="button" onClick="{{inviteLocal}}" style="min-height: 52px; padding: 0 12px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0">PASS AND PLAY</button>
+<button type="button" onClick="{{closeInvite}}" style="min-height: 52px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 14px; font-weight: 800; text-align: left; cursor: pointer; border-radius: 0">CLOSE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"tsType":"object"},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { h: null, port: true, invite: false, loadErr: null, safeTop: 52, jx: 0, jy: 0 };
+    this.api = null; this.root = null; this.stage = null; this.joyId = null; this.joyEl = null;
+    this._dead = false; this._lastSafe = ''; this._mq = 0; this._tries = 0;
+  }
+  componentDidMount() {
+    this._onResize = () => { const p = window.innerHeight >= window.innerWidth; if (p !== this.state.port) this.setState({ port: p }); this.measureSoon(); };
+    window.addEventListener('resize', this._onResize);
+    this._onResize();
+    this._unlock = () => { if (this.api && this.api.unlock) this.api.unlock(); };
+    window.addEventListener('pointerdown', this._unlock, true);
+    const world = this.props.world;
+    if (world) {
+      this._onEv = (e) => {
+        const h = e.detail;
+        if (!h) { this.api = null; this.setState({ h: null }); return; }
+        if (!this.api) this.api = this.worldApi();
+        this.setState({ h });
+      };
+      window.addEventListener('8g:airportTSA', this._onEv);
+      this.api = this.worldApi();
+      if (this.api && this.api.hud) this.setState({ h: this.api.hud() });
+      return;
+    }
+    this.boot();
+  }
+  worldApi() {
+    try { const w = this.props.world; return w && w._airportTSA && w._airportTSA.g ? w._airportTSA.g() : null; } catch (e) { return null; }
+  }
+  async boot() {
+    const stage = this.stage || document.querySelector('[data-airport-stage]');
+    if (!stage) { if (this._tries++ < 100) setTimeout(() => this.boot(), 50); return; }
+    const rel = './minigames/airport/airport.js';
+    const urls = [];
+    try { urls.push(new URL(rel, document.baseURI).href); } catch (e) { }
+    const sup = document.querySelector('script[src*="support.js"]');
+    if (sup && sup.src) { try { const u = new URL(rel, sup.src).href; if (urls.indexOf(u) < 0) urls.push(u); } catch (e) { } }
+    let mod = null, err = null;
+    for (const u of urls) { try { mod = await import(u); break; } catch (e) { err = e; } }
+    if (this._dead) return;
+    if (!mod) { this.setState({ loadErr: 'Could not load the game: ' + String((err && err.message) || err) }); return; }
+    try {
+      const api = await mod.createAirport({ container: stage, onState: (h) => { if (!this._dead) this.setState({ h }); } });
+      if (this._dead) { api.destroy(); return; }
+      this.api = api;
+      this.setState({ h: api.hud() });
+      this.measureSoon();
+    } catch (e) { this.setState({ loadErr: 'The game could not start: ' + String((e && e.message) || e) }); }
+  }
+  componentWillUnmount() {
+    this._dead = true;
+    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('pointerdown', this._unlock, true);
+    if (this._onEv) window.removeEventListener('8g:airportTSA', this._onEv);
+    if (this._mq) cancelAnimationFrame(this._mq);
+    if (this.api && !this.props.world) this.api.destroy();
+    this.api = null;
+  }
+  componentDidUpdate() { this.measureSoon(); }
+  measureSoon() {
+    if (this._mq) return;
+    this._mq = requestAnimationFrame(() => { this._mq = 0; this.measure(); });
+  }
+  measure() {
+    const root = this.root || document.querySelector('[data-airport-root]');
+    if (!root || !this.api || !this.api.setSafe) return;
+    const R = root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+      const k = el.getAttribute('data-safe');
+      if (k === 'top') s.top = Math.max(s.top, r.bottom - R.top);
+      if (k === 'bottom') s.bottom = Math.max(s.bottom, R.bottom - r.top);
+      if (k === 'left') s.left = Math.max(s.left, r.right - R.left);
+      if (k === 'right') s.right = Math.max(s.right, R.right - r.left);
+    });
+    ['top', 'bottom', 'left', 'right'].forEach((k) => { s[k] = Math.round(s[k]); });
+    const key = JSON.stringify(s);
+    if (key !== this._lastSafe) { this._lastSafe = key; this.api.setSafe(s); }
+    if (s.top && s.top !== this.state.safeTop) this.setState({ safeTop: s.top });
+  }
+  call(fn, a) { return () => { const A = this.api; if (A && typeof A[fn] === 'function') A[fn](a); }; }
+  joyDown(e) {
+    if (e.preventDefault) e.preventDefault();
+    const el = e.currentTarget; this.joyEl = el; this.joyId = e.pointerId;
+    try { el.setPointerCapture(e.pointerId); } catch (er) { }
+    this.joyMove(e);
+  }
+  joyMove(e) {
+    if (this.joyId !== e.pointerId || !this.joyEl) return;
+    const r = this.joyEl.getBoundingClientRect();
+    let x = (e.clientX - (r.left + r.width / 2)) / (r.width / 2 - 14), y = -(e.clientY - (r.top + r.height / 2)) / (r.height / 2 - 14);
+    const l = Math.hypot(x, y); if (l > 1) { x /= l; y /= l; }
+    if (this.api) this.api.move(x, y);
+    this.setState({ jx: x, jy: y });
+  }
+  joyUp(e) {
+    if (this.joyId !== e.pointerId) return;
+    this.joyId = null; if (this.api) this.api.move(0, 0);
+    this.setState({ jx: 0, jy: 0 });
+  }
+  renderVals() {
+    const h = this.state.h, port = this.state.port, world = this.props.world;
+    const ph = h ? h.phase : 'loading';
+    const demo = !!(h && h.demo);
+    const playing = !!h && ph !== 'loading' && ph !== 'result' && ph !== 'handoff';
+    const sheet = playing && ['post', 'id', 'belt', 'xray', 'reveal', 'inspect'].indexOf(ph) >= 0;
+    const top = this.state.safeTop || 52;
+    const btn = (on) => 'min-height: 48px; padding: 6px 12px; background: ' + (on ? '#ffd23a' : '#000000') + '; color: ' + (on ? '#000000' : '#ffffff') + '; border: 2px solid ' + (on ? '#ffd23a' : '#3a3836') + '; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0';
+    const lvBtn = (on) => 'min-height: 48px; padding: 8px 12px; background: #000000; color: #ffffff; border: 2px solid ' + (on ? '#ffd23a' : '#3a3836') + '; font-family: Archivo, sans-serif; text-align: left; cursor: pointer; border-radius: 0';
+    const dot = (p) => p ? 'left: ' + p.x + '%; top: ' + p.y + '%;' : 'display: none;';
+    const near = h && h.near;
+    const actOn = !!near && near.kind !== 'busy';
+    const id = h && h.id, xr = h && h.xray, rv = h && h.reveal, ins = h && h.inspect, res = h && h.result, ho = h && h.handoff, toast = h && h.toast;
+    const endWorld = () => { const w = this.props.world; if (w && w._airportTSA && w._airportTSA.end) { w._airportTSA.end(); return true; } return false; };
+    const sheetStyle = port
+      ? 'position: absolute; left: 0; right: 0; bottom: 0; max-height: 64%; overflow-y: auto; background: #000000; border-top: 2px solid #3a3836; padding: 14px 16px 16px; box-sizing: border-box; pointer-events: auto; display: flex; flex-direction: column; gap: 10px; color: #ffffff'
+      : 'position: absolute; right: 0; top: ' + top + 'px; bottom: 0; width: 360px; max-width: 48%; overflow-y: auto; background: #000000; border-left: 2px solid #3a3836; padding: 14px 16px 16px; box-sizing: border-box; pointer-events: auto; display: flex; flex-direction: column; gap: 10px; color: #ffffff';
+    let hintStyle = 'position: absolute; left: 40px; bottom: 150px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none';
+    let hintText = 'DRAG TO WALK';
+    if (ph === 'patrol' && actOn) { hintStyle = 'position: absolute; right: 120px; bottom: 132px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none'; hintText = 'TAP 1'; }
+    if (ph === 'id') { hintStyle = 'position: absolute; left: 16px; top: ' + (top + 64) + 'px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none'; hintText = 'CHECK NAME, PHOTO, DATES'; }
+    if (ph === 'xray') { hintStyle = 'position: absolute; left: 30%; top: ' + (top + 90) + 'px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none'; hintText = 'TAP AN ITEM TO TAG IT'; }
+    if (ph === 'inspect') { hintStyle = 'position: absolute; left: 16px; top: ' + (top + 64) + 'px; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; pointer-events: none'; hintText = 'ACT OR CLEAR'; }
+    const level = h ? h.level : 1, mode = h ? h.mode : 'cpu', players = h ? h.players : 2;
+    return {
+      setRoot: (el) => { this.root = el; },
+      setStage: (el) => { this.stage = el; },
+      rootStyle: 'position: relative; width: 100%; height: ' + (world ? '100%' : '100vh') + '; min-height: 320px; overflow: hidden; font-family: Archivo, Arial, sans-serif; color: #ffffff; background: ' + (world ? 'transparent' : '#000000') + '; pointer-events: ' + (world ? 'none' : 'auto') + '; user-select: none; -webkit-user-select: none',
+      standalone: !world,
+      loading: !h && (!world || !!this.state.loadErr),
+      loadText: this.state.loadErr || 'LOADING THE AIRPORT',
+      playing,
+      timeText: h ? h.timeText : '3:00', timeColor: h && h.low ? '#ffd23a' : '#ffffff',
+      scoreLabel: h && h.mode === 'local' ? 'PLAYER ' + h.playerNo : (demo ? 'AUTO' : 'YOU'),
+      score: h ? h.score : 0,
+      hasRival: !!(h && h.rival), rivalName: h && h.rival ? h.rival.name : '', rivalScore: h && h.rival ? h.rival.score : 0,
+      queue: h ? h.queue : 0, queueBg: h && h.queueWarn ? '#ec3013' : '#000000', queueLabel: h && h.queueWarn ? '#ffffff' : '#a8a49e',
+      openMenu: this.call('menu', true), closeMenu: this.call('menu', false),
+      openInvite: () => this.setState({ invite: true }), closeInvite: () => this.setState({ invite: false }),
+      inviteLocal: () => { this.setState({ invite: false }); if (this.api) this.api.setMode('local'); },
+      back: () => { if (!endWorld() && this.api) { this.api.menu(false); this.api.quit(); } },
+      resultBack: () => { if (!endWorld() && this.api) this.api.start('demo'); },
+      mapStyle: 'position: absolute; right: 12px; top: ' + (top + 8) + 'px; width: 132px; height: 112px; border: 2px solid #3a3836; background: #141312; pointer-events: none',
+      playerDot: dot(h && h.map && h.map.p), postDot: dot(h && h.map && h.map.post),
+      hasRivalDot: !!(h && h.map && h.map.rv), rivalDot: dot(h && h.map && h.map.rv),
+      incDots: (h && h.map ? h.map.inc : []).map((d) => ({ style: dot(d) })),
+      hasToast: !!toast, toastText: toast ? toast.text : '', toastPts: toast && toast.pts ? toast.pts : '', toastColor: toast && toast.good ? '#ffd23a' : '#ff5a3c',
+      toastStyle: 'position: absolute; left: 12px; top: ' + (top + 8) + 'px; max-width: calc(100% - 172px); display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 8px 12px; background: #000000; border: 2px solid ' + (toast && toast.good ? '#ffd23a' : '#ec3013') + '; pointer-events: none',
+      hasCaption: !!(h && h.caption) && playing, captionText: h && h.caption ? h.caption : '', capLabel: demo ? 'DEMO' : (h && h.caption && h.caption.indexOf('PA:') === 0 ? 'ANNOUNCEMENT' : 'SUPERVISOR'),
+      capStyle: 'position: absolute; left: 12px; top: ' + (top + 58) + 'px; width: calc(100% - 172px); max-width: 440px; display: flex; flex-direction: column; gap: 6px; padding: 10px 12px; background: #000000; border: 2px solid #3a3836; box-sizing: border-box; pointer-events: ' + (demo ? 'auto' : 'none'),
+      demo,
+      showPatrol: playing && ph === 'patrol' && !demo,
+      ctrlSafeL: port ? 'bottom' : 'left', ctrlSafeR: port ? 'bottom' : 'right',
+      joyDown: (e) => this.joyDown(e), joyMove: (e) => this.joyMove(e), joyUp: (e) => this.joyUp(e),
+      knobStyle: 'position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; background: #ffd23a; border: 2px solid #000000; box-sizing: border-box; transform: translate(' + Math.round(this.state.jx * 40) + 'px, ' + Math.round(-this.state.jy * 40) + 'px)',
+      act: this.call('act'),
+      actLabel: near ? near.label : 'LOOK AROUND',
+      actStyle: 'grid-column: span 2; min-height: 64px; padding: 0 12px; background: ' + (actOn ? '#ec3013' : '#1b1a19') + '; color: ' + (actOn ? '#ffffff' : '#a8a49e') + '; border: 2px solid ' + (actOn ? '#ec3013' : '#3a3836') + '; font-family: Archivo, sans-serif; font-size: 16px; font-weight: 900; letter-spacing: 0.04em; text-align: left; cursor: pointer; border-radius: 0',
+      sprintOn: this.call('sprint', true), sprintOff: this.call('sprint', false),
+      sprintStyle: 'min-height: 52px; padding: 0 10px; background: ' + (h && h.sprint ? '#ffd23a' : '#000000') + '; color: ' + (h && h.sprint ? '#000000' : '#ffffff') + '; border: 2px solid ' + (h && h.sprint ? '#ffd23a' : '#3a3836') + '; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0; touch-action: none',
+      radio: this.call('radio'),
+      radioLabel: h && !h.radioReady ? 'RADIO ' + h.radioCd : 'RADIO',
+      radioStyle: 'min-height: 52px; padding: 0 10px; background: #000000; color: ' + (h && !h.radioReady ? '#6f6b66' : '#ffffff') + '; border: 2px solid #3a3836; font-family: Archivo, sans-serif; font-size: 13px; font-weight: 900; text-align: left; cursor: pointer; border-radius: 0',
+      showSheet: sheet, sheetSafe: port ? 'bottom' : 'right', sheetStyle,
+      canAct: !demo,
+      isPost: ph === 'post', isId: ph === 'id' && !!id, isXray: ph === 'xray' || ph === 'belt', isReveal: ph === 'reveal' && !!rv, isInspect: ph === 'inspect' && !!ins,
+      showLeaveOnly: !demo && (ph === 'post' || ph === 'belt'),
+      idN: id ? id.n : '', today: h ? h.today : '', idPhoto: id ? id.photo : '#e8742c', idLive: id ? id.live : '#e8742c', idName: id ? id.idName : '', idExp: id ? id.exp : '',
+      passName: id ? id.passName : '', flight: id ? id.flight : '', dest: id ? id.dest : '', gate: id ? id.gate : '', seat: id ? id.seat : '', passDate: id ? id.date : '',
+      approve: this.call('approve'), deny: this.call('deny'), leave: this.call('leavePost'),
+      xNum: xr ? xr.num : '', xTags: xr ? xr.tags : 0, xText: xr && xr.ready ? (demo ? 'The agent tags what looks banned.' : 'Tap anything banned on the screen, then clear or search the bag.') : 'Bag on the belt. Scanning now.',
+      xButtons: !demo && !!(xr && xr.ready),
+      clearBag: this.call('clearBag'), searchBag: this.call('searchBag'),
+      revealTitle: rv ? rv.title : '', revealText: rv ? rv.text : '', revealPts: rv ? (rv.pts > 0 ? '+' + rv.pts : String(rv.pts)) : '', revealColor: rv && rv.good ? '#ffd23a' : '#ff5a3c',
+      skip: this.call('skip'),
+      inspTitle: ins ? ins.title : '', inspText: ins ? ins.text : '', inspAct: ins ? ins.act : '',
+      inspectAct: this.call('inspectAct'), inspectClear: this.call('inspectClear'),
+      showHint: !!(h && h.idle) && playing, hintStyle, hintText,
+      showHandoff: ph === 'handoff' && !!ho, hoLast: ho ? ho.last : '', hoScore: ho ? ho.score : 0, hoNext: ho ? ho.next : '', nextPlayer: this.call('next'),
+      showResult: ph === 'result' && !!res,
+      resTitle: res ? res.title : '', resSub: res ? res.sub : '', resScore: res ? res.score : 0, resBest: res ? res.best : 0, resBestLabel: res && res.newBest ? 'NEW BEST' : 'BEST', resGold: res ? res.gold : 0,
+      resStars: [0, 1, 2].map((i) => ({ bg: res && res.stars > i ? '#ffd23a' : '#000000' })),
+      resRows: res ? res.rows : [], resStats: res ? res.stats : [],
+      playAgain: this.call('restart'),
+      showMenu: !!(h && h.menu) && playing,
+      showInvite: this.state.invite && !(h && h.menu),
+      playCpu: this.call('setMode', 'cpu'), playLocal: this.call('setMode', 'local'), playDemo: this.call('setMode', 'demo'),
+      modeCpuStyle: btn(mode === 'cpu'), modeLocalStyle: btn(mode === 'local'), modeDemoStyle: btn(mode === 'demo'),
+      levels: (h && h.levels ? h.levels : []).map((l) => ({ name: l.name, title: l.title, blurb: l.blurb, style: lvBtn(l.i === level), pick: this.call('setLevel', l.i) })),
+      playerOpts: [2, 3, 4].map((n) => ({ label: n + ' AGENTS', style: btn(mode === 'local' && players === n), pick: this.call('setPlayers', n) })),
+      toggleSound: () => { if (this.api && h) this.api.setSound(!h.sound); },
+      toggleMusic: () => { if (this.api && h) this.api.setMusic(!h.music); },
+      soundLabel: h && h.sound ? 'SOUND ON' : 'SOUND OFF', musicLabel: h && h.music ? 'MUSIC ON' : 'MUSIC OFF',
+      restart: this.call('restart'),
+      best: h ? h.best : 0, gold: h ? h.gold : 0,
+    };
+  }
+}
+</script>
+</body>
+</html>

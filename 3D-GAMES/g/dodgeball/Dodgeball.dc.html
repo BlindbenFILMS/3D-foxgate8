@@ -1,0 +1,442 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Dodgeball</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div data-uid="{{uid}}" ref="{{setRoot}}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; font-family: Archivo, system-ui, sans-serif; color: #ffffff; user-select: none; -webkit-user-select: none; touch-action: none; {{rootBg}}">
+
+  <sc-if value="{{standalone}}" hint-placeholder-val="{{ true }}">
+    <div data-stage="1" ref="{{setStage}}" style="position: absolute; inset: 0; background: #2b2547"></div>
+  </sc-if>
+
+  <div style="position: absolute; inset: 0; pointer-events: none">
+    <div data-safe="top" style="position: absolute; top: 0; left: 0; right: 0; padding: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch">
+      <div style="pointer-events: auto; flex: 1 1 250px; min-height: 44px; background: #000000; border: 2px solid #3a3836; display: flex; align-items: center; gap: 10px; padding: 4px 10px; box-sizing: border-box">
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <div style="font-size: 12px; font-weight: 800; letter-spacing: .06em; color: #ec3013; white-space: nowrap">{{t0.name}}</div>
+          <div style="display: flex; gap: 4px">
+            <sc-for list="{{t0.pips}}" as="pip" hint-placeholder-count="2"><div style="width: 12px; height: 12px; box-sizing: border-box; {{pip.style}}"></div></sc-for>
+          </div>
+        </div>
+        <div style="font-size: 26px; font-weight: 900; letter-spacing: .02em; white-space: nowrap">{{scoreText}}</div>
+        <div style="display: flex; flex-direction: column; gap: 3px; min-width: 0">
+          <div style="font-size: 12px; font-weight: 800; letter-spacing: .06em; color: #6f9bff; white-space: nowrap">{{t1.name}}</div>
+          <div style="display: flex; gap: 4px">
+            <sc-for list="{{t1.pips}}" as="pip" hint-placeholder-count="2"><div style="width: 12px; height: 12px; box-sizing: border-box; {{pip.style}}"></div></sc-for>
+          </div>
+        </div>
+        <div style="margin-left: auto; display: flex; flex-direction: column; gap: 2px; text-align: left">
+          <div style="font-size: 12px; font-weight: 600; color: #b9b4ae; white-space: nowrap">{{roundText}}</div>
+          <div style="font-size: 18px; font-weight: 900; white-space: nowrap; {{timerStyle}}">{{timerText}}</div>
+        </div>
+      </div>
+      <div style="pointer-events: auto; display: flex; gap: 6px; flex: 0 0 auto">
+        <button onClick="{{openMenu}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 44px; min-width: 64px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; border-radius: 0">MENU</button>
+        <button onClick="{{openInvite}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 44px; padding: 0 12px; background: #000000; color: #ffd23a; border: 2px solid #3a3836; font-size: 13px; border-radius: 0">INVITE FRIEND</button>
+        <button onClick="{{back}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 44px; min-width: 64px; padding: 0 12px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 13px; border-radius: 0">BACK</button>
+      </div>
+      <sc-if value="{{showP2}}" hint-placeholder-val="{{ false }}">
+        <div style="flex: 1 1 100%; display: flex; justify-content: space-between; align-items: flex-end; transform: rotate(180deg); padding-top: 4px">
+          <div style="pointer-events: auto; width: 124px; height: 124px; box-sizing: border-box; background: rgba(0,0,0,.55); border: 2px solid #3ad7ff; position: relative; touch-action: none" onPointerDown="{{p2.joyDown}}" onPointerMove="{{p2.joyMove}}" onPointerUp="{{p2.joyUp}}" onPointerCancel="{{p2.joyUp}}">
+            <div style="position: absolute; left: 50%; top: 50%; width: 46px; height: 46px; margin: -23px 0 0 -23px; background: #3ad7ff; border: 2px solid #1a1626; box-sizing: border-box; transform: translate({{p2.kx}}px, {{p2.ky}}px)"></div>
+          </div>
+          <div style="pointer-events: auto; display: flex; flex-direction: column; gap: 6px; width: 184px">
+            <div style="display: flex; gap: 6px">
+              <button onPointerDown="{{p2.catchDown}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; flex: 1; min-height: 50px; padding: 0 10px; border: 2px solid #3a3836; font-size: 14px; border-radius: 0; {{p2.catchStyle}}">{{p2.catchLabel}}</button>
+              <button onPointerDown="{{p2.dodgeDown}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; flex: 1; min-height: 50px; padding: 0 10px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; border-radius: 0; {{p2.dodgeStyle}}">DODGE</button>
+            </div>
+            <button onPointerDown="{{p2.throwDown}}" onPointerUp="{{p2.throwUp}}" onPointerCancel="{{p2.throwUp}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; position: relative; min-height: 64px; padding: 0 12px; border: 2px solid #3a3836; font-size: 18px; border-radius: 0; overflow: hidden; {{p2.throwStyle}}">
+              <span style="position: relative; display: block">{{p2.throwLabel}}</span>
+              <span style="position: relative; display: block; font-size: 12px; font-weight: 600">{{p2.throwSub}}</span>
+              <span style="position: absolute; left: 0; right: 0; bottom: 0; height: 8px; background: #3a3836"></span>
+              <span style="position: absolute; bottom: 0; height: 8px; background: #ffd23a; opacity: .55; {{bandStyle}}"></span>
+              <span style="position: absolute; left: 0; bottom: 0; height: 8px; {{p2.fillStyle}}"></span>
+            </button>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+    <sc-if value="{{hasMsg}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); max-width: 86%; background: #000000; border: 2px solid #3a3836; padding: 10px 16px; text-align: left">
+        <div style="font-size: {{msgSize}}px; font-weight: 900; letter-spacing: .03em; line-height: 1.1; {{msgColor}}">{{h.msg}}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{showHint}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; bottom: {{hintBottom}}px; {{hintSide}}; max-width: 230px; background: #000000; border: 2px solid #ffd23a; padding: 10px 12px; display: flex; gap: 10px; align-items: center">
+        <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffd23a" stroke-width="2" stroke-linecap="square" stroke-linejoin="miter" aria-hidden="true" style="flex: 0 0 auto; transition: transform .25s ease-in-out; transform: translate({{handDx}}px, {{handDy}}px)"><path d="M8 13V4.5a1.5 1.5 0 0 1 3 0V12"></path><path d="M11 11.5v-2a1.5 1.5 0 0 1 3 0V12"></path><path d="M14 10.5a1.5 1.5 0 0 1 3 0V12"></path><path d="M17 11.5a1.5 1.5 0 0 1 3 0V16a6 6 0 0 1-6 6h-2a6 6 0 0 1-5-2.7L4.3 15a1.5 1.5 0 0 1 2.4-1.8L8 15"></path></svg>
+        <div style="font-size: 14px; font-weight: 700; line-height: 1.3">{{hintText}}</div>
+      </div>
+    </sc-if>
+    <sc-if value="{{showP1}}" hint-placeholder-val="{{ true }}">
+      <div style="position: absolute; left: 0; right: 0; bottom: 0; padding: 12px; display: flex; justify-content: space-between; align-items: flex-end">
+        <div data-safe="{{safeL}}" style="pointer-events: auto; width: 132px; height: 132px; box-sizing: border-box; background: rgba(0,0,0,.55); border: 2px solid #3a3836; position: relative; touch-action: none" onPointerDown="{{p1.joyDown}}" onPointerMove="{{p1.joyMove}}" onPointerUp="{{p1.joyUp}}" onPointerCancel="{{p1.joyUp}}">
+          <div style="position: absolute; left: 8px; top: 6px; font-size: 12px; font-weight: 800; color: #b9b4ae; letter-spacing: .06em">MOVE</div>
+          <div style="position: absolute; left: 50%; top: 50%; width: 50px; height: 50px; margin: -25px 0 0 -25px; background: #ffd23a; border: 2px solid #1a1626; box-sizing: border-box; transform: translate({{p1.kx}}px, {{p1.ky}}px)"></div>
+        </div>
+        <div data-safe="{{safeR}}" style="pointer-events: auto; display: flex; flex-direction: column; gap: 6px; width: 200px">
+          <div style="display: flex; gap: 6px">
+            <button aria-label="Catch" onPointerDown="{{p1.catchDown}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; position: relative; flex: 1; min-height: 54px; padding: 0 10px; border: 2px solid #3a3836; font-size: 15px; border-radius: 0; overflow: hidden; {{p1.catchStyle}}">
+              <span style="position: relative">{{p1.catchLabel}}</span>
+              <span style="position: absolute; left: 0; bottom: 0; height: 4px; background: #ffffff; {{p1.catchBar}}"></span>
+            </button>
+            <button aria-label="Dodge" onPointerDown="{{p1.dodgeDown}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; position: relative; flex: 1; min-height: 54px; padding: 0 10px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 15px; border-radius: 0; overflow: hidden; {{p1.dodgeStyle}}">
+              <span style="position: relative">DODGE</span>
+              <span style="position: absolute; left: 0; bottom: 0; height: 4px; background: #ffffff; {{p1.dashBar}}"></span>
+            </button>
+          </div>
+          <div style="display: flex; gap: 6px">
+            <button aria-label="Switch target" onClick="{{p1.swap}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; flex: 0 0 56px; min-height: 70px; padding: 0 8px; background: #000000; color: #ffd23a; border: 2px solid #3a3836; font-size: 12px; border-radius: 0">SWAP<br>AIM</button>
+            <button aria-label="Throw: hold, then release" onPointerDown="{{p1.throwDown}}" onPointerUp="{{p1.throwUp}}" onPointerCancel="{{p1.throwUp}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; position: relative; flex: 1; min-height: 70px; padding: 0 12px 8px; border: 2px solid #3a3836; font-size: 20px; border-radius: 0; overflow: hidden; {{p1.throwStyle}}">
+              <span style="position: relative; display: block; line-height: 1.1">{{p1.throwLabel}}</span>
+              <span style="position: relative; display: block; font-size: 12px; font-weight: 600; line-height: 1.3">{{p1.throwSub}}</span>
+              <span style="position: absolute; left: 0; right: 0; bottom: 0; height: 9px; background: #3a3836"></span>
+              <span style="position: absolute; bottom: 0; height: 9px; background: #ffd23a; opacity: .55; {{bandStyle}}"></span>
+              <span style="position: absolute; left: 0; bottom: 0; height: 9px; {{p1.fillStyle}}"></span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{isDemo}}" hint-placeholder-val="{{ false }}">
+      <div data-safe="bottom" style="pointer-events: auto; position: absolute; left: 8px; right: 8px; bottom: 8px; background: #000000; border: 2px solid #3a3836; padding: 12px; display: flex; flex-direction: column; gap: 10px">
+        <div style="display: flex; gap: 8px; align-items: baseline">
+          <div style="font-size: 12px; font-weight: 900; color: #ec3013; letter-spacing: .08em">DEMO</div>
+          <div style="font-size: 16px; font-weight: 700; line-height: 1.35">{{h.tip}}</div>
+        </div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap">
+          <button onClick="{{playCpu}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 44px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; border-radius: 0">PLAY VS CPU</button>
+          <button onClick="{{playLocal}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 44px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; border-radius: 0">2 PLAYERS</button>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+      <div style="position: absolute; left: 12px; bottom: 12px; background: #000000; border: 2px solid #3a3836; padding: 10px 14px; font-size: 14px; font-weight: 700">{{loadText}}</div>
+    </sc-if>
+  </div>
+  <sc-if value="{{hasResult}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+      <div role="dialog" aria-label="Match result" style="width: 100%; max-width: 360px; background: #000000; border: 2px solid #3a3836; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; text-align: left">
+        <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #b9b4ae">DODGEBALL · FINAL</div>
+        <div style="font-size: 34px; font-weight: 900; line-height: 1; {{resTitleColor}}">{{res.title}}</div>
+        <div style="font-size: 16px; font-weight: 700">{{res.sub}}</div>
+        <sc-if value="{{res.hasStars}}" hint-placeholder-val="{{ true }}">
+          <div style="display: flex; gap: 8px">
+            <sc-for list="{{res.starList}}" as="st" hint-placeholder-count="3">
+              <svg width="34" height="34" viewBox="0 0 24 24" role="img" aria-label="{{st.label}}"><polygon points="12,2 15,9 22,9.5 16.5,14 18.5,21.5 12,17.3 5.5,21.5 7.5,14 2,9.5 9,9" fill="{{st.fill}}" stroke="{{st.stroke}}" stroke-width="2" stroke-linejoin="miter"></polygon></svg>
+            </sc-for>
+          </div>
+        </sc-if>
+        <sc-if value="{{res.hasScore}}" hint-placeholder-val="{{ true }}">
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; border-top: 2px solid #3a3836">
+            <div style="padding: 8px 0; border-bottom: 2px solid #3a3836"><div style="font-size: 12px; color: #b9b4ae; font-weight: 700">SCORE</div><div style="font-size: 22px; font-weight: 900">{{res.score}}</div></div>
+            <div style="padding: 8px 0; border-bottom: 2px solid #3a3836"><div style="font-size: 12px; color: #b9b4ae; font-weight: 700">{{res.bestLabel}}</div><div style="font-size: 22px; font-weight: 900; color: #ffd23a">{{res.best}}</div></div>
+            <div style="padding: 8px 0; border-bottom: 2px solid #3a3836"><div style="font-size: 12px; color: #b9b4ae; font-weight: 700">GOLD</div><div style="font-size: 22px; font-weight: 900; color: #ffd23a">+{{res.gold}}</div></div>
+            <div style="padding: 8px 0; border-bottom: 2px solid #3a3836"><div style="font-size: 12px; color: #b9b4ae; font-weight: 700">XP</div><div style="font-size: 22px; font-weight: 900">+{{res.xp}}</div></div>
+          </div>
+          <div style="font-size: 13px; font-weight: 600; color: #b9b4ae">{{res.linesText}}</div>
+        </sc-if>
+        <div style="display: flex; gap: 6px">
+          <button onClick="{{playAgain}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; flex: 1; min-height: 50px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 15px; border-radius: 0">PLAY AGAIN</button>
+          <button onClick="{{back}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; flex: 1; min-height: 50px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 15px; border-radius: 0">BACK</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 12px; box-sizing: border-box; pointer-events: auto">
+      <div role="dialog" aria-label="Menu" style="width: 100%; max-width: 420px; max-height: 100%; overflow-y: auto; background: #000000; border: 2px solid #3a3836; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px; text-align: left">
+        <div style="display: flex; align-items: center; gap: 8px">
+          <div style="font-size: 24px; font-weight: 900; letter-spacing: .03em">DODGEBALL</div>
+          <button onClick="{{closeMenu}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; margin-left: auto; min-height: 44px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 14px; border-radius: 0">RESUME</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #b9b4ae">MODE</div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{modes}}" as="m" hint-placeholder-count="3">
+              <button onClick="{{m.pick}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 48px; padding: 0 10px; border: 2px solid #3a3836; font-size: 13px; border-radius: 0; {{m.style}}">{{m.label}}</button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px">
+          <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #b9b4ae">OPPONENT</div>
+          <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+            <sc-for list="{{levels}}" as="lv" hint-placeholder-count="3">
+              <button onClick="{{lv.pick}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 58px; padding: 6px 10px; border: 2px solid #3a3836; border-radius: 0; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; {{lv.style}}">
+                <span style="font-size: 15px; font-weight: 900">{{lv.name}}</span>
+                <span style="font-size: 12px; font-weight: 600">{{lv.title}}</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+          <button onClick="{{toggleSound}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 48px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; border-radius: 0">{{soundLabel}}</button>
+          <button onClick="{{toggleMusic}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 48px; padding: 0 12px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; border-radius: 0">{{musicLabel}}</button>
+          <button onClick="{{restart}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 48px; padding: 0 12px; background: #000000; color: #ffd23a; border: 2px solid #3a3836; font-size: 13px; border-radius: 0">RESTART MATCH</button>
+          <button onClick="{{back}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 48px; padding: 0 12px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 13px; border-radius: 0">LEAVE</button>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; border-top: 2px solid #3a3836; padding-top: 12px">
+          <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #b9b4ae">RULES</div>
+          <sc-for list="{{rules}}" as="r" hint-placeholder-count="5">
+            <div style="font-size: 14px; font-weight: 600; line-height: 1.4">{{r.text}}</div>
+          </sc-for>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 6px; border-top: 2px solid #3a3836; padding-top: 12px">
+          <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #b9b4ae">CONTROLS</div>
+          <sc-for list="{{controls}}" as="c" hint-placeholder-count="4">
+            <div style="font-size: 13px; font-weight: 600; line-height: 1.4; color: #e6e2dc">{{c.text}}</div>
+          </sc-for>
+        </div>
+        <div style="font-size: 12px; font-weight: 600; color: #b9b4ae">{{bestText}}</div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{inviteOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: rgba(0,0,0,.55); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+      <div role="dialog" aria-label="Invite a friend" style="width: 100%; max-width: 360px; background: #000000; border: 2px solid #3a3836; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px; text-align: left">
+        <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">INVITE FRIEND</div>
+        <div style="font-size: 22px; font-weight: 900">Online rooms are coming soon.</div>
+        <div style="font-size: 15px; font-weight: 600; line-height: 1.4">Play now on one screen: 2 PLAYERS puts a set of controls at each end.</div>
+        <div style="display: flex; gap: 6px">
+          <button onClick="{{playLocal}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; flex: 1; min-height: 50px; padding: 0 14px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; border-radius: 0">PLAY 2 PLAYERS</button>
+          <button onClick="{{closeInvite}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; flex: 1; min-height: 50px; padding: 0 14px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; border-radius: 0">CLOSE</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{leftOpen}}" hint-placeholder-val="{{ false }}">
+    <div style="position: absolute; inset: 0; background: #000000; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+      <div style="width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; text-align: left; border-top: 2px solid #3a3836; padding-top: 16px">
+        <div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ec3013">8 GATES</div>
+        <div style="font-size: 26px; font-weight: 900">You left the court.</div>
+        <div style="font-size: 15px; font-weight: 600; line-height: 1.4; color: #b9b4ae">In the town, BACK returns you to the street.</div>
+        <button onClick="{{returnCourt}}" style="font-family: inherit; font-weight: 800; letter-spacing: .04em; text-align: left; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; min-height: 50px; padding: 0 14px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 15px; border-radius: 0">RETURN TO THE COURT</button>
+      </div>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"startMode":{"editor":"enum","options":["cpu","local","demo"],"default":"cpu"},"level":{"editor":"enum","options":["0","1","2"],"default":"0"},"world":{"editor":null},"moduleUrl":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { h: null, menu: false, invite: false, left: false, land: false, k: [{ x: 0, y: 0 }, { x: 0, y: 0 }], err: '' };
+    this.uid = 'dg' + Math.random().toString(36).slice(2, 9);
+    this.api = null; this.joyId = [null, null]; this.lastMenuReq = 0; this.lastSafe = '';
+    this.setRoot = (el) => { if (el) this._root = el; };
+    this.setStage = (el) => { if (el) this._stage = el; };
+    this.h = {};
+    for (const i of [0, 1]) {
+      this.h[i] = {
+        joyDown: (e) => { if (e.preventDefault) e.preventDefault(); const el = e.currentTarget; try { el.setPointerCapture(e.pointerId); } catch (x) {} this.joyId[i] = e.pointerId; this.joyAt(i, e, el); },
+        joyMove: (e) => { if (this.joyId[i] !== e.pointerId) return; this.joyAt(i, e, e.currentTarget); },
+        joyUp: (e) => { if (this.joyId[i] !== e.pointerId) return; this.joyId[i] = null; if (this.api) this.api.joy(i, 0, 0); const k = this.state.k.slice(); k[i] = { x: 0, y: 0 }; this.setState({ k }); },
+        throwDown: (e) => { if (e.preventDefault) e.preventDefault(); try { e.currentTarget.setPointerCapture(e.pointerId); } catch (x) {} if (this.api) this.api.throwDown(i); },
+        throwUp: () => { if (this.api) this.api.throwUp(i); },
+        catchDown: (e) => { if (e.preventDefault) e.preventDefault(); if (this.api) this.api.catchBall(i); },
+        dodgeDown: (e) => { if (e.preventDefault) e.preventDefault(); if (this.api) this.api.dodge(i); },
+        swap: () => { if (this.api) this.api.cycleTarget(i); },
+      };
+    }
+  }
+
+  el() { return this._root || document.querySelector('[data-uid="' + this.uid + '"]'); }
+  stage() { if (this._stage) return this._stage; const r = this.el(); return r ? r.querySelector('[data-stage]') : null; }
+
+  componentDidMount() {
+    const W = this.props.world;
+    if (W) {
+      this.onEv = (e) => {
+        const h = e.detail;
+        if (!h) { this.api = null; this.setState({ h: null, menu: false, invite: false }); return; }
+        if (!this.api && W._dodgeballCourt && W._dodgeballCourt.g) this.api = W._dodgeballCourt.g();
+        this.take(h);
+      };
+      window.addEventListener('8g:dodgeballCourt', this.onEv);
+      if (W._dodgeballCourt && W._dodgeballCourt.g) { this.api = W._dodgeballCourt.g(); if (this.api) this.take(this.api.hud()); }
+    } else {
+      const boot = () => {
+        const stage = this.stage();
+        if (!stage) { this.bootTry = (this.bootTry || 0) + 1; if (this.bootTry < 40) setTimeout(boot, 50); return; }
+        let url = this.props.moduleUrl;
+        if (!url) { try { url = new URL('minigames/dodgeball/dodgeball.js', document.baseURI).href; } catch (x) { url = './minigames/dodgeball/dodgeball.js'; } }
+        const lv = parseInt(this.props.level, 10);
+        import(url).then((m) => m.createDodgeball({ container: stage, onState: (h) => this.take(h), opts: { mode: this.props.startMode || 'cpu', level: isNaN(lv) ? undefined : lv } }))
+          .then((api) => { if (this.dead) { api.destroy(); return; } this.api = api; this.measure(); })
+          .catch((err) => { this.setState({ err: 'Could not load the game: ' + (err && err.message ? err.message : err) }); });
+      };
+      boot();
+    }
+    this.iv = setInterval(() => this.measure(), 500);
+    this.onResize = () => this.measure();
+    window.addEventListener('resize', this.onResize);
+  }
+  componentWillUnmount() {
+    this.dead = true; clearInterval(this.iv); window.removeEventListener('resize', this.onResize);
+    if (this.onEv) window.removeEventListener('8g:dodgeballCourt', this.onEv);
+    if (!this.props.world && this.api) this.api.destroy();
+    this.api = null;
+  }
+  take(h) {
+    if (h.menuReq !== this.lastMenuReq) { const first = this.lastMenuReq === 0 && h.menuReq === 0; this.lastMenuReq = h.menuReq; if (!first) { if (this.state.menu) this.closeMenu(); else this.openMenu(); } }
+    this.setState({ h });
+  }
+  measure() {
+    const R = this.el(); if (!R) return;
+    const rr = R.getBoundingClientRect();
+    const land = rr.width > rr.height;
+    if (land !== this.state.land) this.setState({ land });
+    if (!this.api) return;
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    R.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect(); if (!r.width || !r.height) return;
+      const k = el.getAttribute('data-safe');
+      if (k === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      else if (k === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      else if (k === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      else if (k === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    const key = [s.top, s.bottom, s.left, s.right, rr.width, rr.height].map((v) => Math.round(v)).join(',');
+    if (key !== this.lastSafe) { this.lastSafe = key; this.api.setSafe(s); }
+  }
+  joyAt(i, e, el) {
+    const r = el.getBoundingClientRect();
+    const R = r.width / 2 - 25;
+    let sx = (e.clientX - (r.left + r.width / 2)) / R, sy = (e.clientY - (r.top + r.height / 2)) / R;
+    const l = Math.hypot(sx, sy); if (l > 1) { sx /= l; sy /= l; }
+    if (this.api) this.api.joy(i, sx, -sy);
+    const k = this.state.k.slice(); k[i] = i === 1 ? { x: -sx, y: -sy } : { x: sx, y: sy };
+    this.setState({ k });
+  }
+  openMenu() { if (this.api) this.api.pause(true); this.setState({ menu: true, invite: false }); }
+  closeMenu() { if (this.api) this.api.pause(false); this.setState({ menu: false }); }
+  back() {
+    const W = this.props.world;
+    if (W && W._dodgeballCourt && W._dodgeballCourt.end) { W._dodgeballCourt.end(); return; }
+    if (this.api) this.api.pause(true);
+    this.setState({ left: true, menu: false, invite: false });
+  }
+
+  renderVals() {
+    const S = this.state, h = S.h || {}, ph = h.phase || 'loading';
+    const teams = h.teams || [{ name: 'YOU', foxes: [] }, { name: '', foxes: [] }];
+    const pips = (t, col) => (t.foxes || []).map((f) => ({ style: f.alive ? 'background:' + col + ';border:2px solid ' + col : 'background:transparent;border:2px solid #3a3836' }));
+    const score = h.score || [0, 0];
+    const mm = Math.floor((h.timer || 0) / 60), ss = String((h.timer || 0) % 60).padStart(2, '0');
+    const isDemo = h.mode === 'demo';
+    const res = h.result;
+    const overlay = !!this.props.world;
+    const meter = h.meter || { lo: 0.78, hi: 0.92 };
+    const playing = !!S.h && !res && !isDemo && (ph === 'countdown' || ph === 'play' || ph === 'roundEnd');
+    const ctl = (i) => {
+      const p = (h.p && h.p[i]) || {};
+      const hk = this.h[i];
+      const k = S.k[i];
+      const holding = !!p.holding, charging = !!p.charging;
+      const throwStyle = charging ? (p.perfect ? 'background:#ffd23a;color:#000000' : 'background:#ec3013;color:#ffffff') : holding ? 'background:#ec3013;color:#ffffff' : 'background:#000000;color:#8a8580';
+      return {
+        ...hk, kx: Math.round(k.x * 41), ky: Math.round(k.y * 41),
+        throwStyle,
+        throwLabel: charging ? (p.perfect ? 'PERFECT' : 'RELEASE') : holding ? 'THROW' : 'NO BALL',
+        throwSub: charging ? 'let go in the yellow band' : holding ? (p.target ? 'hold, aim at ' + p.target : 'hold, then release') : 'run onto a ball',
+        fillStyle: 'width:' + Math.round((p.power || 0) * 100) + '%;background:' + (p.perfect ? '#ffffff' : '#ffd23a'),
+        catchLabel: p.now ? 'NOW' : p.blockMode ? 'BLOCK' : 'CATCH',
+        catchStyle: p.now ? 'background:#ffd23a;color:#000000;border-color:#ffd23a' : p.threat > 0.2 ? 'background:#000000;color:#ffd23a;border-color:#ffd23a' : 'background:#000000;color:#ffffff',
+        catchBar: 'width:' + Math.round(Math.max(0, Math.min(1, p.catchReady == null ? 1 : p.catchReady)) * 100) + '%',
+        dashBar: 'width:' + Math.round(Math.max(0, Math.min(1, p.dashReady == null ? 1 : p.dashReady)) * 100) + '%',
+        dodgeStyle: (p.dashReady == null || p.dashReady >= 1) ? '' : 'color:#8a8580',
+      };
+    };
+    const p1 = ctl(0), p2 = ctl(1);
+    const holding1 = !!(h.p && h.p[0] && h.p[0].holding);
+    const land = S.land;
+    const stars = res && res.stars != null ? [0, 1, 2].map((i) => ({ fill: i < res.stars ? '#ffd23a' : 'none', stroke: i < res.stars ? '#ffd23a' : '#3a3836', label: i < res.stars ? 'star earned' : 'star not earned' })) : [];
+    const msg = h.msg || '';
+    const isCount = /^[0-9]$/.test(msg) || msg === 'DODGE!';
+    const touch = h.touch !== false;
+    const controls = touch
+      ? ['Drag MOVE to run. Run onto a ball to pick it up.', 'Hold THROW, let go in the yellow band.', 'Tap CATCH as the ball arrives. Tap a fox to aim at it.', 'DODGE dashes you sideways.']
+      : (h.mode === 'local'
+        ? ['P1: WASD move, F throw (hold), G catch, H dodge, R swap aim.', 'P2: arrows move, Enter throw (hold), / catch, . dodge, comma swap aim.', 'Click the floor to run there. Esc opens this menu.']
+        : ['WASD or arrows: move. Click the floor to run there.', 'Space or J: hold to throw, let go in the yellow band.', 'K: catch (block while holding). L or Shift: dodge.', 'Q or Tab: swap aim. Esc: menu.']);
+    return {
+      uid: this.uid, setRoot: this.setRoot, setStage: this.setStage, h,
+      standalone: !overlay,
+      rootBg: overlay ? 'background: transparent; pointer-events: none' : 'background: #000000',
+      t0: { name: teams[0].name, pips: pips(teams[0], '#ec3013') },
+      t1: { name: teams[1].name, pips: pips(teams[1], '#2f6bff') },
+      scoreText: score[0] + ' : ' + score[1],
+      roundText: isDemo ? 'DEMO · ROUND ' + (h.round || 1) : 'ROUND ' + (h.round || 1) + ' · FIRST TO ' + (h.roundsToWin || 2),
+      timerText: mm + ':' + ss,
+      timerStyle: (h.timer || 99) <= 10 && ph === 'play' ? 'color:#ec3013' : 'color:#ffffff',
+      hasMsg: !!msg && !S.menu && !res,
+      msgSize: isCount ? 44 : 22,
+      msgColor: isCount ? 'color:#ffd23a' : 'color:#ffffff',
+      showHint: !!h.hint && playing && !S.menu && !S.invite,
+      hintText: holding1 ? 'Hold THROW. Let go in the yellow band.' : 'Drag to move. Run onto a ball to pick it up.',
+      hintSide: holding1 ? 'right: 12px' : 'left: 12px',
+      hintBottom: land ? 160 : 168,
+      handDx: Math.round(Math.sin(Date.now() / 300) * 6), handDy: Math.round(-Math.abs(Math.sin(Date.now() / 300)) * 9),
+      showP1: playing,
+      showP2: playing && h.mode === 'local' && touch,
+      safeL: land ? 'left' : 'bottom', safeR: land ? 'right' : 'bottom',
+      p1, p2,
+      bandStyle: 'left:' + Math.round(meter.lo * 100) + '%;width:' + Math.round((meter.hi - meter.lo) * 100) + '%',
+      isDemo: isDemo && !S.menu && !res,
+      playCpu: () => { if (this.api) this.api.start('cpu'); },
+      playLocal: () => { if (this.api) { this.api.start('local'); this.api.pause(false); } this.setState({ invite: false, menu: false }); },
+      loading: !S.h || !!S.err,
+      loadText: S.err || 'LOADING THE COURT',
+      hasResult: !!res && !S.menu,
+      res: res ? {
+        title: res.title, sub: res.sub, hasStars: res.stars != null, starList: stars, hasScore: res.score != null,
+        score: res.score, best: res.best, bestLabel: res.newBest ? 'NEW BEST' : 'BEST', gold: res.gold || 0, xp: res.xp || 0,
+        linesText: (res.lines || []).join(' · '),
+      } : { hasStars: false, starList: [], hasScore: false },
+      resTitleColor: res && res.win ? 'color:#ffd23a' : 'color:#ffffff',
+      playAgain: () => { if (this.api) this.api.restart(); },
+      back: () => this.back(),
+      openMenu: () => this.openMenu(),
+      closeMenu: () => this.closeMenu(),
+      openInvite: () => { if (this.api) this.api.pause(true); this.setState({ invite: true, menu: false }); },
+      closeInvite: () => { if (this.api) this.api.pause(false); this.setState({ invite: false }); },
+      returnCourt: () => { if (this.api) this.api.pause(false); this.setState({ left: false }); },
+      menuOpen: S.menu, inviteOpen: S.invite, leftOpen: S.left && !overlay,
+      modes: [['cpu', 'VS CPU'], ['local', '2 PLAYERS'], ['demo', 'DEMO']].map(([id, label]) => ({
+        label, style: h.mode === id ? 'background:#ffd23a;color:#000000;border-color:#ffd23a' : 'background:#000000;color:#ffffff',
+        pick: () => { if (this.api) { this.api.start(id); this.api.pause(false); } this.setState({ menu: false }); },
+      })),
+      levels: (h.levels || [{ name: 'PIP', title: 'ROOKIE' }, { name: 'HOPE', title: 'CLUB' }, { name: 'NOBLE', title: 'MASTER' }]).map((l, i) => ({
+        name: l.name, title: l.title + (l.beaten ? ' · BEATEN' : ''),
+        style: h.level === i && h.mode !== 'local' ? 'background:#ec3013;color:#ffffff;border-color:#ec3013' : 'background:#000000;color:#ffffff',
+        pick: () => { if (this.api) { this.api.setLevel(i); this.api.pause(false); } this.setState({ menu: false }); },
+      })),
+      soundLabel: 'SOUND ' + (h.sound === false ? 'OFF' : 'ON'),
+      musicLabel: 'MUSIC ' + (h.music ? 'ON' : 'OFF'),
+      toggleSound: () => { if (this.api) this.api.setSound(!(h.sound !== false)); },
+      toggleMusic: () => { if (this.api) this.api.setMusic(!h.music); },
+      restart: () => { if (this.api) { this.api.restart(); this.api.pause(false); } this.setState({ menu: false }); },
+      rules: (h.rules || []).map((t) => ({ text: t })),
+      controls: controls.map((t) => ({ text: t })),
+      bestText: 'BEST SCORE ' + (h.best || 0),
+    };
+  }
+}
+</script>
+</body>
+</html>

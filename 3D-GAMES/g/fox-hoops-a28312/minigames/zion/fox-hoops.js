@@ -2,7 +2,7 @@
 // (design brief: "FOX HOOPS basketball cage (minigame)" · Barkeep Odessa · Zoran, Hoyt, Sable, Nel, Ida, Pross).
 // Five arcade hoop machines side by side in a lantern-lit tavern. Swipe up to shoot (or TAP MODE: one tap on a swinging meter,
 // or keyboard: hold Space, release; arrows aim). 60 s round · last 30 s the hoop moves · last 15 s every basket is 3 · 3 in a row = ON FIRE (+1).
-// Modes: VS THE REGULARS (you + 2 CPU regulars) · FREE SHOOT · PASS & PLAY (2–5 on one phone) · ONLINE (2–5, peer to peer, engine/duel-net.js).
+// Modes: VS THE REGULARS (you + 2 CPU regulars) · FREE SHOOT · PASS & PLAY (2–4 on one phone) · ONLINE (2–4, peer to peer, engine/duel-net.js).
 // Stand-alone: createFoxHoops({ container, onState, theme }). The tavern is self-contained so any world's building can host it:
 // pass theme: 'zion' | 'meru' | 'gaya' | 'jidda' | 'kufa' | 'luxor' | 'nebo' | 'ur' | { ...custom colours }.
 // MERGE: buildHoopsRoom(ST, theme) builds the room from a stage ctx, so a world map can place the same interior later.
@@ -15,7 +15,7 @@ import { crestTex, canvasTex, bannerTex } from '../../engine/textures.js';
 
 export const HOOPS = { key: 'zionHoops', name: 'FOX HOOPS', room: 'zionTavern', round: 60, moveAt: 30, threeAt: 15, raceTo: 40, record: 60 };
 export const NET_COLS = [['RED', '#ec3013'], ['BLUE', '#38bdf8'], ['GOLD', '#ffd23a'], ['GREEN', '#22c55e'], ['PURPLE', '#a78bfa']];
-export const MAX_PLAYERS = 5;
+export const MAX_PLAYERS = 4;
 // save keys (all prefixed with the game key so games never collide)
 export const SAVE_KEYS = { best: 'zionHoops.best', games: 'zionHoops.games', wins: 'zionHoops.wins', onlineWins: 'zionHoops.onlineWins', streak: 'zionHoops.bestStreak', practice: 'zionHoops.practiceBest', opts: 'zionHoops.opts', played: 'zionHoops.played', record: 'zionHoops.record', trophy: 'zionHoops.trophy' };
 export const THEMES = {

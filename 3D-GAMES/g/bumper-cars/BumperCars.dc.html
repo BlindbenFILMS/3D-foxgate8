@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bumper Cars</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.bc-btn{font-family:Archivo,Arial,sans-serif;font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase;min-height:44px;min-width:44px;padding:0 10px;display:flex;align-items:center;justify-content:flex-start;text-align:left;border:2px solid #3a3836;background:#000;color:#fff;border-radius:0;cursor:pointer;box-sizing:border-box;pointer-events:auto;touch-action:manipulation}
+.bc-btn:hover{border-color:#ffffff}
+.bc-btn:focus-visible{outline:3px solid #ffd23a;outline-offset:2px}
+.bc-red{background:#ec3013;border-color:#ec3013;color:#fff}
+.bc-red:hover{border-color:#ffffff}
+.bc-top{position:absolute;top:0;left:0;right:0;display:flex;flex-wrap:wrap;align-items:stretch;gap:6px;padding:8px;background:#000;border-bottom:2px solid #3a3836;pointer-events:auto;box-sizing:border-box}
+.bc-chips{display:flex;gap:6px;flex:1 1 100%;order:5;min-width:0}
+.bc-time{display:flex;flex-direction:column;justify-content:center;padding:0 8px;min-width:58px;box-sizing:border-box}
+.bc-chip{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px;padding:4px 8px;border:2px solid #3a3836;box-sizing:border-box}
+.bc-spacer{flex:1 1 auto}
+@media (orientation: landscape){
+  .bc-chips{flex:1 1 auto;order:0}
+  .bc-spacer{display:none}
+}
+.bc-pad{position:relative;width:132px;height:132px;border:2px solid #3a3836;background:rgba(0,0,0,.55);box-sizing:border-box;touch-action:none;pointer-events:auto}
+.bc-knob{position:absolute;left:50%;top:50%;width:56px;height:56px;margin:-28px 0 0 -28px;background:#ffd23a;border:2px solid #1a1626;box-sizing:border-box;pointer-events:none}
+.bc-act{position:relative;overflow:hidden;font-family:Archivo,Arial,sans-serif;font-weight:900;font-size:13px;letter-spacing:.06em;color:#fff;background:#000;border:2px solid #3a3836;border-radius:0;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;padding:6px 8px;box-sizing:border-box;touch-action:none;pointer-events:auto;cursor:pointer;user-select:none;-webkit-user-select:none}
+.bc-act:focus-visible{outline:3px solid #ffd23a;outline-offset:2px}
+.bc-card{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(92vw,420px);max-height:calc(100% - 24px);overflow:auto;background:#000;border:2px solid #3a3836;padding:16px;box-sizing:border-box;pointer-events:auto;display:flex;flex-direction:column;gap:12px}
+.bc-label{font-size:12px;font-weight:800;letter-spacing:.12em;color:#ffd23a;text-transform:uppercase}
+.bc-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.bc-row2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+@keyframes bcHand{0%{transform:translate(0,0)}50%{transform:translate(26px,-22px)}100%{transform:translate(0,0)}}
+.bc-hand{animation:bcHand 1.4s ease-in-out infinite}
+@keyframes bcPop{0%{transform:scale(.6);opacity:0}30%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
+.bc-pop{animation:bcPop .35s ease-out both}
+@keyframes bcCardPop{0%{transform:translate(-50%,-50%) scale(.85);opacity:0}100%{transform:translate(-50%,-50%) scale(1);opacity:1}}
+.bc-cardpop{animation:bcCardPop .3s ease-out both}
+.bc-col{display:flex;flex-direction:column;gap:10px;min-width:0;flex:1 1 0}
+@media (max-height: 560px){
+  .bc-card{gap:8px;padding:12px}
+  .bc-res{flex-direction:row;width:min(96vw,760px)}
+}
+</style>
+</helmet>
+<div ref="{{ rootRef }}" style="position: relative; width: 100%; height: 100vh; overflow: hidden; background: {{ rootBg }}; color: #ffffff; font-family: Archivo, Arial, sans-serif; pointer-events: none; user-select: none; -webkit-user-select: none">
+
+<sc-if value="{{ standalone }}" hint-placeholder-val="{{ true }}">
+<div ref="{{ stageRef }}" style="position: absolute; inset: 0; pointer-events: auto; background: #14111c"></div>
+</sc-if>
+
+<sc-if value="{{ showErr }}" hint-placeholder-val="{{ false }}">
+<div class="bc-card" role="alert">
+<div class="bc-label">BUMPER CARS</div>
+<div style="font-size: 16px; font-weight: 800">{{ errText }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ live }}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; inset: 0; pointer-events: none">
+
+<div class="bc-top" data-safe="top">
+<button class="bc-btn" type="button" onClick="{{ openMenu }}">MENU</button>
+<button class="bc-btn" type="button" onClick="{{ openInvite }}">INVITE FRIEND</button>
+<div class="bc-chips">
+<sc-for list="{{ chips }}" as="p" hint-placeholder-count="4">
+<div class="bc-chip" style="border-color: {{ p.border }}">
+<div style="display: flex; align-items: center; gap: 6px; min-width: 0">
+<div style="width: 12px; height: 12px; flex: 0 0 12px; background: {{ p.color }}; border: 2px solid #ffffff"></div>
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .08em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{ p.name }}</div>
+<sc-if value="{{ p.star }}" hint-placeholder-val="{{ false }}">
+<svg width="14" height="14" viewBox="0 0 24 24" role="img" aria-label="star power" style="flex: 0 0 14px"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z" fill="#ffd23a" stroke="#1a1626" stroke-width="1.5"></path></svg>
+</sc-if>
+</div>
+<div style="font-size: 22px; font-weight: 900; line-height: 1">{{ p.score }}</div>
+</div>
+</sc-for>
+</div>
+<div class="bc-spacer"></div>
+<div class="bc-time" style="border: 2px solid {{ timeBorder }}">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #ffd23a">TIME</div>
+<div style="font-size: 24px; font-weight: 900; line-height: 1; color: {{ timeColor }}">{{ timeText }}</div>
+</div>
+<button class="bc-btn bc-red" type="button" onClick="{{ onBack }}">BACK</button>
+</div>
+
+<sc-if value="{{ showToast }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 50%; top: {{ toastTop }}px; transform: translateX(-50%); max-width: 90%; background: #ffd23a; color: #1a1626; border: 2px solid #1a1626; padding: 8px 12px; font-size: 15px; font-weight: 900; letter-spacing: .04em; text-align: left; pointer-events: none">{{ toastText }}</div>
+</sc-if>
+
+<sc-if value="{{ showCount }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none">
+<div class="bc-pop" style="background: #000000; border: 2px solid #ffd23a; color: #ffd23a; font-size: 72px; font-weight: 900; line-height: 1; padding: 10px 26px; text-align: left">{{ countText }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showCaption }}" hint-placeholder-val="{{ false }}">
+<div data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 10px; background: #000000; border-top: 2px solid #3a3836; display: flex; flex-direction: column; gap: 6px; pointer-events: auto">
+<div class="bc-label">DEMO · HOW TO PLAY</div>
+<div style="font-size: 16px; font-weight: 800; line-height: 1.3">{{ captionText }}</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<button class="bc-btn bc-red" type="button" onClick="{{ playCpu }}">PLAY NOW</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showSolo }}" hint-placeholder-val="{{ false }}">
+<div data-safe="{{ ctrlSafe }}" style="position: absolute; left: 0; bottom: 0; padding: 12px; box-sizing: border-box; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; width: {{ ctrlW }}">
+<div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 10px">
+<div style="position: relative">
+<div class="bc-pad" role="application" aria-label="Drive: drag to steer" onPointerDown="{{ stick0.down }}" onPointerMove="{{ stick0.move }}" onPointerUp="{{ stick0.up }}" onPointerCancel="{{ stick0.up }}">
+<div class="bc-knob" style="transform: translate({{ k0x }}px, {{ k0y }}px)"></div>
+</div>
+<sc-if value="{{ showHint }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 40px; top: 44px; pointer-events: none">
+<svg class="bc-hand" width="54" height="64" viewBox="0 0 54 64" aria-hidden="true"><path d="M20 30V8a5 5 0 0 1 10 0v18l14 4a6 6 0 0 1 4 7l-4 17a8 8 0 0 1-8 6H24a8 8 0 0 1-6-3L6 42a5 5 0 0 1 7-7l7 6z" fill="#ffffff" stroke="#1a1626" stroke-width="3" stroke-linejoin="round"></path></svg>
+</div>
+<div style="position: absolute; left: 0; bottom: 140px; background: #ffd23a; color: #1a1626; font-size: 13px; font-weight: 900; padding: 6px 8px; white-space: nowrap; pointer-events: none">{{ hintText }}</div>
+</sc-if>
+</div>
+<sc-if value="{{ inlineBtns }}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 160px">
+<button class="bc-act" type="button" aria-label="Boost" onPointerDown="{{ b0.boostDown }}" style="grid-column: 1 / 3; height: 64px; background: {{ boostBg0 }}; border-color: {{ boostBorder0 }}">
+<div style="position: absolute; left: 0; bottom: 0; height: {{ boostFill0 }}; width: 100%; background: #ec3013; pointer-events: none"></div>
+<span style="position: relative; font-size: 12px">1</span><span style="position: relative; font-size: 16px">BOOST</span>
+</button>
+<button class="bc-act" type="button" aria-label="Brake" onPointerDown="{{ b0.brakeDown }}" onPointerUp="{{ b0.brakeUp }}" onPointerCancel="{{ b0.brakeUp }}" onPointerLeave="{{ b0.brakeUp }}" style="height: 56px"><span style="font-size: 12px">2</span><span>BRAKE</span></button>
+<button class="bc-act" type="button" aria-label="Horn" onPointerDown="{{ b0.hornDown }}" style="height: 56px"><span style="font-size: 12px">3</span><span>HORN</span></button>
+</div>
+</sc-if>
+</div>
+</div>
+<sc-if value="{{ sideBtns }}" hint-placeholder-val="{{ false }}">
+<div data-safe="right" style="position: absolute; right: 0; bottom: 0; padding: 12px; box-sizing: border-box; pointer-events: none">
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; width: 150px">
+<button class="bc-act" type="button" aria-label="Boost" onPointerDown="{{ b0.boostDown }}" style="grid-column: 1 / 3; height: 64px; background: {{ boostBg0 }}; border-color: {{ boostBorder0 }}">
+<div style="position: absolute; left: 0; bottom: 0; height: {{ boostFill0 }}; width: 100%; background: #ec3013; pointer-events: none"></div>
+<span style="position: relative; font-size: 12px">1</span><span style="position: relative; font-size: 16px">BOOST</span>
+</button>
+<button class="bc-act" type="button" aria-label="Brake" onPointerDown="{{ b0.brakeDown }}" onPointerUp="{{ b0.brakeUp }}" onPointerCancel="{{ b0.brakeUp }}" onPointerLeave="{{ b0.brakeUp }}" style="height: 56px"><span style="font-size: 12px">2</span><span>BRAKE</span></button>
+<button class="bc-act" type="button" aria-label="Horn" onPointerDown="{{ b0.hornDown }}" style="height: 56px"><span style="font-size: 12px">3</span><span>HORN</span></button>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ showDuo }}" hint-placeholder-val="{{ false }}">
+<div data-safe="{{ duoSafeL }}" style="position: absolute; left: 0; bottom: 0; padding: 12px; display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 8px; pointer-events: none">
+<div class="bc-pad" role="application" aria-label="Player 1 drive" onPointerDown="{{ stick0.down }}" onPointerMove="{{ stick0.move }}" onPointerUp="{{ stick0.up }}" onPointerCancel="{{ stick0.up }}" style="border-color: {{ p1Color }}">
+<div class="bc-knob" style="transform: translate({{ k0x }}px, {{ k0y }}px); background: {{ p1Color }}"></div>
+</div>
+<button class="bc-act" type="button" aria-label="Player 1 boost" onPointerDown="{{ b0.boostDown }}" style="width: 132px; height: 56px; background: {{ boostBg0 }}; border-color: {{ boostBorder0 }}">
+<div style="position: absolute; left: 0; bottom: 0; height: {{ boostFill0 }}; width: 100%; background: #ec3013; pointer-events: none"></div>
+<span style="position: relative; font-size: 12px">P1</span><span style="position: relative">BOOST</span>
+</button>
+</div>
+<div data-safe="{{ duoSafeR }}" style="position: absolute; right: 0; bottom: 0; padding: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; pointer-events: none">
+<button class="bc-act" type="button" aria-label="Player 2 boost" onPointerDown="{{ b1.boostDown }}" style="width: 132px; height: 56px; background: {{ boostBg1 }}; border-color: {{ boostBorder1 }}">
+<div style="position: absolute; left: 0; bottom: 0; height: {{ boostFill1 }}; width: 100%; background: #18a999; pointer-events: none"></div>
+<span style="position: relative; font-size: 12px">P2</span><span style="position: relative">BOOST</span>
+</button>
+<div class="bc-pad" role="application" aria-label="Player 2 drive" onPointerDown="{{ stick1.down }}" onPointerMove="{{ stick1.move }}" onPointerUp="{{ stick1.up }}" onPointerCancel="{{ stick1.up }}" style="border-color: {{ p2Color }}">
+<div class="bc-knob" style="transform: translate({{ k1x }}px, {{ k1y }}px); background: {{ p2Color }}"></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showMenu }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,.6); pointer-events: auto"></div>
+<div class="bc-card" role="dialog" aria-label="Menu">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 8px">
+<div style="font-size: 24px; font-weight: 900; letter-spacing: .04em">MENU</div>
+<button class="bc-btn" type="button" onClick="{{ closeMenu }}">CLOSE</button>
+</div>
+<div class="bc-label">RULES</div>
+<div style="font-size: 14px; line-height: 1.45; color: #ffffff">Ram rivals to score. Front bump 1, side bump 2, rear bump 3. A fast hit adds 1. The gold star doubles points for 8 seconds. Most points at zero wins.</div>
+<div style="font-size: 13px; line-height: 1.45; color: #d8d4cc">{{ keysText }}</div>
+<div class="bc-label">MODE</div>
+<div class="bc-row">
+<sc-for list="{{ modes }}" as="m" hint-placeholder-count="3">
+<button class="bc-btn" type="button" onClick="{{ m.pick }}" style="background: {{ m.bg }}; color: {{ m.fg }}; border-color: {{ m.bd }}; padding: 0 8px">{{ m.label }}</button>
+</sc-for>
+</div>
+<div class="bc-label">DIFFICULTY</div>
+<div class="bc-row">
+<sc-for list="{{ levels }}" as="m" hint-placeholder-count="3">
+<button class="bc-btn" type="button" onClick="{{ m.pick }}" style="background: {{ m.bg }}; color: {{ m.fg }}; border-color: {{ m.bd }}; flex-direction: column; align-items: flex-start; justify-content: center; padding: 6px 8px; gap: 2px"><span>{{ m.boss }}</span><span style="font-size: 12px; font-weight: 600">{{ m.label }}</span></button>
+</sc-for>
+</div>
+<div class="bc-label">SETTINGS</div>
+<div class="bc-row">
+<button class="bc-btn" type="button" onClick="{{ toggleSound }}" style="padding: 0 8px">{{ soundLabel }}</button>
+<button class="bc-btn" type="button" onClick="{{ toggleMusic }}" style="padding: 0 8px">{{ musicLabel }}</button>
+<button class="bc-btn" type="button" onClick="{{ togglePad }}" style="padding: 0 8px">{{ padLabel }}</button>
+</div>
+<div class="bc-row2">
+<button class="bc-btn" type="button" onClick="{{ restart }}">RESTART</button>
+<button class="bc-btn bc-red" type="button" onClick="{{ onBack }}">LEAVE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showInvite }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,.6); pointer-events: auto"></div>
+<div class="bc-card" role="dialog" aria-label="Invite friend">
+<div style="font-size: 24px; font-weight: 900; letter-spacing: .04em">INVITE FRIEND</div>
+<div class="bc-label">COMING SOON</div>
+<div style="font-size: 15px; line-height: 1.45">Online rooms are on the way. For now, play 2 PLAYERS on this device.</div>
+<div class="bc-row2">
+<button class="bc-btn" type="button" onClick="{{ playLocal }}">2 PLAYERS</button>
+<button class="bc-btn" type="button" onClick="{{ closeInvite }}">CLOSE</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showResult }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,.55); pointer-events: auto"></div>
+<div class="bc-card bc-cardpop bc-res" role="dialog" aria-label="Results">
+<div class="bc-col">
+<div class="bc-label">{{ resultKicker }}</div>
+<div style="font-size: 34px; font-weight: 900; line-height: 1; color: {{ resultColor }}">{{ resultTitle }}</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{ resultRows }}" as="r" hint-placeholder-count="4">
+<div style="display: grid; grid-template-columns: 28px 14px minmax(0, 1fr) 48px; gap: 8px; align-items: center; padding: 6px 8px; border: 2px solid {{ r.bd }}">
+<div style="font-size: 14px; font-weight: 900; color: #ffd23a">{{ r.place }}</div>
+<div style="width: 12px; height: 12px; background: {{ r.color }}; border: 2px solid #ffffff"></div>
+<div style="font-size: 15px; font-weight: 800">{{ r.name }}</div>
+<div style="font-size: 18px; font-weight: 900">{{ r.score }}</div>
+</div>
+</sc-for>
+</div>
+</div>
+<div class="bc-col">
+<sc-if value="{{ showRewards }}" hint-placeholder-val="{{ true }}">
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px">
+<div style="border: 2px solid #3a3836; padding: 6px 8px"><div class="bc-label">SCORE</div><div style="font-size: 22px; font-weight: 900">{{ rScore }}</div></div>
+<div style="border: 2px solid #3a3836; padding: 6px 8px"><div class="bc-label">BEST</div><div style="font-size: 22px; font-weight: 900">{{ rBest }}</div></div>
+<div style="border: 2px solid #3a3836; padding: 6px 8px"><div class="bc-label">GOLD</div><div style="font-size: 22px; font-weight: 900">+{{ rGold }}</div></div>
+<div style="border: 2px solid #3a3836; padding: 6px 8px"><div class="bc-label">XP</div><div style="font-size: 22px; font-weight: 900">+{{ rXp }}</div></div>
+</div>
+<div style="display: flex; align-items: center; gap: 6px">
+<sc-for list="{{ starList }}" as="s" hint-placeholder-count="3">
+<svg width="30" height="30" viewBox="0 0 24 24" role="img" aria-label="{{ s.label }}"><path d="M12 2l3 7h7l-5.5 4.5L18.5 21 12 16.8 5.5 21l2-7.5L2 9h7z" fill="{{ s.fill }}" stroke="#ffd23a" stroke-width="1.6" stroke-linejoin="round"></path></svg>
+</sc-for>
+<sc-if value="{{ newBest }}" hint-placeholder-val="{{ false }}">
+<div style="margin-left: 6px; background: #ffd23a; color: #1a1626; font-size: 13px; font-weight: 900; padding: 4px 8px">NEW BEST</div>
+</sc-if>
+</div>
+</sc-if>
+<div class="bc-row2">
+<button class="bc-btn" type="button" onClick="{{ restart }}" style="background: #ffd23a; color: #1a1626; border-color: #ffd23a">PLAY AGAIN</button>
+<button class="bc-btn bc-red" type="button" onClick="{{ onBack }}">BACK</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showLeft }}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0,0,0,.7); pointer-events: auto"></div>
+<div class="bc-card" role="dialog" aria-label="Left the rink">
+<div style="font-size: 26px; font-weight: 900">YOU LEFT THE RINK</div>
+<div style="font-size: 15px; line-height: 1.45">In the 8 GATES town, BACK returns you to the street.</div>
+<div class="bc-row2">
+<button class="bc-btn" type="button" onClick="{{ restart }}" style="background: #ffd23a; color: #1a1626; border-color: #ffd23a">PLAY AGAIN</button>
+<button class="bc-btn" type="button" onClick="{{ playDemo }}">WATCH DEMO</button>
+</div>
+</div>
+</sc-if>
+
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null,"tsType":"object"},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { h: null, err: '', menu: false, invite: false, pad: null, toast: '', k: [{ x: 0, y: 0 }, { x: 0, y: 0 }], land: false, closed: false };
+    this.api = null; this.root = null; this.stage = null; this.lastSafe = ''; this.lastMsg = -1; this.toastTimer = 0;
+    this.rootRef = el => { this.root = el; };
+    this.stageRef = el => { this.stage = el; };
+    this.stick0 = this.makeStick(0); this.stick1 = this.makeStick(1);
+    this.b0 = this.makeBtns(0); this.b1 = this.makeBtns(1);
+    this.onHud = h => this.gotHud(h);
+    this.onWorldEvt = e => {
+      const h = e.detail;
+      if (!h) { this.setState({ h: null, closed: true, menu: false, invite: false }); return; }
+      if (this.state.closed) this.setState({ closed: false });
+      this.gotHud(h);
+    };
+    this.onResize = () => this.measure();
+  }
+  game() {
+    if (this.props.world) {
+      const w = this.props.world, slot = w && w._bumperCars;
+      try { return slot && slot.g ? slot.g() : null; } catch (e) { return null; }
+    }
+    return this.api;
+  }
+  componentDidMount() {
+    window.addEventListener('resize', this.onResize);
+    this.measureTimer = setInterval(() => this.measure(), 400);
+    if (this.props.world) {
+      window.addEventListener('8g:bumperCars', this.onWorldEvt);
+      const g = this.game();
+      if (g && g.hud) this.gotHud(g.hud());
+      return;
+    }
+    this.boot();
+  }
+  async boot() {
+    const rel = 'minigames/bumper-cars/bumper-cars.js';
+    const bases = [document.baseURI, location.href];
+    let mod = null, lastErr = null;
+    for (const b of bases) {
+      try { mod = await import(new URL(rel, b).href); break; } catch (e) { lastErr = e; }
+    }
+    if (!mod) { console.error(lastErr); this.setState({ err: 'Could not load the game files.' }); return; }
+    if (!this.stage || this.dead) return;
+    try {
+      this.api = await mod.createBumperCars({ container: this.stage, onState: this.onHud, opts: /quick/.test(location.hash) ? { roundTime: 15 } : {} });
+      if (this.dead) { this.api.destroy(); this.api = null; return; }
+      this.measure(true);
+    } catch (e) {
+      console.error(e);
+      this.setState({ err: '3D is not available on this device.' });
+    }
+  }
+  componentWillUnmount() {
+    this.dead = true;
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('8g:bumperCars', this.onWorldEvt);
+    clearInterval(this.measureTimer); clearTimeout(this.toastTimer);
+    if (this.api) { this.api.destroy(); this.api = null; }
+  }
+  componentDidUpdate() { this.measure(); }
+  gotHud(h) {
+    const patch = { h };
+    if (h.msg && h.msg.id !== this.lastMsg) {
+      this.lastMsg = h.msg.id;
+      if (h.msg.text) {
+        patch.toast = h.msg.text;
+        clearTimeout(this.toastTimer);
+        this.toastTimer = setTimeout(() => this.setState({ toast: '' }), 1700);
+      }
+    }
+    const land = window.innerWidth > window.innerHeight;
+    if (land !== this.state.land) patch.land = land;
+    this.setState(patch);
+  }
+  measure(force) {
+    const g = this.game();
+    if (!g || !g.setSafe || !this.root) return;
+    const r = this.root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    this.root.querySelectorAll('[data-safe]').forEach(el => {
+      const b = el.getBoundingClientRect();
+      if (b.width < 2 || b.height < 2) return;
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, b.bottom - r.top);
+      if (side === 'bottom') s.bottom = Math.max(s.bottom, r.bottom - b.top);
+      if (side === 'left') s.left = Math.max(s.left, b.right - r.left);
+      if (side === 'right') s.right = Math.max(s.right, r.right - b.left);
+    });
+    const key = [s.top, s.bottom, s.left, s.right].map(Math.round).join(',');
+    if (!force && key === this.lastSafe) return;
+    this.lastSafe = key;
+    g.setSafe(s);
+    if (Math.round(s.top) !== this.state.safeTop) this.setState({ safeTop: Math.round(s.top) });
+  }
+  makeStick(p) {
+    const R = 46;
+    let id = null, cx = 0, cy = 0;
+    const set = (x, y) => {
+      const k = this.state.k.slice(); k[p] = { x, y }; this.setState({ k });
+      const g = this.game(); if (g && g.stick) g.stick(p, x / R, y / R);
+    };
+    return {
+      down: e => {
+        e.preventDefault();
+        const el = e.currentTarget; const b = el.getBoundingClientRect();
+        cx = b.left + b.width / 2; cy = b.top + b.height / 2; id = e.pointerId;
+        try { el.setPointerCapture(e.pointerId); } catch (er) { }
+        this.stickAt(set, e, cx, cy, R);
+      },
+      move: e => { if (e.pointerId !== id) return; this.stickAt(set, e, cx, cy, R); },
+      up: e => { if (e.pointerId !== id) return; id = null; set(0, 0); }
+    };
+  }
+  stickAt(set, e, cx, cy, R) {
+    let x = e.clientX - cx, y = e.clientY - cy;
+    const d = Math.hypot(x, y);
+    if (d > R) { x = x / d * R; y = y / d * R; }
+    set(Math.round(x), Math.round(y));
+  }
+  makeBtns(p) {
+    const call = (name, down) => e => { if (e && e.preventDefault) e.preventDefault(); const g = this.game(); if (g && g.btn) g.btn(p, name, down); };
+    return { boostDown: call('boost', true), brakeDown: call('brake', true), brakeUp: call('brake', false), hornDown: call('horn', true) };
+  }
+  openMenu() { const g = this.game(); if (g && g.pause) g.pause(true); this.setState({ menu: true, invite: false }); }
+  closeMenu() { const g = this.game(); if (g && g.pause) g.pause(false); this.setState({ menu: false }); }
+  back() {
+    this.setState({ menu: false, invite: false });
+    if (this.props.world) {
+      const slot = this.props.world._bumperCars;
+      if (slot && slot.end) slot.end();
+      return;
+    }
+    const g = this.game(); if (g && g.leave) g.leave();
+  }
+  run(mode) { const g = this.game(); this.setState({ menu: false, invite: false }); if (g) { if (g.pause) g.pause(false); g.start(mode); } }
+  renderVals() {
+    const s = this.state, h = s.h;
+    const overlay = !!this.props.world;
+    const live = !!h && !s.closed && !s.err;
+    const phase = h ? h.phase : 'loading';
+    const land = s.land;
+    const playing = live && (phase === 'count' || phase === 'play');
+    const padOn = s.pad == null ? !!(h && h.touch) : s.pad;
+    const modal = s.menu || s.invite;
+    const solo = live && h.mode === 'cpu' && padOn && playing && !modal;
+    const duo = live && h.mode === 'local' && padOn && playing && !modal;
+    const players = h ? h.players : [];
+    const pl0 = players.find(p => p.human === 0), pl1 = players.find(p => p.human === 1);
+    const boostVals = pl => {
+      const b = pl ? pl.boost : 1, ready = b >= 1;
+      return { fill: ready ? '100%' : Math.round(b * 100) + '%', bg: ready ? '#ec3013' : '#000000', bd: ready ? '#ffd23a' : '#3a3836' };
+    };
+    const bv0 = boostVals(pl0), bv1 = boostVals(pl1);
+    const r = h && h.result;
+    const sel = on => on ? { bg: '#ffd23a', fg: '#1a1626', bd: '#ffd23a' } : { bg: '#000000', fg: '#ffffff', bd: '#3a3836' };
+    const modeList = [['cpu', 'VS CPU'], ['local', '2 PLAYERS'], ['demo', 'DEMO']].map(([k, label]) => Object.assign({ label, pick: () => this.run(k) }, sel(h && h.mode === k)));
+    const levelList = [['PIP', 'EASY'], ['HOPE', 'MEDIUM'], ['NOBLE', 'HARD']].map(([boss, label], i) => Object.assign({ boss, label, pick: () => { const g = this.game(); if (g && g.setLevel) g.setLevel(i); } }, sel(h && h.level === i)));
+    const time = h ? h.time : 0;
+    const mm = Math.floor(time / 60), ss = time % 60;
+    const touch = h && h.touch;
+    let hintText = touch ? 'DRAG TO DRIVE' : 'WASD OR ARROWS TO DRIVE';
+    return {
+      rootRef: this.rootRef, stageRef: this.stageRef,
+      rootBg: overlay ? 'transparent' : '#000000',
+      standalone: !overlay,
+      showErr: !!s.err, errText: s.err,
+      live,
+      chips: players.map(p => ({ name: p.name, score: p.score, color: p.color, star: p.star, border: p.leader ? '#ffd23a' : '#3a3836' })),
+      timeText: mm + ':' + String(ss).padStart(2, '0'),
+      timeColor: time <= 10 && phase === 'play' ? '#ec3013' : '#ffffff',
+      timeBorder: time <= 10 && phase === 'play' ? '#ec3013' : '#3a3836',
+      openMenu: () => this.openMenu(), closeMenu: () => this.closeMenu(),
+      openInvite: () => { const g = this.game(); if (g && g.pause) g.pause(true); this.setState({ invite: true, menu: false }); },
+      closeInvite: () => { const g = this.game(); if (g && g.pause) g.pause(false); this.setState({ invite: false }); },
+      onBack: () => this.back(),
+      showToast: live && !!s.toast && phase !== 'over' && !modal,
+      toastText: s.toast, toastTop: (s.safeTop || 60) + 8,
+      showCount: live && !modal && (phase === 'count' || h.go),
+      countText: phase === 'count' ? String(h.count) : 'GO',
+      showCaption: live && h.mode === 'demo' && !modal && phase !== 'left',
+      captionText: h ? h.caption : '',
+      playCpu: () => this.run('cpu'), playLocal: () => this.run('local'), playDemo: () => this.run('demo'),
+      showSolo: solo,
+      ctrlSafe: land ? 'left' : 'bottom',
+      ctrlW: land ? 'auto' : '100%',
+      inlineBtns: !land, sideBtns: land,
+      stick0: this.stick0, stick1: this.stick1, b0: this.b0, b1: this.b1,
+      k0x: s.k[0].x, k0y: s.k[0].y, k1x: s.k[1].x, k1y: s.k[1].y,
+      boostFill0: bv0.fill, boostBg0: bv0.bg, boostBorder0: bv0.bd,
+      boostFill1: bv1.fill, boostBg1: bv1.bg, boostBorder1: bv1.bd,
+      showHint: !!(h && h.hint) && solo, hintText,
+      showDuo: duo,
+      duoSafeL: land ? 'left' : 'bottom', duoSafeR: land ? 'right' : 'bottom',
+      p1Color: pl0 ? pl0.color : '#ec3013', p2Color: pl1 ? pl1.color : '#18a999',
+      showMenu: live && s.menu,
+      keysText: 'Keys: WASD or arrows drive. Space boost, Shift brake, H horn. 2 PLAYERS: P1 WASD + Space, P2 arrows + Enter.',
+      modes: modeList, levels: levelList,
+      soundLabel: h && h.sound ? 'SOUND ON' : 'SOUND OFF',
+      musicLabel: h && h.music ? 'MUSIC ON' : 'MUSIC OFF',
+      padLabel: padOn ? 'PAD ON' : 'PAD OFF',
+      toggleSound: () => { const g = this.game(); if (g && h) g.setSound(!h.sound); },
+      toggleMusic: () => { const g = this.game(); if (g && h) g.setMusic(!h.music); },
+      togglePad: () => this.setState({ pad: !padOn }),
+      restart: () => { const g = this.game(); this.setState({ menu: false, invite: false }); if (g) { if (g.pause) g.pause(false); g.restart(); } },
+      showInvite: live && s.invite,
+      showResult: live && phase === 'over' && !!r && !r.demo && !modal,
+      resultKicker: r ? (r.mode === 'local' ? '2 PLAYERS · FINAL' : 'ROUND OVER · ' + (h.boss || '') + ' ' + (h.levelLabel || '')) : '',
+      resultTitle: r ? r.title : '',
+      resultColor: r && r.win ? '#ffd23a' : '#ffffff',
+      resultRows: r ? r.rows.map(x => ({ place: x.place, name: x.name, score: x.score, color: x.color, bd: x.human ? '#ffd23a' : '#3a3836' })) : [],
+      showRewards: !!(r && r.mode === 'cpu'),
+      rScore: r ? r.score : 0, rBest: r ? r.best : 0, rGold: r ? r.gold : 0, rXp: r ? r.xp : 0,
+      starList: [0, 1, 2].map(i => ({ fill: r && i < r.stars ? '#ffd23a' : 'none', label: r && i < r.stars ? 'star earned' : 'star not earned' })),
+      newBest: !!(r && r.newBest),
+      showLeft: live && phase === 'left' && !overlay
+    };
+  }
+}
+</script>
+</body>
+</html>

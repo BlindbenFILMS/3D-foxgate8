@@ -1,0 +1,397 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Archery Range</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.aa-btn{cursor:pointer;font:inherit}
+.aa-btn:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
+@keyframes aaDrag{0%{transform:translate(0,0) scale(1);opacity:0}12%{opacity:1;transform:translate(0,0) scale(.9)}55%{opacity:1;transform:translate(14px,52px) scale(.9)}72%{opacity:1;transform:translate(14px,52px) scale(1)}88%,100%{opacity:0;transform:translate(14px,52px) scale(1.06)}}
+.aa-hand{animation:aaDrag 2.2s ease-in-out infinite}
+@keyframes aaBlink{50%{opacity:.35}}
+.aa-blink{animation:aaBlink .5s steps(2) infinite}
+@media (prefers-reduced-motion: reduce){.aa-hand,.aa-blink{animation:none}}
+</style>
+</helmet>
+<div ref="{{rootRef}}" style="position: relative; width: 100%; height: 100vh; min-height: 360px; overflow: hidden; background: {{rootBg}}; color: #ffffff; font-family: Archivo, sans-serif; pointer-events: {{rootPe}}; -webkit-user-select: none; user-select: none">
+<sc-if value="{{standalone}}" hint-placeholder-val="{{ true }}">
+<div ref="{{stageRef}}" style="position: absolute; inset: 0"></div>
+</sc-if>
+
+<sc-if value="{{live}}" hint-placeholder-val="{{ true }}">
+<div aria-live="polite" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap">{{say}}</div>
+
+<div data-safe="top" style="position: absolute; top: 0; left: 0; right: 0; padding: 10px 12px 0; display: flex; flex-direction: column; gap: 8px; pointer-events: none; box-sizing: border-box">
+<div style="display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap">
+<button type="button" class="aa-btn" onClick="{{openMenu}}" style="pointer-events: auto; min-height: 44px; padding: 0 16px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-align: left">MENU</button>
+<button type="button" class="aa-btn" onClick="{{openInvite}}" style="pointer-events: auto; min-height: 44px; padding: 0 16px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-align: left">INVITE FRIEND</button>
+<div style="flex: 1 1 0"></div>
+<button type="button" class="aa-btn" onClick="{{goBack}}" aria-label="Back: leave the archery range" style="pointer-events: auto; min-height: 44px; padding: 0 18px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-align: left">BACK</button>
+</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: stretch">
+<sc-for list="{{players}}" as="pl" hint-placeholder-count="2">
+<div style="background: #000000; border: 2px solid {{pl.border}}; padding: 6px 10px; display: flex; flex-direction: column; gap: 3px; min-width: 76px">
+<div style="display: flex; align-items: center; gap: 6px">
+<span style="display: inline-block; width: 10px; height: 10px; background: {{pl.color}}"></span>
+<span style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em">{{pl.name}}</span>
+</div>
+<div style="font-size: 22px; font-weight: 800; line-height: 1">{{pl.total}}</div>
+<div style="font-size: 12px; color: #bdb8b2; letter-spacing: 0.08em; white-space: pre">{{pl.arrowsText}}</div>
+</div>
+</sc-for>
+<div style="background: #000000; border: 2px solid #3a3836; padding: 6px 10px; display: flex; flex-direction: column; gap: 3px; justify-content: center">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.08em; color: #ffd23a">{{endText}}</div>
+<div style="font-size: 15px; font-weight: 800">{{distText}}</div>
+<div style="display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em">
+<sc-if value="{{windLeft}}" hint-placeholder-val="{{ false }}"><svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true"><path d="M21 6H3M8 1L2 6l6 5" fill="none" stroke="#ffffff" stroke-width="2.5"></path></svg></sc-if>
+<span>{{windText}}</span>
+<sc-if value="{{windRight}}" hint-placeholder-val="{{ false }}"><svg width="22" height="12" viewBox="0 0 22 12" aria-hidden="true"><path d="M1 6h18M14 1l6 5-6 5" fill="none" stroke="#ffffff" stroke-width="2.5"></path></svg></sc-if>
+</div>
+</div>
+</div>
+</div>
+
+<div data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; padding: 0 12px 12px; display: flex; flex-direction: column; gap: 8px; pointer-events: none; box-sizing: border-box">
+<div style="background: #000000; border: 2px solid #3a3836; padding: 8px 12px; display: flex; align-items: center; gap: 10px">
+<div class="{{meterClass}}" style="font-size: 12px; font-weight: 800; letter-spacing: 0.1em; width: 92px; color: {{meterLabelColor}}">{{meterLabel}}</div>
+<div style="flex: 1 1 auto; height: 14px; border: 2px solid #3a3836; position: relative" role="meter" aria-label="Draw strength" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{powerPct}}">
+<div style="position: absolute; left: 0; top: 0; bottom: 0; width: {{powerPct}}%; background: {{meterColor}}"></div>
+<div style="position: absolute; left: 100%; top: -4px; bottom: -4px; width: 2px; margin-left: -2px; background: #ffd23a"></div>
+</div>
+</div>
+<div style="background: #000000; border: 2px solid #3a3836; padding: 10px 12px; display: flex; gap: 12px; align-items: center; min-height: 60px; box-sizing: border-box">
+<sc-if value="{{hasLast}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 0 0 auto; min-width: 58px; height: 52px; box-sizing: border-box; display: flex; align-items: center; padding: 0 10px; background: {{lastBg}}; color: {{lastFg}}; border: 2px solid #f4f1ea; font-size: 30px; font-weight: 800">{{lastLabel}}</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 4px; min-width: 0">
+<div style="font-size: 16px; font-weight: 800; letter-spacing: 0.04em">{{message}}</div>
+<sc-if value="{{hasCaption}}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 13px; font-weight: 600; letter-spacing: 0.03em; color: #ffd23a">{{caption}}</div>
+</sc-if>
+</div>
+</div>
+</div>
+
+<sc-if value="{{hint}}" hint-placeholder-val="{{ false }}">
+<div aria-hidden="true" style="position: absolute; left: 50%; top: 46%; width: 0; height: 0; pointer-events: none">
+<div class="aa-hand" style="position: absolute; left: -10px; top: -24px; width: 56px; height: 56px">
+<svg width="56" height="56" viewBox="0 0 48 48"><path d="M18 4c2 0 3 1.5 3 3.5V20h1v-8c0-2 1.3-3 3-3s3 1 3 3v8h1v-5c0-2 1.3-3 3-3s3 1 3 3v12c0 7-5 12-12 12h-2c-5 0-8-3-10-7l-5-9c-1-2 0-4 2-4.5 1.5-.4 3 .3 3.8 1.6L15 25V7.5C15 5.5 16 4 18 4z" fill="#ffffff" stroke="#1a1626" stroke-width="2.5" stroke-linejoin="round"></path></svg>
+</div>
+<div style="position: absolute; left: -110px; top: 96px; width: 220px; background: #000000; border: 2px solid #ffd23a; padding: 8px 10px; font-size: 13px; font-weight: 800; letter-spacing: 0.06em">HOLD, DRAG TO AIM, LET GO</div>
+</div>
+</sc-if>
+
+<sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Menu" style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 460px; max-height: 100%; overflow: auto; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; flex-direction: column; gap: 4px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.14em; color: #ec3013">MENU</div>
+<div style="font-size: 28px; font-weight: 800; letter-spacing: 0.02em">ARCHERY</div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #d9d4ce">Four ends of three arrows at 12, 18, 24 and 30 m. Gold scores 10, the inner X breaks ties. Full draw flies flat; wind pushes sideways, so aim into it.</p>
+</div>
+<div style="height: 2px; background: #3a3836"></div>
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.12em; color: #bdb8b2">MODE</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<sc-for list="{{modeOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" class="aa-btn" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="flex: 1 1 0; min-width: 110px; min-height: 52px; padding: 8px 10px; text-align: left; font-size: 13px; font-weight: 800; letter-spacing: 0.06em; border: 2px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}">{{o.label}}<span style="display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; color: {{o.sub}}">{{o.note}}</span></button>
+</sc-for>
+</div>
+<sc-if value="{{showLevels}}" hint-placeholder-val="{{ true }}">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.12em; color: #bdb8b2">OPPONENT</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<sc-for list="{{levelOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" class="aa-btn" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="flex: 1 1 0; min-width: 110px; min-height: 52px; padding: 8px 10px; text-align: left; font-size: 13px; font-weight: 800; letter-spacing: 0.06em; border: 2px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}">{{o.label}}<span style="display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.03em; color: {{o.sub}}">{{o.note}}</span></button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{showPlayers}}" hint-placeholder-val="{{ false }}">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.12em; color: #bdb8b2">PLAYERS</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<sc-for list="{{playerOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" class="aa-btn" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="flex: 1 1 0; min-width: 72px; min-height: 44px; padding: 8px 10px; text-align: left; font-size: 15px; font-weight: 800; letter-spacing: 0.06em; border: 2px solid {{o.border}}; background: {{o.bg}}; color: {{o.fg}}">{{o.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+<button type="button" class="aa-btn" onClick="{{startNew}}" style="min-height: 48px; padding: 0 16px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">START NEW MATCH</button>
+<div style="height: 2px; background: #3a3836"></div>
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.12em; color: #bdb8b2">SETTINGS</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{toggles}}" as="o" hint-placeholder-count="3">
+<button type="button" class="aa-btn" onClick="{{o.pick}}" aria-pressed="{{o.pressed}}" style="min-height: 44px; padding: 6px 12px; text-align: left; background: #000000; color: #ffffff; border: 2px solid #3a3836; display: flex; align-items: center; gap: 10px">
+<span style="flex: 0 0 auto; min-width: 44px; padding: 3px 6px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; background: {{o.bg}}; color: {{o.fg}}">{{o.state}}</span>
+<span style="display: flex; flex-direction: column; gap: 2px"><span style="font-size: 13px; font-weight: 800; letter-spacing: 0.06em">{{o.label}}</span><span style="font-size: 12px; color: #bdb8b2">{{o.note}}</span></span>
+</button>
+</sc-for>
+</div>
+<div style="height: 2px; background: #3a3836"></div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<button type="button" class="aa-btn" onClick="{{closeCard}}" style="flex: 1 1 0; min-width: 120px; min-height: 48px; padding: 0 16px; background: #ffd23a; color: #000000; border: 2px solid #ffd23a; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">RESUME</button>
+<button type="button" class="aa-btn" onClick="{{goBack}}" style="flex: 1 1 0; min-width: 120px; min-height: 48px; padding: 0 16px; background: #000000; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">LEAVE RANGE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{inviteOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Invite friend" style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 420px; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 14px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.14em; color: #ec3013">INVITE FRIEND</div>
+<div style="font-size: 24px; font-weight: 800">ONLINE RANGE: COMING SOON</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #d9d4ce">Online rooms with a share link are on the way. For now, hand the phone round with Pass &amp; Play, up to four foxes on one device.</p>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<button type="button" class="aa-btn" onClick="{{inviteLocal}}" style="flex: 1 1 0; min-width: 140px; min-height: 48px; padding: 0 16px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">PLAY PASS &amp; PLAY</button>
+<button type="button" class="aa-btn" onClick="{{closeCard}}" style="flex: 1 1 0; min-width: 100px; min-height: 48px; padding: 0 16px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">CLOSE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{resultOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: none">
+<div role="dialog" aria-label="Results" style="pointer-events: auto; background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 420px; max-height: 100%; overflow: auto; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: 0.14em; color: #ec3013">RESULTS</div>
+<div style="font-size: 32px; font-weight: 800; letter-spacing: 0.02em; color: {{resTitleColor}}">{{resTitle}}</div>
+<div style="display: flex; gap: 6px" role="img" aria-label="{{starsLabel}}">
+<sc-for list="{{stars}}" as="s" hint-placeholder-count="3">
+<svg width="30" height="30" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.6 7.1.6-5.4 4.7 1.6 7L12 17.3 5.8 20.9l1.6-7L2 9.2l7.1-.6z" fill="{{s.fill}}" stroke="#ffd23a" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+</sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<div style="border: 2px solid #3a3836; padding: 8px 10px"><div style="font-size: 12px; color: #bdb8b2; letter-spacing: 0.1em; font-weight: 800">SCORE</div><div style="font-size: 22px; font-weight: 800">{{resScore}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 8px 10px"><div style="font-size: 12px; color: #bdb8b2; letter-spacing: 0.1em; font-weight: 800">{{bestLabel}}</div><div style="font-size: 22px; font-weight: 800">{{resBest}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 8px 10px"><div style="font-size: 12px; color: #bdb8b2; letter-spacing: 0.1em; font-weight: 800">GOLD WON</div><div style="font-size: 22px; font-weight: 800; color: #ffd23a">{{resGold}}</div></div>
+<div style="border: 2px solid #3a3836; padding: 8px 10px"><div style="font-size: 12px; color: #bdb8b2; letter-spacing: 0.1em; font-weight: 800">XP</div><div style="font-size: 22px; font-weight: 800">{{resXp}}</div></div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{resRows}}" as="r" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 10px; padding: 6px 8px; border: 2px solid #3a3836">
+<span style="font-size: 13px; font-weight: 800; width: 24px; color: #bdb8b2">{{r.place}}</span>
+<span style="display: inline-block; width: 10px; height: 10px; background: {{r.color}}"></span>
+<span style="flex: 1 1 auto; font-size: 14px; font-weight: 800; letter-spacing: 0.06em">{{r.name}}</span>
+<span style="font-size: 16px; font-weight: 800">{{r.total}}</span>
+</div>
+</sc-for>
+</div>
+<div style="display: flex; gap: 6px; flex-wrap: wrap">
+<button type="button" class="aa-btn" onClick="{{playAgain}}" style="flex: 1 1 0; min-width: 140px; min-height: 48px; padding: 0 16px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">PLAY AGAIN</button>
+<button type="button" class="aa-btn" onClick="{{goBack}}" style="flex: 1 1 0; min-width: 100px; min-height: 48px; padding: 0 16px; background: #000000; color: #ffffff; border: 2px solid #3a3836; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">BACK</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{leftOpen}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; inset: 0; background: rgba(0, 0, 0, 0.6); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div style="background: #000000; border: 2px solid #3a3836; width: 100%; max-width: 380px; padding: 18px; box-sizing: border-box; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 800">YOU LEFT THE RANGE</div>
+<p style="margin: 0; font-size: 14px; color: #d9d4ce">In the 8 Gates town this takes you back to the street.</p>
+<button type="button" class="aa-btn" onClick="{{enterRange}}" style="min-height: 48px; padding: 0 16px; background: #ec3013; color: #ffffff; border: 2px solid #ec3013; font-size: 14px; font-weight: 800; letter-spacing: 0.08em; text-align: left">ENTER RANGE</button>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 12px; bottom: 12px; background: #000000; border: 2px solid #3a3836; padding: 10px 14px; font-size: 13px; font-weight: 800; letter-spacing: 0.1em">LOADING RANGE</div>
+</sc-if>
+<sc-if value="{{hasErr}}" hint-placeholder-val="{{ false }}">
+<div role="alert" style="position: absolute; left: 12px; right: 12px; bottom: 12px; background: #000000; border: 2px solid #ec3013; padding: 12px 14px; font-size: 13px; line-height: 1.5">THE RANGE COULD NOT LOAD: {{err}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null},"$preview":{"width":1280,"height":800}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._alive = true;
+    this._key = 'archeryRange';
+    this.setState({ card: null, pend: { mode: 'cpu', level: 'hope', players: 2 }, err: '', closed: false, hud: null });
+    if (this.props.world) this.bindOverlay();
+    else this.boot();
+    if (typeof ResizeObserver === 'function') {
+      this._ro = new ResizeObserver(() => this.measure(true));
+      if (this.rootEl) this._ro.observe(this.rootEl);
+    }
+  }
+  componentDidUpdate() { this.measure(false); }
+  componentWillUnmount() {
+    this._alive = false;
+    if (this._ro) this._ro.disconnect();
+    if (this._off) this._off();
+    if (!this.props.world && this.api) { try { this.api.destroy(); } catch (e) { } }
+    this.api = null;
+  }
+  async boot() {
+    try {
+      const url = new URL('./minigames/archery/archery.js', document.baseURI).href;
+      const mod = await import(url);
+      let tries = 0;
+      while (!this.stageEl && tries < 40 && this._alive) { await new Promise((r) => setTimeout(r, 25)); tries++; }
+      if (!this._alive) return;
+      if (!this.stageEl) throw new Error('no stage element');
+      this.api = await mod.createArchery({
+        container: this.stageEl,
+        onState: (h) => { if (this._alive) this.setState({ hud: h }); },
+      });
+      if (!this._alive) { this.api.destroy(); this.api = null; return; }
+      this.measure(true);
+    } catch (e) {
+      if (this._alive) this.setState({ err: String((e && e.message) || e) });
+    }
+  }
+  bindOverlay() {
+    const fn = (ev) => {
+      const h = ev.detail || null;
+      this.setState({ hud: h, closed: !h, card: h ? (this.state && this.state.card) || null : null });
+      if (h) this.measure(false);
+    };
+    window.addEventListener('8g:' + this._key, fn);
+    this._off = () => window.removeEventListener('8g:' + this._key, fn);
+    const g = this.game();
+    if (g && g.hud) this.setState({ hud: g.hud() });
+  }
+  game() {
+    if (this.props.world) {
+      const s = this.props.world['_' + this._key];
+      return s && typeof s.g === 'function' ? s.g() : null;
+    }
+    return this.api || null;
+  }
+  measure(force) {
+    const g = this.game(), root = this.rootEl;
+    if (!g || !root || !g.setSafe) return;
+    const rr = root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const side = el.getAttribute('data-safe');
+      if (side === 'top') s.top = Math.max(s.top, r.bottom - rr.top);
+      else if (side === 'bottom') s.bottom = Math.max(s.bottom, rr.bottom - r.top);
+      else if (side === 'left') s.left = Math.max(s.left, r.right - rr.left);
+      else if (side === 'right') s.right = Math.max(s.right, rr.right - r.left);
+    });
+    const k = [s.top, s.bottom, s.left, s.right].map((v) => Math.round(v / 4)).join(',');
+    if (force || k !== this._safeKey) { this._safeKey = k; g.setSafe(s); }
+  }
+  call(fn) {
+    const g = this.game();
+    if (!g) return;
+    try { if (g.unlockAudio) g.unlockAudio(); fn(g); } catch (e) { console.error(e); }
+  }
+  renderVals() {
+    const st = this.state || {};
+    const h = st.hud || null;
+    const overlay = !!this.props.world;
+    const card = st.card || null;
+    const pend = st.pend || { mode: 'cpu', level: 'hope', players: 2 };
+    if (!this.rootRef) this.rootRef = (el) => { this.rootEl = el; if (el && this._ro) this._ro.observe(el); };
+    if (!this.stageRef) this.stageRef = (el) => { if (el) this.stageEl = el; };
+    const sel = (on) => on
+      ? { bg: '#ffd23a', fg: '#000000', border: '#ffd23a', sub: '#000000', pressed: true }
+      : { bg: '#000000', fg: '#ffffff', border: '#3a3836', sub: '#bdb8b2', pressed: false };
+    const setPend = (p) => this.setState({ pend: Object.assign({}, pend, p) });
+
+    const players = ((h && h.players) || []).map((p) => ({
+      name: p.name, color: p.color, total: String(p.total),
+      arrowsText: p.arrows.length ? p.arrows.join('  ') : '–',
+      border: p.active ? '#ffd23a' : '#3a3836',
+    }));
+    const wind = (h && h.wind) || { dir: 'calm', kmh: 0 };
+    const last = h && h.last;
+    const lightRing = last && (last.ring >= 9 || (last.ring >= 1 && last.ring <= 2));
+    const power = h ? Math.round((h.power || 0) * 100) : 0;
+    let meterLabel = 'DRAW', meterColor = '#ec3013', meterLabelColor = '#ffffff', meterClass = '';
+    if (h && h.overdraw) { meterLabel = 'SHAKING'; meterColor = '#ec3013'; meterLabelColor = '#ec3013'; meterClass = 'aa-blink'; }
+    else if (h && h.full) { meterLabel = 'FULL DRAW'; meterColor = '#ffd23a'; meterLabelColor = '#ffd23a'; }
+    else if (h && !h.humanTurn && h.shooterKind === 'cpu') meterLabel = h.shooter + ' DRAW';
+
+    const res = (h && h.result) || null;
+    const resultOpen = !card && !!res && h.phase === 'result' && h.mode !== 'demo';
+    const starsN = res ? res.stars : 0;
+
+    const modeOpts = [['cpu', 'VS CPU', 'ONE ON ONE'], ['local', 'PASS & PLAY', '2 TO 4 PLAYERS'], ['demo', 'DEMO', 'WATCH AND LEARN']]
+      .map(([id, label, note]) => Object.assign({ label, note, pick: () => setPend({ mode: id }) }, sel(pend.mode === id)));
+    const levelOpts = [['pip', 'PIP', 'ROOKIE'], ['hope', 'HOPE', 'CLUB LEVEL'], ['noble', 'NOBLE', 'MASTER']]
+      .map(([id, label, note]) => Object.assign({ label, note, pick: () => setPend({ level: id }) }, sel(pend.level === id)));
+    const playerOpts = [2, 3, 4].map((n) => Object.assign({ label: String(n), pick: () => setPend({ players: n }) }, sel(pend.players === n)));
+    const tog = (label, note, on, fn) => ({
+      label, note, state: on ? 'ON' : 'OFF', pressed: !!on,
+      bg: on ? '#ffd23a' : '#3a3836', fg: on ? '#000000' : '#ffffff',
+      pick: () => this.call((g) => fn(g, !on)),
+    });
+    const toggles = h ? [
+      tog('SOUND', 'Effects: bow, arrows, crowd', h.sound, (g, v) => g.setSound(v)),
+      tog('MUSIC', 'Range music', h.music, (g, v) => g.setMusic(v)),
+      tog('AIM TONE', 'Audio sight: pitch rises as your shot lines up', h.aimTone, (g, v) => g.setAimTone(v)),
+    ] : [];
+
+    return {
+      standalone: !overlay,
+      live: !!h && !st.closed,
+      rootRef: this.rootRef, stageRef: this.stageRef,
+      rootBg: overlay ? 'transparent' : '#0d0c0b',
+      rootPe: overlay ? 'none' : 'auto',
+      say: (h && h.say) || '',
+      players,
+      endText: h ? 'END ' + h.end + '/' + h.ends + ' · ARROW ' + h.arrow + '/' + h.arrows : 'END 1/4',
+      distText: h ? h.dist + ' M' : '12 M',
+      windLeft: wind.dir === 'left', windRight: wind.dir === 'right',
+      windText: wind.dir === 'calm' ? 'WIND CALM' : 'WIND ' + wind.kmh + ' KM/H',
+      meterLabel, meterColor, meterLabelColor, meterClass, powerPct: power,
+      hasLast: !!last, lastLabel: last ? last.label : '', lastBg: last ? last.color : '#000000', lastFg: lightRing ? '#000000' : '#ffffff',
+      message: (h && h.message) || ' ',
+      hasCaption: !!(h && h.caption), caption: (h && h.caption) || '',
+      hint: !!(h && h.hint) && !card,
+      menuOpen: card === 'menu', inviteOpen: card === 'invite',
+      leftOpen: !card && !!h && !!h.left && !overlay,
+      resultOpen,
+      showLevels: pend.mode === 'cpu', showPlayers: pend.mode === 'local',
+      modeOpts, levelOpts, playerOpts, toggles,
+      resTitle: res ? res.title : '', resTitleColor: res && (res.title === 'YOU WIN' || res.mode === 'local') ? '#ffd23a' : '#ffffff',
+      stars: [0, 1, 2].map((i) => ({ fill: i < starsN ? '#ffd23a' : 'none' })),
+      starsLabel: starsN + ' of 3 stars',
+      resScore: res ? res.score + ' / ' + res.max : '',
+      bestLabel: res && res.newBest ? 'NEW BEST' : 'BEST',
+      resBest: res ? String(res.best) : '',
+      resGold: res ? '+' + res.gold : '',
+      resXp: res ? '+' + res.xp : '',
+      resRows: res ? res.rows.map((r) => ({ place: String(r.place), name: r.name, total: String(r.total), color: r.color })) : [],
+      loading: !overlay && !h && !st.err,
+      hasErr: !!st.err, err: st.err || '',
+      openMenu: () => {
+        this.setState({ card: 'menu', pend: h ? { mode: h.mode, level: h.level, players: h.localPlayers } : pend });
+        this.call((g) => g.pause(true));
+      },
+      openInvite: () => { this.setState({ card: 'invite' }); this.call((g) => g.pause(true)); },
+      closeCard: () => { this.setState({ card: null }); this.call((g) => g.pause(false)); },
+      goBack: () => {
+        this.setState({ card: null });
+        if (overlay) {
+          const s = this.props.world['_' + this._key];
+          if (s && typeof s.end === 'function') s.end();
+        } else this.call((g) => g.leave());
+      },
+      startNew: () => {
+        this.setState({ card: null });
+        this.call((g) => g.start(pend.mode, { level: pend.level, players: pend.players }));
+      },
+      inviteLocal: () => {
+        this.setState({ card: null });
+        this.call((g) => g.start('local', { players: 2 }));
+      },
+      playAgain: () => this.call((g) => g.playAgain()),
+      enterRange: () => this.call((g) => g.start()),
+    };
+  }
+}
+</script>
+</body>
+</html>

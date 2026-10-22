@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Frisbee World Test</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.wt{width:100%;height:100vh;display:flex;flex-direction:column;background:#000;color:#fff;font-family:Archivo,'Arial Narrow',sans-serif}
+.bar{flex:0 0 auto;display:flex;flex-wrap:wrap;align-items:stretch;border-bottom:2px solid #3a3836}
+.bar .t{padding:0 14px;display:flex;align-items:center;font-size:13px;font-weight:800;letter-spacing:.08em;min-height:44px}
+.bar .i{padding:0 14px;display:flex;align-items:center;font-size:12px;font-weight:600;letter-spacing:.06em;color:#bdb8b2;border-left:2px solid #3a3836}
+.btn{min-height:44px;padding:0 14px;display:flex;align-items:center;justify-content:flex-start;text-align:left;background:#000;color:#fff;border:0;border-left:2px solid #3a3836;border-radius:0;font-family:inherit;font-weight:800;font-size:13px;letter-spacing:.08em;cursor:pointer}
+.btn.y{background:#ffd23a;color:#000}
+.area{position:relative;flex:1 1 auto;min-height:0;overflow:hidden}
+.cv{position:absolute;inset:0}
+.ovl{position:absolute;inset:0;pointer-events:none}
+</style>
+</helmet>
+<div class="wt">
+<div class="bar">
+<div class="t">WORLD TEST · TOWN</div>
+<div class="i">{{statusText}}</div>
+<div class="i">{{tapsText}}</div>
+<sc-if value="{{closed}}" hint-placeholder-val="{{ false }}">
+<button type="button" class="btn y" onClick="{{open}}">OPEN FRISBEE FIELD</button>
+</sc-if>
+</div>
+<div class="area" ref="{{setArea}}">
+<div class="cv" ref="{{setCanvasBox}}"></div>
+<sc-if value="{{showOverlay}}" hint-placeholder-val="{{ true }}">
+<div class="ovl">
+<dc-import name="Frisbee" world="{{fakeWorld}}" hint-size="100%,100%"></dc-import>
+</div>
+</sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":844,"height":390}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { status: 'LOADING', closed: false, taps: 0 };
+    this._api = null; this._area = null; this._box = null;
+    this.setArea = (el) => { this._area = el; };
+    this.setCanvasBox = (el) => { this._box = el; };
+    const self = this;
+    this.fakeWorld = { _frisbeeField: { g: () => self._api, end: () => self.endGame() } };
+  }
+  async componentDidMount() {
+    try {
+      const base = document.baseURI;
+      const THREE = await import(new URL('./vendor/three/three.module.js', base).href);
+      this.M = await import(new URL('./minigames/frisbee/frisbee.js', base).href);
+      this.THREE = THREE;
+      const r = new THREE.WebGLRenderer({ antialias: true });
+      r.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      r.domElement.style.cssText = 'display:block;width:100%;height:100%;touch-action:none';
+      this._box.appendChild(r.domElement);
+      this.renderer = r;
+      const town = new THREE.Scene();
+      town.background = new THREE.Color(0xf2c9a0);
+      town.fog = new THREE.Fog(0xf2c9a0, 90, 220);
+      town.add(new THREE.HemisphereLight(0xffffff, 0x6b5a48, 1.8));
+      const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(-20, 40, 25); town.add(sun);
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(500, 500).rotateX(-Math.PI / 2), new THREE.MeshLambertMaterial({ color: 0xb59b7a }));
+      town.add(ground);
+      const wall = new THREE.MeshLambertMaterial({ color: 0xe8e0d0 }), roof = new THREE.MeshLambertMaterial({ color: 0x9c3b22 });
+      [[-14, 0, 6], [-14, 0, -12], [2, 0, 18], [40, 0, -2], [44, 0, -30], [8, 0, -42], [-10, 0, -34]].forEach(([x, y, z], i) => {
+        const h = 5 + (i % 3) * 2;
+        const b = new THREE.Mesh(new THREE.BoxGeometry(8, h, 8), wall); b.position.set(x, h / 2, z); town.add(b);
+        const rf = new THREE.Mesh(new THREE.ConeGeometry(6.2, 3, 4), roof); rf.position.set(x, h + 1.5, z); rf.rotation.y = Math.PI / 4; town.add(rf);
+      });
+      const parent = new THREE.Group(); parent.position.set(20, 0, -15); parent.rotation.y = 0.9; town.add(parent);
+      this.town = town; this.parent = parent;
+      this.townCam = new THREE.PerspectiveCamera(55, 1, 0.1, 600);
+      this.homePos = new THREE.Vector3(-30, 42, 55); this.townCam.position.copy(this.homePos); this.townCam.lookAt(10, 0, -10);
+      this.homeQuat = this.townCam.quaternion.clone();
+      this._onTap = (e) => { if (e.target === r.domElement) this.setState({ taps: this.state.taps + 1 }); };
+      window.addEventListener('pointerdown', this._onTap);
+      this._loop = () => {
+        this._raf = requestAnimationFrame(this._loop);
+        const w = this._area.clientWidth || 1, h = this._area.clientHeight || 1;
+        if (w !== this._w || h !== this._h) { this._w = w; this._h = h; r.setSize(w, h, false); }
+        const c = this.townCam;
+        if (this._api) {
+          const g = this._api.camera;
+          c.position.lerp(g.position, 0.08); c.quaternion.slerp(g.quaternion, 0.08); c.aspect = g.aspect;
+        } else {
+          c.position.lerp(this.homePos, 0.05); c.quaternion.slerp(this.homeQuat, 0.05); c.aspect = w / h;
+        }
+        c.updateProjectionMatrix();
+        r.render(town, c);
+      };
+      this._loop();
+      await this.open();
+    } catch (e) {
+      console.error(e);
+      this.setState({ status: 'ERROR: ' + ((e && e.message) || e) });
+    }
+  }
+  componentWillUnmount() {
+    cancelAnimationFrame(this._raf);
+    window.removeEventListener('pointerdown', this._onTap);
+    if (this._api) this._api.destroy();
+    if (this.renderer) this.renderer.dispose();
+  }
+  async open() {
+    if (this._api || !this.M) return;
+    this._api = await this.M.createFrisbee({
+      container: this._box,
+      onState: (h) => window.dispatchEvent(new CustomEvent('8g:frisbeeField', { detail: h })),
+      opts: { world: { renderer: this.renderer, camera: this.townCam, parent: this.parent } },
+    });
+    window.dispatchEvent(new CustomEvent('8g:frisbeeField', { detail: this._api.hud() }));
+    this.setState({ status: 'OPEN', closed: false });
+  }
+  endGame() {
+    if (this._api) { this._api.destroy(); this._api = null; }
+    window.dispatchEvent(new CustomEvent('8g:frisbeeField', { detail: null }));
+    this.setState({ status: 'CLOSED', closed: true });
+  }
+  renderVals() {
+    return {
+      statusText: 'GAME: ' + this.state.status, tapsText: 'TOWN TAPS: ' + this.state.taps, closed: this.state.closed,
+      open: () => this.open(), setArea: this.setArea, setCanvasBox: this.setCanvasBox,
+      fakeWorld: this.fakeWorld, showOverlay: true,
+    };
+  }
+}
+</script>
+</body>
+</html>

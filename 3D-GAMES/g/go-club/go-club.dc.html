@@ -184,14 +184,14 @@ button:focus-visible,input:focus-visible{outline:2px solid #ffd23a;outline-offse
         </sc-if>
         <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));border-top:2px solid #3a3836">
           <button class="cb" onClick="{{ playLocal }}" style="border-right:2px solid #3a3836"><span>PASS &amp; PLAY</span><span class="s">2 ON ONE PHONE</span></button>
-          <button class="cb" onClick="{{ onlineOpen }}"><span style="color:#7dd3fc">ONLINE</span><span class="s">ROOM OF UP TO 5</span></button>
+          <button class="cb" onClick="{{ onlineOpen }}"><span style="color:#7dd3fc">ONLINE</span><span class="s">ROOM OF UP TO 4</span></button>
         </div>
         <button class="cb" onClick="{{ watchDemo }}" style="border-top:2px solid #3a3836;min-height:52px"><span style="color:#ffd23a">WATCH THE DEMO</span><span class="s">TWO FOXES PLAY 9×9 · CAPTIONS TEACH THE RULES · TAP TO TAKE OVER</span></button>
         <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:2px solid #3a3836">
           <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="6"><button class="cb" onClick="{{ t.go }}" aria-pressed="{{ t.on }}" style="min-height:48px;border-right:2px solid #2a2826;border-bottom:2px solid #2a2826"><span style="font-size:11px">{{ t.label }}</span><span class="s" style="color:{{ t.col }}">{{ t.state }}</span></button></sc-for>
         </div>
         <button class="cb" onClick="{{ helpOpen }}" style="min-height:44px;border-top:2px solid #3a3836;color:#ffd23a">HOW TO PLAY</button>
-        <sc-if value="{{ land }}" hint-placeholder-val="{{ false }}"><div class="mut" style="padding:10px 14px;border-top:2px solid #3a3836">Kneel at the goban. Surround more of the board than your opponent: play a fox for gold, pass the phone to a friend, or open a room for up to 5.</div></sc-if>
+        <sc-if value="{{ land }}" hint-placeholder-val="{{ false }}"><div class="mut" style="padding:10px 14px;border-top:2px solid #3a3836">Kneel at the goban. Surround more of the board than your opponent: play a fox for gold, pass the phone to a friend, or open a room for up to 4.</div></sc-if>
         </div>
       </div>
     </div>

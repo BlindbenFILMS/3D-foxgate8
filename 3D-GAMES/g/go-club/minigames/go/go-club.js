@@ -1,5 +1,5 @@
 // 8 GATES — GO CLUB [goClub]. A tatami room (any building, any world): a floor goban, two stone bowls, foxes on cushions.
-// Modes: VS FOX (Pip · ROOKIE, Hope · CLUB, Noble · MASTER), PASS & PLAY, ONLINE (room of up to 5: 2 play, 3 watch and take the
+// Modes: VS FOX (Pip · ROOKIE, Hope · CLUB, Noble · MASTER), PASS & PLAY, ONLINE (room of up to 4: 2 play, 2 watch and take the
 // next game, winner stays on), WATCH THE DEMO. Board 9×9, 13×13 or 19×19. Tap an intersection (13/19: tap again to confirm),
 // PASS, and after two passes mark the dead stones and count. Rules + CPU: ./go-rules.js (CPU in a Worker).
 // Built from the Checkers Club (minigame #2) code, copied so the games share no files.
@@ -13,7 +13,7 @@ import { save } from '../../engine/save.js';
 import { Go, think, coord, hoshi, COLOR_WORD, KOMI, COLS } from './go-rules.js';
 import { createGoAudio } from './go-audio.js';
 
-export const GAME = { key: 'goClub', name: 'GO CLUB', room: 'goClub', maxRoom: 5 };
+export const GAME = { key: 'goClub', name: 'GO CLUB', room: 'goClub', maxRoom: 4 };
 const RESUME_KEY = 'goClub.resume', PREFS_KEY = 'goClub.prefs';
 // Opponents + rewards + lines: DRAFT for Ben (no go in the 2D game files).
 export const OPPONENTS = [
@@ -442,7 +442,7 @@ export async function createGoClub({ container, onState = () => {}, opts = {} } 
   }
   function toMenu() { cpuTok++; cpuBusy = false; demo = null; demoTok++; NET.leave(); phase = 'menu'; topple = null; audio.mood('menu'); over = null; scoreView = null; promoAsk = null; setGhost(-1); hint = null; say = null; mode = 'cpu'; seated = { w: null, b: ['pip', 'hope', 'noble'][prefs.level] || 'hope' }; standing = []; setSize(prefs.size); game = new Go({ N }); syncPieces(); placeFoxes(); drawBoard(); emit(); }
 
-  // ================= ONLINE (room of up to 5 · host-authoritative · engine/duel-net.js, else a same-device test channel) =================
+  // ================= ONLINE (room of up to 4 · host-authoritative · engine/duel-net.js, else a same-device test channel) =================
   const NET = (() => {
     const N = { room: null, me: null, tr: null, members: {}, state: null, msg: '', status: '', copied: false, tok: 0, timer: 0, lastSeen: {}, reacts: [] };
     const now = () => performance.now();
@@ -475,7 +475,7 @@ export async function createGoClub({ container, onState = () => {}, opts = {} } 
       if (t === 'hi') { N.members[id] = { j: +d.j || Date.now() };
         if (!N.settled && N.members[id].j >= N.j) { N.j = N.members[id].j + 1; N.members[N.me].j = N.j; send('hi', { v: 1, j: N.j }); }   /* a joiner always sorts after the people already here (phone clocks differ) */ if (!known) setTimeout(() => hello(id), 0); if (N.isHost()) { trim(); send('st', N.state, id); } emit(); return; }
       if (!N.members[id]) N.members[id] = { j: Date.now() };
-      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq) { N.state = d; N.rx = now(); sync(); } return; }
+      if (t === 'st') { if (!N.isHostId(id)) return; if (!N.state || d.seq >= N.state.seq || N.stFrom !== id) { N.stFrom = id; /* a new host's table always wins, even with a lower seq (seats taken before the link came up) */ N.state = d; N.rx = now(); sync(); } return; }
       if (t === 'rq') { if (N.isHost()) handle(d, id); return; }
       if (t === 'rx') { react(id, d.w); return; }
       if (t === 'bye') gone(id);

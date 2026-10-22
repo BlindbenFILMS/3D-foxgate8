@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Funhouse Dash</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800;900&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#000000}
+a{color:#ffd23a}a:hover{color:#ffffff}
+.fb{font-family:Archivo,Arial,sans-serif;font-weight:800;font-size:14px;letter-spacing:.04em;min-height:44px;padding:0 14px;border:2px solid #3a3836;border-radius:0;background:#000000;color:#ffffff;display:flex;align-items:center;justify-content:flex-start;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fb:hover{border-color:#ffd23a}
+.fb:focus-visible{outline:2px solid #ffd23a;outline-offset:2px}
+.fb:disabled{opacity:.35;cursor:default}
+@keyframes fhpulse{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+@keyframes fhpop{0%{transform:scale(.6);opacity:0}25%{transform:scale(1.08);opacity:1}100%{transform:scale(1);opacity:1}}
+.fh-hand{animation:fhpulse 1s ease-in-out infinite}
+.fh-pop{animation:fhpop .35s ease-out both}
+@media (orientation: landscape) and (max-height: 540px){
+.fh-stats{flex:0 1 auto !important;order:0 !important}
+.fh-score{display:none !important}
+.fh-top{padding:6px 10px !important}
+.fh-bottom{padding:6px 10px !important}
+.fh-msg{font-size:13px !important}
+.fh-hold{min-height:52px !important}
+.fh-count{font-size:84px !important}
+}
+</style>
+</helmet>
+<div ref="{{setRoot}}" style="position: {{rootPos}}; top: 0; left: 0; width: 100%; height: {{rootH}}; overflow: hidden; background: {{rootBg}}; pointer-events: {{rootPe}}; font-family: Archivo, Arial, sans-serif; color: #ffffff; user-select: none; -webkit-user-select: none">
+<div ref="{{setStage}}" style="position: absolute; top: 0; left: 0; right: 0; bottom: 0"></div>
+
+<sc-if value="{{loading}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; padding: 24px; gap: 8px; pointer-events: none">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .12em; color: #ffd23a">8 GATES</div>
+<div style="font-size: 34px; font-weight: 900; line-height: 1">FUNHOUSE DASH</div>
+<div style="font-size: 14px; color: #c9c4bd">Loading the funhouse</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showErr}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; padding: 24px; gap: 8px">
+<div style="font-size: 22px; font-weight: 900">The funhouse did not load.</div>
+<div style="font-size: 14px; color: #c9c4bd">{{err}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ready}}" hint-placeholder-val="{{ true }}">
+<div class="fh-top" data-safe="top" style="position: absolute; top: 0; left: 0; right: 0; pointer-events: auto; background: #000000; border-bottom: 2px solid #3a3836; padding: 10px 10px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center">
+<button class="fb" type="button" onClick="{{openMenu}}">MENU</button>
+<button class="fb" type="button" onClick="{{openInvite}}">INVITE FRIEND</button>
+<div class="fh-stats" style="flex: 1 1 100%; order: 3; display: flex; gap: 14px; align-items: center; flex-wrap: wrap; min-width: 0">
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="width: 14px; height: 14px; background: {{runnerCss}}"></div>
+<div style="font-size: 18px; font-weight: 900; letter-spacing: .02em">{{runnerName}}</div>
+<div style="font-size: 12px; font-weight: 600; color: #c9c4bd">{{turnText}}</div>
+</div>
+<div style="display: flex; gap: 12px; font-size: 13px; font-weight: 600; color: #c9c4bd">
+<div>TIME <span style="color: #ffffff; font-weight: 800">{{time}}</span></div>
+<div>TICKETS <span style="color: #ffd23a; font-weight: 800">{{tickets}}</span></div>
+<div>BONKS <span style="color: #ffffff; font-weight: 800">{{bonks}}</span></div>
+</div>
+</div>
+<div style="flex: 1 1 0"></div>
+<button class="fb" type="button" onClick="{{back}}" style="background: #ec3013; border-color: #ec3013; color: #ffffff">BACK</button>
+<div class="fh-score" style="flex: 1 1 100%; order: 4; display: flex; gap: 6px; flex-wrap: wrap">
+<sc-for list="{{players}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 6px; padding: 4px 8px; border: 2px solid {{p.border}}; font-size: 12px; font-weight: 800">
+<div style="width: 10px; height: 10px; background: {{p.css}}"></div>
+<div>{{p.name}}</div>
+<div style="color: #ffd23a">{{p.scoreText}}</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{showCaption}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1 1 100%; order: 5; display: flex; gap: 8px; align-items: baseline; font-size: 13px; line-height: 1.35">
+<div style="background: #ffd23a; color: #000000; font-weight: 900; padding: 2px 6px; font-size: 12px">DEMO</div>
+<div style="font-weight: 600">{{caption}}</div>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{showCount}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; right: 0; top: 36%; display: flex; justify-content: center; pointer-events: none">
+<div class="fh-count fh-pop" style="font-size: 120px; font-weight: 900; line-height: 1; color: #ffd23a; -webkit-text-stroke: 3px #1a1626">{{count}}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showPop}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; right: 0; top: 30%; display: flex; justify-content: center; pointer-events: none">
+<div class="fh-pop" style="font-size: 40px; font-weight: 900; line-height: 1; color: {{popColor}}; -webkit-text-stroke: 2px #1a1626">{{pop}}</div>
+</div>
+</sc-if>
+
+<div class="fh-bottom" data-safe="bottom" style="position: absolute; left: 0; right: 0; bottom: 0; pointer-events: auto; background: #000000; border-top: 2px solid #3a3836; padding: 10px 10px 12px; display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap">
+<sc-if value="{{showHint}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; left: 0; right: 0; bottom: 100%; padding-bottom: 10px; display: flex; justify-content: center; pointer-events: none">
+<div style="display: flex; align-items: center; gap: 8px; background: #000000; border: 2px solid #ffd23a; padding: 6px 12px 6px 8px">
+<svg class="fh-hand" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#ffd23a" stroke-width="2" stroke-linecap="square" stroke-linejoin="round" aria-hidden="true"><path d="M9 11V4a1.5 1.5 0 0 1 3 0v6"></path><path d="M12 10V8.5a1.5 1.5 0 0 1 3 0V11"></path><path d="M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-2.7L3.5 14.5a1.6 1.6 0 0 1 2.6-1.8L9 15"></path></svg>
+<div style="font-size: 14px; font-weight: 900; color: #ffd23a; letter-spacing: .06em">{{hint}}</div>
+</div>
+</div>
+</sc-if>
+<div style="flex: 1 1 180px; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 4px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">{{segLabel}}</div>
+<div class="fh-msg" style="font-size: 15px; line-height: 1.3; font-weight: 600">{{msg}}</div>
+</div>
+<sc-if value="{{showHold}}" hint-placeholder-val="{{ true }}">
+<button class="fb fh-hold" type="button" aria-label="Hold to run" onPointerDown="{{holdDown}}" onPointerUp="{{holdUp}}" onPointerCancel="{{holdUp}}" onContextMenu="{{noMenu}}" style="flex: 0 0 136px; min-height: 76px; background: {{holdBg}}; border-color: {{holdBg}}; color: {{holdFg}}; font-size: 16px; font-weight: 900; touch-action: none">{{holdLabel}}</button>
+</sc-if>
+<sc-if value="{{showDoors}}" hint-placeholder-val="{{ false }}">
+<div style="flex: 1 1 100%; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{doors}}" as="d" hint-placeholder-count="3">
+<button class="fb" type="button" onClick="{{d.pick}}" disabled="{{d.disabled}}" style="min-height: 56px; background: #000000; border-color: #ffd23a; color: #ffd23a; font-size: 16px; font-weight: 900">{{d.label}}</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{showFast}}" hint-placeholder-val="{{ false }}">
+<button class="fb" type="button" onClick="{{fast}}" style="flex: 0 0 150px; min-height: 60px; border-color: #ffd23a; color: #ffd23a; font-weight: 900">{{fastLabel}}</button>
+</sc-if>
+<sc-if value="{{showStart}}" hint-placeholder-val="{{ false }}">
+<button class="fb" type="button" onClick="{{go}}" style="flex: 0 0 150px; min-height: 60px; background: #ffd23a; border-color: #ffd23a; color: #000000; font-weight: 900">START RUN</button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{showMenu}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Menu" style="width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; box-sizing: border-box; background: #000000; border: 2px solid #3a3836; padding: 16px; display: flex; flex-direction: column; gap: 14px">
+<div style="display: flex; align-items: center; gap: 8px">
+<div style="flex: 1; font-size: 24px; font-weight: 900">MENU</div>
+<button class="fb" type="button" onClick="{{closeMenu}}">CLOSE</button>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">RULES</div>
+<div style="font-size: 14px; line-height: 1.45; color: #e8e4de">Hold to run, let go to stop. Dodge hammers, air jets, the rolling barrel and the tippy floor. In the mirror hall, only one door is real: listen for the chime. Fastest run wins. Tickets add 20 points.</div>
+</div>
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">MODE</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{modeBtns}}" as="b" hint-placeholder-count="3">
+<button class="fb" type="button" onClick="{{b.pick}}" style="border-color: {{b.border}}; color: {{b.fg}}; font-size: 13px">{{b.label}}</button>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{showOpp}}" hint-placeholder-val="{{ true }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">OPPONENT</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{oppBtns}}" as="b" hint-placeholder-count="3">
+<button class="fb" type="button" onClick="{{b.pick}}" style="border-color: {{b.border}}; color: {{b.fg}}; flex-direction: column; align-items: flex-start; justify-content: center; padding: 6px 10px; gap: 2px">
+<span style="font-size: 15px; font-weight: 900">{{b.label}}</span>
+<span style="font-size: 12px; font-weight: 600; color: #c9c4bd">{{b.sub}}</span>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{showPlayers}}" hint-placeholder-val="{{ false }}">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">PLAYERS</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<sc-for list="{{countBtns}}" as="b" hint-placeholder-count="3">
+<button class="fb" type="button" onClick="{{b.pick}}" style="border-color: {{b.border}}; color: {{b.fg}}">{{b.label}}</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="fb" type="button" onClick="{{toggleSound}}">{{soundLabel}}</button>
+<button class="fb" type="button" onClick="{{toggleMusic}}">{{musicLabel}}</button>
+<button class="fb" type="button" onClick="{{restart}}" style="border-color: #ffd23a; color: #ffd23a">RESTART</button>
+<button class="fb" type="button" onClick="{{back}}" style="background: #ec3013; border-color: #ec3013">LEAVE</button>
+</div>
+<div style="font-size: 12px; color: #9a968f">BEST {{best}} · KEYS: SPACE OR ARROW TO RUN · 1 2 3 FOR DOORS · F TO FAST FORWARD</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showInvite}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div role="dialog" aria-label="Invite friend" style="width: 100%; max-width: 400px; box-sizing: border-box; background: #000000; border: 2px solid #3a3836; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">COMING SOON</div>
+<div style="font-size: 24px; font-weight: 900">Online rooms</div>
+<div style="font-size: 14px; line-height: 1.45; color: #e8e4de">Racing friends online is on the way. For now, pick PASS &amp; PLAY in MENU and share one phone with up to four players.</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="fb" type="button" onClick="{{inviteLocal}}" style="background: #ffd23a; border-color: #ffd23a; color: #000000">PASS &amp; PLAY</button>
+<button class="fb" type="button" onClick="{{closeInvite}}">CLOSE</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showResults}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: none">
+<div role="dialog" aria-label="Results" style="width: 100%; max-width: 440px; max-height: 100%; overflow-y: auto; box-sizing: border-box; background: #000000; border: 2px solid #3a3836; padding: 16px; display: flex; flex-direction: column; gap: 12px; pointer-events: auto">
+<div style="display: flex; align-items: center; gap: 10px">
+<div style="flex: 1; min-width: 0">
+<div style="font-size: 12px; font-weight: 800; letter-spacing: .1em; color: #ffd23a">FUNHOUSE DASH · RESULTS</div>
+<div style="font-size: 28px; font-weight: 900; line-height: 1.05">{{res.title}}</div>
+</div>
+<div style="display: flex; gap: 2px">
+<sc-for list="{{res.stars}}" as="s" hint-placeholder-count="3">
+<svg width="26" height="26" viewBox="0 0 24 24" role="img" aria-label="{{s.label}}"><polygon points="12,2 15,9 22,9 16.5,13.5 18.5,21 12,16.5 5.5,21 7.5,13.5 2,9 9,9" fill="{{s.fill}}" stroke="#ffd23a" stroke-width="2" stroke-linejoin="miter"></polygon></svg>
+</sc-for>
+</div>
+</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px">
+<div style="border: 2px solid #3a3836; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 12px; font-weight: 800; color: #c9c4bd">{{res.scoreLabel}}</div>
+<div style="font-size: 24px; font-weight: 900">{{res.score}}</div>
+</div>
+<div style="border: 2px solid #3a3836; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 12px; font-weight: 800; color: #c9c4bd">BEST</div>
+<div style="font-size: 24px; font-weight: 900">{{res.best}}</div>
+</div>
+<div style="border: 2px solid #3a3836; padding: 8px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-size: 12px; font-weight: 800; color: #c9c4bd">GOLD WON</div>
+<div style="font-size: 24px; font-weight: 900; color: #ffd23a">{{res.gold}}</div>
+</div>
+</div>
+<sc-if value="{{res.newBest}}" hint-placeholder-val="{{ false }}">
+<div style="background: #ffd23a; color: #000000; font-weight: 900; font-size: 13px; padding: 6px 10px; letter-spacing: .06em">NEW BEST SCORE</div>
+</sc-if>
+<div style="display: flex; flex-direction: column; gap: 4px">
+<sc-for list="{{res.rows}}" as="r" hint-placeholder-count="2">
+<div style="display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 2px solid #3a3836; font-size: 13px; font-weight: 600">
+<div style="width: 18px; font-weight: 900; color: #ffd23a">{{r.place}}</div>
+<div style="width: 10px; height: 10px; background: {{r.css}}"></div>
+<div style="flex: 1; font-weight: 900">{{r.name}}</div>
+<div style="color: #c9c4bd">{{r.detail}}</div>
+<div style="width: 48px; font-weight: 900">{{r.score}}</div>
+</div>
+</sc-for>
+</div>
+<div style="font-size: 12px; color: #9a968f">{{res.note}}</div>
+<div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px">
+<button class="fb" type="button" onClick="{{restart}}" style="background: #ffd23a; border-color: #ffd23a; color: #000000; min-height: 52px; font-weight: 900">PLAY AGAIN</button>
+<button class="fb" type="button" onClick="{{back}}" style="background: #ec3013; border-color: #ec3013; min-height: 52px; font-weight: 900">BACK</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{showLeft}}" hint-placeholder-val="{{ false }}">
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box; pointer-events: auto">
+<div style="width: 100%; max-width: 400px; box-sizing: border-box; background: #000000; border: 2px solid #3a3836; padding: 16px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-size: 24px; font-weight: 900">You left the funhouse.</div>
+<div style="font-size: 14px; color: #c9c4bd">In the 8 GATES town, BACK returns you to the street.</div>
+<button class="fb" type="button" onClick="{{restart}}" style="background: #ffd23a; border-color: #ffd23a; color: #000000; font-weight: 900">PLAY AGAIN</button>
+</div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"world":{"editor":null},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  componentDidMount() {
+    this._alive = true;
+    this.setState({ h: null, menu: false, invite: false, err: '', gone: false });
+    if (this.props.world) this.mountOverlay();
+    else this.mountGame();
+    if (window.ResizeObserver && this.root) {
+      this._ro = new ResizeObserver(() => this.measure(true));
+      this._ro.observe(this.root);
+    }
+  }
+  componentWillUnmount() {
+    this._alive = false;
+    if (this._ro) this._ro.disconnect();
+    if (this._onEvt) window.removeEventListener('8g:funhouse', this._onEvt);
+    if (!this.props.world && this.api) this.api.destroy();
+    this.api = null;
+  }
+  componentDidUpdate() { this.measure(false); }
+  baseUrl() {
+    const sc = document.querySelector('script[src*="support.js"]');
+    return sc && sc.src ? sc.src : document.baseURI;
+  }
+  async mountGame() {
+    const rel = 'minigames/funhouse/funhouse.js';
+    const urls = [];
+    try { urls.push(new URL(rel, this.baseUrl()).href); } catch (e) { /* no base */ }
+    try { urls.push(new URL(rel, document.baseURI).href); } catch (e) { /* no base */ }
+    let mod = null, lastErr = null;
+    for (const u of urls) {
+      try { mod = await import(u); break; } catch (e) { lastErr = e; }
+    }
+    if (!mod) { this.setState({ err: String(lastErr && lastErr.message || lastErr || 'module not found') }); return; }
+    if (!this._alive || !this.stage) return;
+    try {
+      this.api = await mod.createFunhouse({ container: this.stage, onState: (h) => { if (this._alive) this.setState({ h }); } });
+      this.setState({ h: this.api.hud() });
+      this.measure(true);
+    } catch (e) {
+      this.setState({ err: String(e && e.message || e) });
+    }
+  }
+  mountOverlay() {
+    const w = this.props.world;
+    const getApi = () => (w && w._funhouse && w._funhouse.g ? w._funhouse.g() : null);
+    this._onEvt = (e) => {
+      const h = e.detail;
+      if (!h) { this.api = null; this.setState({ h: null, gone: true, menu: false, invite: false }); return; }
+      this.api = getApi() || this.api;
+      this.setState({ h, gone: false });
+    };
+    window.addEventListener('8g:funhouse', this._onEvt);
+    const a = getApi();
+    if (a) { this.api = a; this.setState({ h: a.hud() }); this.measure(true); }
+  }
+  measure(force) {
+    if (!this.root || !this.api) return;
+    const rb = this.root.getBoundingClientRect();
+    const s = { top: 0, bottom: 0, left: 0, right: 0 };
+    this.root.querySelectorAll('[data-safe]').forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || !r.height) return;
+      const k = el.getAttribute('data-safe');
+      if (k === 'top') s.top = Math.max(s.top, r.bottom - rb.top);
+      else if (k === 'bottom') s.bottom = Math.max(s.bottom, rb.bottom - r.top);
+      else if (k === 'left') s.left = Math.max(s.left, r.right - rb.left);
+      else if (k === 'right') s.right = Math.max(s.right, rb.right - r.left);
+    });
+    const key = JSON.stringify(s);
+    if (!force && key === this._safeKey) return;
+    this._safeKey = key;
+    this.api.setSafe(s);
+  }
+  call(name, a) {
+    const api = this.api;
+    if (api && typeof api[name] === 'function') return api[name](a);
+    return undefined;
+  }
+  closeMenu() { this.setState({ menu: false }); this.call('pause', false); }
+  doBack() {
+    const w = this.props.world;
+    this.setState({ menu: false, invite: false });
+    if (w && w._funhouse && w._funhouse.end) w._funhouse.end();
+    else this.call('leave');
+  }
+  renderVals() {
+    const st = this.state || {};
+    const h = st.h;
+    const ov = !!this.props.world;
+    const ph = h ? h.phase : 'loading';
+    const sel = (on) => ({ border: on ? '#ffd23a' : '#3a3836', fg: on ? '#ffd23a' : '#ffffff' });
+    const players = h ? h.players.map((p) => ({ name: p.name, css: p.css, scoreText: p.score == null ? '-' : String(p.score), border: p.active ? '#ffd23a' : '#3a3836' })) : [];
+    const res = h && h.result ? h.result : null;
+    const resVals = res ? {
+      title: res.title,
+      score: res.score == null ? '-' : String(res.score),
+      scoreLabel: h.mode === 'cpu' ? 'YOUR SCORE' : 'TOP SCORE',
+      best: String(res.best || 0),
+      gold: res.demo ? '-' : '+' + res.gold,
+      newBest: !!res.newBest,
+      note: res.demo ? 'Demo run: no rewards. Pick a mode in MENU to play.' : 'XP +' + res.xp + ' · Score = 1000, minus 25 per second, plus 20 per ticket.',
+      stars: [0, 1, 2].map((i) => ({ fill: i < res.stars ? '#ffd23a' : 'transparent', label: i < res.stars ? 'star earned' : 'star not earned' })),
+      rows: res.rows.map((r) => ({ place: r.place, css: r.css, name: r.name, score: r.score, detail: (r.finished ? r.time + 's' : 'DNF') + ' · ' + r.tickets + ' TK · ' + r.bonks + ' BONK' })),
+    } : { title: '', score: '', scoreLabel: '', best: '', gold: '', newBest: false, note: '', stars: [], rows: [] };
+    const mode = h ? h.mode : 'cpu';
+    const pickMode = (m) => () => { this.setState({ menu: false }); this.call('pause', false); this.call('start', m); };
+    return {
+      setRoot: (el) => { this.root = el; },
+      setStage: (el) => { this.stage = el; },
+      rootPos: ov ? 'absolute' : 'relative',
+      rootH: ov ? '100%' : '100vh',
+      rootBg: ov ? 'transparent' : '#000000',
+      rootPe: ov ? 'none' : 'auto',
+      loading: !h && !st.err && !st.gone,
+      showErr: !!st.err,
+      err: st.err || '',
+      ready: !!h && ph !== 'left',
+      runnerName: h && h.runner ? h.runner.name : '',
+      runnerCss: h && h.runner ? h.runner.css : '#3a3836',
+      turnText: h ? 'RUN ' + h.turn + '/' + h.turns : '',
+      time: h ? h.time + 's' : '',
+      tickets: h ? h.tickets : 0,
+      bonks: h ? h.bonks : 0,
+      players,
+      showCaption: !!(h && h.caption),
+      caption: h ? h.caption : '',
+      showCount: !!(h && h.count) && !st.menu,
+      count: h ? h.count : '',
+      showPop: !!(h && h.pop) && ph !== 'results',
+      pop: h ? h.pop : '',
+      popColor: h && /BONK|TUMBLE|WRONG|WHOA|TIME/.test(h.pop) ? '#ec3013' : '#ffd23a',
+      segLabel: h && h.seg ? h.seg : 'FUNHOUSE DASH',
+      msg: h ? h.msg : '',
+      showHint: !!(h && h.hint) && !st.menu,
+      hint: h ? h.hint : '',
+      showHold: !!(h && h.human && !h.door),
+      holdBg: h && h.holding ? '#ffd23a' : '#ec3013',
+      holdFg: h && h.holding ? '#000000' : '#ffffff',
+      holdLabel: h && h.holding ? 'RUNNING' : 'HOLD TO RUN',
+      holdDown: (e) => {
+        if (e && e.preventDefault) e.preventDefault();
+        try { if (e && e.currentTarget && e.currentTarget.setPointerCapture) e.currentTarget.setPointerCapture(e.pointerId); } catch (err) { /* capture unsupported */ }
+        this.call('hold', true);
+      },
+      holdUp: () => this.call('hold', false),
+      noMenu: (e) => { if (e && e.preventDefault) e.preventDefault(); },
+      showDoors: !!(h && h.door),
+      doors: [0, 1, 2].map((i) => ({ label: 'DOOR ' + (i + 1), disabled: !!(h && h.tried && h.tried.includes(i)), pick: () => this.call('pickDoor', i) })),
+      showFast: !!(h && h.cpuRun),
+      fastLabel: h && h.ff ? 'NORMAL SPEED' : 'FAST FORWARD',
+      fast: () => this.call('fast'),
+      showStart: ph === 'handoff',
+      go: () => this.call('go'),
+      showMenu: !!st.menu,
+      openMenu: () => { this.setState({ menu: true, invite: false }); this.call('pause', true); },
+      closeMenu: () => this.closeMenu(),
+      modeBtns: [['cpu', 'VS CPU'], ['local', 'PASS & PLAY'], ['demo', 'DEMO']].map(([m, label]) => ({ label, ...sel(mode === m), pick: pickMode(m) })),
+      showOpp: mode === 'cpu',
+      oppBtns: [['easy', 'PIP', 'ROOKIE'], ['medium', 'HOPE', 'CLUB LEVEL'], ['hard', 'NOBLE', 'MASTER']].map(([d, label, sub]) => ({ label, sub, ...sel(h && h.diff === d), pick: () => { this.setState({ menu: false }); this.call('pause', false); this.call('setDifficulty', d); } })),
+      showPlayers: mode === 'local',
+      countBtns: [2, 3, 4].map((n) => ({ label: n + ' PLAYERS', ...sel(h && h.nPlayers === n), pick: () => { this.setState({ menu: false }); this.call('pause', false); this.call('setPlayers', n); } })),
+      soundLabel: h && h.sound ? 'SOUND ON' : 'SOUND OFF',
+      musicLabel: h && h.music ? 'MUSIC ON' : 'MUSIC OFF',
+      toggleSound: () => this.call('setSound', !(h && h.sound)),
+      toggleMusic: () => this.call('setMusic', !(h && h.music)),
+      restart: () => { this.setState({ menu: false }); this.call('pause', false); this.call('restart'); },
+      back: () => this.doBack(),
+      best: h ? h.best : 0,
+      showInvite: !!st.invite,
+      openInvite: () => this.setState({ invite: true, menu: false }),
+      closeInvite: () => this.setState({ invite: false }),
+      inviteLocal: () => { this.setState({ invite: false }); this.call('start', 'local'); },
+      showResults: ph === 'results' && !st.menu && !st.invite,
+      res: resVals,
+      showLeft: ph === 'left',
+    };
+  }
+}
+</script>
+</body>
+</html>
