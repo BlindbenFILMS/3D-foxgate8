@@ -1378,3 +1378,15 @@ NEXT: (1) test on 2 real phones / 2 tabs (?net=local); (2) LOCAL SPLIT-SCREEN wi
 - Fighter Workshop viewer: vertex colours are kept when converting to toon materials. The uniforms and tails had been showing white.
 - Colour 2 and 3 models for all 15 fighters are re-exported with the new rule, and Noble is re-exported with the higher sheath (s116).
 - File: sword-duel.js. Backup: backup/sword-duel.pre-s117.js
+
+## s118 — Ben "Street Fighter" concept in the Fighter Workshop (2026-10-22)
+- duel-foxes.js sfBenLook(ctx, f, n): a concept look for Ben.
+  - A headband fitted to the head at forehead height, with two torn tails flying behind.
+  - A knotted sash at the waist with hanging ends.
+  - Wrapped shins.
+  - Three palettes: CLASSIC (white gi, sky-blue band), MIDNIGHT (dark gi, red band) and MERU GOLD (gold gi, white band, purple sash).
+  - The fur never changes.
+  - The bands are fitted to the real outline by sampling mesh vertices at that height.
+- API sfLook(n) applies it to the current Ben. It is NOT used in fights yet and is waiting for Ben's approval.
+- Fighter Workshop: a new CONCEPTS row (opens first) with BEN · STREET FIGHTER in 3 colours. The design notes list the planned moves (GATE STEP, 8 GATES OPEN super). "Download all" excludes concepts.
+- Files: duel-foxes.js, sword-duel.js. Backups: *.pre-s118.*

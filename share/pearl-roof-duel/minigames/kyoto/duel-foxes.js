@@ -731,3 +731,49 @@ export function breakable({ THREE, M, toon }, kind, theme) {
       if (m.position.y < 0.05) { m.position.y = 0.05; if (Math.abs(v.y) < 1.2) { v.set(v.x * 0.5, 0, v.z * 0.5); w.multiplyScalar(0.4); if (v.lengthSq() < 0.05) { m.userData.rest = true; m.rotation.x = Math.round(m.rotation.x / (Math.PI / 2)) * Math.PI / 2; m.rotation.z = Math.round(m.rotation.z / (Math.PI / 2)) * Math.PI / 2; } } else { v.y = -v.y * 0.32; v.x *= 0.6; v.z *= 0.6; w.multiplyScalar(0.6); } } }); }
   return { g, reset, smash, shake, tick, get broken() { return broken; }, kind };
 }
+
+// s118 (Ben: "what would the player look like as a Street Fighter character?") — CONCEPT LOOK for BEN, shown in the Fighter Workshop first.
+// Adds a torn headband with two flying tails, a knotted sash at the waist and wrapped shins; n = 0 CLASSIC (white gi, sky-blue band),
+// 1 MIDNIGHT (dark gi, red band), 2 MERU GOLD (gold gi, white band, purple sash). The fur never changes. Not used in a fight until Ben approves it.
+export function sfBenLook({ THREE, M, toon }, f, n = 0) {
+  const g = f && f.g, P = g && g.userData.P; if (!P || !P.head || !P.body) return false;
+  (g.userData.sf || []).forEach(o => o.parent && o.parent.remove(o)); g.userData.sf = [];
+  g.traverse(o => { if (o.isMesh && o.userData.sfC0) o.material.color.copy(o.userData.sfC0); });
+  g.updateMatrixWorld(true);
+  const under = (o, r) => { for (let q = o; q; q = q.parent) if (q === r) return true; return false; };
+  const lbox = (space, root, skip) => { const b = new THREE.Box3(), inv = new THREE.Matrix4().copy(space.matrixWorld).invert(), m = new THREE.Matrix4(), v = new THREE.Vector3();
+    root.traverse(o => { if (!o.isMesh || !o.visible || (skip && skip(o))) return; const mt = Array.isArray(o.material) ? o.material[0] : o.material; if (mt && mt.side === THREE.BackSide) return; if (!o.geometry.boundingBox) o.geometry.computeBoundingBox(); const gb = o.geometry.boundingBox; m.multiplyMatrices(inv, o.matrixWorld);
+      for (let i = 0; i < 8; i++) { v.set(i & 1 ? gb.max.x : gb.min.x, i & 2 ? gb.max.y : gb.min.y, i & 4 ? gb.max.z : gb.min.z).applyMatrix4(m); b.expandByPoint(v); } }); return b; };
+  // the body's real outline at one height: vertices within ±tol of y, in `space` coordinates → centre + half-widths (so bands hug the shape)
+  const slice = (space, root, skip, y, tol) => { const inv = new THREE.Matrix4().copy(space.matrixWorld).invert(), m = new THREE.Matrix4(), v = new THREE.Vector3(); let x0 = 1e9, x1 = -1e9, z0 = 1e9, z1 = -1e9, n = 0;
+    root.traverse(o => { if (!o.isMesh || !o.visible || (skip && skip(o))) return; const mt = Array.isArray(o.material) ? o.material[0] : o.material; if (mt && mt.side === THREE.BackSide) return; const pa = o.geometry.attributes.position; if (!pa) return; m.multiplyMatrices(inv, o.matrixWorld);
+      for (let i = 0; i < pa.count; i++) { v.fromBufferAttribute(pa, i).applyMatrix4(m); if (Math.abs(v.y - y) > tol) continue; n++; if (v.x < x0) x0 = v.x; if (v.x > x1) x1 = v.x; if (v.z < z0) z0 = v.z; if (v.z > z1) z1 = v.z; } });
+    return n ? { cx: (x0 + x1) / 2, cz: (z0 + z1) / 2, rx: (x1 - x0) / 2, rz: (z1 - z0) / 2 } : null; };
+  const PAL = [{ band: '#38bdf8', sash: '#38bdf8', gi: null, wrap: '#1b2350' }, { band: '#dc2626', sash: '#dc2626', gi: '#2a2d36', wrap: '#141312' }, { band: '#ffffff', sash: '#7c3aed', gi: '#e6b45a', wrap: '#3b2416' }][n] || null; if (!PAL) return false;
+  const keep = o => { g.userData.sf.push(o); return o; };
+  // GI colour: the white armour / cloth on the body and arms (never the head, fur, tail, crest or gloves)
+  if (PAL.gi) { const WH = ['#e7edf4', '#e2e8f0', '#f3f4f6', '#ffffff', '#cbd5e1', '#e8f8ff', '#94a3b8', '#6b7d93'].map(h => new THREE.Color(h)), gi = new THREE.Color(PAL.gi);
+    g.traverse(o => { if (!o.isMesh || Array.isArray(o.material) || !o.material.color || o.material.map) return; if (under(o, P.head) || (P.tail && under(o, P.tail)) || (P.sword && under(o, P.sword)) || (P.gun && under(o, P.gun))) return; if (o.material.side === THREE.BackSide) return;
+      const c0 = o.userData.sfC0 || o.material.color.clone(), vc = !!(o.geometry.attributes.color && o.material.vertexColors), hit = vc || WH.some(w => Math.abs(w.r - c0.r) + Math.abs(w.g - c0.g) + Math.abs(w.b - c0.b) < 0.04); if (!hit) return;
+      if (!o.userData.sfC0) { o.material = o.material.clone(); o.userData.sfC0 = c0; } const l = (c0.r + c0.g + c0.b) / 3; o.material.color.copy(gi).multiplyScalar(vc ? 1 : 0.55 + 0.5 * l); }); }
+  const bandM = toon(PAL.band), sashM = toon(PAL.sash), wrapM = toon(PAL.wrap), tapeM = toon('#f7f1e6');
+  // HEADBAND round the head, just under the ears, tipped slightly back; two torn tails fly out behind
+  const H = P.head, hb = lbox(H, H, o => (P.ears || []).some(e => under(o, e)) || (P.snout && under(o, P.snout)) || (P.nose && under(o, P.nose)));
+  const cy = hb.min.y + (hb.max.y - hb.min.y) * 0.6, skH = o => (P.ears || []).some(e => under(o, e)) || (P.snout && under(o, P.snout)) || (P.nose && under(o, P.nose)) || (P.bridge && under(o, P.bridge)), hs = slice(H, H, skH, cy, 0.035) || { cx: 0, cz: 0, rx: 0.3, rz: 0.3 };
+  const cx = hs.cx, cz = hs.cz, rx = hs.rx * 1.03, rz = hs.rz * 1.03;
+  const band = keep(M(new THREE.TorusGeometry(1, 0.075, 8, 40), bandM, cx, cy, cz, H, 0)); band.rotation.x = Math.PI / 2 - 0.12; band.scale.set(rx, rz, rx);
+  const knot = keep(M(new THREE.SphereGeometry(0.055, 10, 8), bandM, cx, cy + 0.035, cz - rz * 0.95, H, 0.01)); knot.scale.set(1.2, 0.9, 0.8);
+  for (const s of [-1, 1]) { const tg = new THREE.BoxGeometry(0.085, 0.46, 0.014); tg.translate(0, -0.23, 0); const t = keep(M(tg, bandM, cx + s * 0.03, cy + 0.03, cz - rz * 0.98, H, 0.008)); t.rotation.set(1.05 + (s > 0 ? 0.18 : 0), 0, s * 0.32);
+    const tg2 = new THREE.BoxGeometry(0.07, 0.2, 0.012); tg2.translate(0, -0.1, 0); const t2 = M(tg2, bandM, 0, -0.44, 0, t, 0.006); t2.rotation.set(0.35, 0, -s * 0.25); }   // the torn end kinks
+  // SASH round the waist with a knot and two hanging ends
+  const B = P.body, skipB = o => under(o, H) || (P.tail && under(o, P.tail)) || (P.sword && under(o, P.sword)) || (P.gun && under(o, P.gun)) || (P.arms || []).some(a => under(o, a)) || (P.legs || []).some(l => under(o, l));
+  const wy = (P.legs && P.legs[0] ? P.legs[0].position.y : 0.9) + 0.2, ws = slice(B, B, skipB, wy, 0.04) || { cx: 0, cz: 0, rx: 0.3, rz: 0.25 }, wx = ws.cx, wz = ws.cz, wrx = ws.rx * 1.04, wrz = ws.rz * 1.06;
+  const sash = keep(M(new THREE.TorusGeometry(1, 0.09, 8, 40), sashM, wx, wy, wz, B, 0.012)); sash.rotation.x = Math.PI / 2; sash.scale.set(wrx, wrz, 0.9);
+  const sk = keep(M(new THREE.BoxGeometry(0.13, 0.1, 0.07), sashM, wx + wrx * 0.45, wy, wz + wrz * 0.9, B, 0.01)); sk.rotation.z = 0.3;
+  for (const s of [0, 1]) { const eg = new THREE.BoxGeometry(0.075, 0.3, 0.02); eg.translate(0, -0.15, 0); const e = keep(M(eg, sashM, wx + wrx * (0.42 + s * 0.12), wy - 0.03, wz + wrz * 0.92, B, 0.008)); e.rotation.set(0.12, 0, 0.12 + s * 0.22); }
+  // WRAPPED SHINS above the paws: a band of cloth with three dark wraps
+  for (const L of P.legs || []) { const lb = lbox(L, L), h = lb.max.y - lb.min.y, r = Math.max(lb.max.x - lb.min.x, lb.max.z - lb.min.z) / 2, y0 = lb.min.y + h * 0.16, lx = (lb.max.x + lb.min.x) / 2, lz = (lb.max.z + lb.min.z) / 2;
+    keep(M(new THREE.CylinderGeometry(r * 0.78, r * 0.85, h * 0.2, 14), tapeM, lx, y0 + h * 0.1, lz, L, 0.01));
+    for (let k = 0; k < 3; k++) { const w = keep(M(new THREE.TorusGeometry(r * 0.82, 0.018, 6, 20), wrapM, lx, y0 + h * (0.03 + k * 0.07), lz, L, 0)); w.rotation.set(Math.PI / 2 + (k % 2 ? 0.18 : -0.18), 0, 0); } }
+  return true;
+}
