@@ -135,6 +135,8 @@ const SITE = "https://blindbenfilms.github.io/3D-foxgate8/3D-GAMES/";
 const ON_SITE = /github\.io$/.test(location.hostname);   // a game hosted inside this page: opens in the player
 
 const CATS = [
+  {id:"worlds", name:"3D Worlds", sub:"Walk the whole town: every building, walk-in doors and the games played right where they live. Big pages, so give them a moment to load."},
+  {id:"species", name:"Moon Peoples · New Species", sub:"The new species of each moon. Bear, Gator and Spy Fly are walkable 3D now; the other four are approved lore + cast boards, 3D coming next."},
   {id:"arcade", name:"Arcade & Carnival", sub:"Booths and cabinets that drop into any building."},
   {id:"tavern", name:"Tavern Games", sub:"Table games and bar games with the regulars."},
   {id:"sports", name:"Sports & Strength", sub:"Halls, rinks, rings and rodeo rooms."},
@@ -150,6 +152,25 @@ const CATS = [
 
 // links: [label, url, primary?]
 const GAMES = [
+  // 3D WORLDS (walk the town)
+  {s:"world-gaya",c:"worlds",n:"Gaya Town",w:"Gaya",a:"The purple temple town: walk the exteriors, find the relics, Candle Works and Ball Works.",m:["Walk","Games inside"],l:[["Walk it",H("g/gaya-world/Gaya-Town.dc.html"),1]]},
+  {s:"world-kyoto",c:"worlds",n:"Kyoto",w:"Kyoto",a:"Shrines, the sumo hall, sword duels, sushi, gyoza, Go and archery inside the town.",m:["Walk","Games inside"],l:[["Walk it",H("g/kyoto-world/Main.dc.html"),1]]},
+  {s:"world-zion",c:"worlds",n:"Zion",w:"Zion",a:"The wild-west gold town in red mesa country: Main Street, Gold River and 12 games in place.",m:["Walk","Games inside"],l:[["Walk it",H("g/zion-world/Zion-World.dc.html"),1]]},
+  {s:"world-nebo",c:"worlds",n:"Nebo",w:"Nebo",a:"Forest town: woodshop, orchard, frisbee, candy shop, pet store, lumber mill and bike park.",m:["Walk","Games inside"],l:[["Walk it",H("g/nebo-world/Nebo-World.dc.html"),1]]},
+  {s:"world-jidda",c:"worlds",n:"Jidda",w:"Jidda",a:"The beach city: surf, swim, jetski, submarine, deep dive, smoothies, gelato and Ocean World.",m:["Walk","Games inside"],l:[["Walk it",H("g/jidda-world/JiddaWorld.dc.html"),1]]},
+  {s:"world-ur",c:"worlds",n:"Ur",w:"Ur",a:"College town: espresso, the lab, grounds keeper, cricket, track and field, cribbage, zoo and skee-ball.",m:["Walk","Games inside"],l:[["Walk it",H("g/ur-world/Ur-World.dc.html"),1]]},
+  {s:"world-luxor",c:"worlds",n:"Luxor",w:"Luxor",a:"Ember-lit town square: deli, boxing, bike shop, pyramid dig, tavern foosball, basketball, dodgeball.",m:["Walk","Games inside"],l:[["Walk it",H("g/luxor-world/Main.dc.html"),1]]},
+  {s:"world-kufa",c:"worlds",n:"Kufa",w:"Kufa",a:"The desert caravan town: bazaar, camel pen, creamery, spy shop, dominoes and the dune jobs.",m:["Walk","Games inside"],l:[["Walk it",H("g/kufa-world/Kufa World.dc.html"),1]]},
+  {s:"world-earth",c:"worlds",n:"Earth",w:"Earth",a:"The Strip: casino tables, diner, cinema, speedway, baseball, airport, car wash and the arcade.",m:["Walk","Games inside"],l:[["Walk it",H("g/earth-world/Earth-World.dc.html"),1]]},
+  {s:"world-shasta",c:"worlds",n:"Shasta",w:"Shasta",a:"The snow valley under Mount Shasta: rink, curling, ski works, comics, pizza, chess and checkers.",m:["Walk","Games inside"],l:[["Walk it",H("g/shasta-world/Main.dc.html"),1]]},
+  // MOON PEOPLES (new species)
+  {s:"species-bear",c:"species",n:"Bear of Shasta",w:"Shasta",a:"The Hearthkin bears: walk the Smokehouse on the Falls, home, hall, ship, store and play their games.",m:["Walk", "Games inside"],l:[["Walk it",H("g/bear-of-shasta/Main.dc.html?sp=bear"),1]]},
+  {s:"species-gator",c:"species",n:"Gator of Jidda",w:"Jidda",a:"The gators of the lagoon: the Hot Stone Grill, soak pool, hall, ship, store and their games.",m:["Walk", "Games inside"],l:[["Walk it",H("g/gator-of-jidda/index.html?sp=lizard"),1]]},
+  {s:"species-spyfly",c:"species",n:"Spy Fly of Kufa",w:"Kufa",a:"The Dustwing spy flies: the Mint & Date tea house, roost tower, hall, ship, store and their games.",m:["Walk", "Games inside"],l:[["Walk it",H("g/spyfly-of-kufa/index.html?sp=fly"),1]]},
+  {s:"species-mantis",c:"species",n:"Mantis of Ur",w:"Ur",a:"The Stillfolk of Ur: lore, cast, places, game and armour. Approved board, 3D coming next.",m:["Lore board"],l:[["Lore board",H("g/mantis-of-ur/Main.dc.html"),1]]},
+  {s:"species-griffin",c:"species",n:"Griffin of Gaya",w:"Gaya",a:"The Gryphons of Gaya (Stormwing clans): lore, cast, buildings and Storm Aerie armour. Board, 3D next.",m:["Lore board"],l:[["Lore board",H("g/griffin-of-gaya/Main.dc.html"),1]]},
+  {s:"species-guerilla",c:"species",n:"Guerilla of Zion",w:"Zion",a:"The Guerilla of the Gold River: lore, cast, the Big Rig Diner, Truckball and Titan Exo-Frame. Board, 3D next.",m:["Lore board"],l:[["Lore board",H("g/guerilla-of-zion/Main.dc.html"),1]]},
+  {s:"species-greyalien",c:"species",n:"Grey Alien of Luxor",w:"Luxor",a:"The Greys of Luxor: lore + cast, with picture boards of the diner, Lava Plate, Pod House, hall, ship and games.",m:["Lore board", "Picture boards"],l:[["Lore board",H("g/greyalien-of-luxor/Main.dc.html"),1],["Diner",H("g/greyalien-of-luxor/Restaurant.dc.html")],["Lava Plate",H("g/greyalien-of-luxor/LavaPlate.dc.html")],["Pod House",H("g/greyalien-of-luxor/PodHouse.dc.html")],["Hall + cast",H("g/greyalien-of-luxor/Hall.dc.html")],["Ship",H("g/greyalien-of-luxor/Ship.dc.html")],["Orbit Stones",H("g/greyalien-of-luxor/OrbitStones.dc.html")],["Gravball",H("g/greyalien-of-luxor/Gravball.dc.html")],["Market",H("g/greyalien-of-luxor/Market.dc.html")],["Store",H("g/greyalien-of-luxor/Store.dc.html")]]},
   // ARCADE & CARNIVAL
   {s:"ring-toss",c:"arcade",n:"Ring Toss",w:"Carnival",a:"Toss rings onto pegs over three rounds, with wind and a spinning gold peg.",m:["Solo","Party 2–4","Online 2–4","Demo"],l:[["Play",H("g/fox-ring-toss/Main.dc.html"),1]]},
   {s:"water-race",c:"arcade",n:"Water-Gun Horse Race",w:"Carnival",a:"Squirt the bullseye to race your horse to the flag.",m:["Solo","Online up to 4","Demo"],l:[["Play",H("g/water-gun-horse-race-462b3a/Main.dc.html"),1]]},
@@ -352,12 +373,12 @@ function matches(g){
 }
 
 function renderTally(){
-  const real = GAMES.filter(g => g.c !== "zip" && g.c !== "vehicles");
+  const real = GAMES.filter(g => g.c !== "zip" && g.c !== "vehicles" && g.c !== "worlds" && g.c !== "species");
   const works = real.filter(g => statusOf(g) === "works").length;
   const broken = real.filter(g => statusOf(g) === "broken").length;
   const reqs = GAMES.filter(hasReq).length;
   document.getElementById("tally").innerHTML =
-    `<span><b>${real.length}</b> games</span><span><b>${GAMES.filter(g=>g.c==="vehicles").length}</b> vehicles</span><span><b>${GAMES.filter(g=>g.c==="zip").length}</b> coming soon</span>` +
+    `<span><b>${GAMES.filter(g=>g.c==="worlds").length}</b> worlds</span><span><b>${GAMES.filter(g=>g.c==="species").length}</b> moon peoples</span><span><b>${real.length}</b> games</span><span><b>${GAMES.filter(g=>g.c==="vehicles").length}</b> vehicles</span><span><b>${GAMES.filter(g=>g.c==="zip").length}</b> coming soon</span>` +
     `<span><b>${works}</b> works</span><span><b>${broken}</b> broken</span><span><b>${reqs}</b> change requests</span>`;
 }
 
