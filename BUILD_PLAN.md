@@ -1390,3 +1390,29 @@ NEXT: (1) test on 2 real phones / 2 tabs (?net=local); (2) LOCAL SPLIT-SCREEN wi
 - API sfLook(n) applies it to the current Ben. It is NOT used in fights yet and is waiting for Ben's approval.
 - Fighter Workshop: a new CONCEPTS row (opens first) with BEN · STREET FIGHTER in 3 colours. The design notes list the planned moves (GATE STEP, 8 GATES OPEN super). "Download all" excludes concepts.
 - Files: duel-foxes.js, sword-duel.js. Backups: *.pre-s118.*
+
+## s119 — THE 8 MOON PEOPLES join Fox Fighters (2026-11-15)
+- From the main thread's species pack: the 8 moon LEADERS in their species armour (capes and crests on).
+  - BRANNOCK (bear, Shasta), OSSU (grey alien, Luxor), IRISA (mantis, Ur), OSSA GREYCREST (gryphon, Gaya).
+  - HOBART STEELBACK (gorilla, Zion), AMBRA (bee, Nebo), ZAYD FARSIGHT (spy fly, Kufa), TOLLAN (gator, Jidda).
+- Rig: the main project's newer fox-kit is copied in as fox-kit-moon.js, used only for the leaders. The old fighters keep fox-kit.js and are unchanged (regression CPU fights pass).
+- New duel-moon.js: initMoon / leaderModel / leaderWeapon / LEADER_GEAR. rigFighter has a 'leader' rig (2-bone IK on the fox rig's arms, fore, legs and shin; small body lean and twist, since the fox rig has no separate chest).
+- Ben's picks:
+  - SWORD = each leader's OWN weapon: rune staff, log-crystal, scythe arm, storm staff, knuckle ram, stinger sceptre, brass telescope, sandstone staff. It sits on the back and is drawn for sword moves.
+  - LASER = a themed shot with its own colour and hit word: rune bolt, crystal beam, leaf blade, storm bolt, piston blast, sting dart, glint shot, sun bolt.
+- New specials (3 each) and supers, built on the existing special moves, as drafts for Ben's OK:
+  - Brannock: HEARTH SLAM / LOG ROLL / RUNE ROAR · super ELDER'S HEARTHFIRE.
+  - Ossu: STAR CHART / GRAV PULL / LOG FLASH · STARFALL.
+  - Irisa: LEAF STEP / TWIN SCYTHE / STILL COUNTER · PRAYING STORM.
+  - Ossa: STORM DIVE / WING GUST / LIGHTNING CALL · THUNDERHEAD.
+  - Hobart: PISTON PUNCH / GROUND POUND / STEELBACK UPPER · TURNTABLE THROW.
+  - Ambra: STING RUSH / HONEY TRAP / HIVE RISE · SWARM CALL.
+  - Zayd: JET DASH / SCARF WHIP / TELESCOPE POP · FAR SIGHT.
+  - Tollan: TAIL SWEEP / DEATH ROLL / GATOR SNAP · SUNSTONE SURGE.
+- Select screen: TWO PAGES (Ben's pick), FOXES & BOSSES (15) and MOON PEOPLES (8, 4 columns). The tabs are 44 px. Checked at 390×844 and 844×390; in landscape the stat bars hide below 430 px tall so FIGHT stays on screen.
+- Move list (pause): all 8 leaders listed. Title ticker: 23 FIGHTERS.
+- All 8 run full CPU fights start to finish. Arcade ladders run with a leader as player 1, and leaders appear as opponents.
+- KIT_CHANGES.md: no shared kit file changed.
+- Files: minigames/kyoto/{duel-moon.js (new), duel-foxes.js, sword-duel.js}, Kyoto Sword Duel.dc.html, Pearl Roof Duel.html, fox-kit-moon.js (new), engine/{species-leaders, 8 species kits, species-armor, armor-sets, armor-crests, meru-faces, fox-mouth3d}.js (new), Species Leaders in Armour.dc.html (preview, imports fox-kit-moon.js), KIT_CHANGES.md.
+- Backups: backup/*.pre-s119.*
+- Still to do: rivals and home stages for the leaders, voice lines, Fighter Workshop models.

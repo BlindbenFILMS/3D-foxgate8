@@ -7,6 +7,8 @@
 //    soap nozzle arm, yellow beacon) + sudsPoseOf(f, S) (pose from the fighter state) + upd(P, dt, f) (puts the pose on the model,
 //    drives the roof car / gondola rig and the JUMP / DUCK warning strips).
 import { castKit } from '../../engine/cast.js';
+import * as MOON from './duel-moon.js?v=s119';   // s119: the 8 moon leaders (main project rig + species kits)
+export { initMoon, LEADERS, LEADER_GEAR } from './duel-moon.js?v=s119';
 import { PLAYER_MALE, PLAYER_FEMALE, KING_MIGHT, HOPE_LOOK } from '../../fox-kit.js';
 import { nobleWeaponKit } from '../../engine/noble-weapons.js';
 import { BOSS_FOX, bossExtras, ironWarden, makerPrime, suds9 } from '../../engine/bosses.js';
@@ -33,6 +35,14 @@ export const FOX_ROSTER = [
   { id: 'suds', name: 'SUDS-9', sub: 'ROBOT · WINDOW CLEANER', style: 'The roof boss, now yours. RINSE CYCLE from the hose hand and the SPIN CYCLE.', rig: 'suds', vo: 'suds9', hp: 212, speed: 0.9, dmg: 1.27, stats: [4, 2, 4], mv: { w: 1.0, reach: 1.25, armor: ['spin', 'high', 'kick'] }, ai: 'heavy' },
   { id: 'slag', name: 'SLAGBACK', sub: 'LAVA BEAST · LUXOR', style: 'Molten under the crust. LAVA LOB and the MAGMA SLAM. Its crust cracks off as it gets hurt.', rig: 'slag', hp: 200, speed: 0.84, dmg: 1.2, stats: [4, 2, 3], mv: { w: 1.0, reach: 1.12, armor: ['spin', 'high'], crust: true }, ai: 'heavy' },
   { id: 'crystal', name: 'CRYSTAL WARDEN', sub: 'GOLEM · THE CRYSTAL CAVES', style: 'A living crystal brawler. CRYSTAL SHARD fireball, GEM CYCLONE, the CRYSTAL RISE uppercut, PRISM PUNCHES and the PRISM STORM.', rig: 'crystal', hp: 190, speed: 0.9, dmg: 1.12, stats: [4, 2, 4], mv: { w: 1.0, r: 1.0, reach: 1.1, armor: ['spin'] }, ai: 'balanced' },   // s98 (Ben): replaces Shadow Ben
+  { id: 'brannock', name: 'BRANNOCK', sub: 'BEAR · HEARTH ELDER OF SHASTA', style: 'The heaviest hitter. Slow, huge reach, shrugs off a hit. Swings the black-iron RUNE STAFF and fires RUNE BOLTS.', rig: 'leader', leader: 'brannock', sc: 1.062, moon: true, hp: 190, speed: 0.92, dmg: 1.2, stats: [5, 2, 4], ai: 'heavy' },   // s119: moon leader (species armour)
+  { id: 'ossu', name: 'OSSU', sub: 'GREY ALIEN · OLD NAVIGATOR OF LUXOR', style: 'Keeps you at a distance. Floats, blinks and hits from afar with the LOG-CRYSTAL and its CRYSTAL BEAM.', rig: 'leader', leader: 'ossu', sc: 1.035, moon: true, hp: 180, speed: 1.04, dmg: 1.02, stats: [2, 4, 3], ai: 'zoner' },   // s119: moon leader (species armour)
+  { id: 'irisa', name: 'IRISA', sub: 'MANTIS · STILL MOTHER OF UR', style: 'Stands still, then strikes faster than anyone. Counters with her SCYTHE ARM and throws LEAF BLADES.', rig: 'leader', leader: 'irisa', sc: 1.08, moon: true, hp: 170, speed: 1.1, dmg: 1.08, stats: [3, 5, 2], ai: 'rush' },   // s119: moon leader (species armour)
+  { id: 'ossa', name: 'OSSA GREYCREST', sub: 'GRYPHON · THE STORMWARDEN OF GAYA', style: 'Air fighter. Long jumps, dives and STORM BOLTS from above. Blind: she reads you by the wind.', rig: 'leader', leader: 'ossa', sc: 0.945, moon: true, hp: 180, speed: 1.04, dmg: 1.08, stats: [3, 4, 3], ai: 'balanced' },   // s119: moon leader (species armour)
+  { id: 'hobart', name: 'HOBART STEELBACK', sub: 'GORILLA · BOSS OF THE ROUNDHOUSE, ZION', style: 'A grappler. Grabs, throws and hydraulic KNUCKLE RAMS. The PISTON BLAST hits like a train.', rig: 'leader', leader: 'hobart', sc: 1.062, moon: true, hp: 190, speed: 0.92, dmg: 1.2, stats: [5, 2, 4], ai: 'heavy' },   // s119: moon leader (species armour)
+  { id: 'ambra', name: 'AMBRA', sub: 'BEE · SPEAKER OF THE HIVE, NEBO', style: 'Hovers and harries. Quick stings with the STINGER SCEPTRE and STING DARTS.', rig: 'leader', leader: 'ambra', sc: 1.08, moon: true, hp: 180, speed: 1.04, dmg: 1.08, stats: [3, 4, 3], ai: 'balanced' },   // s119: moon leader (species armour)
+  { id: 'zayd', name: 'ZAYD FARSIGHT', sub: 'SPY FLY · ELDER OF THE DUSTWINGS, KUFA', style: 'The fastest. Darts in and out, bonks you with the BRASS TELESCOPE and fires GLINT SHOTS.', rig: 'leader', leader: 'zayd', sc: 0.9, moon: true, hp: 180, speed: 1.1, dmg: 1.02, stats: [2, 5, 3], ai: 'rush' },   // s119: moon leader (species armour)
+  { id: 'tollan', name: 'TOLLAN', sub: 'GATOR · GRAND BASKER OF JIDDA', style: 'The biggest. A tail sweep, a snapping bite, slow but very hard to knock down. Swings the SANDSTONE STAFF and fires SUN BOLTS.', rig: 'leader', leader: 'tollan', sc: 1.215, moon: true, hp: 200, speed: 0.86, dmg: 1.2, stats: [5, 1, 5], ai: 'heavy' },   // s119: moon leader (species armour)
 ];
 // s37 (Ben): all 15 are on the select screen now; Shadow Ben still shows up as the arcade's secret challenger.
 export const FOX_SECRET = [];
@@ -277,9 +287,10 @@ const RIGS = {
 };
 const ss01 = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
 export function rigFighter({ THREE, M, toon }, def) {
-  const RD = RIGS[def.rig], grad = toon('#ffffff').gradientMap, g = new THREE.Group(); g.rotation.order = 'YXZ';
-  let model, R, CRK = null; const slag = def.rig === 'slag', crk = slag || def.rig === 'crystal';
-  if (crk) { CRK = creatureKit({ THREE, toon, M }); model = CRK.build(slag ? 'Slagback' : 'Deep Warden'); const J = model.userData.joints; R = { hips: J.hips, chest: J.torso, head: J.head, arms: J.arms.map(a => ({ up: a.sh, el: a.el, s: a.s })), legs: J.legs.map(l => ({ th: l.p, s: l.s, one: true })) }; }
+  let RD = RIGS[def.rig]; const grad = toon('#ffffff').gradientMap, g = new THREE.Group(); g.rotation.order = 'YXZ';
+  let model, R, CRK = null, LM = null; const slag = def.rig === 'slag', crk = slag || def.rig === 'crystal', ldr = def.rig === 'leader';
+  if (ldr) { LM = MOON.leaderModel(def.leader, def.sc || 1); model = LM.model; R = LM.R; RD = { sc: def.sc || 1, H: LM.H, hw: LM.hw, hand: LM.hand }; }   /* s119: a MOON LEADER (main project rig, species kit, species armour) */
+  else if (crk) { CRK = creatureKit({ THREE, toon, M }); model = CRK.build(slag ? 'Slagback' : 'Deep Warden'); const J = model.userData.joints; R = { hips: J.hips, chest: J.torso, head: J.head, arms: J.arms.map(a => ({ up: a.sh, el: a.el, s: a.s })), legs: J.legs.map(l => ({ th: l.p, s: l.s, one: true })) }; }
   else { model = (def.rig === 'warden' ? ironWarden : def.rig === 'prime' ? makerPrime : suds9)({ THREE, M, toon, grad }); R = model.userData.R; }
   model.scale.setScalar(RD.sc); g.add(model);
   // s85 (Ben): IRON WARDEN gets BIG RED BOXING GLOVES on his rocket fists, EARS like Maker Prime's antenna horns, and a hip LASER (fires with his eye laser)
@@ -349,15 +360,16 @@ export function rigFighter({ THREE, M, toon }, def) {
       const eg = new THREE.TorusGeometry(0.3, 0.012, 4, 16, 1.1); const ed = M(eg, org, s * 0.08, 0.98, 0, AXE, 0); ed.rotation.z = s > 0 ? -0.55 : Math.PI - 0.55; ed.scale.x = 0.55 * s; }
     axBack = new THREE.Group(); axBack.position.set(0.05, 0.05, -0.42); axBack.rotation.set(0.12, 0, 0.62); axBack.scale.setScalar(1 / RD.sc); R.chest.add(axBack); axBack.add(AXE); AXE.position.set(0, -0.35, 0); }
   model.updateMatrixWorld(true);
+  if (ldr) { AXE = MOON.leaderWeapon(def.leader); axBack = new THREE.Group(); axBack.position.set(0.08, 1.45, -0.42); axBack.rotation.set(0.1, 0, 0.62); axBack.scale.setScalar(1 / RD.sc * (def.sc || 1)); R.chest.add(axBack); axBack.add(AXE); AXE.position.set(0, -0.35, 0); }   /* s119: the leader's OWN weapon on the back, in the hand for the sword moves */
   const V = () => new THREE.Vector3(), wp = o => o.getWorldPosition(V());
   // rest measurements (g-space = world while g sits at the origin)
   const hip0 = R.hips.position.clone(), chest0 = R.chest.rotation.clone();
-  const arms = R.arms.map(a => ({ ...a, a: a.el.position.length() * RD.sc, b: RD.hand * RD.sc, sh0: wp(a.up) }));
-  const legs = R.legs.map(l => l.one ? { ...l, a: 0.8 * RD.sc, sh0: wp(l.th) } : { ...l, a: l.kn.position.length() * RD.sc, b: l.ft.position.length() * RD.sc, sh0: wp(l.th) });
+  const arms = R.arms.map(a => ({ ...a, a: a.a0 ?? a.el.position.length() * RD.sc, b: a.b0 ?? RD.hand * RD.sc, sh0: wp(a.up) }));
+  const legs = R.legs.map(l => l.one ? { ...l, a: 0.8 * RD.sc, sh0: wp(l.th) } : { ...l, a: l.a0 ?? l.kn.position.length() * RD.sc, b: l.b0 ?? l.ft.position.length() * RD.sc, sh0: wp(l.th) });
   const armLen = arms[0].a + arms[0].b, legLen = legs[0].one ? legs[0].a : legs[0].a + legs[0].b, kA = armLen / 0.5, kL = (legs[0].sh0.y - 0.02) / 0.72;
   // the duel holds a 'sword' in the far paw: robots have none, so it's an empty holder at that hand (its tip = the reach point)
   const sw = new THREE.Object3D(); g.add(sw); const tip = new THREE.Object3D(); tip.position.y = 0.35; sw.add(tip); sw.userData.tip = tip;
-  const gunTip = new THREE.Object3D(); if (def.rig === 'crystal') { R.chest.add(gunTip); gunTip.position.set(0, 0.62, 0.55); } else if (def.rig === 'suds' && R.arms[0].noz) R.arms[0].noz.add(gunTip); else {   /* s99: the Crystal Warden fires from the CORE in his chest */ R.head.add(gunTip); gunTip.position.set(0, 0.1, 0.4); }   // SUDS-9 fires from his hose hand
+  const gunTip = new THREE.Object3D(); if (ldr) { const A = R.arms.find(q => q.s < 0) || R.arms[0]; A.el.add(gunTip); gunTip.position.set(0, -RD.hand, 0.06); } else if (def.rig === 'crystal') { R.chest.add(gunTip); gunTip.position.set(0, 0.62, 0.55); } else if (def.rig === 'suds' && R.arms[0].noz) R.arms[0].noz.add(gunTip); else {   /* s99: the Crystal Warden fires from the CORE in his chest */ R.head.add(gunTip); gunTip.position.set(0, 0.1, 0.4); }   // SUDS-9 fires from his hose hand
   const R0 = { hip: [0, 0, 0], lean: 0, twist: 0, side: 0, yaw: 0, pitch: 0, hL: [0.42, 0.8, 0.1], hR: [-0.42, 0.8, 0.1], eL: [1, 1, 0], eR: [-1, 1, 0], fL: [0.14, 0.05, 0], fR: [-0.14, 0.05, 0], kL: [0.5, 0.4, 1], kR: [-0.5, 0.4, 1], fYawL: 0, fYawR: 0, blade: 0.95, mood: 'determined', mouth: 0, vis: 'a', gun: 0 };
   const _a = V(), _b = V(), _c = V(), _d = V(), _h = V(), _u = V(), _e2 = V(), _m = new THREE.Matrix4(), _q = new THREE.Quaternion(), _qp = new THREE.Quaternion(), _qg = new THREE.Quaternion();
   // aim a bone group so its local −y points along dir (world) with its local x on hinge (world)
@@ -373,14 +385,15 @@ export function rigFighter({ THREE, M, toon }, def) {
     // which pose the model plays itself: a signature move, taunt, hurt, stunned, the win
     let own = null; if (a && RD.own && RD.own[ak] && !crk) { own = RD.own[ak]; if (a !== lastAct) { lastAct = a; U.pose = own; U.pt = (RD.ownT && RD.ownT[ak]) || 0; } }
     else lastAct = null;
-    if (!crk) { if (own) {} else if (f && (f.daze > 0 || (f.stun > 0.3 && !a))) setPose('stunned'); else if (f && f.hitT != null && (f.hitAge ?? 9) < 0.35 && !a) { if (f.hitT !== lastHit) { lastHit = f.hitT; U.pose = 'hurt'; U.pt = 0; } }
+    if (ldr) LM.tick(t, dt); else if (!crk) { if (own) {} else if (f && (f.daze > 0 || (f.stun > 0.3 && !a))) setPose('stunned'); else if (f && f.hitT != null && (f.hitAge ?? 9) < 0.35 && !a) { if (f.hitT !== lastHit) { lastHit = f.hitT; U.pose = 'hurt'; U.pt = 0; } }
       else if (RD.win && P.mood === 'happy' && f && f.winOn) setPose(RD.win); else setPose('stance'); U.idle(t, dt); }
     else { const st = a && (ak === 'quake') ? (a.fired ? 'attack' : 'windup') : f && f.daze > 0 ? 'stagger' : 'idle'; if (st !== pose0) { pose0 = st; U.st0 = t; } CRK.animate(model, st, t - (U.st0 || 0), dt); U.events.length = 0;
       if (slag) { const want = f && f.hpMax ? (f.hp < f.hpMax * 0.34 ? 2 : f.hp < f.hpMax * 0.67 ? 1 : 0) : 0; if (f && f.hp >= f.hpMax) { U.crustLvl = 0; crust = 0; } while (crust < want) { crust++; CRK.enter(model, 'armorBreak'); U.events.length = 0; } } }
     if (own) { applyCart(f); return; }
     // body: hips (crouch), chest lean / twist, head look
     const hip = P.hip || [0, 0, 0]; R.hips.position.set(hip0.x + hip[0] * kL / RD.sc, hip0.y + hip[1] * kL / RD.sc, hip0.z + hip[2] * kL / RD.sc);
-    R.chest.rotation.set(chest0.x + (P.lean || 0) * 0.85, (P.twist || 0) * 0.5, -(P.side || 0) * 0.6); R.head.rotation.set((P.pitch || 0) * 0.8 - (P.lean || 0) * 0.3, (P.yaw || 0) - (P.twist || 0) * 0.5, 0);
+    if (ldr) R.chest.rotation.set(chest0.x + (P.lean || 0) * 0.35, (P.twist || 0) * 0.12, -(P.side || 0) * 0.15);   /* s119: the fox rig has no separate chest, so the whole leader leans / twists: keep it small so they face the fight */
+    else R.chest.rotation.set(chest0.x + (P.lean || 0) * 0.85, (P.twist || 0) * 0.5, -(P.side || 0) * 0.6); R.head.rotation.set((P.pitch || 0) * 0.8 - (P.lean || 0) * 0.3, (P.yaw || 0) - (P.twist || 0) * 0.5, 0);
     g.updateMatrixWorld(true);
     hingeArm.set(1, 0, 0).transformDirection(R.chest.matrixWorld); hingeLeg.set(1, 0, 0).transformDirection(R.hips.matrixWorld);
     // arms: +x arm gets the (mirrored) far-paw target hR, −x arm the near-paw target hL (same rule as the fox)
