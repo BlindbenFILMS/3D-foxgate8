@@ -343,6 +343,10 @@ const GAMES = [
   {s:"v-crane",c:"vehicles",n:"Wrecking Crane",w:"Workshop",a:"Swing the wrecking ball to smash crates and flip cars.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=crane"),1]]},
   {s:"v-balloon",c:"vehicles",n:"Hot Air Balloon",w:"Workshop",a:"Drift with the wind, fire the burner, drop sandbags.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=balloon"),1]]},
   {s:"v-spider",c:"vehicles",n:"Robot Spider",w:"Workshop",a:"Web shots, shockwave pounce, and it climbs the arena wall.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=spider"),1]]},
+  {s:"v-ski",c:"vehicles",n:"Skis",w:"Workshop",a:"Down the Snow Hill: pole push, carve the slalom gates, 360s off the kicker and a timed run.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=ski"),1]]},
+  {s:"v-snowboard",c:"vehicles",n:"Snowboard",w:"Workshop",a:"Carve the Snow Hill: spray walls of snow, 360 grabs, butters and big air off the kicker.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=snowboard"),1]]},
+  {s:"v-sled",c:"vehicles",n:"Sled",w:"Workshop",a:"Wooden toboggan: the fastest way down the Snow Hill. Snowball throws and sled spins.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=sled"),1]]},
+  {s:"v-snowmobile",c:"vehicles",n:"Snowmobile",w:"Workshop",a:"Climbs the Snow Hill: snowball launcher, roosting donuts and a boost that flies off the kicker.",m:["Ride"],l:[["Ride",H("Vehicle Workshop.dc.html?v=snowmobile"),1]]},
 
   // REPO
   
@@ -441,7 +445,9 @@ document.getElementById("main").addEventListener("click", e => {
 const player = document.getElementById("player"), frame = document.getElementById("frame");
 function openPlayer(file, name){
   document.getElementById("pname").textContent = name;
-  frame.src = encodeURI(file);
+  const pick = /[?&]v=([\w-]+)/.exec(file);   // vehicle rides: hand the choice over by hash + storage too (some hosts drop ?query in frames)
+  if (pick) { try { localStorage.setItem("meru.vehicle.pick", pick[1]); localStorage.setItem("meru.vehicle.v1", pick[1]); } catch (e) {} }
+  frame.src = encodeURI(file) + (pick ? "#v=" + pick[1] : "");
   player.hidden = false; document.body.style.overflow = "hidden";
   document.getElementById("pclose").focus();
 }
